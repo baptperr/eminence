@@ -1,0 +1,769 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>First Light Society — Turn Your Platform Into Income</title>
+    <link rel="icon" type="image/png" href="favicon.png">
+    <link rel="apple-touch-icon" href="favicon.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Cormorant+SC:wght@300;400;500;600&family=Cormorant:ital,wght@1,300;1,400&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            /* Warm Night palette — brand-committed */
+            --night:         oklch(7.5%  0.012 55);
+            --night-surface: oklch(10%   0.012 55);
+            --night-card:    oklch(13%   0.012 55);
+            --bone:          oklch(93%   0.018 80);
+            --dawn:          oklch(36%   0.058 222);
+            --dawn-mid:      oklch(44%   0.055 222);
+            --amber:         oklch(65%   0.12  55);
+            --amber-mid:     oklch(72%   0.09  55);
+
+            --t1: var(--bone);
+            --t2: oklch(93% 0.018 80 / 0.58);
+            --t3: oklch(93% 0.018 80 / 0.32);
+            --border-n: oklch(93% 0.018 80 / 0.09);
+            --border-d: oklch(36% 0.058 222 / 0.3);
+            --ease: cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        html { scroll-behavior: smooth; }
+
+        body {
+            background: var(--night);
+            color: var(--t1);
+            font-family: 'DM Sans', system-ui, sans-serif;
+            font-weight: 300;
+            font-size: 1rem;
+            line-height: 1.75;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        h1, h2, h3 {
+            font-family: 'Cormorant Garamond', serif;
+            font-weight: 400;
+            letter-spacing: -0.01em;
+            text-wrap: balance;
+            line-height: 1.1;
+        }
+
+        p { max-width: 68ch; }
+        em { font-style: italic; }
+        strong { font-weight: 500; }
+
+        /* Reveal */
+        .js [data-r] {
+            opacity: 0;
+            transform: translateY(16px);
+            transition: opacity 0.85s var(--ease) var(--d, 0ms),
+                        transform 0.85s var(--ease) var(--d, 0ms);
+        }
+        .js [data-r].on { opacity: 1; transform: none; }
+        @media (prefers-reduced-motion: reduce) {
+            .js [data-r] { opacity: 1; transform: none; transition: none; }
+        }
+
+        /* Button */
+        .btn {
+            display: inline-block;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.72rem;
+            font-weight: 500;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+            text-decoration: none;
+            padding: 1rem 2.5rem;
+            cursor: pointer;
+            border: none;
+            line-height: 1;
+            transition: background 0.2s;
+        }
+        .btn-amber { background: var(--amber); color: var(--night); }
+        .btn-amber:hover { background: var(--amber-mid); }
+        .btn-night { background: var(--night); color: var(--bone); }
+        .btn-night:hover { background: oklch(12% 0.012 55); }
+        .btn-full { width: 100%; text-align: center; padding-block: 1.2rem; }
+
+        /* ── NAV ── */
+        .nav {
+            position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 1.2rem 3rem;
+            background: oklch(7.5% 0.012 55 / 0.9);
+            backdrop-filter: blur(16px);
+            border-bottom: 1px solid var(--border-d);
+        }
+        .nav-logo {
+            display: flex; flex-direction: column; align-items: center;
+            text-decoration: none; line-height: 1;
+        }
+        .logo-top {
+            font-family: 'Cormorant SC', serif;
+            font-size: 0.8rem; font-weight: 500; letter-spacing: 0.22em;
+            color: var(--bone);
+        }
+        .logo-bottom {
+            font-family: 'Cormorant SC', serif;
+            font-size: 0.65rem; font-weight: 500; letter-spacing: 0.28em;
+            color: var(--bone);
+            border-top: 1px solid var(--bone);
+            padding-top: 0.22rem;
+            margin-top: 0.18rem;
+        }
+        .nav-link {
+            font-size: 0.68rem; font-weight: 500; letter-spacing: 0.16em;
+            text-transform: uppercase; color: var(--bone); text-decoration: none;
+            padding: 0.6rem 1.4rem;
+            border: 1px solid var(--border-d);
+            transition: border-color 0.2s, color 0.2s;
+        }
+        .nav-link:hover { border-color: var(--amber); color: var(--amber); }
+
+        /* ── HERO ── */
+        .hero {
+            min-height: 100svh;
+            display: flex; flex-direction: column;
+            justify-content: center; align-items: center; text-align: center;
+            padding: 9rem 2rem 6rem;
+            position: relative;
+        }
+        .hero::before {
+            content: '';
+            position: absolute; inset: 0; pointer-events: none;
+            background: radial-gradient(ellipse 70% 50% at 50% 70%,
+                oklch(36% 0.058 222 / 0.12) 0%, transparent 60%);
+        }
+        .hero-hl {
+            font-size: clamp(3rem, 7.5vw, 6rem);
+            font-weight: 300; letter-spacing: -0.02em; line-height: 1.08;
+            margin-bottom: 2.25rem;
+        }
+        .hero-hl .dim { color: var(--t2); }
+        .hero-sub {
+            font-size: clamp(0.95rem, 1.8vw, 1.1rem);
+            color: var(--t2); max-width: 46ch; margin: 0 auto 3rem; line-height: 1.85;
+        }
+
+        /* ── AGITATION ── */
+        .agitation {
+            padding: 8rem 2rem; max-width: 820px; margin: 0 auto; text-align: center;
+        }
+        .ag-body {
+            font-size: 1.05rem; color: var(--t2); line-height: 1.9;
+            max-width: 60ch; margin: 0 auto 1.75rem;
+        }
+        .pullquote {
+            font-family: 'Cormorant', serif;
+            font-style: italic; font-weight: 300;
+            font-size: clamp(1.5rem, 3vw, 2.1rem);
+            color: var(--bone); line-height: 1.45;
+            max-width: 50ch; margin: 4rem auto; text-wrap: balance;
+        }
+
+        /* ── PAIN POINTS ── */
+        .pain { padding: 7rem 2rem; background: var(--night-surface); }
+        .pain-inner { max-width: 1100px; margin: 0 auto; }
+        .pain h2 {
+            font-size: clamp(2rem, 4vw, 3.25rem); font-weight: 300;
+            margin-bottom: 4rem; max-width: 22ch;
+        }
+        .pain-list { border-top: 1px solid var(--border-d); }
+        .pain-item {
+            display: grid; grid-template-columns: 1fr 1.6fr;
+            gap: 2rem 4rem; padding: 2.5rem 0;
+            border-bottom: 1px solid var(--border-n);
+            align-items: start;
+        }
+        .pain-name {
+            font-family: 'Cormorant SC', serif;
+            font-size: 1.6rem; font-weight: 400; color: var(--bone);
+            letter-spacing: -0.01em; padding-top: 0.1em;
+        }
+        .pain-desc { font-size: 0.9rem; color: var(--t2); line-height: 1.8; max-width: 55ch; }
+        .pain-close {
+            margin-top: 3.5rem; font-size: 1rem; color: var(--t2);
+            line-height: 1.9; max-width: 62ch;
+        }
+
+        /* ── MECHANISM ── */
+        .mechanism { padding: 8rem 2rem; max-width: 1100px; margin: 0 auto; }
+        .mech-kicker {
+            font-size: 0.68rem; font-weight: 500; letter-spacing: 0.22em;
+            text-transform: uppercase; color: var(--dawn-mid);
+            display: block; margin-bottom: 1.5rem;
+        }
+        .mechanism h2 {
+            font-size: clamp(2rem, 4vw, 3.25rem); font-weight: 300;
+            margin-bottom: 1rem; max-width: 22ch;
+        }
+        .mech-sub {
+            font-size: 0.95rem; color: var(--t2); line-height: 1.8;
+            max-width: 50ch; margin-bottom: 5rem;
+        }
+        .phases { display: grid; grid-template-columns: repeat(3, 1fr); }
+        .phase { padding: 2.5rem 2.5rem 2.5rem 0; border-top: 1px solid var(--border-d); }
+        .phase + .phase { padding-left: 2.5rem; border-left: 1px solid var(--border-n); }
+        .phase-num {
+            font-family: 'Cormorant SC', serif; font-size: 4rem; font-weight: 300;
+            color: oklch(36% 0.058 222 / 0.25);
+            line-height: 1; margin-bottom: 1.5rem; display: block;
+        }
+        .phase h3 { font-size: 1.25rem; font-weight: 500; margin-bottom: 0.75rem; }
+        .phase-desc { font-size: 0.88rem; color: var(--t2); line-height: 1.8; }
+
+        /* ── TIERS ── */
+        .tiers { padding: 8rem 2rem; background: var(--night-surface); }
+        .tiers-inner { max-width: 1100px; margin: 0 auto; }
+        .tiers-hd { text-align: center; margin-bottom: 5rem; }
+        .tiers-hd h2 { font-size: clamp(2rem, 4vw, 3.25rem); font-weight: 300; margin-bottom: 0.75rem; }
+        .tiers-hd p { font-size: 0.95rem; color: var(--t2); max-width: 46ch; margin: 0 auto; }
+        .tier-grid {
+            display: grid; grid-template-columns: repeat(3, 1fr);
+            gap: 1px; background: var(--border-d);
+        }
+        .tier { background: var(--night); padding: 2.5rem; display: flex; flex-direction: column; }
+        .tier-feat { background: var(--night-card); position: relative; }
+        .tier-feat::before {
+            content: ''; position: absolute; top: 0; left: 0; right: 0;
+            height: 2px; background: var(--amber);
+        }
+        .tier-tag {
+            font-size: 0.65rem; font-weight: 500; letter-spacing: 0.18em;
+            text-transform: uppercase; color: var(--dawn-mid);
+            display: block; margin-bottom: 1.25rem;
+        }
+        .tier-name {
+            font-family: 'Cormorant SC', serif; font-size: 2.8rem; font-weight: 400;
+            color: var(--bone); letter-spacing: -0.02em; line-height: 1;
+            display: block; margin-bottom: 0.4rem;
+        }
+        .tier-price { font-size: 0.82rem; color: var(--t3); margin-bottom: 2rem; display: block; }
+        .tier-promise {
+            font-family: 'Cormorant', serif; font-style: italic; font-size: 1.05rem;
+            color: var(--bone); line-height: 1.55;
+            margin-bottom: 1.75rem; padding-bottom: 1.75rem;
+            border-bottom: 1px solid var(--border-n);
+        }
+        .tier-for {
+            font-size: 0.65rem; font-weight: 500; letter-spacing: 0.18em;
+            text-transform: uppercase; color: var(--t3); display: block; margin-bottom: 0.4rem;
+        }
+        .tier-audience { font-size: 0.88rem; color: var(--t2); line-height: 1.65; margin-bottom: 2rem; }
+        .tier-feats { list-style: none; margin-bottom: auto; padding-bottom: 2rem; }
+        .tier-feats li {
+            font-size: 0.83rem; color: var(--t2); padding: 0.55rem 0;
+            border-bottom: 1px solid oklch(93% 0.018 80 / 0.05);
+            display: flex; gap: 0.75rem; align-items: flex-start;
+        }
+        .tier-feats li::before {
+            content: '—'; color: var(--dawn-mid); flex-shrink: 0;
+            font-size: 0.7rem; margin-top: 0.2em;
+        }
+        .tier-guar {
+            font-size: 0.8rem; color: var(--amber); font-style: italic;
+            padding: 1rem 1.25rem;
+            border: 1px solid oklch(65% 0.12 55 / 0.3);
+            line-height: 1.65; margin-bottom: 1.5rem;
+        }
+        .tier-best { font-size: 0.78rem; color: var(--t3); }
+        .tier-best strong { color: var(--t2); font-weight: 400; }
+        .tier-dfy {
+            font-size: 0.58rem; font-weight: 500; letter-spacing: 0.12em;
+            text-transform: uppercase; color: var(--amber);
+            background: oklch(65% 0.12 55 / 0.12);
+            padding: 0.15em 0.4em; margin-left: 0.4rem; vertical-align: middle;
+        }
+        .tiers-cta { text-align: center; margin-top: 4rem; }
+
+        /* ── DIFFERENT ── */
+        .diff { padding: 8rem 2rem; max-width: 1100px; margin: 0 auto; }
+        .diff h2 {
+            font-size: clamp(2rem, 4vw, 3.25rem); font-weight: 300;
+            margin-bottom: 4.5rem; max-width: 18ch;
+        }
+        .diff-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 3.5rem 7rem; }
+        .diff-item h3 { font-size: 1.3rem; font-weight: 500; margin-bottom: 0.6rem; }
+        .diff-item p { font-size: 0.88rem; color: var(--t2); line-height: 1.8; }
+
+        /* ── GUARANTEE ── */
+        .guar { background: var(--dawn); padding: 8rem 2rem; }
+        .guar-inner { max-width: 1050px; margin: 0 auto; text-align: center; }
+        .guar-kicker {
+            font-size: 0.68rem; font-weight: 500; letter-spacing: 0.22em;
+            text-transform: uppercase; color: oklch(93% 0.018 80 / 0.45);
+            display: block; margin-bottom: 1.5rem;
+        }
+        .guar h2 {
+            font-size: clamp(1.8rem, 4vw, 3rem); font-weight: 300;
+            color: var(--bone); margin-bottom: 3.5rem; text-wrap: balance;
+        }
+        .guar-grid {
+            display: grid; grid-template-columns: repeat(3, 1fr);
+            gap: 2px; background: oklch(7.5% 0.012 55 / 0.3);
+            text-align: left;
+        }
+        .guar-item { background: oklch(7.5% 0.012 55 / 0.28); padding: 2.25rem; }
+        .guar-item h4 {
+            font-family: 'Cormorant SC', serif; font-size: 1.5rem; font-weight: 400;
+            color: var(--bone); margin-bottom: 0.75rem;
+        }
+        .guar-item p { font-size: 0.85rem; color: oklch(93% 0.018 80 / 0.72); line-height: 1.75; }
+
+        /* ── FOUNDING ── */
+        .found {
+            padding: 6rem 2rem; text-align: center;
+            border-top: 1px solid var(--border-d);
+            border-bottom: 1px solid var(--border-d);
+        }
+        .found-inner { max-width: 680px; margin: 0 auto; }
+        .found h2 { font-size: clamp(1.7rem, 3.5vw, 2.8rem); font-weight: 300; margin-bottom: 1.25rem; }
+        .found p { font-size: 0.95rem; color: var(--t2); line-height: 1.85; margin: 0 auto 3rem; }
+        .spots { display: flex; gap: 5rem; justify-content: center; }
+        .spot-n {
+            font-family: 'Cormorant SC', serif; font-size: 3.5rem; font-weight: 300;
+            color: var(--amber); line-height: 1; display: block; margin-bottom: 0.4rem;
+        }
+        .spot-l { font-size: 0.65rem; font-weight: 500; letter-spacing: 0.18em; text-transform: uppercase; color: var(--t3); }
+
+        /* ── APPLY ── */
+        .apply { background: var(--bone); padding: 8rem 2rem; }
+        .apply-inner { max-width: 680px; margin: 0 auto; }
+        .apply-kicker {
+            font-size: 0.68rem; font-weight: 500; letter-spacing: 0.22em;
+            text-transform: uppercase; color: oklch(36% 0.058 222 / 0.6);
+            display: block; margin-bottom: 1.5rem;
+        }
+        .apply h2 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: clamp(2.2rem, 4.5vw, 3.5rem); font-weight: 300;
+            color: var(--night); letter-spacing: -0.015em; margin-bottom: 1rem;
+        }
+        .apply-sub {
+            font-size: 0.95rem; color: oklch(7.5% 0.012 55 / 0.55);
+            line-height: 1.85; margin-bottom: 3.5rem; max-width: 55ch;
+        }
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0 2.5rem; }
+        .form-g { margin-bottom: 2.5rem; }
+        .form-g label {
+            display: block; font-size: 0.65rem; font-weight: 500;
+            letter-spacing: 0.16em; text-transform: uppercase;
+            color: oklch(7.5% 0.012 55 / 0.4); margin-bottom: 0.6rem;
+        }
+        .form-g input,
+        .form-g select,
+        .form-g textarea {
+            width: 100%; background: transparent; border: none;
+            border-bottom: 1px solid oklch(7.5% 0.012 55 / 0.18);
+            color: var(--night); font-family: 'DM Sans', sans-serif;
+            font-size: 1rem; font-weight: 300;
+            padding: 0.5rem 0 0.85rem; outline: none;
+            border-radius: 0; -webkit-appearance: none; appearance: none;
+            transition: border-color 0.2s;
+        }
+        .form-g input::placeholder,
+        .form-g textarea::placeholder { color: oklch(7.5% 0.012 55 / 0.22); }
+        .form-g input:focus,
+        .form-g select:focus,
+        .form-g textarea:focus { border-bottom-color: var(--dawn); }
+        .form-g select {
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%233d5a6c' stroke-width='1.2' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+            background-repeat: no-repeat; background-position: right 0.25rem center; cursor: pointer;
+        }
+        .form-g textarea { resize: vertical; min-height: 110px; line-height: 1.7; padding-block: 0.75rem; }
+
+        .tier-rg {
+            display: grid; grid-template-columns: repeat(3, 1fr);
+            gap: 1px; background: oklch(7.5% 0.012 55 / 0.12);
+            border: 1px solid oklch(7.5% 0.012 55 / 0.12);
+        }
+        .tier-r { background: var(--bone); cursor: pointer; position: relative; }
+        .tier-r input[type="radio"] { position: absolute; opacity: 0; width: 0; height: 0; }
+        .tier-rl { display: block; padding: 1.2rem 1rem; text-align: center; transition: background 0.15s; }
+        .tier-rn {
+            font-family: 'Cormorant SC', serif; font-size: 1.4rem; font-weight: 400;
+            color: oklch(7.5% 0.012 55 / 0.28); display: block; line-height: 1.1; transition: color 0.15s;
+        }
+        .tier-rm {
+            font-size: 0.65rem; color: oklch(7.5% 0.012 55 / 0.28);
+            display: block; margin-top: 0.3rem; transition: color 0.15s;
+        }
+        .tier-r input:checked ~ .tier-rl { background: oklch(36% 0.058 222 / 0.06); }
+        .tier-r input:checked ~ .tier-rl .tier-rn { color: var(--night); }
+        .tier-r input:checked ~ .tier-rl .tier-rm { color: var(--dawn); }
+
+        .form-note { font-size: 0.78rem; color: oklch(7.5% 0.012 55 / 0.35); margin-top: 1rem; text-align: center; }
+
+        /* ── FOOTER ── */
+        footer {
+            padding: 2.5rem 3rem; display: flex;
+            align-items: center; justify-content: space-between;
+            border-top: 1px solid var(--border-n);
+        }
+        .foot-logo {
+            display: flex; flex-direction: column; align-items: center;
+            text-decoration: none; line-height: 1;
+        }
+        .foot-logo .logo-top { font-size: 0.68rem; }
+        .foot-logo .logo-bottom { font-size: 0.54rem; padding-top: 0.2rem; margin-top: 0.15rem; }
+        .foot-copy { font-size: 0.72rem; color: var(--t3); }
+
+        /* ── RESPONSIVE ── */
+        @media (max-width: 900px) {
+            .nav { padding: 1.2rem 1.5rem; }
+            .phases { grid-template-columns: 1fr; }
+            .phase + .phase { padding-left: 0; border-left: none; border-top: 1px solid var(--border-d); }
+            .tier-grid, .guar-grid { grid-template-columns: 1fr; }
+            .diff-grid { grid-template-columns: 1fr; gap: 2.5rem; }
+            .pain-item { grid-template-columns: 1fr; gap: 0.5rem; }
+            .tier-rg { grid-template-columns: 1fr; }
+        }
+        @media (max-width: 640px) {
+            .hero { padding: 7rem 1.5rem 4rem; }
+            .agitation { padding: 5rem 1.5rem; }
+            .pain, .mechanism, .tiers, .diff, .guar, .found { padding: 5rem 1.5rem; }
+            .apply { padding: 5rem 1.5rem; }
+            .form-row { grid-template-columns: 1fr; }
+            .spots { gap: 3rem; }
+            footer { flex-direction: column; gap: 0.5rem; text-align: center; padding: 2rem 1.5rem; }
+        }
+    </style>
+</head>
+<body>
+
+<nav class="nav">
+    <a href="#" class="nav-logo">
+        <span class="logo-top">FIRST LIGHT</span>
+        <span class="logo-bottom">society</span>
+    </a>
+    <a href="#apply" class="nav-link">Apply</a>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+    <h1 class="hero-hl" data-r>
+        Your talent is elite.<br>
+        <span class="dim">Your income isn't.</span>
+    </h1>
+    <p class="hero-sub" data-r style="--d:120ms">
+        Let's fix the half nobody trained you for. We turn combat athletes into earning enterprises: building your brand, growing your audience, and securing the deals.
+    </p>
+    <a href="#apply" class="btn btn-amber" data-r style="--d:240ms">Apply Now</a>
+</section>
+
+<!-- AGITATION -->
+<section class="agitation">
+    <p class="ag-body" data-r>You dedicate your life to training, to competing, to pushing your body past where most people quit. You bleed, sweat, and sacrifice for the love of the fight and the dream of making it.</p>
+    <p class="ag-body" data-r>But be honest: the money never matches the dedication. You watch peers, sometimes <em>less skilled than you</em>, cash in on sponsorships, fight purses, and coaching gigs that pass you by.</p>
+    <blockquote class="pullquote" data-r>
+        You're a warrior in the cage. The business of your career is a different fight, and right now you're losing it.
+    </blockquote>
+    <p class="ag-body" data-r>You need a system, not more advice. That's what this is.</p>
+</section>
+
+<!-- PAIN POINTS -->
+<section class="pain">
+    <div class="pain-inner">
+        <h2 data-r>Why you're stuck.</h2>
+        <div class="pain-list">
+            <div class="pain-item" data-r>
+                <span class="pain-name">The "Post More" Fallacy</span>
+                <p class="pain-desc">Random posting is noise, not income. Without a system behind it, more content is just more work with no return.</p>
+            </div>
+            <div class="pain-item" data-r style="--d:60ms">
+                <span class="pain-name">Untapped Market Potential</span>
+                <p class="pain-desc">You have a story. You've never been positioned to sell it. Your authentic angle is worth more than you know.</p>
+            </div>
+            <div class="pain-item" data-r style="--d:120ms">
+                <span class="pain-name">Contract Blind Spots</span>
+                <p class="pain-desc">Dense documents you sign without leverage. Every contract you don't negotiate is money left on the table.</p>
+            </div>
+            <div class="pain-item" data-r style="--d:180ms">
+                <span class="pain-name">Missed Revenue Streams</span>
+                <p class="pain-desc">Your knowledge is worth money you're not collecting. Coaching, seminars, instructionals, merch: the stack sits idle.</p>
+            </div>
+            <div class="pain-item" data-r style="--d:240ms">
+                <span class="pain-name">The Time Crunch</span>
+                <p class="pain-desc">You train. You don't have 40 hours a week to also be a marketer, a content creator, and a sponsorship negotiator.</p>
+            </div>
+        </div>
+        <p class="pain-close" data-r>You're not failing because you're not good enough. You're failing because you're trying to be an elite athlete <em>and</em> a one-person media company at the same time, with no infrastructure.</p>
+    </div>
+</section>
+
+<!-- MECHANISM -->
+<section class="mechanism">
+    <span class="mech-kicker" data-r>The system</span>
+    <h2 data-r>The Fame-to-Fortune Formula™</h2>
+    <p class="mech-sub" data-r>A proprietary three-phase process that turns athlete popularity into income. In sequence. No shortcuts.</p>
+    <div class="phases">
+        <div class="phase" data-r>
+            <span class="phase-num">I</span>
+            <h3>Brand Amplification</h3>
+            <p class="phase-desc">Uncover the story and angle that make you marketable. Define who you are off the mats in a way that commands attention and builds a following.</p>
+        </div>
+        <div class="phase" data-r style="--d:80ms">
+            <span class="phase-num">II</span>
+            <h3>Visibility Acceleration</h3>
+            <p class="phase-desc">Turn your brand into consistent, high-impact content and reach. Build an audience that grows whether you're training, competing, or resting.</p>
+        </div>
+        <div class="phase" data-r style="--d:160ms">
+            <span class="phase-num">III</span>
+            <h3>Monetization Engine</h3>
+            <p class="phase-desc">Convert attention into sponsorships, contracts, coaching, seminars, and merch. Make the platform earn like the business it is.</p>
+        </div>
+    </div>
+</section>
+
+<!-- TIERS -->
+<section class="tiers">
+    <div class="tiers-inner">
+        <div class="tiers-hd">
+            <h2 data-r>Enter at your stage.<br>Climb as you earn.</h2>
+            <p data-r>The same formula at three depths. DIY, done-with-you, or fully done-for-you.</p>
+        </div>
+        <div class="tier-grid">
+            <!-- SPARK -->
+            <div class="tier" data-r>
+                <span class="tier-tag">Spark · DIY</span>
+                <span class="tier-name">Spark</span>
+                <span class="tier-price">$29/mo · cancel anytime</span>
+                <p class="tier-promise">Turn the sport you already train into a side income, at your own schedule and pace.</p>
+                <span class="tier-for">For</span>
+                <p class="tier-audience">Competitive hobbyists who want their first side income from the sport without going full-time.</p>
+                <ul class="tier-feats">
+                    <li>Personal brand definition <span class="tier-dfy">DFY</span></li>
+                    <li>Competitive positioning <span class="tier-dfy">DFY</span></li>
+                    <li>Content strategy playbook</li>
+                    <li>Private lesson marketing frameworks</li>
+                    <li>Seminar promotion templates</li>
+                    <li>Online coaching setup guide</li>
+                    <li>Sponsor identification toolkit</li>
+                </ul>
+                <p class="tier-best"><strong>Best for:</strong> "I want martial arts to pay for itself."</p>
+            </div>
+            <!-- RISE -->
+            <div class="tier tier-feat" data-r style="--d:80ms">
+                <span class="tier-tag">Rise · Done-With-You</span>
+                <span class="tier-name">Rise</span>
+                <span class="tier-price">$397/mo · 3-month minimum</span>
+                <p class="tier-promise">Build real income around your sport, with guidance and accountability at every step.</p>
+                <span class="tier-for">For</span>
+                <p class="tier-audience">Aspiring fighters ready to build real income around their sport, who need guidance and accountability to execute.</p>
+                <ul class="tier-feats">
+                    <li>Everything in Spark, done-with-you</li>
+                    <li>Media kit <span class="tier-dfy">DFY</span></li>
+                    <li>Video editing &amp; copywriting</li>
+                    <li>Sponsor outreach, co-executed</li>
+                    <li>Fight booking support</li>
+                    <li>Instructional &amp; merch setup</li>
+                    <li>Monthly strategy calls</li>
+                </ul>
+                <p class="tier-guar">Your first $1,000 month outside fighting within 90 days of active compliance, or we work free until you hit it.</p>
+                <p class="tier-best"><strong>Best for:</strong> "I want to live off this sport."</p>
+            </div>
+            <!-- REIGN -->
+            <div class="tier" data-r style="--d:160ms">
+                <span class="tier-tag">Reign · Done-For-You</span>
+                <span class="tier-name">Reign</span>
+                <span class="tier-price">$1,497/mo · 6-month minimum</span>
+                <p class="tier-promise">We run everything off the mats so your platform performs the way your record deserves.</p>
+                <span class="tier-for">For</span>
+                <p class="tier-audience">Full-time or near-full-time competitors whose platform and income should be performing better than they are.</p>
+                <ul class="tier-feats">
+                    <li>Everything in Rise, fully done-for-you</li>
+                    <li>Content, posting &amp; community management</li>
+                    <li>Sponsorship pipeline &amp; contract negotiation</li>
+                    <li>Fight bookings &amp; press outreach</li>
+                    <li>Podcast placements &amp; media appearances</li>
+                    <li>Commentary / analyst positioning</li>
+                    <li>Visa &amp; logistics advisory</li>
+                </ul>
+                <p class="tier-guar">Defined monthly deliverables: content calendar, sponsor outreach contacts, performance report. Missed deliverables are prorated. Exit clause after month 3 with 30 days notice.</p>
+                <p class="tier-best"><strong>Best for:</strong> "I'm already pro. Make my platform earn like one."</p>
+            </div>
+        </div>
+        <div class="tiers-cta" data-r>
+            <a href="#apply" class="btn btn-amber">Apply for Your Level</a>
+        </div>
+    </div>
+</section>
+
+<!-- DIFFERENTIATION -->
+<section class="diff">
+    <h2 data-r>What separates<br>execution from advice.</h2>
+    <div class="diff-grid">
+        <div class="diff-item" data-r>
+            <h3>Execution, not advice</h3>
+            <p>At Rise and Reign, we do the work. Systems built, content created, sponsors contacted, contracts negotiated. We're a team you operate with, not a course you buy once.</p>
+        </div>
+        <div class="diff-item" data-r style="--d:80ms">
+            <h3>Built for combat sports</h3>
+            <p>We know the culture, the market, and what actually sells. No generic marketing playbooks. Everything is built for fighters, by people who understand fighters.</p>
+        </div>
+        <div class="diff-item" data-r>
+            <h3>Proactive monetization</h3>
+            <p>We hunt sponsors and negotiate contracts. We don't wait for opportunities to come to you; we create them. Your pipeline grows while you train.</p>
+        </div>
+        <div class="diff-item" data-r style="--d:80ms">
+            <h3>Aligned guarantees</h3>
+            <p>At every paid tier, we only win when you do. Bounded, honest guarantees with no empty promises and no fine print escape hatches.</p>
+        </div>
+        <div class="diff-item" data-r>
+            <h3>A path, not a one-shot</h3>
+            <p>Start at Spark. Ascend to Rise when the sport starts paying. Move to Reign when your time is worth more than the work.</p>
+        </div>
+    </div>
+</section>
+
+<!-- GUARANTEE -->
+<section class="guar">
+    <div class="guar-inner">
+        <span class="guar-kicker" data-r>The deal</span>
+        <h2 data-r>Your success is the deal.<br>So we put our pay behind it.</h2>
+        <div class="guar-grid">
+            <div class="guar-item" data-r>
+                <h4>Spark</h4>
+                <p>No guarantee. Outcomes depend entirely on your execution. The frameworks are the product; what you do with them is on you.</p>
+            </div>
+            <div class="guar-item" data-r style="--d:80ms">
+                <h4>Rise</h4>
+                <p>Your first $1,000 month outside fighting within 90 days of active compliance: weekly check-ins completed, minimum content output met, tasks actioned. Guarantee is void if compliance lapses.</p>
+            </div>
+            <div class="guar-item" data-r style="--d:160ms">
+                <h4>Reign</h4>
+                <p>Defined monthly deliverables: content calendar delivered, minimum sponsor outreach contacts made, performance report issued. Missed deliverables are prorated from your fee.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- FOUNDING -->
+<section class="found">
+    <div class="found-inner">
+        <h2 data-r>Founding Athlete Pricing</h2>
+        <p data-r>Your earning window is finite. Injuries and plateaus close it. The first athletes through the door get 20% off the first 6 months and a free 1-hour brand audit within 48 hours.</p>
+        <div class="spots" data-r>
+            <div>
+                <span class="spot-n">10</span>
+                <span class="spot-l">Reign spots</span>
+            </div>
+            <div>
+                <span class="spot-n">20</span>
+                <span class="spot-l">Rise spots</span>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- APPLY -->
+<section class="apply" id="apply">
+    <div class="apply-inner">
+        <span class="apply-kicker">Apply</span>
+        <h2>Tell us<br>where you are.</h2>
+        <p class="apply-sub">We take on a limited number of athletes each quarter. Fill this out and we'll map your levers, identify your highest-leverage move for the next 30 days, and show you which level fits. No pitch if it's not a fit.</p>
+        <form>
+            <div class="form-row">
+                <div class="form-g">
+                    <label for="f-name">Your Name</label>
+                    <input id="f-name" type="text" placeholder="First and last name" autocomplete="name">
+                </div>
+                <div class="form-g">
+                    <label for="f-email">Email Address</label>
+                    <input id="f-email" type="email" placeholder="you@example.com" autocomplete="email">
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-g">
+                    <label for="f-ig">Instagram Handle</label>
+                    <input id="f-ig" type="text" placeholder="@handle">
+                </div>
+                <div class="form-g">
+                    <label for="f-other">TikTok / YouTube (optional)</label>
+                    <input id="f-other" type="text" placeholder="@handle or channel name">
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-g">
+                    <label for="f-sport">Your Sport</label>
+                    <select id="f-sport">
+                        <option value="" disabled selected>Select your discipline</option>
+                        <option>MMA</option>
+                        <option>Boxing</option>
+                        <option>Muay Thai / Kickboxing</option>
+                        <option>Brazilian Jiu-Jitsu</option>
+                        <option>Wrestling</option>
+                        <option>Judo</option>
+                        <option>Grappling</option>
+                        <option>Other</option>
+                    </select>
+                </div>
+                <div class="form-g">
+                    <label for="f-income">Monthly Income from Sport</label>
+                    <select id="f-income">
+                        <option value="" disabled selected>Select a range</option>
+                        <option>$0, nothing coming in</option>
+                        <option>Under $500/mo</option>
+                        <option>$500 – $2,000/mo</option>
+                        <option>$2,000 – $5,000/mo</option>
+                        <option>$5,000+/mo</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-g">
+                <label>Which level are you aiming for?</label>
+                <div class="tier-rg" role="radiogroup" aria-label="Program tier">
+                    <label class="tier-r">
+                        <input type="radio" name="tier" value="spark">
+                        <span class="tier-rl">
+                            <span class="tier-rn">Spark</span>
+                            <span class="tier-rm">Side income · $29/mo</span>
+                        </span>
+                    </label>
+                    <label class="tier-r">
+                        <input type="radio" name="tier" value="rise">
+                        <span class="tier-rl">
+                            <span class="tier-rn">Rise</span>
+                            <span class="tier-rm">Full-time · $397/mo</span>
+                        </span>
+                    </label>
+                    <label class="tier-r">
+                        <input type="radio" name="tier" value="reign">
+                        <span class="tier-rl">
+                            <span class="tier-rn">Reign</span>
+                            <span class="tier-rm">Scale · $1,497/mo</span>
+                        </span>
+                    </label>
+                </div>
+            </div>
+            <div class="form-g">
+                <label for="f-obs">Your Biggest Obstacle Right Now</label>
+                <textarea id="f-obs" placeholder="Be specific. This is what we'll map in your diagnostic."></textarea>
+            </div>
+            <button type="submit" class="btn btn-night btn-full">Submit My Application</button>
+            <p class="form-note">We review every application and respond within 48 hours.</p>
+        </form>
+    </div>
+</section>
+
+<footer>
+    <a href="#" class="foot-logo">
+        <span class="logo-top">FIRST LIGHT</span>
+        <span class="logo-bottom">society</span>
+    </a>
+    <p class="foot-copy">© 2026 First Light Society. All rights reserved.</p>
+</footer>
+
+<script>
+    document.documentElement.classList.add('js');
+    const io = new IntersectionObserver((entries) => {
+        entries.forEach(e => {
+            if (e.isIntersecting) { e.target.classList.add('on'); io.unobserve(e.target); }
+        });
+    }, { threshold: 0.08, rootMargin: '0px 0px -32px 0px' });
+    document.querySelectorAll('[data-r]').forEach(el => io.observe(el));
+</script>
+</body>
+</html>
