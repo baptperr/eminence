@@ -97,22 +97,10 @@
             border-bottom: 1px solid var(--border-d);
         }
         .nav-logo {
-            display: flex; flex-direction: column; align-items: center;
-            text-decoration: none; line-height: 1;
+            display: inline-flex; text-decoration: none;
+            height: 44px; overflow: hidden; align-items: center;
         }
-        .logo-top {
-            font-family: 'Cormorant SC', serif;
-            font-size: 0.8rem; font-weight: 500; letter-spacing: 0.22em;
-            color: var(--bone);
-        }
-        .logo-bottom {
-            font-family: 'Cormorant SC', serif;
-            font-size: 0.65rem; font-weight: 500; letter-spacing: 0.28em;
-            color: var(--bone);
-            border-top: 1px solid var(--bone);
-            padding-top: 0.22rem;
-            margin-top: 0.18rem;
-        }
+        .nav-logo-img { height: 96px; width: auto; }
         .nav-link {
             font-size: 0.68rem; font-weight: 500; letter-spacing: 0.16em;
             text-transform: uppercase; color: var(--bone); text-decoration: none;
@@ -435,8 +423,7 @@
 
 <nav class="nav">
     <a href="#" class="nav-logo">
-        <span class="logo-top">FIRST LIGHT</span>
-        <span class="logo-bottom">society</span>
+        <img src="logo.png" alt="First Light Society" class="nav-logo-img">
     </a>
     <a href="#apply" class="nav-link">Apply</a>
 </nav>
