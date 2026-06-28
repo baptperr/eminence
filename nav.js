@@ -46,7 +46,7 @@
                         frag.appendChild(document.createTextNode(chunk));
                     } else if (chunk) {
                         var wrap = document.createElement('span');
-                        wrap.className = 'split-wrap';
+                        wrap.className = isAccent ? 'split-wrap split-wrap-accent' : 'split-wrap';
                         var inner = document.createElement('span');
                         inner.className = isAccent ? 'split-word split-accent' : 'split-word';
                         inner.style.setProperty('--wi', isAccent ? 999 : wordIndex++);
@@ -57,10 +57,10 @@
                 });
                 textNode.parentNode.replaceChild(frag, textNode);
             });
-            // Push accent words to after all normal words
+            // Push accent words to after all normal words, with an extra 3-step pause (~225ms gap)
             var total = wordIndex;
             el.querySelectorAll('.split-accent').forEach(function (w, i) {
-                w.style.setProperty('--wi', total + i);
+                w.style.setProperty('--wi', total + 3 + i);
             });
         });
         requestAnimationFrame(function () {
