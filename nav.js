@@ -32,13 +32,30 @@
 
         // ── Hero word-split reveal (load) ──
         document.querySelectorAll('.hero-hl').forEach(function (el) {
-            var words = el.innerHTML.split(/(\s+)/);
             var wordIndex = 0;
-            el.innerHTML = words.map(function (chunk) {
-                if (/^\s+$/.test(chunk)) return chunk;
-                var idx = wordIndex++;
-                return '<span class="split-wrap"><span class="split-word" style="--wi:' + idx + '">' + chunk + '</span></span>';
-            }).join('');
+            var walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT, null, false);
+            var textNodes = [];
+            var n;
+            while ((n = walker.nextNode())) { if (n.textContent.trim()) textNodes.push(n); }
+            textNodes.forEach(function (textNode) {
+                var chunks = textNode.textContent.split(/(\s+)/);
+                var frag = document.createDocumentFragment();
+                chunks.forEach(function (chunk) {
+                    if (/^\s+$/.test(chunk)) {
+                        frag.appendChild(document.createTextNode(chunk));
+                    } else if (chunk) {
+                        var wrap = document.createElement('span');
+                        wrap.className = 'split-wrap';
+                        var inner = document.createElement('span');
+                        inner.className = 'split-word';
+                        inner.style.setProperty('--wi', wordIndex++);
+                        inner.textContent = chunk;
+                        wrap.appendChild(inner);
+                        frag.appendChild(wrap);
+                    }
+                });
+                textNode.parentNode.replaceChild(frag, textNode);
+            });
         });
         requestAnimationFrame(function () {
             requestAnimationFrame(function () {
