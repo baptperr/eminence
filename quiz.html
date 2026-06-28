@@ -8,7 +8,7 @@
     <link rel="apple-touch-icon" href="favicon.png">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Red+Hat+Display:ital,wght@0,800;1,800&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Red+Hat+Display:wght@800&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
     <style>
         body { min-height: 100svh; display: flex; flex-direction: column; }
@@ -31,8 +31,10 @@
         }
         .progress-fill {
             position: absolute; left: 0; top: 0; bottom: 0;
-            background: var(--amber);
-            transition: width 0.5s var(--ease);
+            width: 100%; background: var(--amber);
+            transform-origin: left;
+            transform: scaleX(0);
+            transition: transform 0.5s var(--ease);
         }
         .progress-label {
             font-size: 0.65rem; font-weight: 500; letter-spacing: 0.18em;
@@ -59,7 +61,8 @@
         .q-text {
             font-family: 'Red Hat Display', sans-serif;
             font-size: clamp(1.6rem, 3.5vw, 2.4rem);
-            font-weight: 300; line-height: 1.2;
+            font-weight: 800; line-height: 1.2;
+            letter-spacing: 0.01em;
             margin-bottom: 2.5rem; text-wrap: balance;
         }
 
@@ -98,8 +101,8 @@
         .result-tier {
             font-family: 'Red Hat Display', sans-serif;
             font-size: clamp(3rem, 7vw, 5rem);
-            font-weight: 400; color: var(--bone);
-            letter-spacing: -0.02em; line-height: 1;
+            font-weight: 800; color: var(--bone);
+            letter-spacing: 0.02em; line-height: 1;
             display: block; margin-bottom: 1.75rem;
         }
         .result-para {
@@ -131,7 +134,6 @@
     </div>
     <nav class="drawer-nav">
         <a href="index.html" class="drawer-link" data-page="index.html">Home</a>
-        <a href="quiz.html" class="drawer-link drawer-link-quiz" data-page="quiz.html">Find Your Fit</a>
         <div class="drawer-sep"></div>
         <span class="drawer-section-label">Offers</span>
         <a href="spark.html" class="drawer-link drawer-tier-link" data-page="spark.html">
@@ -146,6 +148,7 @@
             <span class="drawer-tier-name">Reign</span>
             <span class="drawer-tier-desc">Compound what you've built</span>
         </a>
+        <a href="quiz.html" class="drawer-link drawer-link-quiz" data-page="quiz.html">Find Your Fit</a>
     </nav>
 </aside>
 
@@ -157,7 +160,7 @@
 <main class="quiz-wrap">
     <!-- Progress bar -->
     <div class="quiz-progress" id="quizProgress">
-        <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+        <div class="progress-bar"><div class="progress-fill" id="progressFill" style="transform:scaleX(0)"></div></div>
         <span class="progress-label" id="progressLabel">1 of 5</span>
     </div>
 
@@ -259,7 +262,7 @@
 
     function setProgress(index) {
         const pct = (index / questions.length) * 100;
-        progressFill.style.width = pct + '%';
+        progressFill.style.transform = 'scaleX(' + pct / 100 + ')';
         progressLabel.textContent = (index + 1) + ' of ' + questions.length;
     }
 

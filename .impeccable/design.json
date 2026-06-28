@@ -1,0 +1,159 @@
+{
+  "name": "First Light Society",
+  "description": "The management agency that turns combat athletes into earning enterprises.",
+  "north_star": "The Film Negative",
+  "generated": "2026-06-28",
+  "colors": {
+    "night": "#170327",
+    "night-surface": "#1d1028",
+    "night-card": "#251538",
+    "bone": "#f0ebe3",
+    "dawn": "#3d5a6c",
+    "dawn-mid": "#4e6f82",
+    "amber": "#d4925a",
+    "amber-mid": "#e0a876",
+    "t2": "oklch(93% 0.018 80 / 0.58)",
+    "t3": "oklch(93% 0.018 80 / 0.32)",
+    "border-n": "oklch(93% 0.018 80 / 0.09)",
+    "border-d": "oklch(36% 0.058 222 / 0.3)"
+  },
+  "typography": {
+    "display": {
+      "fontFamily": "Cormorant SC, Georgia, serif",
+      "fontSize": "clamp(2.8rem, 6.5vw, 5.5rem)",
+      "fontWeight": 300,
+      "lineHeight": 1.1,
+      "letterSpacing": "0em"
+    },
+    "headline": {
+      "fontFamily": "Cormorant SC, Georgia, serif",
+      "fontSize": "clamp(1.8rem, 3.5vw, 2.8rem)",
+      "fontWeight": 400,
+      "lineHeight": 1.15,
+      "letterSpacing": "0.02em"
+    },
+    "title": {
+      "fontFamily": "Cormorant, Georgia, serif",
+      "fontStyle": "italic",
+      "fontSize": "clamp(1.35rem, 2.5vw, 1.8rem)",
+      "fontWeight": 300,
+      "lineHeight": 1.5
+    },
+    "body": {
+      "fontFamily": "DM Sans, system-ui, sans-serif",
+      "fontSize": "1rem",
+      "fontWeight": 300,
+      "lineHeight": 1.75,
+      "maxWidth": "65ch"
+    },
+    "label": {
+      "fontFamily": "DM Sans, system-ui, sans-serif",
+      "fontSize": "0.65rem",
+      "fontWeight": 500,
+      "letterSpacing": "0.22em",
+      "textTransform": "uppercase"
+    }
+  },
+  "rounded": {
+    "none": "0"
+  },
+  "spacing": {
+    "xs": "1rem",
+    "sm": "1.5rem",
+    "md": "2.5rem",
+    "lg": "4rem",
+    "xl": "7rem",
+    "xxl": "8rem"
+  },
+  "elevation": {
+    "nav": "0 1px 0 oklch(36% 0.058 222 / 0.3)",
+    "nav_backdrop": "blur(16px)",
+    "cards": "none",
+    "sections": "none"
+  },
+  "components": {
+    "button-primary": {
+      "backgroundColor": "#d4925a",
+      "textColor": "#170327",
+      "borderRadius": "0",
+      "padding": "1rem 2.5rem",
+      "fontFamily": "DM Sans, system-ui, sans-serif",
+      "fontSize": "0.65rem",
+      "fontWeight": 500,
+      "letterSpacing": "0.22em",
+      "textTransform": "uppercase"
+    },
+    "button-primary-hover": {
+      "backgroundColor": "#e0a876",
+      "textColor": "#170327"
+    },
+    "button-dawn": {
+      "backgroundColor": "#3d5a6c",
+      "textColor": "#f0ebe3",
+      "borderRadius": "0",
+      "padding": "1rem 2.5rem"
+    },
+    "button-dawn-hover": {
+      "backgroundColor": "#4e6f82"
+    },
+    "button-ghost": {
+      "backgroundColor": "transparent",
+      "textColor": "#f0ebe3",
+      "border": "1px solid oklch(36% 0.058 222 / 0.3)",
+      "borderRadius": "0",
+      "padding": "0.85rem 2rem"
+    },
+    "button-ghost-hover": {
+      "textColor": "#d4925a",
+      "borderColor": "#d4925a"
+    },
+    "input-base": {
+      "backgroundColor": "transparent",
+      "textColor": "#f0ebe3",
+      "border": "none",
+      "borderBottom": "1px solid oklch(93% 0.018 80 / 0.09)",
+      "borderRadius": "0",
+      "padding": "0.4rem 0 0.8rem"
+    },
+    "input-focus": {
+      "borderBottomColor": "#3d5a6c"
+    },
+    "nav": {
+      "height": "68px",
+      "backgroundColor": "oklch(8% 0.09 303 / 0.92)",
+      "borderBottom": "1px solid oklch(36% 0.058 222 / 0.3)",
+      "backdropFilter": "blur(16px)",
+      "position": "fixed"
+    },
+    "drawer": {
+      "width": "300px",
+      "backgroundColor": "#1d1028",
+      "borderRight": "1px solid oklch(36% 0.058 222 / 0.3)"
+    },
+    "card": {
+      "backgroundColor": "#170327",
+      "backgroundColor-hover": "#1d1028",
+      "borderRadius": "0",
+      "boxShadow": "none",
+      "padding": "2.5rem"
+    }
+  },
+  "rules": {
+    "amber_max_coverage": "10%",
+    "amber_per_section": 1,
+    "border_radius": "0",
+    "depth_mechanism": "tonal",
+    "shadows_on_cards": false,
+    "shadow_on_nav": true,
+    "gradient_text": false,
+    "glassmorphism": "nav-only",
+    "anti_references": [
+      "UFC/Bellator red-black aggression",
+      "Instagram-coaching cheap gradients",
+      "SaaS feature grids and metric heroes",
+      "Editorial-magazine drop-cap broadsheet",
+      "Octagon imagery or warrior language",
+      "Red Hat Display (replaced, do not revert)"
+    ]
+  }
+}

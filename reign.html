@@ -8,7 +8,7 @@
     <link rel="apple-touch-icon" href="favicon.png">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Red+Hat+Display:ital,wght@0,800;1,800&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Red+Hat+Display:wght@800&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
     <style>
         /* ── HERO — minimal, sparse ── */
@@ -26,15 +26,15 @@
                 oklch(36% 0.058 222 / 0.1) 0%, transparent 55%);
         }
         .hero-tier {
-            font-family: 'Red Hat Display', sans-serif;
+            font-family: 'DM Sans', sans-serif;
             font-size: 0.72rem; font-weight: 500; letter-spacing: 0.22em;
             color: var(--dawn-mid); display: block; margin-bottom: 2.5rem;
         }
         .hero-hl {
             font-family: 'Red Hat Display', sans-serif;
             font-size: clamp(3.5rem, 8vw, 7rem);
-            font-weight: 300; line-height: 1.0;
-            letter-spacing: -0.025em; max-width: 14ch;
+            font-weight: 800; line-height: 1.05;
+            letter-spacing: 0em; max-width: 14ch;
             margin-bottom: 3.5rem;
         }
         .hero-rule { width: 60px; height: 1px; background: var(--border-d); margin-bottom: 3.5rem; }
@@ -83,8 +83,8 @@
         .handle-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; background: var(--border-d); }
         .handle { background: var(--night); padding: 2.25rem; }
         .handle-name {
-            font-family: 'Red Hat Display', sans-serif; font-size: 1.1rem; font-weight: 400;
-            color: var(--bone); display: block; margin-bottom: 0.75rem;
+            font-family: 'Red Hat Display', sans-serif; font-size: 1.15rem; font-weight: 800;
+            letter-spacing: 0.03em; color: var(--bone); display: block; margin-bottom: 0.75rem;
         }
         .handle-desc { font-size: 0.83rem; color: var(--t2); line-height: 1.75; }
 
@@ -108,8 +108,8 @@
         }
         .apply h2 {
             font-family: 'Red Hat Display', sans-serif;
-            font-size: clamp(2rem, 4vw, 3rem); font-weight: 300;
-            letter-spacing: -0.015em; margin-bottom: 0.75rem;
+            font-size: clamp(2rem, 4vw, 3rem); font-weight: 800;
+            letter-spacing: -0.01em; margin-bottom: 0.75rem;
         }
         .apply-sub { font-size: 0.92rem; color: var(--t2); line-height: 1.85; margin-bottom: 1.75rem; max-width: 50ch; }
         .apply-price {
@@ -137,7 +137,6 @@
     </div>
     <nav class="drawer-nav">
         <a href="index.html" class="drawer-link" data-page="index.html">Home</a>
-        <a href="quiz.html" class="drawer-link drawer-link-quiz" data-page="quiz.html">Find Your Fit</a>
         <div class="drawer-sep"></div>
         <span class="drawer-section-label">Offers</span>
         <a href="spark.html" class="drawer-link drawer-tier-link" data-page="spark.html">
@@ -152,6 +151,7 @@
             <span class="drawer-tier-name">Reign</span>
             <span class="drawer-tier-desc">Compound what you've built</span>
         </a>
+        <a href="quiz.html" class="drawer-link drawer-link-quiz" data-page="quiz.html">Find Your Fit</a>
     </nav>
 </aside>
 
@@ -184,12 +184,12 @@
     <div class="who-inner">
         <span class="who-kicker" data-r>Who this is for</span>
         <h2 data-r>We work with athletes who are already in the room.</h2>
-        <p data-r>Not everyone is ready for Reign. The infrastructure we build assumes a foundation already exists — a name, an audience, a record worth leveraging. We're not building from zero here.</p>
+        <p data-r>The infrastructure we build assumes a foundation already exists: a name, an audience, a record worth leveraging. We're building on top of something real, not starting from zero.</p>
         <p data-r><strong>Reign athletes typically have:</strong></p>
         <div class="who-criteria">
             <div class="criterion" data-r>A real following — usually 20k+ on at least one platform, or a name that commands recognition beyond the numbers</div>
             <div class="criterion" data-r style="--d:60ms">An active competition record or a coaching profile that positions them as an authority in their discipline</div>
-            <div class="criterion" data-r style="--d:120ms">At least some existing income from the sport — fights, coaching, or brand deals — that should be significantly higher than it is</div>
+            <div class="criterion" data-r style="--d:120ms">At least some existing income from the sport (fights, coaching, or brand deals) that should be significantly higher than it is</div>
             <div class="criterion" data-r style="--d:180ms">The capacity to show up at a professional level: available for media, consistent in execution, serious about building something that lasts</div>
         </div>
     </div>
@@ -210,7 +210,7 @@
             </div>
             <div class="handle" data-r style="--d:120ms">
                 <span class="handle-name">Fight Bookings & Press</span>
-                <p class="handle-desc">Promoter relationships, purse negotiation, and media coordination to make every fight a brand event — not just a competition.</p>
+                <p class="handle-desc">Promoter relationships, purse negotiation, and media coordination to make every fight a brand event: not just a competition.</p>
             </div>
             <div class="handle" data-r>
                 <span class="handle-name">Media & Placements</span>
@@ -234,7 +234,7 @@
         <span class="guar-kicker" data-r>The structure</span>
         <h2 data-r>Guaranteed deliverables.<br>Prorated if we miss them.</h2>
         <p data-r>Reign isn't a vague retainer. Every month has defined deliverables: a content calendar delivered, a minimum number of sponsor outreach contacts made, a performance report issued.</p>
-        <p data-r><strong>If we miss a monthly deliverable, it's prorated from your fee.</strong> Not a credit. Not a promise to do better next month. A direct reduction in the invoice. That's how we stay accountable without asking you to trust us on faith.</p>
+        <p data-r><strong>If we miss a monthly deliverable, it's prorated from your fee.</strong> The invoice drops. That's how we stay accountable without asking you to trust us on faith.</p>
         <p data-r>The engagement is a 6-month minimum with an exit clause after month 3 on 30 days notice. We're confident enough in the results that we'd rather give you the out than have you locked in somewhere you don't want to be.</p>
     </div>
 </section>
@@ -244,7 +244,7 @@
     <div class="apply-inner">
         <span class="apply-kicker">Application</span>
         <h2>Apply for Reign.</h2>
-        <p class="apply-sub">We review every application and respond within 48 hours. If it's not the right fit, we'll tell you honestly — and point you toward what is.</p>
+        <p class="apply-sub">We review every application and respond within 48 hours. If it's not the right fit, we'll tell you honestly and point you toward what is.</p>
         <p class="apply-price"><strong>$1,497/mo</strong> · 6-month minimum · exit clause after month 3</p>
         <form class="apply-form-wrap">
             <input type="hidden" name="tier" value="reign">

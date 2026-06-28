@@ -8,7 +8,7 @@
     <link rel="apple-touch-icon" href="favicon.png">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Red+Hat+Display:ital,wght@0,800;1,800&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Red+Hat+Display:wght@800&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
     <style>
         /* ── HERO ── */
@@ -26,15 +26,15 @@
                 radial-gradient(ellipse 40% 40% at 80% 20%, oklch(65% 0.12 55 / 0.07) 0%, transparent 50%);
         }
         .hero-tier {
-            font-family: 'Red Hat Display', sans-serif;
+            font-family: 'DM Sans', sans-serif;
             font-size: 0.72rem; font-weight: 500; letter-spacing: 0.22em;
             color: var(--dawn-mid); display: block; margin-bottom: 1.5rem;
         }
         .hero-hl {
             font-family: 'Red Hat Display', sans-serif;
             font-size: clamp(3rem, 7vw, 6rem);
-            font-weight: 300; line-height: 1.05;
-            letter-spacing: -0.02em; margin-bottom: 2rem; max-width: 18ch;
+            font-weight: 800; line-height: 1.1;
+            letter-spacing: 0em; margin-bottom: 2rem; max-width: 18ch;
         }
         .hero-sub {
             font-size: clamp(0.9rem, 1.6vw, 1rem);
@@ -51,7 +51,7 @@
         }
         .friction p strong { color: var(--bone); font-weight: 400; }
         .friction-pull {
-            font-family: 'Red Hat Display', sans-serif; font-style: italic;
+            font-family: 'Red Hat Display', sans-serif; font-weight: 800;
             font-size: clamp(1.35rem, 2.5vw, 1.8rem);
             color: var(--bone); line-height: 1.5; max-width: 48ch;
             margin: 3.5rem 0; text-wrap: balance;
@@ -68,8 +68,8 @@
             border-bottom: 1px solid var(--border-n); align-items: start;
         }
         .deliv-name {
-            font-family: 'Red Hat Display', sans-serif; font-size: 1.15rem; font-weight: 400;
-            color: var(--bone); line-height: 1.2;
+            font-family: 'Red Hat Display', sans-serif; font-size: 1.2rem; font-weight: 800;
+            letter-spacing: 0.03em; color: var(--bone); line-height: 1.2;
         }
         .deliv-dfy {
             font-size: 0.58rem; font-weight: 500; letter-spacing: 0.1em;
@@ -107,8 +107,8 @@
         }
         .apply h2 {
             font-family: 'Red Hat Display', sans-serif;
-            font-size: clamp(2rem, 4vw, 3rem); font-weight: 300;
-            letter-spacing: -0.015em; margin-bottom: 0.75rem;
+            font-size: clamp(2rem, 4vw, 3rem); font-weight: 800;
+            letter-spacing: -0.01em; margin-bottom: 0.75rem;
         }
         .apply-sub {
             font-size: 0.92rem; color: var(--t2); line-height: 1.85;
@@ -140,7 +140,6 @@
     </div>
     <nav class="drawer-nav">
         <a href="index.html" class="drawer-link" data-page="index.html">Home</a>
-        <a href="quiz.html" class="drawer-link drawer-link-quiz" data-page="quiz.html">Find Your Fit</a>
         <div class="drawer-sep"></div>
         <span class="drawer-section-label">Offers</span>
         <a href="spark.html" class="drawer-link drawer-tier-link" data-page="spark.html">
@@ -155,6 +154,7 @@
             <span class="drawer-tier-name">Reign</span>
             <span class="drawer-tier-desc">Compound what you've built</span>
         </a>
+        <a href="quiz.html" class="drawer-link drawer-link-quiz" data-page="quiz.html">Find Your Fit</a>
     </nav>
 </aside>
 
@@ -167,7 +167,7 @@
 <section class="hero">
     <span class="hero-tier" data-r>Rise</span>
     <h1 class="hero-hl" data-r style="--d:60ms">You can feel it's close. Let's close it.</h1>
-    <p class="hero-sub" data-r style="--d:140ms">You've built real presence. You have credibility in your sport. The income hasn't caught up yet — and Rise exists to fix exactly that.</p>
+    <p class="hero-sub" data-r style="--d:140ms">You've built real presence. You have credibility in your sport. The income hasn't caught up yet. Rise exists to fix exactly that.</p>
     <div data-r style="--d:220ms">
         <a href="#apply" class="btn btn-amber">Apply for Rise</a>
         <span class="hero-price">$397/mo · 3-month minimum · $1,000 guarantee in 90 days</span>
@@ -193,7 +193,7 @@
         <div class="deliv-list">
             <div class="deliv-item" data-r>
                 <span class="deliv-name">Everything in Spark</span>
-                <p class="deliv-desc">All seven Spark frameworks — brand definition, positioning, content strategy, lesson marketing, seminar templates, online coaching, and sponsor toolkit — executed alongside you, not handed to you.</p>
+                <p class="deliv-desc">All seven Spark frameworks (brand definition, positioning, content strategy, lesson marketing, seminar templates, online coaching, and sponsor toolkit), executed alongside you, not handed to you.</p>
             </div>
             <div class="deliv-item" data-r style="--d:60ms">
                 <span class="deliv-name">Media Kit <span class="deliv-dfy">Done for you</span></span>
@@ -213,7 +213,7 @@
             </div>
             <div class="deliv-item" data-r style="--d:60ms">
                 <span class="deliv-name">Instructional & Merch Setup</span>
-                <p class="deliv-desc">If you have knowledge worth selling, we build the product and the system to sell it. Instructionals, merchandise, digital products — whatever makes sense for your audience.</p>
+                <p class="deliv-desc">If you have knowledge worth selling, we build the product and the system to sell it. Instructionals, merchandise, digital products: whatever makes sense for your audience.</p>
             </div>
             <div class="deliv-item" data-r>
                 <span class="deliv-name">Monthly Strategy Calls</span>
@@ -228,8 +228,8 @@
     <div class="guarantee-inner">
         <span class="guar-kicker" data-r>The guarantee</span>
         <h2 data-r>$1,000 in 90 days.<br>Or we work until you get there.</h2>
-        <p data-r>Your first $1,000 month from sources outside fighting — coaching, sponsorship, content, instructionals — within 90 days of active compliance.</p>
-        <p data-r><strong>Active compliance means:</strong> weekly check-ins completed, minimum content output met, sponsor outreach actioned. The guarantee is void if compliance lapses — not because we're looking for an out, but because the system requires both sides showing up.</p>
+        <p data-r>Your first $1,000 month from sources outside fighting (coaching, sponsorship, content, instructionals) within 90 days of active compliance.</p>
+        <p data-r><strong>Active compliance means:</strong> weekly check-ins completed, minimum content output met, sponsor outreach actioned. The guarantee is void if compliance lapses, not because we're looking for an out, but because the system requires both sides showing up.</p>
         <p data-r>If you comply and don't hit $1,000 in 90 days, we extend the engagement at no charge until you do. That's the deal.</p>
     </div>
 </section>
