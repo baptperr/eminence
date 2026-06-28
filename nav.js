@@ -30,6 +30,22 @@
             if (link.dataset.page === page) link.classList.add('active');
         });
 
+        // ── Hero word-split reveal (load) ──
+        document.querySelectorAll('.hero-hl').forEach(function (el) {
+            var words = el.innerHTML.split(/(\s+)/);
+            var wordIndex = 0;
+            el.innerHTML = words.map(function (chunk) {
+                if (/^\s+$/.test(chunk)) return chunk;
+                var idx = wordIndex++;
+                return '<span class="split-wrap"><span class="split-word" style="--wi:' + idx + '">' + chunk + '</span></span>';
+            }).join('');
+        });
+        requestAnimationFrame(function () {
+            requestAnimationFrame(function () {
+                document.body.classList.add('page-loaded');
+            });
+        });
+
         // ── Scroll reveal ──
         document.documentElement.classList.add('js');
         const io = new IntersectionObserver(function (entries) {

@@ -1,8 +1,8 @@
 /* ── TOKENS ── */
 :root {
-    --night:         oklch(7.5%  0.012 55);
-    --night-surface: oklch(10%   0.012 55);
-    --night-card:    oklch(13%   0.012 55);
+    --night:         #170327;
+    --night-surface: oklch(12%  0.08  303);
+    --night-card:    oklch(16%  0.07  303);
     --bone:          oklch(93%   0.018 80);
     --dawn:          oklch(36%   0.058 222);
     --dawn-mid:      oklch(44%   0.055 222);
@@ -30,8 +30,8 @@ body {
     overflow-x: hidden;
 }
 h1, h2, h3, h4 {
-    font-family: 'Cormorant Garamond', serif;
-    font-weight: 400;
+    font-family: 'Red Hat Display', sans-serif;
+    font-weight: 800;
     letter-spacing: -0.01em;
     text-wrap: balance;
     line-height: 1.1;
@@ -41,16 +41,36 @@ a { color: inherit; }
 em { font-style: italic; }
 strong { font-weight: 500; }
 
-/* ── REVEAL ── */
+/* ── SCROLL REVEAL ── */
 .js [data-r] {
     opacity: 0;
-    transform: translateY(16px);
-    transition: opacity 0.85s var(--ease) var(--d, 0ms),
-                transform 0.85s var(--ease) var(--d, 0ms);
+    transform: translateY(56px);
+    transition: opacity 1s var(--ease) var(--d, 0ms),
+                transform 1s var(--ease) var(--d, 0ms);
 }
 .js [data-r].on { opacity: 1; transform: none; }
+
+/* ── HERO WORD SPLIT REVEAL ── */
+.split-wrap {
+    display: inline-block;
+    overflow: hidden;
+    vertical-align: bottom;
+    padding-bottom: 0.08em; /* prevent descender clip */
+}
+.split-word {
+    display: inline-block;
+    transform: translateY(110%);
+    transition: transform 1.1s var(--ease);
+    transition-delay: calc(var(--wi, 0) * 90ms + 80ms);
+}
+body.page-loaded .split-word { transform: translateY(0); }
+
+/* hero-hl elements that get split shouldn't also run data-r */
+.hero-hl { opacity: 1 !important; transform: none !important; }
+
 @media (prefers-reduced-motion: reduce) {
     .js [data-r] { opacity: 1; transform: none; transition: none; }
+    .split-word { transform: translateY(0); transition: none; }
 }
 
 /* ── BUTTONS ── */
@@ -99,7 +119,7 @@ strong { font-weight: 500; }
 /* ── DRAWER ── */
 .drawer-overlay {
     position: fixed; inset: 0;
-    background: oklch(7.5% 0.012 55 / 0.7);
+    background: #170327b3;
     opacity: 0; pointer-events: none;
     transition: opacity 0.35s var(--ease);
     z-index: 190;
@@ -165,8 +185,8 @@ strong { font-weight: 500; }
     padding: 0.85rem 0;
 }
 .drawer-tier-name {
-    font-family: 'Cormorant SC', serif;
-    font-size: 1.2rem; font-weight: 500; color: var(--bone);
+    font-family: 'Red Hat Display', sans-serif;
+    font-size: 1.2rem; font-weight: 800; color: var(--bone);
     line-height: 1;
 }
 .drawer-tier-link:hover .drawer-tier-name { color: var(--amber); }
@@ -178,7 +198,7 @@ strong { font-weight: 500; }
     position: fixed; top: 0; left: 0; right: 0; z-index: 100;
     display: flex; align-items: center; justify-content: space-between;
     padding: 0.8rem 2rem;
-    background: oklch(7.5% 0.012 55 / 0.92);
+    background: #170327eb;
     backdrop-filter: blur(16px);
     border-bottom: 1px solid var(--border-d);
     height: 68px;
