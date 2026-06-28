@@ -38,6 +38,7 @@
             var n;
             while ((n = walker.nextNode())) { if (n.textContent.trim()) textNodes.push(n); }
             textNodes.forEach(function (textNode) {
+                var isAccent = !!textNode.parentElement.closest('.hero-accent');
                 var chunks = textNode.textContent.split(/(\s+)/);
                 var frag = document.createDocumentFragment();
                 chunks.forEach(function (chunk) {
@@ -47,14 +48,19 @@
                         var wrap = document.createElement('span');
                         wrap.className = 'split-wrap';
                         var inner = document.createElement('span');
-                        inner.className = 'split-word';
-                        inner.style.setProperty('--wi', wordIndex++);
+                        inner.className = isAccent ? 'split-word split-accent' : 'split-word';
+                        inner.style.setProperty('--wi', isAccent ? 999 : wordIndex++);
                         inner.textContent = chunk;
                         wrap.appendChild(inner);
                         frag.appendChild(wrap);
                     }
                 });
                 textNode.parentNode.replaceChild(frag, textNode);
+            });
+            // Push accent words to after all normal words
+            var total = wordIndex;
+            el.querySelectorAll('.split-accent').forEach(function (w, i) {
+                w.style.setProperty('--wi', total + i);
             });
         });
         requestAnimationFrame(function () {

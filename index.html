@@ -8,7 +8,7 @@
     <link rel="apple-touch-icon" href="favicon.png">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Red+Hat+Display:wght@800&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Lobster&family=Red+Hat+Display:wght@800&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
     <style>
         /* ── HERO ── */
@@ -37,6 +37,7 @@
             letter-spacing: 0em; margin-bottom: 2rem; max-width: 18ch;
         }
         .hero-hl .dim { color: var(--t2); }
+        .hero-accent { color: var(--amber); font-family: 'Lobster', cursive; font-weight: 400; }
         .hero-body {
             font-size: clamp(0.92rem, 1.6vw, 1.05rem);
             color: var(--t2); max-width: 46ch;
@@ -173,7 +174,7 @@
 <section class="hero">
     
     <h1 class="hero-hl" data-r style="--d:60ms">
-        You're already a fighter.<br>Become a name.
+        You're already a <span class="hero-accent">fighter.</span><br>Become a <span class="hero-accent">name.</span>
     </h1>
     <p class="hero-body" data-r style="--d:180ms">We find the person inside the fighter, and make the world watch. First Light exists to close the gap between what combat athletes earn and what they deserve.</p>
     <a href="quiz.html" class="btn btn-amber" data-r style="--d:280ms">Find Your Path</a>
