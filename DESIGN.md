@@ -12,21 +12,21 @@ colors:
   amber-mid: "#e0a876"
 typography:
   display:
-    fontFamily: "Cormorant SC, Georgia, serif"
+    fontFamily: "Red Hat Display, sans-serif"
     fontSize: "clamp(2.8rem, 6.5vw, 5.5rem)"
-    fontWeight: 300
+    fontWeight: 800
     lineHeight: 1.1
-    letterSpacing: "0em"
+    letterSpacing: "-0.01em"
   headline:
-    fontFamily: "Cormorant SC, Georgia, serif"
+    fontFamily: "Red Hat Display, sans-serif"
     fontSize: "clamp(1.8rem, 3.5vw, 2.8rem)"
-    fontWeight: 400
+    fontWeight: 800
     lineHeight: 1.15
-    letterSpacing: "0.02em"
+    letterSpacing: "-0.01em"
   title:
-    fontFamily: "Cormorant, Georgia, serif"
+    fontFamily: "Red Hat Display, sans-serif"
     fontSize: "clamp(1.35rem, 2.5vw, 1.8rem)"
-    fontWeight: 300
+    fontWeight: 800
     lineHeight: 1.5
   body:
     fontFamily: "DM Sans, system-ui, sans-serif"

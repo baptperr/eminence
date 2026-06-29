@@ -136,9 +136,11 @@
         </button>
     </div>
     <nav class="drawer-nav">
-        <a href="index.html" class="drawer-link drawer-link-quiz" data-page="index.html">Who We Are</a>
+        <a href="index.html" class="drawer-link drawer-link-quiz">Home</a>
+        <a href="index.html#beliefs" class="drawer-link drawer-link-quiz">Who We Are</a>
         <div class="drawer-sep"></div>
         <span class="drawer-section-label">Offers</span>
+        <a href="quiz.html" class="drawer-link drawer-link-quiz" data-page="quiz.html">Find Your Fit</a>
         <a href="spark.html" class="drawer-link drawer-tier-link" data-page="spark.html">
             <span class="drawer-tier-name">Spark</span>
             <span class="drawer-tier-desc">Start earning from the sport</span>
@@ -151,7 +153,6 @@
             <span class="drawer-tier-name">Reign</span>
             <span class="drawer-tier-desc">Compound what you've built</span>
         </a>
-        <a href="quiz.html" class="drawer-link drawer-link-quiz" data-page="quiz.html">Find Your Fit</a>
     </nav>
 </aside>
 
@@ -167,7 +168,7 @@
     <div class="hero-rule" data-r style="--d:160ms"></div>
     <p class="hero-sub" data-r style="--d:200ms">You're not here because you need convincing. You're here because your platform isn't performing the way your career deserves, and you're done leaving it at that.</p>
     <div data-r style="--d:280ms">
-        <a href="#apply" class="btn btn-dawn">Apply for Reign</a>
+        <a href="#apply" class="btn btn-dawn">Contact Us</a>
         <span class="hero-price">$1,497/mo · 6-month minimum · exit clause after month 3</span>
     </div>
 </section>
@@ -239,13 +240,12 @@
     </div>
 </section>
 
-<!-- APPLY -->
+<!-- CONTACT -->
 <section class="apply" id="apply">
     <div class="apply-inner">
-        <span class="apply-kicker">Application</span>
-        <h2>Apply for Reign.</h2>
-        <p class="apply-sub">We review every application and respond within 48 hours. If it's not the right fit, we'll tell you honestly and point you toward what is.</p>
-        <p class="apply-price"><strong>$1,497/mo</strong> · 6-month minimum · exit clause after month 3</p>
+        <span class="apply-kicker">Contact</span>
+        <h2>Get in touch.</h2>
+        <p class="apply-sub">Tell us who you are and what you're building. We'll respond within 48 hours.</p>
         <form class="apply-form-wrap">
             <input type="hidden" name="tier" value="reign">
             <div class="form-row">
@@ -258,25 +258,12 @@
                     <input id="rg-email" name="email" type="email" placeholder="you@example.com" required autocomplete="email">
                 </div>
             </div>
-            <div class="form-row">
-                <div class="form-g on-dark">
-                    <label for="rg-sport">Sport(s) *</label>
-                    <input id="rg-sport" name="sports" type="text" placeholder="e.g. MMA, BJJ, Muay Thai" required>
-                </div>
-                <div class="form-g on-dark">
-                    <label for="rg-country">Country *</label>
-                    <input id="rg-country" name="country" type="text" placeholder="e.g. United States" required autocomplete="country-name">
-                </div>
-            </div>
             <div class="form-g on-dark">
-                <label>Your Socials <span style="opacity:.5;font-size:.85em;letter-spacing:0">(optional · up to 10)</span></label>
-                <div class="socials-wrap" data-dark="true">
-                    <div class="socials-list"></div>
-                    <button type="button" class="add-social-btn on-dark">Add social</button>
-                </div>
+                <label for="rg-message">Message *</label>
+                <textarea id="rg-message" name="message" placeholder="Tell us about yourself — your sport, your platform, what you're trying to build." required style="min-height:120px"></textarea>
             </div>
-            <button type="submit" class="btn btn-dawn btn-full">Submit Application</button>
-            <p class="form-note on-dark">We review every application and respond within 48 hours.</p>
+            <button type="submit" class="btn btn-dawn btn-full">Send Message</button>
+            <p class="form-note on-dark">We respond to every message within 48 hours.</p>
         </form>
     </div>
 </section>

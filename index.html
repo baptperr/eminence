@@ -8,7 +8,7 @@
     <link rel="apple-touch-icon" href="favicon.png">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Lobster&family=Red+Hat+Display:wght@800&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Lobster&family=Red+Hat+Display:wght@800&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
     <style>
         /* ── HERO ── */
@@ -124,14 +124,169 @@
         .quiz-cta p { font-size: 0.95rem; color: var(--t2); line-height: 1.85; margin: 0 auto 2.75rem; }
         .quiz-cta-sub {
             margin-top: 2.5rem;
-            font-size: 0.6rem; color: oklch(93% 0.018 80 / 0.12);
+            font-size: 0.6rem; color: var(--t2);
         }
-        .quiz-cta-sub a { color: oklch(93% 0.018 80 / 0.16); text-decoration: none; border-bottom: 1px solid oklch(93% 0.018 80 / 0.07); transition: color 0.2s, border-color 0.2s; }
-        .quiz-cta-sub a:hover { color: var(--t2); border-color: var(--border-n); }
+        .quiz-cta-sub a { color: var(--t2); text-decoration: none; border-bottom: 1px solid var(--border-n); transition: color 0.2s, border-color 0.2s; }
+        .quiz-cta-sub a:hover { color: var(--bone); border-color: var(--t2); }
+
+        .btn-clear {
+            background: transparent;
+            color: #fff;
+            border: 1px solid #fff;
+            border-radius: 0;
+            transition: background 0.2s, color 0.2s;
+        }
+        .btn-clear:hover { background: #fff; color: #000; }
 
         @media (max-width: 900px) {
             .belief { grid-template-columns: 1fr; gap: 0.5rem; }
             .path-grid { grid-template-columns: 1fr; }
+        }
+
+        /* ── NAV REVEAL ── */
+        .nav-hidden { opacity: 0; pointer-events: none; transition: opacity 0.5s ease; }
+        .nav-hidden.nav-visible { opacity: 1; pointer-events: auto; }
+
+        /* ── VIDEO HERO ── */
+        .video-hero {
+            position: relative;
+            width: 100%;
+            height: 100svh;
+            overflow: hidden;
+            background: #000;
+        }
+        .video-bg {
+            position: absolute; inset: 0;
+            width: 100%; height: 100%;
+            object-fit: cover;
+        }
+        .video-fade {
+            position: absolute; inset: 0;
+            background: #000;
+            pointer-events: none;
+            opacity: 1;
+            transition: opacity 1.8s ease;
+            z-index: 2;
+        }
+        .video-fade.clear { opacity: 0; }
+        .video-text {
+            position: absolute;
+            bottom: 10%;
+            left: 0; right: 0;
+            padding: 0 2.5rem;
+            z-index: 3;
+            text-align: left;
+        }
+        .video-line1-clip {
+            overflow: hidden;
+            display: block;
+        }
+        .video-line1 {
+            font-family: 'DM Sans', sans-serif;
+            font-weight: 400;
+            font-size: clamp(0.65rem, 0.85vw, 0.85rem);
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+            color: #fff;
+            margin-bottom: 0.75rem;
+            display: block;
+            transform: translateX(-110%);
+            transition: transform 1.1s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .video-text.visible .video-line1 {
+            transform: translateX(0);
+        }
+        .video-line2 {
+            font-family: 'Red Hat Display', sans-serif;
+            font-weight: 800;
+            font-size: clamp(4rem, 14vw, 16rem);
+            letter-spacing: -0.02em;
+            text-transform: uppercase;
+            color: #fff;
+            line-height: 0.95;
+            display: block;
+        }
+        .video-line2-row {
+            display: block;
+            white-space: nowrap;
+        }
+        .slam-clip {
+            display: inline-block;
+            overflow: hidden;
+            vertical-align: bottom;
+            padding-bottom: 0.06em;
+        }
+        .slam-word {
+            display: inline-block;
+            transform: translateY(115%);
+            transition: transform 0.38s cubic-bezier(0.22, 1, 0.36, 1);
+            transition-delay: calc(var(--wi, 0) * 65ms);
+        }
+        .video-line2 .slam-word {
+            transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+            transition-delay: calc(1100ms + var(--wi, 0) * 200ms);
+        }
+        .video-text.visible .slam-word {
+            transform: translateY(0);
+        }
+        .video-extra {
+            position: absolute;
+            right: 4%;
+            top: 62%;
+            transform: translateY(-50%);
+            max-width: 44ch;
+            z-index: 3;
+            opacity: 0;
+            text-align: right;
+        }
+        .video-sub {
+            font-family: 'DM Sans', sans-serif;
+            font-weight: 300;
+            font-size: clamp(0.9rem, 1.45vw, 1.1rem);
+            color: #fff;
+            margin: 0 0 1.75rem;
+            line-height: 1.8;
+        }
+        .video-cta.btn {
+            background: transparent;
+            color: #fff;
+            border: 1px solid #fff;
+            border-radius: 0;
+        }
+        .video-cta.btn:hover {
+            background: #fff;
+            color: #000;
+            border-color: #fff;
+        }
+
+        @media (max-width: 767px) {
+            .video-text {
+                bottom: auto;
+                top: 15%;
+                padding: 0 1rem;
+            }
+            .video-line1 {
+                white-space: nowrap;
+                font-size: clamp(0.55rem, 3vw, 0.75rem);
+            }
+            .video-extra {
+                left: 0;
+                right: 0;
+                top: auto;
+                bottom: 18%;
+                transform: none;
+                text-align: center;
+                max-width: none;
+                padding: 0 2.5rem;
+            }
+            .video-sub {
+                font-size: clamp(0.85rem, 4vw, 1rem);
+                margin-bottom: 1.25rem;
+            }
+            .video-sub br { display: none; }
+            .video-line2 {
+                font-size: clamp(4rem, 22vw, 16rem);
+            }
         }
     </style>
 </head>
@@ -146,9 +301,11 @@
         </button>
     </div>
     <nav class="drawer-nav">
-        <a href="index.html" class="drawer-link drawer-link-quiz" data-page="index.html">Who We Are</a>
+        <a href="#" class="drawer-link drawer-link-quiz" data-page="index.html">Home</a>
+        <a href="#beliefs" class="drawer-link drawer-link-quiz">Who We Are</a>
         <div class="drawer-sep"></div>
         <span class="drawer-section-label">Offers</span>
+        <a href="quiz.html" class="drawer-link drawer-link-quiz" data-page="quiz.html">Find Your Fit</a>
         <a href="spark.html" class="drawer-link drawer-tier-link" data-page="spark.html">
             <span class="drawer-tier-name">Spark</span>
             <span class="drawer-tier-desc">Start earning from the sport</span>
@@ -161,23 +318,52 @@
             <span class="drawer-tier-name">Reign</span>
             <span class="drawer-tier-desc">Compound what you've built</span>
         </a>
-        <a href="quiz.html" class="drawer-link drawer-link-quiz" data-page="quiz.html">Find Your Fit</a>
     </nav>
 </aside>
 
-<nav class="nav">
+<nav class="nav nav-hidden" id="mainNav">
     <a href="index.html" class="nav-logo"><img src="logo.svg" alt="First Light" class="nav-logo-img"></a>
     <button class="hamburger" id="hamburger" aria-label="Open menu" aria-expanded="false"><span></span><span></span><span></span></button>
 </nav>
 
+<!-- VIDEO HERO -->
+<section class="video-hero">
+    <video class="video-bg" id="heroVideo" autoplay muted playsinline>
+        <source type="video/mp4" id="heroVideoSource">
+    </video>
+    <script>
+        (function () {
+            var src = document.getElementById('heroVideoSource');
+            var vid = document.getElementById('heroVideo');
+            if (src && vid) {
+                src.src = window.matchMedia('(max-width: 767px)').matches ? 'hero-mobile.mp4' : 'hero.mp4';
+                vid.load();
+            }
+        })();
+    </script>
+    <div class="video-fade" id="videoFade"></div>
+    <div class="video-text" id="videoText">
+        <div class="video-line1-clip"><div class="video-line1">We find the <strong style="font-weight:700">person</strong> in the <strong style="font-weight:700">fighter</strong> and we</div></div>
+        <div class="video-line2">
+            <div class="video-line2-row"><span class="slam-clip"><span class="slam-word" style="--wi:0">Make</span></span> <span class="slam-clip"><span class="slam-word" style="--wi:1">the</span></span></div>
+            <div class="video-line2-row"><span class="slam-clip"><span class="slam-word" style="--wi:2">World</span></span></div>
+            <div class="video-line2-row"><span class="slam-clip"><span class="slam-word" style="--wi:3">Watch</span></span></div>
+        </div>
+    </div>
+    <div class="video-extra" id="videoExtra">
+        <p class="video-sub">First Light exists to close the gap between what <br>combat athletes earn and what they deserve.</p>
+        <a href="quiz.html" class="btn video-cta">Find Your Path</a>
+    </div>
+</section>
+
 <!-- HERO -->
 <section class="hero">
-    
+
     <h1 class="hero-hl" data-r style="--d:60ms">
         You're already a <span class="hero-accent">fighter.</span><br>Become a <span class="hero-accent">name.</span>
     </h1>
-    <p class="hero-body" data-r style="--d:180ms">We find the person inside the fighter, and make the world watch. First Light exists to close the gap between what combat athletes earn and what they deserve.</p>
-    <a href="quiz.html" class="btn btn-amber" data-r style="--d:280ms">Find Your Path</a>
+    <p class="hero-body" data-r style="--d:180ms">First Light exists to close the gap between what combat athletes earn and what they deserve.</p>
+    <a href="quiz.html" class="btn btn-clear" data-r style="--d:280ms">Find Your Path</a>
 </section>
 
 <!-- MANIFESTO -->
@@ -191,7 +377,7 @@
 </section>
 
 <!-- BELIEFS -->
-<section class="beliefs">
+<section class="beliefs" id="beliefs">
     <div class="beliefs-inner">
         <h2 data-r>What we believe.</h2>
         <div class="belief-list">
@@ -248,7 +434,7 @@
     <div class="quiz-cta-inner">
         <h2 data-r>Not sure which path is yours?</h2>
         <p data-r>Five questions. Two minutes. A clear recommendation with a short explanation of why — then we send you straight to the right page.</p>
-        <a href="quiz.html" class="btn btn-amber" data-r>Find Your Fit</a>
+        <a href="quiz.html" class="btn btn-clear" data-r>Find Your Fit</a>
         <p class="quiz-cta-sub" data-r>
             Already know what you need?
             <a href="spark.html">Spark</a> ·
@@ -270,5 +456,104 @@
 </footer>
 
 <script src="nav.js"></script>
+<script>
+// Fit all four text lines to the same pixel width as WATCH at its natural CSS size
+function fitVideoText() {
+    var line1 = document.querySelector('.video-line1');
+    var rows  = Array.from(document.querySelectorAll('.video-line2-row'));
+    if (!line1 || !rows.length) return;
+
+    var isMobile = window.innerWidth <= 767;
+
+    // Reset any previous inline sizes (always clear line1 so CSS takes over on mobile)
+    [line1].concat(rows).forEach(function(el) { el.style.fontSize = ''; });
+
+    var targetW;
+    if (isMobile) {
+        // On mobile: use line1's natural CSS width as the target — headline rows expand to match it
+        line1.style.display    = 'inline-block';
+        line1.style.whiteSpace = 'nowrap';
+        targetW = line1.getBoundingClientRect().width;
+        line1.style.display    = '';
+        line1.style.whiteSpace = '';
+    } else {
+        // On desktop: use WATCH at its natural CSS font-size as the target
+        var ref = rows[rows.length - 1];
+        ref.style.display    = 'inline-block';
+        ref.style.whiteSpace = 'nowrap';
+        targetW = ref.getBoundingClientRect().width;
+        ref.style.display    = '';
+        ref.style.whiteSpace = '';
+        // Cap at container width so no row overflows
+        var maxW = line1.parentElement.getBoundingClientRect().width;
+        if (maxW > 0) targetW = Math.min(targetW, maxW);
+    }
+
+    if (targetW <= 0) return;
+
+    // On mobile, only fit headline rows (line1 is CSS-controlled)
+    var toFit = isMobile ? rows : [line1].concat(rows);
+    toFit.forEach(function(el) {
+        el.style.display    = 'inline-block';
+        el.style.whiteSpace = 'nowrap';
+        var lo = 6, hi = 600, mid;
+        for (var i = 0; i < 26; i++) {
+            mid = (lo + hi) / 2;
+            el.style.fontSize = mid + 'px';
+            if (el.getBoundingClientRect().width > targetW) hi = mid; else lo = mid;
+        }
+        el.style.fontSize = lo + 'px';
+        el.style.display    = '';
+        el.style.whiteSpace = '';
+    });
+}
+(document.fonts ? document.fonts.ready : Promise.resolve()).then(fitVideoText);
+window.addEventListener('resize', fitVideoText);
+
+(function () {
+    var video = document.getElementById('heroVideo');
+    var fade  = document.getElementById('videoFade');
+    var text  = document.getElementById('videoText');
+    var extra = document.getElementById('videoExtra');
+    var nav   = document.getElementById('mainNav');
+    if (!video) return;
+
+    var textShown = false;
+    var extraTimeout;
+
+    // Fade in from black once video starts
+    video.addEventListener('playing', function () {
+        requestAnimationFrame(function () { fade.classList.add('clear'); });
+    });
+
+    // Text + nav pop in at 4.5s; sidebar fades in 2s later
+    video.addEventListener('timeupdate', function () {
+        if (!textShown && video.currentTime >= 4.5) {
+            textShown = true;
+            text.classList.add('visible');
+            if (nav) nav.classList.add('nav-visible');
+            extraTimeout = setTimeout(function () {
+                extra.style.transition = 'opacity 1s ease';
+                extra.style.opacity    = '1';
+            }, 3000);
+        }
+    });
+
+    // Restart cycle on loop: reset everything, fade back in
+    video.addEventListener('seeked', function () {
+        if (video.currentTime < 0.5) {
+            clearTimeout(extraTimeout);
+            textShown = false;
+            text.classList.remove('visible');
+            extra.style.transition = 'none';
+            extra.style.opacity    = '0';
+            requestAnimationFrame(function () { extra.style.transition = ''; });
+            if (nav) nav.classList.remove('nav-visible');
+            fade.classList.remove('clear');
+            setTimeout(function () { fade.classList.add('clear'); }, 200);
+        }
+    });
+})();
+</script>
 </body>
 </html>

@@ -9,6 +9,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Red+Hat+Display:wght@800&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap" rel="stylesheet">
+    <script async src="https://js.stripe.com/v3/buy-button.js"></script>
     <link rel="stylesheet" href="style.css">
     <style>
         /* ── HERO ── */
@@ -153,9 +154,11 @@
         </button>
     </div>
     <nav class="drawer-nav">
-        <a href="index.html" class="drawer-link drawer-link-quiz" data-page="index.html">Who We Are</a>
+        <a href="index.html" class="drawer-link drawer-link-quiz">Home</a>
+        <a href="index.html#beliefs" class="drawer-link drawer-link-quiz">Who We Are</a>
         <div class="drawer-sep"></div>
         <span class="drawer-section-label">Offers</span>
+        <a href="quiz.html" class="drawer-link drawer-link-quiz" data-page="quiz.html">Find Your Fit</a>
         <a href="spark.html" class="drawer-link drawer-tier-link" data-page="spark.html">
             <span class="drawer-tier-name">Spark</span>
             <span class="drawer-tier-desc">Start earning from the sport</span>
@@ -168,7 +171,6 @@
             <span class="drawer-tier-name">Reign</span>
             <span class="drawer-tier-desc">Compound what you've built</span>
         </a>
-        <a href="quiz.html" class="drawer-link drawer-link-quiz" data-page="quiz.html">Find Your Fit</a>
     </nav>
 </aside>
 
@@ -183,7 +185,7 @@
     <h1 class="hero-hl" data-r style="--d:60ms">Your sport can pay you back.</h1>
     <p class="hero-sub" data-r style="--d:140ms">A real side income from the sport you're already dedicated to. No agent required. No massive audience required. Just the system, and the discipline you already have.</p>
     <div data-r style="--d:220ms">
-        <a href="#apply" class="btn btn-amber">Get Started</a>
+        <a href="#apply" class="btn btn-amber">Sign Up</a>
         <span class="hero-price">$29/mo · cancel anytime</span>
     </div>
 </section>
@@ -268,13 +270,22 @@
     </div>
 </section>
 
-<!-- APPLY -->
+<!-- SIGN UP -->
 <section class="apply" id="apply">
     <div class="apply-inner">
-        <span class="apply-kicker">Get started</span>
+        <span class="apply-kicker">Sign Up</span>
         <h2>Join Spark.</h2>
-        <p class="apply-sub">Tell us a little about yourself. We'll confirm your spot and get your brand definition started in the first week.</p>
+        <p class="apply-sub">$29/mo. Cancel anytime. Your brand definition starts in week one.</p>
         <p class="apply-price"><strong>$29/mo</strong> · cancel anytime · no minimum commitment</p>
+
+        <p class="form-note" style="margin-bottom:1.5rem;text-align:left;">Step 1 — Payment</p>
+        <!-- Replace buy-button-id and publishable-key with your Stripe credentials -->
+        <stripe-buy-button
+            buy-button-id="buy_btn_REPLACE_ME"
+            publishable-key="pk_live_REPLACE_ME">
+        </stripe-buy-button>
+
+        <p class="form-note" style="margin-top:2.5rem;margin-bottom:1.5rem;text-align:left;">Step 2 — Tell us about yourself</p>
         <form class="apply-form-wrap">
             <input type="hidden" name="tier" value="spark">
             <div class="form-row">
@@ -304,8 +315,8 @@
                     <button type="button" class="add-social-btn">Add social</button>
                 </div>
             </div>
-            <button type="submit" class="btn btn-night btn-full">Submit Application</button>
-            <p class="form-note">We confirm every application within 48 hours.</p>
+            <button type="submit" class="btn btn-night btn-full">Submit</button>
+            <p class="form-note">We'll be in touch within 24 hours to get you started.</p>
         </form>
     </div>
 </section>
