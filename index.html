@@ -8,59 +8,9 @@
     <link rel="apple-touch-icon" href="favicon.png">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Lobster&family=Red+Hat+Display:wght@800&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Lobster&family=Red+Hat+Display:wght@800&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
     <style>
-        /* ── HERO ── */
-        .hero {
-            min-height: 100svh;
-            display: flex; flex-direction: column;
-            justify-content: center; align-items: center; text-align: center;
-            padding: 9rem 2rem 6rem;
-            position: relative;
-        }
-        .hero::before {
-            content: '';
-            position: absolute; inset: 0; pointer-events: none;
-            background: radial-gradient(ellipse 80% 60% at 50% 80%,
-                oklch(36% 0.058 222 / 0.1) 0%, transparent 60%);
-        }
-        .hero-eyebrow {
-            font-size: 0.65rem; font-weight: 500; letter-spacing: 0.25em;
-            text-transform: uppercase; color: var(--dawn-mid);
-            display: block; margin-bottom: 2rem;
-        }
-        .hero-hl {
-            font-family: 'Red Hat Display', sans-serif;
-            font-size: clamp(2.8rem, 6.5vw, 5.5rem);
-            font-weight: 800; line-height: 1.1;
-            letter-spacing: 0em; margin-bottom: 2rem; max-width: 18ch;
-        }
-        .hero-hl .dim { color: var(--t2); }
-        .hero-accent { color: var(--amber); font-family: 'Lobster', cursive; font-weight: 400; }
-        .hero-body {
-            font-size: clamp(0.92rem, 1.6vw, 1.05rem);
-            color: var(--t2); max-width: 46ch;
-            line-height: 1.9; margin: 0 auto 3rem;
-        }
-
-        /* ── MANIFESTO ── */
-        .manifesto { padding: 8rem 2rem; max-width: 820px; margin: 0 auto; }
-        .manifesto p {
-            font-size: clamp(1rem, 1.8vw, 1.15rem);
-            color: var(--t2); line-height: 1.95;
-            margin-bottom: 1.75rem; max-width: 62ch;
-        }
-        .manifesto p:last-child { margin-bottom: 0; }
-        .manifesto p strong { color: var(--bone); font-weight: 400; }
-        .manifesto-pull {
-            font-family: 'Red Hat Display', sans-serif;
-            font-weight: 800; font-size: clamp(1.5rem, 3vw, 2rem);
-            color: var(--bone); line-height: 1.45;
-            max-width: 48ch; margin: 4rem 0;
-            text-wrap: balance;
-        }
-
         /* ── BELIEFS ── */
         .beliefs { padding: 7rem 2rem; background: var(--night-surface); }
         .beliefs-inner { max-width: 1100px; margin: 0 auto; }
@@ -138,9 +88,93 @@
         }
         .btn-clear:hover { background: #fff; color: #000; }
 
+        /* ── WHAT WE DO ── */
+        .wwd {
+            background: #000;
+            padding-top: 10rem;
+            padding-bottom: 9rem;
+            overflow: hidden;
+        }
+        .wwd-inner {
+            max-width: 1800px;
+            margin: 0 auto;
+            padding: 0 3rem 8rem;
+        }
+        .wwd-title {
+            font-size: clamp(4rem, 12.5vw, 14rem);
+            text-transform: uppercase;
+            color: #fff;
+            letter-spacing: -0.03em;
+            line-height: 0.9;
+            margin-bottom: 4.5rem;
+            white-space: nowrap;
+        }
+        .wwd-sub p {
+            font-size: clamp(1.3rem, 2.4vw, 2rem);
+            font-weight: 500;
+            color: var(--t2);
+            line-height: 1.6;
+            margin-bottom: 0;
+            max-width: none;
+            letter-spacing: -0.01em;
+        }
+        /* ── Pillars ── */
+        .wwd-pillars { display: flex; flex-direction: column; gap: 6rem; }
+        .wwd-item { border-top: 1px solid var(--border-d); padding-top: 3.5rem; }
+        .wwd-item:last-child { border-bottom: 1px solid var(--border-d); padding-bottom: 3.5rem; }
+        .wwd-grid {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) auto;
+            align-items: start;
+        }
+        .wwd-item--flip .wwd-grid { grid-template-columns: auto minmax(0, 1fr); }
+        .wwd-left { display: flex; flex-direction: column; padding: 0; min-width: 0; overflow: hidden; }
+        .wwd-name {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: clamp(6rem, 14vw, 14rem);
+            color: #fff; letter-spacing: 0.02em;
+            line-height: 0.9; white-space: nowrap;
+            margin-bottom: 0.5rem;
+            text-align: center;
+        }
+        .wwd-tagline {
+            font-weight: 700;
+            font-size: clamp(1rem, 1.6vw, 1.15rem);
+            color: #fff; line-height: 1.45;
+            max-width: 60ch; text-wrap: balance;
+            padding-left: 3rem;
+        }
+        .wwd-list { list-style: none; padding: 0.75rem 0 0 3rem; display: flex; flex-direction: column; gap: 0.4rem; }
+        .wwd-list li {
+            font-size: clamp(0.85rem, 1.2vw, 0.95rem);
+            color: var(--t2); line-height: 1.7;
+            max-width: none; padding-left: 1.25rem; position: relative;
+        }
+        .wwd-list li::before { content: '—'; position: absolute; left: 0; color: var(--amber); font-size: 0.8em; }
+        /* Video panel */
+        .wwd-vid { overflow: hidden; position: relative; aspect-ratio: 4/3; width: clamp(380px, 46vw, 820px); justify-self: end; }
+        .wwd-item--flip .wwd-vid { justify-self: start; }
+        .wwd-vid video {
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            width: 100%; height: 100%; object-fit: cover; object-position: center center; display: block;
+        }
+
         @media (max-width: 900px) {
             .belief { grid-template-columns: 1fr; gap: 0.5rem; }
             .path-grid { grid-template-columns: 1fr; }
+        }
+        @media (max-width: 768px) {
+            .wwd { padding-top: 7rem; padding-bottom: 6rem; }
+            .wwd-inner { padding: 0 2rem 5rem; }
+            .wwd-title { white-space: normal; }
+            .wwd-grid { grid-template-columns: 1fr !important; }
+            .wwd-left { padding: 1rem 0; }
+            .wwd-item--flip .wwd-left { padding: 1rem 0; }
+            .wwd-vid { aspect-ratio: unset; height: 220px; width: 100%; justify-self: stretch; }
+            .wwd-item--flip .wwd-grid > .wwd-vid { order: 1; }
+            .wwd-name { white-space: normal; }
+
         }
 
         /* ── NAV REVEAL ── */
@@ -242,10 +276,11 @@
         .video-sub {
             font-family: 'DM Sans', sans-serif;
             font-weight: 300;
-            font-size: clamp(0.9rem, 1.45vw, 1.1rem);
+            font-size: clamp(1.1rem, 1.9vw, 1.45rem);
             color: #fff;
             margin: 0 0 1.75rem;
             line-height: 1.8;
+            text-wrap: balance;
         }
         .video-cta.btn {
             background: transparent;
@@ -259,7 +294,11 @@
             border-color: #fff;
         }
 
-        @media (max-width: 767px) {
+        @media (max-width: 1000px) and (orientation: landscape) {
+            .video-extra { display: none; }
+        }
+
+        @media (orientation: portrait) {
             .video-text {
                 bottom: auto;
                 top: 15%;
@@ -283,7 +322,6 @@
                 font-size: clamp(0.85rem, 4vw, 1rem);
                 margin-bottom: 1.25rem;
             }
-            .video-sub br { display: none; }
             .video-line2 {
                 font-size: clamp(4rem, 22vw, 16rem);
             }
@@ -336,7 +374,7 @@
             var src = document.getElementById('heroVideoSource');
             var vid = document.getElementById('heroVideo');
             if (src && vid) {
-                src.src = window.matchMedia('(max-width: 767px)').matches ? 'hero-mobile.mp4' : 'hero.mp4';
+                src.src = window.innerWidth < 768 ? 'hero-mobile.mp4' : 'hero-pc.mp4';
                 vid.load();
             }
         })();
@@ -351,29 +389,89 @@
         </div>
     </div>
     <div class="video-extra" id="videoExtra">
-        <p class="video-sub">First Light exists to close the gap between what <br>combat athletes earn and what they deserve.</p>
+        <p class="video-sub">First Light exists to close the gap between what combat athletes earn and what they deserve.</p>
         <a href="quiz.html" class="btn video-cta">Find Your Path</a>
     </div>
 </section>
 
-<!-- HERO -->
-<section class="hero">
+<hr style="border:none;border-top:2px solid #555;width:88%;margin:0 auto;">
 
-    <h1 class="hero-hl" data-r style="--d:60ms">
-        You're already a <span class="hero-accent">fighter.</span><br>Become a <span class="hero-accent">name.</span>
-    </h1>
-    <p class="hero-body" data-r style="--d:180ms">First Light exists to close the gap between what combat athletes earn and what they deserve.</p>
-    <a href="quiz.html" class="btn btn-clear" data-r style="--d:280ms">Find Your Path</a>
-</section>
+<!-- WHAT WE DO -->
+<section class="wwd">
+    <div class="wwd-inner">
+        <h2 class="wwd-title" data-r>WHAT WE DO</h2>
+        <div class="wwd-sub" data-r style="--d:80ms">
+            <p>You're a business, and you may not even realize it.</p>
+            <p>You run the operations (training, competing), but nobody taught you how to grow one.</p>
+            <p>Like any business, you grow through branding, promotion, and monetization.</p>
+            <p>No coach or gym teaches this.</p>
+        </div>
+    </div>
+    <div class="wwd-pillars">
+        <!-- BRANDING -->
+        <div class="wwd-item" data-r>
+            <div class="wwd-grid">
+                <div class="wwd-left">
+                    <span class="wwd-name">BRANDING</span>
+                    <p class="wwd-tagline">Inside and outside of combat, the fighter is the product.<br>Branding is defining what kind of product you are.</p>
+                    <ul class="wwd-list">
+                        <li>Define what you stand for, on camera and off it.</li>
+                        <li>Sharpen your story into the one people repeat about you.</li>
+                        <li>Know who finds your world foreign, thrilling, aspirational. That's your audience.</li>
+                        <li>Commit to your angle and let it define you.</li>
+                    </ul>
+                </div>
+                <div class="wwd-vid">
+                    <video autoplay muted loop playsinline>
+                        <source src="brand-universal.mp4" type="video/mp4">
+                    </video>
+                </div>
+            </div>
+        </div>
 
-<!-- MANIFESTO -->
-<section class="manifesto">
-    <p data-r>Most combat athletes earn a fraction of what their skill and dedication deserves. Not because the market doesn't exist — it does. Not because they aren't talented enough — they are. <strong>Because nobody built the infrastructure between exceptional athlete and earning enterprise.</strong></p>
-    <blockquote class="manifesto-pull" data-r>
-        You can be one of the best in your sport and still not know how to make it pay.
-    </blockquote>
-    <p data-r>The sport produces elite athletes faster than it produces the knowledge to monetize them. Prize money doesn't scale. Sponsorships go to athletes with management, not necessarily the ones with the most talent. Coaching doesn't compound without infrastructure. The problem was never the athlete.</p>
-    <p data-r>That's what First Light is built to fix.</p>
+        <!-- PROMOTE -->
+        <div class="wwd-item wwd-item--flip" data-r style="--d:80ms">
+            <div class="wwd-grid">
+                <div class="wwd-vid">
+                    <video autoplay muted loop playsinline>
+                        <source src="promote.mp4" type="video/mp4">
+                    </video>
+                </div>
+                <div class="wwd-left">
+                    <span class="wwd-name">PROMOTE</span>
+                    <p class="wwd-tagline">To sell a product, someone has to see it first.<br>Promotion is about getting the fighter seen.</p>
+                    <ul class="wwd-list">
+                        <li>Grow your following on purpose.</li>
+                        <li>Build a content system: what to shoot, how often, how it compounds.</li>
+                        <li>Audit what's working on your platforms, then double down.</li>
+                        <li>Pitch yourself for competitions, events, interviews, podcasts.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- MONETIZE -->
+        <div class="wwd-item" data-r style="--d:160ms">
+            <div class="wwd-grid">
+                <div class="wwd-left">
+                    <span class="wwd-name">MONETIZE</span>
+                    <p class="wwd-tagline">To earn from the sport, you must build revenue channels.<br>Monetization is about turning your product into profit.</p>
+                    <ul class="wwd-list">
+                        <li>Turn your name into income: coaching, seminars, private sessions, instructionals.</li>
+                        <li>Get paid around the sport: refereeing, commentary, analysis.</li>
+                        <li>Sell something real: merch fans actually want.</li>
+                        <li>Land personal and commercial sponsorships, and price yourself right.</li>
+                        <li>Negotiate fight contracts like a business, not a favor.</li>
+                    </ul>
+                </div>
+                <div class="wwd-vid">
+                    <video autoplay muted loop playsinline>
+                        <source src="monetize.mp4" type="video/mp4">
+                    </video>
+                </div>
+            </div>
+        </div>
+    </div>
 </section>
 
 <!-- BELIEFS -->
@@ -463,7 +561,7 @@ function fitVideoText() {
     var rows  = Array.from(document.querySelectorAll('.video-line2-row'));
     if (!line1 || !rows.length) return;
 
-    var isMobile = window.innerWidth <= 767;
+    var isMobile = window.matchMedia('(orientation: portrait)').matches;
 
     // Reset any previous inline sizes (always clear line1 so CSS takes over on mobile)
     [line1].concat(rows).forEach(function(el) { el.style.fontSize = ''; });
@@ -487,6 +585,9 @@ function fitVideoText() {
         // Cap at container width so no row overflows
         var maxW = line1.parentElement.getBoundingClientRect().width;
         if (maxW > 0) targetW = Math.min(targetW, maxW);
+        // Cap by available height so text block never climbs into the nav
+        var maxWFromHeight = window.innerHeight * 1.1 - 140;
+        targetW = Math.min(targetW, maxWFromHeight);
     }
 
     if (targetW <= 0) return;
