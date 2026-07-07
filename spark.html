@@ -8,7 +8,7 @@
     <link rel="apple-touch-icon" href="favicon.png">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Red+Hat+Display:wght@800&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Red+Hat+Display:wght@800&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap" rel="stylesheet">
     <script async src="https://js.stripe.com/v3/buy-button.js"></script>
     <link rel="stylesheet" href="style.css">
     <style>
@@ -24,14 +24,16 @@
             content: '';
             position: absolute; inset: 0; pointer-events: none;
             background: radial-gradient(ellipse 60% 70% at 70% 30%,
-                oklch(65% 0.12 55 / 0.09) 0%, transparent 60%);
+                rgba(255,255,255,0.04) 0%, transparent 60%);
+            z-index: 1;
         }
-        .hero-tier {
-            font-family: 'DM Sans', sans-serif;
-            font-size: 0.72rem; font-weight: 500; letter-spacing: 0.22em;
-            text-transform: uppercase; color: var(--amber);
-            display: block; margin-bottom: 1.5rem;
+        .hero-vid-bg { position: absolute; inset: 0; z-index: 0; }
+        .hero-vid-bg .offer-vid-fallback { font-size: clamp(4rem, 14vw, 12rem); }
+        .hero-vid-overlay {
+            position: absolute; inset: 0; z-index: 1; pointer-events: none;
+            background: linear-gradient(to top, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.5) 45%, rgba(0,0,0,0.08) 75%);
         }
+        .hero-content { position: relative; z-index: 2; }
         .hero-hl {
             font-family: 'Red Hat Display', sans-serif;
             font-size: clamp(3rem, 7vw, 6rem);
@@ -83,7 +85,7 @@
         .deliv-dfy {
             font-size: 0.58rem; font-weight: 500; letter-spacing: 0.1em;
             text-transform: uppercase; color: var(--amber);
-            background: oklch(65% 0.12 55 / 0.12);
+            background: rgba(255,255,255,0.1);
             padding: 0.15em 0.4em; margin-left: 0.4rem;
         }
         .deliv-desc { font-size: 0.85rem; color: var(--t2); line-height: 1.75; }
@@ -104,7 +106,7 @@
         .step-n {
             font-family: 'Red Hat Display', sans-serif;
             font-size: 2rem; font-weight: 800;
-            color: oklch(65% 0.12 55 / 0.3); line-height: 1;
+            color: var(--t3); line-height: 1;
         }
         .step h3 { font-size: 1.1rem; font-weight: 400; margin-bottom: 0.5rem; }
         .step p { font-size: 0.88rem; color: var(--t2); line-height: 1.8; max-width: 48ch; }
@@ -114,7 +116,7 @@
         .apply-inner { max-width: 640px; }
         .apply-kicker {
             font-size: 0.65rem; font-weight: 500; letter-spacing: 0.22em;
-            text-transform: uppercase; color: oklch(65% 0.12 55 / 0.6);
+            text-transform: uppercase; color: rgba(0,0,0,0.5);
             display: block; margin-bottom: 1.25rem;
         }
         .apply h2 {
@@ -124,13 +126,13 @@
             margin-bottom: 0.75rem;
         }
         .apply-sub {
-            font-size: 0.92rem; color: oklch(7.5% 0.012 55 / 0.5);
+            font-size: 0.92rem; color: rgba(0,0,0,0.5);
             line-height: 1.85; margin-bottom: 3rem; max-width: 50ch;
         }
         .apply-price {
-            font-size: 0.82rem; color: oklch(7.5% 0.012 55 / 0.4);
+            font-size: 0.82rem; color: rgba(0,0,0,0.4);
             margin-bottom: 2.5rem; padding-bottom: 2.5rem;
-            border-bottom: 1px solid oklch(7.5% 0.012 55 / 0.1);
+            border-bottom: 1px solid rgba(0,0,0,0.1);
         }
         .apply-price strong { color: var(--night); font-weight: 400; font-size: 1.1rem; }
 
@@ -154,39 +156,48 @@
         </button>
     </div>
     <nav class="drawer-nav">
-        <a href="index.html" class="drawer-link drawer-link-quiz">Home</a>
-        <a href="index.html#beliefs" class="drawer-link drawer-link-quiz">Who We Are</a>
-        <div class="drawer-sep"></div>
-        <span class="drawer-section-label">Offers</span>
-        <a href="quiz.html" class="drawer-link drawer-link-quiz" data-page="quiz.html">Find Your Fit</a>
-        <a href="spark.html" class="drawer-link drawer-tier-link" data-page="spark.html">
-            <span class="drawer-tier-name">Spark</span>
-            <span class="drawer-tier-desc">Start earning from the sport</span>
-        </a>
-        <a href="rise.html" class="drawer-link drawer-tier-link" data-page="rise.html">
-            <span class="drawer-tier-name">Rise</span>
-            <span class="drawer-tier-desc">Build serious income</span>
-        </a>
-        <a href="reign.html" class="drawer-link drawer-tier-link" data-page="reign.html">
-            <span class="drawer-tier-name">Reign</span>
-            <span class="drawer-tier-desc">Compound what you've built</span>
-        </a>
+        <a href="index.html#hero" class="drawer-link drawer-link-quiz">Home</a>
+        <a href="index.html#wwd" class="drawer-link drawer-link-quiz">What We Do</a>
+        <a href="index.html#beliefs" class="drawer-link drawer-link-quiz">What We Believe</a>
+        <div class="drawer-offers-group">
+            <a href="index.html#offers" class="drawer-link drawer-link-quiz drawer-link-offers">Offers</a>
+            <div class="drawer-tier-list">
+                <a href="spark.html" class="drawer-link drawer-tier-link" data-page="spark.html">
+                    <span class="drawer-tier-name">Spark</span>
+                    <span class="drawer-tier-desc">Start earning from the sport</span>
+                </a>
+                <a href="rise.html" class="drawer-link drawer-tier-link" data-page="rise.html">
+                    <span class="drawer-tier-name">Rise</span>
+                    <span class="drawer-tier-desc">Build serious income</span>
+                </a>
+                <a href="reign.html" class="drawer-link drawer-tier-link" data-page="reign.html">
+                    <span class="drawer-tier-name">Reign</span>
+                    <span class="drawer-tier-desc">Compound what you've built</span>
+                </a>
+                <a href="quiz.html" class="drawer-link drawer-link-findfit" data-page="quiz.html">Find Your Fit</a>
+            </div>
+        </div>
     </nav>
 </aside>
 
 <nav class="nav">
-    <a href="index.html" class="nav-logo"><img src="logo.svg" alt="First Light" class="nav-logo-img"></a>
-    <button class="hamburger" id="hamburger" aria-label="Open menu" aria-expanded="false"><span></span><span></span><span></span></button>
+    <a href="index.html" class="nav-logo" id="navLogo" aria-haspopup="true" aria-expanded="false"><img src="logo.svg" alt="First Light" class="nav-logo-img"></a>
 </nav>
 
 <!-- HERO -->
 <section class="hero">
-    <span class="hero-tier" data-r>Spark</span>
-    <h1 class="hero-hl" data-r style="--d:60ms">Your sport can pay you back.</h1>
-    <p class="hero-sub" data-r style="--d:140ms">A real side income from the sport you're already dedicated to. No agent required. No massive audience required. Just the system, and the discipline you already have.</p>
-    <div data-r style="--d:220ms">
-        <a href="#apply" class="btn btn-amber">Sign Up</a>
-        <span class="hero-price">$29/mo · cancel anytime</span>
+    <div class="hero-vid-bg offer-vid">
+        <span class="offer-vid-fallback">Spark</span>
+        <video autoplay muted loop playsinline src="spark-offer.mp4" onerror="this.style.display='none'"></video>
+    </div>
+    <div class="hero-vid-overlay"></div>
+    <div class="hero-content">
+        <h1 class="hero-hl" data-r style="--d:60ms">Your sport can pay you back.</h1>
+        <p class="hero-sub" data-r style="--d:140ms">A real side income from the sport you're already dedicated to. No agent required. No massive audience required. Just the system, and the discipline you already have.</p>
+        <div data-r style="--d:220ms">
+            <a href="#apply" class="btn hero-cta">Sign Up</a>
+            <span class="hero-price">$29/mo · cancel anytime</span>
+        </div>
     </div>
 </section>
 
@@ -330,6 +341,7 @@
         <a href="quiz.html" class="foot-link">Find Your Fit</a>
     </nav>
     <p class="foot-copy">© 2026 First Light</p>
+    <p class="foot-disclaimer">Fighters shown in videos are used as illustrative examples only and are not necessarily First Light clients.</p>
 </footer>
 
 <script src="nav.js"></script>

@@ -8,7 +8,7 @@
     <link rel="apple-touch-icon" href="favicon.png">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Red+Hat+Display:wght@800&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Red+Hat+Display:wght@800&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
     <style>
         /* ── HERO — minimal, sparse ── */
@@ -23,13 +23,16 @@
             content: '';
             position: absolute; inset: 0; pointer-events: none;
             background: radial-gradient(ellipse 50% 60% at 100% 0%,
-                oklch(36% 0.058 222 / 0.1) 0%, transparent 55%);
+                rgba(255,255,255,0.04) 0%, transparent 55%);
+            z-index: 1;
         }
-        .hero-tier {
-            font-family: 'DM Sans', sans-serif;
-            font-size: 0.72rem; font-weight: 500; letter-spacing: 0.22em;
-            color: var(--dawn-mid); display: block; margin-bottom: 2.5rem;
+        .hero-vid-bg { position: absolute; inset: 0; z-index: 0; }
+        .hero-vid-bg .offer-vid-fallback { font-size: clamp(4rem, 14vw, 12rem); }
+        .hero-vid-overlay {
+            position: absolute; inset: 0; z-index: 1; pointer-events: none;
+            background: linear-gradient(to top, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.5) 45%, rgba(0,0,0,0.08) 75%);
         }
+        .hero-content { position: relative; z-index: 2; }
         .hero-hl {
             font-family: 'Red Hat Display', sans-serif;
             font-size: clamp(3.5rem, 8vw, 7rem);
@@ -136,40 +139,49 @@
         </button>
     </div>
     <nav class="drawer-nav">
-        <a href="index.html" class="drawer-link drawer-link-quiz">Home</a>
-        <a href="index.html#beliefs" class="drawer-link drawer-link-quiz">Who We Are</a>
-        <div class="drawer-sep"></div>
-        <span class="drawer-section-label">Offers</span>
-        <a href="quiz.html" class="drawer-link drawer-link-quiz" data-page="quiz.html">Find Your Fit</a>
-        <a href="spark.html" class="drawer-link drawer-tier-link" data-page="spark.html">
-            <span class="drawer-tier-name">Spark</span>
-            <span class="drawer-tier-desc">Start earning from the sport</span>
-        </a>
-        <a href="rise.html" class="drawer-link drawer-tier-link" data-page="rise.html">
-            <span class="drawer-tier-name">Rise</span>
-            <span class="drawer-tier-desc">Build serious income</span>
-        </a>
-        <a href="reign.html" class="drawer-link drawer-tier-link" data-page="reign.html">
-            <span class="drawer-tier-name">Reign</span>
-            <span class="drawer-tier-desc">Compound what you've built</span>
-        </a>
+        <a href="index.html#hero" class="drawer-link drawer-link-quiz">Home</a>
+        <a href="index.html#wwd" class="drawer-link drawer-link-quiz">What We Do</a>
+        <a href="index.html#beliefs" class="drawer-link drawer-link-quiz">What We Believe</a>
+        <div class="drawer-offers-group">
+            <a href="index.html#offers" class="drawer-link drawer-link-quiz drawer-link-offers">Offers</a>
+            <div class="drawer-tier-list">
+                <a href="spark.html" class="drawer-link drawer-tier-link" data-page="spark.html">
+                    <span class="drawer-tier-name">Spark</span>
+                    <span class="drawer-tier-desc">Start earning from the sport</span>
+                </a>
+                <a href="rise.html" class="drawer-link drawer-tier-link" data-page="rise.html">
+                    <span class="drawer-tier-name">Rise</span>
+                    <span class="drawer-tier-desc">Build serious income</span>
+                </a>
+                <a href="reign.html" class="drawer-link drawer-tier-link" data-page="reign.html">
+                    <span class="drawer-tier-name">Reign</span>
+                    <span class="drawer-tier-desc">Compound what you've built</span>
+                </a>
+                <a href="quiz.html" class="drawer-link drawer-link-findfit" data-page="quiz.html">Find Your Fit</a>
+            </div>
+        </div>
     </nav>
 </aside>
 
 <nav class="nav">
-    <a href="index.html" class="nav-logo"><img src="logo.svg" alt="First Light" class="nav-logo-img"></a>
-    <button class="hamburger" id="hamburger" aria-label="Open menu" aria-expanded="false"><span></span><span></span><span></span></button>
+    <a href="index.html" class="nav-logo" id="navLogo" aria-haspopup="true" aria-expanded="false"><img src="logo.svg" alt="First Light" class="nav-logo-img"></a>
 </nav>
 
 <!-- HERO -->
 <section class="hero">
-    <span class="hero-tier" data-r>Reign</span>
-    <h1 class="hero-hl" data-r style="--d:80ms">What you've built should compound.</h1>
-    <div class="hero-rule" data-r style="--d:160ms"></div>
-    <p class="hero-sub" data-r style="--d:200ms">You're not here because you need convincing. You're here because your platform isn't performing the way your career deserves, and you're done leaving it at that.</p>
-    <div data-r style="--d:280ms">
-        <a href="#apply" class="btn btn-dawn">Contact Us</a>
-        <span class="hero-price">$1,497/mo · 6-month minimum · exit clause after month 3</span>
+    <div class="hero-vid-bg offer-vid">
+        <span class="offer-vid-fallback">Reign</span>
+        <video autoplay muted loop playsinline src="reign-offer.mp4" onerror="this.style.display='none'"></video>
+    </div>
+    <div class="hero-vid-overlay"></div>
+    <div class="hero-content">
+        <h1 class="hero-hl" data-r style="--d:80ms">What you've built should compound.</h1>
+        <div class="hero-rule" data-r style="--d:160ms"></div>
+        <p class="hero-sub" data-r style="--d:200ms">You're not here because you need convincing. You're here because your platform isn't performing the way your career deserves, and you're done leaving it at that.</p>
+        <div data-r style="--d:280ms">
+            <a href="#apply" class="btn hero-cta">Contact Us</a>
+            <span class="hero-price">$1,497/mo · 6-month minimum · exit clause after month 3</span>
+        </div>
     </div>
 </section>
 
@@ -277,6 +289,7 @@
         <a href="quiz.html" class="foot-link">Find Your Fit</a>
     </nav>
     <p class="foot-copy">© 2026 First Light</p>
+    <p class="foot-disclaimer">Fighters shown in videos are used as illustrative examples only and are not necessarily First Light clients.</p>
 </footer>
 
 <script src="nav.js"></script>

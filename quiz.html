@@ -8,7 +8,7 @@
     <link rel="apple-touch-icon" href="favicon.png">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Red+Hat+Display:wght@800&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Red+Hat+Display:wght@800&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
     <style>
         body { min-height: 100svh; display: flex; flex-direction: column; }
@@ -66,6 +66,16 @@
             margin-bottom: 2.5rem; text-wrap: balance;
         }
 
+        .quiz-back {
+            font-size: 0.65rem; font-weight: 500; letter-spacing: 0.14em;
+            text-transform: uppercase; color: var(--t3);
+            background: none; border: none; cursor: pointer;
+            padding: 0; margin-bottom: 1.5rem; display: block;
+            font-family: 'DM Sans', sans-serif;
+            transition: color 0.2s;
+        }
+        .quiz-back:hover { color: var(--bone); }
+
         .answers { display: flex; flex-direction: column; gap: 0.75rem; }
         .answer {
             border: 1px solid var(--border-d);
@@ -98,13 +108,12 @@
             text-transform: uppercase; color: var(--amber);
             display: block; margin-bottom: 1.5rem;
         }
-        .result-tier {
-            font-family: 'Red Hat Display', sans-serif;
-            font-size: clamp(3rem, 7vw, 5rem);
-            font-weight: 800; color: var(--bone);
-            letter-spacing: 0.02em; line-height: 1;
-            display: block; margin-bottom: 1.75rem;
+        .result-vid {
+            width: 100%; aspect-ratio: 20/9; overflow: hidden;
+            background: var(--night-surface);
+            margin-bottom: 1.75rem;
         }
+        .result-vid .offer-vid-fallback { font-size: clamp(2rem, 6vw, 3.5rem); }
         .result-para {
             font-size: 0.98rem; color: var(--t2); line-height: 1.9;
             max-width: 52ch; margin-bottom: 2.75rem;
@@ -133,29 +142,32 @@
         </button>
     </div>
     <nav class="drawer-nav">
-        <a href="index.html" class="drawer-link drawer-link-quiz">Home</a>
-        <a href="index.html#beliefs" class="drawer-link drawer-link-quiz">Who We Are</a>
-        <div class="drawer-sep"></div>
-        <span class="drawer-section-label">Offers</span>
-        <a href="quiz.html" class="drawer-link drawer-link-quiz" data-page="quiz.html">Find Your Fit</a>
-        <a href="spark.html" class="drawer-link drawer-tier-link" data-page="spark.html">
-            <span class="drawer-tier-name">Spark</span>
-            <span class="drawer-tier-desc">Start earning from the sport</span>
-        </a>
-        <a href="rise.html" class="drawer-link drawer-tier-link" data-page="rise.html">
-            <span class="drawer-tier-name">Rise</span>
-            <span class="drawer-tier-desc">Build serious income</span>
-        </a>
-        <a href="reign.html" class="drawer-link drawer-tier-link" data-page="reign.html">
-            <span class="drawer-tier-name">Reign</span>
-            <span class="drawer-tier-desc">Compound what you've built</span>
-        </a>
+        <a href="index.html#hero" class="drawer-link drawer-link-quiz">Home</a>
+        <a href="index.html#wwd" class="drawer-link drawer-link-quiz">What We Do</a>
+        <a href="index.html#beliefs" class="drawer-link drawer-link-quiz">What We Believe</a>
+        <div class="drawer-offers-group">
+            <a href="index.html#offers" class="drawer-link drawer-link-quiz drawer-link-offers">Offers</a>
+            <div class="drawer-tier-list">
+                <a href="spark.html" class="drawer-link drawer-tier-link" data-page="spark.html">
+                    <span class="drawer-tier-name">Spark</span>
+                    <span class="drawer-tier-desc">Start earning from the sport</span>
+                </a>
+                <a href="rise.html" class="drawer-link drawer-tier-link" data-page="rise.html">
+                    <span class="drawer-tier-name">Rise</span>
+                    <span class="drawer-tier-desc">Build serious income</span>
+                </a>
+                <a href="reign.html" class="drawer-link drawer-tier-link" data-page="reign.html">
+                    <span class="drawer-tier-name">Reign</span>
+                    <span class="drawer-tier-desc">Compound what you've built</span>
+                </a>
+                <a href="quiz.html" class="drawer-link drawer-link-findfit" data-page="quiz.html">Find Your Fit</a>
+            </div>
+        </div>
     </nav>
 </aside>
 
 <nav class="nav">
-    <a href="index.html" class="nav-logo"><img src="logo.svg" alt="First Light" class="nav-logo-img"></a>
-    <button class="hamburger" id="hamburger" aria-label="Open menu" aria-expanded="false"><span></span><span></span><span></span></button>
+    <a href="index.html" class="nav-logo" id="navLogo" aria-haspopup="true" aria-expanded="false"><img src="logo.svg" alt="First Light" class="nav-logo-img"></a>
 </nav>
 
 <main class="quiz-wrap">
@@ -189,17 +201,17 @@
         {
             text: "What best describes your relationship with the sport right now?",
             answers: [
-                { text: "I train seriously — it's a big part of my life, but not my career", scores: { spark: 3 } },
+                { text: "I train seriously — It's a big part of my life, but not my career", scores: { spark: 3 } },
                 { text: "I'm actively building toward this being my full-time career", scores: { rise: 3 } },
-                { text: "I compete or coach professionally — this is what I do", scores: { rise: 2, reign: 1 } },
-                { text: "I'm established. Known name, real record, real recognition in my sport", scores: { reign: 3 } }
+                { text: "I compete or coach professionally — This is what I do", scores: { rise: 2, reign: 1 } },
+                { text: "I'm established — Known name, real record, real recognition in my sport", scores: { reign: 3 } }
             ]
         },
         {
             text: "What does your current online presence look like?",
             answers: [
                 { text: "Small — a few hundred to a couple of thousand followers", scores: { spark: 3 } },
-                { text: "Growing — building an audience, somewhere between 1k and 20k", scores: { spark: 1, rise: 2 } },
+                { text: "Growing — building an audience, somewhere between 2k and 20k", scores: { spark: 1, rise: 2 } },
                 { text: "Solid — 20k to 100k, real engagement, people know me in the sport", scores: { rise: 3 } },
                 { text: "Significant — 100k+ or a recognizable name beyond the numbers", scores: { reign: 3 } }
             ]
@@ -226,7 +238,7 @@
             text: "What does winning look like for you in 12 months?",
             answers: [
                 { text: "The sport pays for itself — a side income I'm genuinely proud of", scores: { spark: 3 } },
-                { text: "I'm generating real money that changes what's possible for me", scores: { rise: 3 } },
+                { text: "I'm generating real money that changes my need for a side job", scores: { rise: 3 } },
                 { text: "I've made the leap, or seriously leveled up what I already have", scores: { rise: 1, reign: 2 } },
                 { text: "My name is a compounding asset — building something that outlasts my career", scores: { reign: 3 } }
             ]
@@ -250,6 +262,7 @@
 
     const tierLinks = { spark: 'spark.html', rise: 'rise.html', reign: 'reign.html' };
     const tierLabels = { spark: 'Explore Spark', rise: 'Explore Rise', reign: 'Explore Reign' };
+    const tierVideos = { spark: 'spark-offer.mp4', rise: 'rise-offer.mp4', reign: 'reign-offer.mp4' };
 
     let current = 0;
     let scores = { spark: 0, rise: 0, reign: 0 };
@@ -267,10 +280,20 @@
         progressLabel.textContent = (index + 1) + ' of ' + questions.length;
     }
 
+    function goBack() {
+        if (current === 0) return;
+        const lastIdx = answerLog.pop();
+        const prevAnswer = questions[current - 1].answers[lastIdx];
+        Object.entries(prevAnswer.scores).forEach(function (kv) { scores[kv[0]] -= kv[1]; });
+        current--;
+        renderQuestion(current);
+    }
+
     function renderQuestion(index) {
         setProgress(index);
         const q = questions[index];
         qContainer.innerHTML =
+            (index > 0 ? '<button class="quiz-back" id="backBtn">← Back</button>' : '') +
             '<p class="q-text">' + q.text + '</p>' +
             '<div class="answers">' +
             q.answers.map(function (a, i) {
@@ -278,6 +301,10 @@
             }).join('') +
             '</div>';
         qContainer.className = 'quiz-q';
+
+        if (index > 0) {
+            document.getElementById('backBtn').addEventListener('click', goBack);
+        }
 
         qContainer.querySelectorAll('.answer').forEach(function (btn) {
             btn.addEventListener('click', function () {
@@ -331,13 +358,18 @@
         const para = getParagraph(winner);
         const link = tierLinks[winner];
         const label = tierLabels[winner];
+        const video = tierVideos[winner];
+        const name = winner.charAt(0).toUpperCase() + winner.slice(1);
 
         quizProgress.style.display = 'none';
         qContainer.style.display = 'none';
         rContainer.classList.remove('quiz-hidden');
         rContainer.innerHTML =
             '<span class="result-kicker">Your recommended path</span>' +
-            '<span class="result-tier">' + winner.charAt(0).toUpperCase() + winner.slice(1) + '</span>' +
+            '<div class="result-vid offer-vid">' +
+            '<span class="offer-vid-fallback">' + name + '</span>' +
+            '<video autoplay muted loop playsinline src="' + video + '" onerror="this.style.display=\'none\'"></video>' +
+            '</div>' +
             '<p class="result-para">' + para + '</p>' +
             '<div class="result-actions">' +
             '<a href="' + link + '" class="btn btn-amber">' + label + '</a>' +

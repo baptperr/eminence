@@ -1,28 +1,49 @@
 (function () {
     document.addEventListener('DOMContentLoaded', function () {
         // ── Drawer ──
-        const hamburger = document.getElementById('hamburger');
+        const navLogo = document.getElementById('navLogo');
         const drawer = document.getElementById('drawer');
         const overlay = document.getElementById('drawerOverlay');
         const drawerClose = document.getElementById('drawerClose');
+        const canHover = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
 
         function openDrawer() {
             drawer.classList.add('open');
             overlay.classList.add('open');
             document.body.style.overflow = 'hidden';
-            hamburger.setAttribute('aria-expanded', 'true');
+            if (navLogo) navLogo.setAttribute('aria-expanded', 'true');
         }
         function closeDrawer() {
             drawer.classList.remove('open');
             overlay.classList.remove('open');
             document.body.style.overflow = '';
-            hamburger.setAttribute('aria-expanded', 'false');
+            if (navLogo) navLogo.setAttribute('aria-expanded', 'false');
         }
 
-        if (hamburger) hamburger.addEventListener('click', openDrawer);
         if (drawerClose) drawerClose.addEventListener('click', closeDrawer);
         if (overlay) overlay.addEventListener('click', closeDrawer);
         document.addEventListener('keydown', function (e) { if (e.key === 'Escape') closeDrawer(); });
+
+        if (navLogo) {
+            if (canHover) {
+                // Desktop: hovering the logo pulls the drawer out; moving away closes it.
+                var closeTimer = null;
+                var cancelClose = function () { clearTimeout(closeTimer); };
+                var scheduleClose = function () { cancelClose(); closeTimer = setTimeout(closeDrawer, 200); };
+                navLogo.addEventListener('mouseenter', function () { cancelClose(); openDrawer(); });
+                navLogo.addEventListener('mouseleave', scheduleClose);
+                drawer.addEventListener('mouseenter', cancelClose);
+                drawer.addEventListener('mouseleave', scheduleClose);
+            } else {
+                // Touch: tapping the logo opens the drawer instead of navigating immediately.
+                navLogo.addEventListener('click', function (e) {
+                    if (!drawer.classList.contains('open')) {
+                        e.preventDefault();
+                        openDrawer();
+                    }
+                });
+            }
+        }
 
         // Active page in drawer
         const page = window.location.pathname.split('/').pop() || 'index.html';
@@ -77,6 +98,68 @@
             });
         }, { threshold: 0.08, rootMargin: '0px 0px -32px 0px' });
         document.querySelectorAll('[data-r]').forEach(function (el) { io.observe(el); });
+
+        // ── Beliefs: horizontal drift scrubbed continuously to scroll position ──
+        (function () {
+            const items = Array.prototype.slice.call(document.querySelectorAll('.belief'));
+            if (!items.length) return;
+            if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+            // "range" is how much scroll distance (in viewport heights) it takes to resolve — this
+            // is what controls actual speed (drift / range), so it's spread out aggressively here
+            // while drift stays fairly close across rows. That way row 1 snaps into place almost
+            // immediately, while row 4 visibly crawls, still catching up long after row 1 has
+            // settled — the rows desync in pace, not just in how far apart they land.
+            // mobileRange is set separately (not just a scaled-down version of range) — a mobile
+            // viewport is much shorter, so it's tuned directly against each row's own measured
+            // height instead of desktop's range values: a row is roughly 0.2-0.26 of the viewport
+            // tall on mobile. Resolving right at that ratio uses the entire time the row is scrolling
+            // into frame for the drift, so it reads clearly during a normal scroll — going much
+            // lower resolves it while the row is still mostly below the fold, invisibly fast.
+            const CONFIG = [
+                { drift: 200, range: 0.6, mobileRange: 0.21 },
+                { drift: 260, range: 1.4, mobileRange: 0.185 },
+                { drift: 320, range: 2.8, mobileRange: 0.245 },
+                { drift: 380, range: 5.5, mobileRange: 0.245 },
+            ];
+            let ticking = false;
+
+            function update() {
+                const vh = window.innerHeight;
+                // Cap travel to a share of viewport width so narrow (mobile) screens don't leave
+                // text clipped off-canvas for most of its scroll — the raw drift values are tuned
+                // for desktop-width rows and would badly overshoot a ~350px mobile column.
+                const maxDrift = window.innerWidth * 0.55;
+                // The "range" values below assume a scroll distance that's realistic on a tall
+                // desktop viewport. On a short mobile viewport, a short belief row scrolls past
+                // entirely before a large range ever resolves, so a row can sit clipped/unreadable
+                // for its whole time on screen. Shrink range on narrow screens so every row settles
+                // to its resting position well before it scrolls out of view.
+                const isMobile = window.innerWidth < 700;
+                items.forEach(function (el, i) {
+                    const cfg = CONFIG[i % CONFIG.length];
+                    const drift = Math.min(cfg.drift, maxDrift);
+                    const rect = el.getBoundingClientRect();
+                    const effectiveRange = isMobile ? cfg.mobileRange : cfg.range;
+                    // 0 as the row's top edge enters the bottom of the viewport, 1 once it's scrolled past the top
+                    let progress = (vh - rect.top) / (vh * effectiveRange);
+                    progress = Math.max(0, Math.min(1, progress));
+                    el.style.transform = 'translateX(' + (-drift * (1 - progress)) + 'px)';
+                });
+                ticking = false;
+            }
+
+            function onScroll() {
+                if (!ticking) {
+                    requestAnimationFrame(update);
+                    ticking = true;
+                }
+            }
+
+            window.addEventListener('scroll', onScroll, { passive: true });
+            window.addEventListener('resize', onScroll);
+            update();
+        })();
 
         // ── Social fields ──
         const MAX_SOCIALS = 10;
