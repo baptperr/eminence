@@ -176,7 +176,7 @@ Buttons are signage. Zero radius. Wide-tracked uppercase DM Sans. Generous horiz
 - **Shape:** Zero radius (0). Hard edges at every corner.
 - **Primary (Amber):** `background: #d4925a`, `color: #170327`, padding `1rem 2.5rem`. The rarest button — used once per page maximum.
 - **Primary Hover:** `background: #e0a876`. Transition 0.2s.
-- **Dawn:** `background: #3d5a6c`, `color: #f0ebe3`. Used on Reign-tier pages where amber would conflict with the page's cooler register.
+- **Dawn:** `background: #3d5a6c`, `color: #f0ebe3`. Used on Blaze-tier pages where amber would conflict with the page's cooler register.
 - **Ghost:** `background: transparent`, `color: #f0ebe3`, `border: 1px solid dawn at 30% opacity`. Hover shifts border and text to amber.
 - **Full-width variant:** `width: 100%`, `text-align: center`, padding-block `1.2rem`.
 

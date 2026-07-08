@@ -199,19 +199,19 @@ body.page-loaded .split-accent { transform: translateX(0); opacity: 1; }
 .drawer-link-offers { border-bottom: none; padding-bottom: 0.5rem; }
 .drawer-tier-list {
     display: flex; flex-direction: column;
-    padding-left: 1.1rem;
+    padding-left: 0.75rem;
     border-left: 1px solid var(--border-d);
     margin: 0 0 1rem 0.4rem;
 }
 .drawer-tier-link {
     display: flex; flex-direction: column; gap: 0.15rem;
-    padding: 0.65rem 0 0.65rem 1rem;
+    padding: 0.65rem 0 0.65rem 0.75rem;
     border-bottom: 1px solid var(--border-n);
 }
 .drawer-tier-list .drawer-tier-link:last-child { border-bottom: none; }
 .drawer-tier-name {
     font-family: 'Red Hat Display', sans-serif;
-    font-size: 0.92rem; font-weight: 700; color: var(--bone);
+    font-size: 1.15rem; font-weight: 700; color: var(--bone);
     line-height: 1;
 }
 .drawer-tier-link:hover .drawer-tier-name { color: var(--amber); }
@@ -225,7 +225,7 @@ body.page-loaded .split-accent { transform: translateX(0); opacity: 1; }
 .drawer-tier-list .drawer-link-findfit {
     border-top: 1px dashed var(--border-d);
     border-bottom: none;
-    padding: 0.85rem 0 0.35rem 1rem;
+    padding: 0.85rem 0 0.35rem 0.75rem;
     margin-top: 0.35rem;
 }
 
@@ -388,11 +388,11 @@ footer {
     .drawer-link { padding: 0.55rem 0; font-size: 0.82rem; }
     .drawer-link-quiz { font-size: 1.05rem; padding: 0.6rem 0; }
     .drawer-offers-group { margin-top: 0.15rem; }
-    .drawer-tier-list { padding-left: 0.9rem; margin: 0 0 0.75rem 0.3rem; }
-    .drawer-tier-link { padding: 0.5rem 0 0.5rem 0.8rem; }
-    .drawer-tier-name { font-size: 0.85rem; }
+    .drawer-tier-list { padding-left: 0.6rem; margin: 0 0 0.75rem 0.3rem; }
+    .drawer-tier-link { padding: 0.5rem 0 0.5rem 0.6rem; }
+    .drawer-tier-name { font-size: 1rem; }
     .drawer-tier-desc { font-size: 0.6rem; }
-    .drawer-tier-list .drawer-link-findfit { padding: 0.6rem 0 0.3rem 0.8rem; margin-top: 0.25rem; }
+    .drawer-tier-list .drawer-link-findfit { padding: 0.6rem 0 0.3rem 0.6rem; margin-top: 0.25rem; }
 }
 
 /* ── OFFER VIDEO (tier-name graphic, with text fallback) ── */

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Find Your Path — First Light</title>
+    <title>Find Your Fit — First Light</title>
     <link rel="icon" type="image/png" href="favicon.png">
     <link rel="apple-touch-icon" href="favicon.png">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -18,6 +18,17 @@
             align-items: center; justify-content: center;
             padding: 7rem 2rem 4rem; min-height: 100svh;
         }
+
+        /* Intro */
+        .quiz-intro { width: 100%; max-width: 580px; margin-bottom: 3rem; }
+        .quiz-title {
+            font-family: 'Red Hat Display', sans-serif;
+            font-size: clamp(1.9rem, 4.2vw, 2.75rem);
+            font-weight: 800; line-height: 1.15;
+            letter-spacing: 0.01em;
+            margin-bottom: 0.85rem;
+        }
+        .quiz-sub { font-size: 1rem; color: var(--t2); line-height: 1.6; }
 
         /* Progress */
         .quiz-progress {
@@ -150,15 +161,11 @@
             <div class="drawer-tier-list">
                 <a href="spark.html" class="drawer-link drawer-tier-link" data-page="spark.html">
                     <span class="drawer-tier-name">Spark</span>
-                    <span class="drawer-tier-desc">Start earning from the sport</span>
+                    <span class="drawer-tier-desc">Start building real income</span>
                 </a>
-                <a href="rise.html" class="drawer-link drawer-tier-link" data-page="rise.html">
-                    <span class="drawer-tier-name">Rise</span>
-                    <span class="drawer-tier-desc">Build serious income</span>
-                </a>
-                <a href="reign.html" class="drawer-link drawer-tier-link" data-page="reign.html">
-                    <span class="drawer-tier-name">Reign</span>
-                    <span class="drawer-tier-desc">Compound what you've built</span>
+                <a href="blaze.html" class="drawer-link drawer-tier-link" data-page="blaze.html">
+                    <span class="drawer-tier-name">Blaze</span>
+                    <span class="drawer-tier-desc">Compound your name and income</span>
                 </a>
                 <a href="quiz.html" class="drawer-link drawer-link-findfit" data-page="quiz.html">Find Your Fit</a>
             </div>
@@ -171,10 +178,16 @@
 </nav>
 
 <main class="quiz-wrap">
+    <!-- Intro -->
+    <div class="quiz-intro">
+        <h1 class="quiz-title">Find your fit.</h1>
+        <p class="quiz-sub" id="quizSub">Four questions. Two minutes. A clear recommendation and why.</p>
+    </div>
+
     <!-- Progress bar -->
     <div class="quiz-progress" id="quizProgress">
         <div class="progress-bar"><div class="progress-fill" id="progressFill" style="transform:scaleX(0)"></div></div>
-        <span class="progress-label" id="progressLabel">1 of 5</span>
+        <span class="progress-label" id="progressLabel">1 of 4</span>
     </div>
 
     <!-- Question container -->
@@ -188,8 +201,7 @@
     <a href="index.html" class="foot-logo"><img src="logo.svg" alt="First Light" class="foot-logo-img"></a>
     <nav class="foot-links">
         <a href="spark.html" class="foot-link">Spark</a>
-        <a href="rise.html" class="foot-link">Rise</a>
-        <a href="reign.html" class="foot-link">Reign</a>
+        <a href="blaze.html" class="foot-link">Blaze</a>
     </nav>
     <p class="foot-copy">© 2026 First Light</p>
 </footer>
@@ -199,73 +211,54 @@
 (function () {
     const questions = [
         {
-            text: "What best describes your relationship with the sport right now?",
+            text: "Where are you in the sport?",
             answers: [
-                { text: "I train seriously — It's a big part of my life, but not my career", scores: { spark: 3 } },
-                { text: "I'm actively building toward this being my full-time career", scores: { rise: 3 } },
-                { text: "I compete or coach professionally — This is what I do", scores: { rise: 2, reign: 1 } },
-                { text: "I'm established — Known name, real record, real recognition in my sport", scores: { reign: 3 } }
+                { text: "I train and compete as a serious hobbyist — I've got a job or other income, but I'm good and I want my sport to start paying too", scores: { spark: 3 } },
+                { text: "I'm a dedicated amateur chasing this seriously — competing regularly, building toward something real", scores: { spark: 3 } },
+                { text: "I'm a working pro or top-level amateur — the credibility is there, the income isn't yet", scores: { blaze: 3 } },
+                { text: "I'm an established name — real record, real recognition in my sport", scores: { blaze: 3 } }
             ]
         },
         {
-            text: "What does your current online presence look like?",
+            text: "What does your presence online look like?",
             answers: [
-                { text: "Small — a few hundred to a couple of thousand followers", scores: { spark: 3 } },
-                { text: "Growing — building an audience, somewhere between 2k and 20k", scores: { spark: 1, rise: 2 } },
-                { text: "Solid — 20k to 100k, real engagement, people know me in the sport", scores: { rise: 3 } },
-                { text: "Significant — 100k+ or a recognizable name beyond the numbers", scores: { reign: 3 } }
+                { text: "Small but real — a few hundred to a couple thousand who actually care", scores: { spark: 3 } },
+                { text: "Building — somewhere between 2k and 20k, growing when I put in the effort", scores: { spark: 3 } },
+                { text: "Solid — 20k to 100k, real engagement, known in my scene", scores: { blaze: 3 } },
+                { text: "Significant — 100k+, or a name that gets recognized beyond the follower count", scores: { blaze: 3 } }
             ]
         },
         {
-            text: "What does your income from martial arts look like right now?",
+            text: "What are you earning from the sport today?",
             answers: [
-                { text: "Nothing yet — I haven't started monetizing", scores: { spark: 3 } },
-                { text: "A little — mostly from teaching, private lessons, or occasional gigs", scores: { spark: 1, rise: 2 } },
-                { text: "Growing — a few income streams, but inconsistent", scores: { rise: 3 } },
-                { text: "Real — I have regular income from fights, brand deals, or coaching", scores: { reign: 3 } }
+                { text: "Basically nothing yet — it all comes out of my own pocket", scores: { spark: 3 } },
+                { text: "A little on the side — the odd private lesson, a small gig here and there", scores: { spark: 3 } },
+                { text: "A few streams starting to add up, but nothing steady", scores: { blaze: 3 } },
+                { text: "Real income from fights, coaching, or deals — just well below what my name is worth", scores: { blaze: 3 } }
             ]
         },
         {
-            text: "What's your biggest frustration right now?",
+            text: "What would winning look like a year from now?",
             answers: [
-                { text: "I don't know where to start on the business side of this sport", scores: { spark: 3 } },
-                { text: "I have presence but can't turn it into consistent income", scores: { rise: 3 } },
-                { text: "I'm earning, but I know I'm leaving significant money on the table", scores: { rise: 1, reign: 2 } },
-                { text: "My name is worth more than what my platform is actually producing", scores: { reign: 3 } }
-            ]
-        },
-        {
-            text: "What does winning look like for you in 12 months?",
-            answers: [
-                { text: "The sport pays for itself — a side income I'm genuinely proud of", scores: { spark: 3 } },
-                { text: "I'm generating real money that changes my need for a side job", scores: { rise: 3 } },
-                { text: "I've made the leap, or seriously leveled up what I already have", scores: { rise: 1, reign: 2 } },
-                { text: "My name is a compounding asset — building something that outlasts my career", scores: { reign: 3 } }
+                { text: "Some real side income from the sport I love — without gambling my day job on it", scores: { spark: 3 } },
+                { text: "Enough coming in that I can take this full-time, or go all-in on what I've started", scores: { spark: 3 } },
+                { text: "Turning the name I'm building into steady, serious money", scores: { blaze: 3 } },
+                { text: "Earning like the name I've already made", scores: { blaze: 3 } }
             ]
         }
     ];
 
     const paragraphs = {
-        spark: {
-            tiny: "You're starting from where most people start. Spark is designed for exactly where you are: serious about the sport, not yet thinking about the business side. The brand definition and playbook are done for you in the first week. Everything after that is execution — and we built the system for someone with your schedule and your starting point.",
-            growing: "You've already got a foothold — a growing presence that hasn't been given the right architecture yet. Spark turns that into a real side income: brand clarity done for you, a content system, and a playbook built for athletes who want to earn without becoming marketers."
-        },
-        rise: {
-            close: "You can feel you're close — and that's an accurate read. Rise gives you the team and the system to close the gap: content and sponsor outreach executed alongside you, monthly strategy to sharpen your direction, and a $1,000 guarantee in 90 days to put our conviction in writing.",
-            earning: "You're already generating something, which means the infrastructure is starting to work. Rise accelerates it: done-with-you execution, a clear income target, and a team that moves your pipeline forward every week while you focus on training."
-        },
-        reign: {
-            established: "You've built the name. What's missing is the machine behind it. Reign handles everything off the mats — content, sponsorship, press, negotiation, logistics — so your platform finally earns at the level your career has earned.",
-            default: "Your name is worth more than what your current setup is producing. Reign is built to fix that: a full team executing everything off the mats, guaranteed monthly deliverables, and the flexibility to exit after month three if it's not working. It will work."
-        }
+        spark: "You've got something real, and it isn't paying what it should yet. Spark puts a team behind you — content produced and published, sponsors sourced and pitched, your direction sharpened every month — while you keep training and keep your day handled. You stay as involved as you want; it just stops depending on your time. You don't need to bet your career to start earning from it.",
+        blaze: "Your name is worth more than your current setup is producing. Blaze fixes that — a commercial operation run personally by the founder, across every platform, with priority on everything and direct access to the person building it. Deliberately few slots."
     };
 
-    const tierLinks = { spark: 'spark.html', rise: 'rise.html', reign: 'reign.html' };
-    const tierLabels = { spark: 'Explore Spark', rise: 'Explore Rise', reign: 'Explore Reign' };
-    const tierVideos = { spark: 'spark-offer.mp4', rise: 'rise-offer.mp4', reign: 'reign-offer.mp4' };
+    const tierLinks = { spark: 'spark.html', blaze: 'blaze.html' };
+    const tierLabels = { spark: 'Explore Spark →', blaze: 'Explore Blaze →' };
+    const tierVideos = { spark: 'spark-offer.mp4', blaze: 'blaze-offer.mp4' };
 
     let current = 0;
-    let scores = { spark: 0, rise: 0, reign: 0 };
+    let scores = { spark: 0, blaze: 0 };
     let answerLog = [];
 
     const qContainer = document.getElementById('quizQuestion');
@@ -273,6 +266,7 @@
     const progressFill = document.getElementById('progressFill');
     const progressLabel = document.getElementById('progressLabel');
     const quizProgress = document.getElementById('quizProgress');
+    const quizSub = document.getElementById('quizSub');
 
     function setProgress(index) {
         const pct = (index / questions.length) * 100;
@@ -290,6 +284,7 @@
     }
 
     function renderQuestion(index) {
+        quizSub.style.display = index === 0 ? '' : 'none';
         setProgress(index);
         const q = questions[index];
         qContainer.innerHTML =
@@ -330,32 +325,16 @@
     }
 
     function getWinner() {
-        let winner = 'rise';
-        let max = -1;
-        Object.entries(scores).forEach(function (kv) {
-            if (kv[1] > max) { max = kv[1]; winner = kv[0]; }
-        });
-        // Tie-breaking: favor the upward path
-        const s = scores.spark, r = scores.rise, g = scores.reign;
-        if (s === r && r > g) winner = 'rise';
-        if (r === g && g > s) winner = 'rise';
-        if (s === g && s > r) winner = 'rise';
-        return winner;
-    }
-
-    function getParagraph(winner) {
-        if (winner === 'spark') {
-            return answerLog[1] <= 1 ? paragraphs.spark.tiny : paragraphs.spark.growing;
-        }
-        if (winner === 'rise') {
-            return answerLog[2] >= 2 ? paragraphs.rise.earning : paragraphs.rise.close;
-        }
-        return answerLog[0] === 3 ? paragraphs.reign.established : paragraphs.reign.default;
+        // Tie goes to Spark: fighters below Spark's level self-disqualify at the
+        // price, so the quiz doesn't need to catch them — only a clear read on an
+        // established, underperforming name should tip the result to Blaze.
+        return scores.blaze > scores.spark ? 'blaze' : 'spark';
     }
 
     function showResult() {
+        quizSub.style.display = 'none';
         const winner = getWinner();
-        const para = getParagraph(winner);
+        const para = paragraphs[winner];
         const link = tierLinks[winner];
         const label = tierLabels[winner];
         const video = tierVideos[winner];
@@ -377,7 +356,7 @@
             '</div>';
 
         document.getElementById('retryBtn').addEventListener('click', function () {
-            scores = { spark: 0, rise: 0, reign: 0 };
+            scores = { spark: 0, blaze: 0 };
             answerLog = [];
             current = 0;
             quizProgress.style.display = '';

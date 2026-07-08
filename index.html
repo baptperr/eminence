@@ -53,7 +53,7 @@
             max-width: 58ch;
             letter-spacing: -0.01em;
         }
-        .path-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2px; background: rgba(255,255,255,0.4); }
+        .path-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 2px; background: rgba(255,255,255,0.4); }
         .path {
             background: var(--night); padding: 0 0 1.875rem;
             text-decoration: none; display: flex; flex-direction: column;
@@ -70,6 +70,16 @@
             text-transform: uppercase; color: var(--t3); display: block; margin-bottom: 0.75rem;
             padding: 0 3rem;
         }
+        .path-lead { font-size: 1.3rem; color: var(--t2); line-height: 1.65; margin-bottom: 1rem; padding: 0 3rem; }
+        .path-list {
+            list-style: none; margin: 0 0 1.25rem; padding: 0 3rem;
+            display: flex; flex-direction: column; gap: 0.4rem;
+        }
+        .path-list li {
+            font-size: 1.3rem; color: var(--t2); line-height: 1.5;
+            position: relative; padding-left: 1.4rem;
+        }
+        .path-list li::before { content: '—'; position: absolute; left: 0; color: var(--amber); font-size: 0.8em; }
         .path-desc { font-size: 1.3rem; color: var(--t2); line-height: 1.65; margin-bottom: auto; padding: 0 3rem; }
         .path-arrow {
             font-size: 1.1rem; letter-spacing: 0.03em; text-transform: uppercase;
@@ -132,12 +142,12 @@
             grid-template-columns: minmax(0, 1fr) auto;
             align-items: start;
             column-gap: 3.5rem; /* breathing room between the text and the video */
-            padding-left: 5rem; /* text sits on the left here — video (right) stays flush to the edge */
+            padding-left: 5rem; /* text sits on the left here, video (right) stays flush to the edge */
         }
         .wwd-item--flip .wwd-grid {
             grid-template-columns: auto minmax(0, 1fr);
             padding-left: 0;
-            padding-right: 5rem; /* text sits on the right here — video (left) stays flush to the edge */
+            padding-right: 5rem; /* text sits on the right here, video (left) stays flush to the edge */
         }
         .wwd-left {
             display: flex; flex-direction: column;
@@ -225,9 +235,10 @@
 
             .paths { padding: 3rem 1.25rem 0; }
             .path-vid { margin-bottom: 1.5rem; }
-            .path-for, .path-desc, .path-arrow { padding: 0 0.25rem; }
+            .path-for, .path-lead, .path-list, .path-desc, .path-arrow { padding: 0 0.25rem; }
             .path-for { font-size: 0.65rem; }
-            .path-desc { font-size: 1rem; line-height: 1.6; }
+            .path-lead, .path-desc { font-size: 1rem; line-height: 1.6; }
+            .path-list li { font-size: 1rem; line-height: 1.5; }
             .path-arrow { font-size: 0.85rem; margin-top: 1.5rem; }
 
             .quiz-cta { padding: 2.5rem 1.25rem 4rem; }
@@ -413,15 +424,11 @@
             <div class="drawer-tier-list">
                 <a href="spark.html" class="drawer-link drawer-tier-link" data-page="spark.html">
                     <span class="drawer-tier-name">Spark</span>
-                    <span class="drawer-tier-desc">Start earning from the sport</span>
+                    <span class="drawer-tier-desc">Start building real income</span>
                 </a>
-                <a href="rise.html" class="drawer-link drawer-tier-link" data-page="rise.html">
-                    <span class="drawer-tier-name">Rise</span>
-                    <span class="drawer-tier-desc">Build serious income</span>
-                </a>
-                <a href="reign.html" class="drawer-link drawer-tier-link" data-page="reign.html">
-                    <span class="drawer-tier-name">Reign</span>
-                    <span class="drawer-tier-desc">Compound what you've built</span>
+                <a href="blaze.html" class="drawer-link drawer-tier-link" data-page="blaze.html">
+                    <span class="drawer-tier-name">Blaze</span>
+                    <span class="drawer-tier-desc">Compound your name and income</span>
                 </a>
                 <a href="quiz.html" class="drawer-link drawer-link-findfit" data-page="quiz.html">Find Your Fit</a>
             </div>
@@ -458,8 +465,8 @@
         </div>
     </div>
     <div class="video-extra" id="videoExtra">
-        <p class="video-sub">First Light exists to close the gap between what combat athletes earn and what they deserve.</p>
-        <a href="#offers" class="btn video-cta">Find Your Path</a>
+        <p class="video-sub">First Light exists to close the gap between what combat athletes are worth and what they're paid.</p>
+        <a href="quiz.html" class="btn video-cta">Find Your Path</a>
     </div>
 </section>
 
@@ -471,9 +478,8 @@
         <h2 class="wwd-title" data-r>What we do.</h2>
         <div class="wwd-sub" data-r style="--d:80ms">
             <p>A fighter is a business.</p>
-            <p>You run it everyday like a professional, but growing it is a different game.</p>
-            <p>No coach or gym teaches this.</p>
-            <p><strong style="color:#fff;font-weight:700;">We give you the exact playbook to monetize your career.</strong></p>
+            <p>You run it every day like a pro. Growing it is a different game, that no coach or gym plays.</p>
+            <p><strong style="color:#fff;font-weight:700;">We build and run the machine that turns your name into income.</strong></p>
         </div>
     </div>
     <div class="wwd-pillars">
@@ -481,12 +487,12 @@
         <div class="wwd-item">
             <div class="wwd-grid">
                 <div class="wwd-left">
-                    <span class="wwd-name" data-r>BRANDING</span>
-                    <p class="wwd-tagline" data-r style="--d:80ms">Inside and outside the cage, you are the product. We help you build a magnetic identity that promoters can't ignore and fans can't forget.</p>
+                    <span class="wwd-name" data-r>BRAND</span>
+                    <p class="wwd-tagline" data-r style="--d:80ms">You are the product, in the cage and out of it. We build an identity promoters can't ignore and fans can't forget.</p>
                     <ul class="wwd-list" data-r style="--d:180ms">
-                        <li><strong style="font-weight:700">Lock in your narrative:</strong> Define exactly what you stand for so your story does the heavy lifting for you.</li>
-                        <li><strong style="font-weight:700">Find your true fans:</strong> Identify the audience that finds your lifestyle thrilling, foreign, and aspirational.</li>
-                        <li><strong style="font-weight:700">Stand out from the noise:</strong> Stop looking and sounding like every other fighter on the card.</li>
+                        <li><strong style="font-weight:700">Define what you stand for</strong>, so your story carries you.</li>
+                        <li><strong style="font-weight:700">Reach the audience</strong> that finds your world foreign and thrilling.</li>
+                        <li><strong style="font-weight:700">Stop looking and sounding like every other fighter</strong> on the card.</li>
                     </ul>
                 </div>
                 <div class="wwd-vid" data-r style="--d:80ms">
@@ -507,11 +513,11 @@
                 </div>
                 <div class="wwd-left">
                     <span class="wwd-name" data-r>PROMOTE</span>
-                    <p class="wwd-tagline" data-r style="--d:80ms">To sell the product, people have to see it. We install an outreach engine that gets you maximum visibility without cutting into your mat time.</p>
+                    <p class="wwd-tagline" data-r style="--d:80ms">A product no one sees doesn't sell. We put you in front of the right audience without touching your training time.</p>
                     <ul class="wwd-list" data-r style="--d:180ms">
-                        <li><strong style="font-weight:700">Automate your attention:</strong> Build a content system that scales your reach while you're focused on fight camp.</li>
-                        <li><strong style="font-weight:700">Create demand:</strong> Grow a rabid audience before you actually need them to buy tickets or PPVs.</li>
-                        <li><strong style="font-weight:700">Dictate the terms:</strong> Pitch yourself to promoters, media, and events with real leverage behind your name.</li>
+                        <li><strong style="font-weight:700">Run a content engine</strong> that produces while you're deep in fight camp.</li>
+                        <li><strong style="font-weight:700">Land on bigger platforms</strong>: podcasts, media, events, all pitched and booked for you.</li>
+                        <li><strong style="font-weight:700">Grow a hungry audience</strong> before you ever need them to buy.</li>
                     </ul>
                 </div>
             </div>
@@ -522,11 +528,11 @@
             <div class="wwd-grid">
                 <div class="wwd-left">
                     <span class="wwd-name" data-r>MONETIZE</span>
-                    <p class="wwd-tagline" data-r style="--d:80ms">Fame doesn't pay the bills; systems do. We build the infrastructure to turn your audience into predictable, recurring profit.</p>
+                    <p class="wwd-tagline" data-r style="--d:80ms">Attention isn't income. We turn your name into revenue that recurs, compounds, and outlasts your career.</p>
                     <ul class="wwd-list" data-r style="--d:180ms">
-                        <li><strong style="font-weight:700">Unlock new income streams:</strong> Monetize your expertise through seminars, coaching, and digital instructionals.</li>
-                        <li><strong style="font-weight:700">Command higher sponsorships:</strong> Negotiate contracts from a position of power, not desperation.</li>
-                        <li>Set up revenue streams that pay outside of fights without taking you away from the sport.</li>
+                        <li><strong style="font-weight:700">Build the income streams around your expertise</strong>: seminars, coaching, instructionals.</li>
+                        <li><strong style="font-weight:700">Source, pitch, and negotiate sponsorships</strong> on your behalf.</li>
+                        <li><strong style="font-weight:700">Set up paydays outside of fights</strong>, without taking you away from fighting.</li>
                     </ul>
                 </div>
                 <div class="wwd-vid" data-r style="--d:80ms">
@@ -548,19 +554,19 @@
         <div class="belief-list">
             <div class="belief">
                 <span class="belief-n">Your name is an asset</span>
-                <p class="belief-body">Stop relying on fight purses. With the right architecture, your brand generates income across multiple streams, compounds over time, and outlasts your time on the mats.</p>
+                <p class="belief-body">Stop relying on sparse fight purses. With the right architecture, your personal brand generates income across multiple streams, compounds over time, and outlasts your competitive career.</p>
             </div>
             <div class="belief">
-                <span class="belief-n">Fame is just a foundation</span>
-                <p class="belief-body">Followers don't pay the bills, systems do. We teach you how to build sustainable income on top of your audience without selling out.</p>
+                <span class="belief-n">Fame is not the destination</span>
+                <p class="belief-body">Followers don't pay the bills. We build sustainable income on top of your audience, without selling out or diluting your brand.</p>
             </div>
             <div class="belief">
                 <span class="belief-n">The system is the advantage</span>
-                <p class="belief-body">You don't need more talent; you need infrastructure. We install the brand clarity, content systems, and sponsor outreach engines that work while you train.</p>
+                <p class="belief-body">You don't need more talent; you need infrastructure. We install and <em>operate</em> the branding, content production, and sponsor outreach that work while you train.</p>
             </div>
             <div class="belief">
                 <span class="belief-n">You don't need a million followers</span>
-                <p class="belief-body">You need the right architecture. The athletes we work with range from a few thousand followers to hundreds of thousands, and the system works at every level, scaled to where you actually are.</p>
+                <p class="belief-body">The athletes we work with range from a few thousand followers to hundreds of thousands, and the system works at every level, scaled to where you actually are.</p>
             </div>
         </div>
     </div>
@@ -571,8 +577,9 @@
 <!-- PATHS -->
 <section class="paths" id="offers">
     <div class="paths-hd" data-r>
-        <h2>What we offer.</h2>
-        <p>Every athlete enters at the stage that fits.</p>
+        <h2>Two ways in.</h2>
+        <p>Same expertise behind both.</p>
+        <p>The difference is how much of it, how fast, and whose hands are on it.</p>
     </div>
     <div class="path-grid">
         <a href="spark.html" class="path" data-r>
@@ -581,26 +588,31 @@
                 <video autoplay muted loop playsinline src="spark-offer.mp4" onerror="this.style.display='none'"></video>
             </div>
             <span class="path-for">For</span>
-            <p class="path-desc">The athlete who's serious about the sport and wants to start earning from it. Without going pro, without a big audience, without becoming a full-time content creator.</p>
-            <span class="path-arrow">Start earning today →</span>
+            <p class="path-lead">A team behind you while you focus on training.</p>
+            <ul class="path-list">
+                <li>Your content produced and published</li>
+                <li>Your sponsors sourced and pitched</li>
+                <li>Your services promoted and sold</li>
+                <li>Your brand direction sharpened every month</li>
+            </ul>
+            <p class="path-desc">All while you keep training. For the athlete who's good at what they do and wants their sport to start paying, whether as's side income or a full-time name.</p>
+            <span class="path-arrow">Explore Spark →</span>
         </a>
-        <a href="rise.html" class="path" data-r style="--d:80ms">
+        <a href="blaze.html" class="path" data-r style="--d:80ms">
             <div class="path-vid offer-vid">
-                <span class="offer-vid-fallback">Rise</span>
-                <video autoplay muted loop playsinline src="rise-offer.mp4" onerror="this.style.display='none'"></video>
+                <span class="offer-vid-fallback">Blaze</span>
+                <video autoplay muted loop playsinline src="blaze-offer.mp4" onerror="this.style.display='none'"></video>
             </div>
             <span class="path-for">For</span>
-            <p class="path-desc">The competitor who can feel they're close to a breakthrough. They have presence, they have credibility, but the income hasn't caught up yet. Rise closes that gap.</p>
-            <span class="path-arrow">Scale your income →</span>
-        </a>
-        <a href="reign.html" class="path" data-r style="--d:160ms">
-            <div class="path-vid offer-vid">
-                <span class="offer-vid-fallback">Reign</span>
-                <video autoplay muted loop playsinline src="reign-offer.mp4" onerror="this.style.display='none'"></video>
-            </div>
-            <span class="path-for">For</span>
-            <p class="path-desc">The established name who knows what they've built and wants their platform earning at the level their career deserves. Full done-for-you. Everything handled.</p>
-            <span class="path-arrow">Apply for management →</span>
+            <p class="path-lead">The flagship. Everything in Spark, turned all the way up.</p>
+            <ul class="path-list">
+                <li>More content</li>
+                <li>More platforms</li>
+                <li>Faster</li>
+                <li>Priority access and support</li>
+            </ul>
+            <p class="path-desc">For the established pro whose name earns them far less than it's worth.</p>
+            <span class="path-arrow">Explore Blaze →</span>
         </a>
     </div>
 </section>
@@ -608,8 +620,8 @@
 <!-- QUIZ CTA -->
 <section class="quiz-cta">
     <div class="quiz-cta-inner">
-        <h2 data-r>Not sure which path is yours?</h2>
-        <p data-r>Five questions. Two minutes. A clear recommendation and a short explanation.</p>
+        <h2 data-r>Not sure which fits?</h2>
+        <p data-r>Four questions. Two minutes. A clear recommendation and why.</p>
         <a href="quiz.html" class="btn btn-outline" data-r>Find Your Fit →</a>
     </div>
 </section>
@@ -618,8 +630,7 @@
     <a href="index.html" class="foot-logo"><img src="logo.svg" alt="First Light" class="foot-logo-img"></a>
     <nav class="foot-links">
         <a href="spark.html" class="foot-link">Spark</a>
-        <a href="rise.html" class="foot-link">Rise</a>
-        <a href="reign.html" class="foot-link">Reign</a>
+        <a href="blaze.html" class="foot-link">Blaze</a>
         <a href="quiz.html" class="foot-link">Find Your Fit</a>
     </nav>
     <p class="foot-copy">© 2026 First Light</p>
@@ -641,7 +652,7 @@ function fitVideoText() {
 
     var targetW;
     if (isMobile) {
-        // On mobile: use line1's natural CSS width as the target — headline rows expand to match it
+        // On mobile: use line1's natural CSS width as the target, headline rows expand to match it
         line1.style.display    = 'inline-block';
         line1.style.whiteSpace = 'nowrap';
         targetW = line1.getBoundingClientRect().width;
@@ -704,7 +715,7 @@ window.addEventListener('resize', fitVideoText);
         extra.style.opacity = '1';
     }
 
-    // Path 2: loaded scrolled past hero — reveal everything immediately, seek past in-video text
+    // Path 2: loaded scrolled past hero, reveal everything immediately, seek past in-video text
     if (window.scrollY > window.innerHeight * 0.5) {
         revealAll();
         var skipToTime = function () { if (video.readyState >= 1) { video.currentTime = 4.5; } else { video.addEventListener('loadedmetadata', function () { video.currentTime = 4.5; }, { once: true }); } };
@@ -714,7 +725,7 @@ window.addEventListener('resize', fitVideoText);
     // Hard deadline: nav always appears within 6s regardless of video state or scroll position
     setTimeout(revealAll, 6000);
 
-    // Fade in from black once video starts (path 1 only — revealAll no-ops if already fired)
+    // Fade in from black once video starts (path 1 only, revealAll no-ops if already fired)
     video.addEventListener('playing', function () {
         if (!textShown) requestAnimationFrame(function () { fade.classList.add('clear'); });
     });
@@ -735,12 +746,12 @@ window.addEventListener('resize', fitVideoText);
 </script>
 <script>
 // ── Subtitle lines: continuous scroll-linked drift, always moving, never off-frame ──
-// Each line drifts rightward as it passes through the viewport — fastest
+// Each line drifts rightward as it passes through the viewport, fastest
 // near the top/bottom of its journey, slowest (but never fully stopped)
 // around the vertical center. The amplitude is scaled (not clamped) to
 // exactly the safe space available before the line would touch its
 // section's clipping edge, so it's always at least fully visible whenever
-// the section itself is in view — no dead zone, no popping off-frame.
+// the section itself is in view, no dead zone, no popping off-frame.
 (function () {
     var lines = Array.prototype.slice.call(document.querySelectorAll('.wwd-sub p, .paths-hd p'));
     if (!lines.length) return;
@@ -750,7 +761,7 @@ window.addEventListener('resize', fitVideoText);
     // Per-line easing shape, NOT a scroll-range scale: a lower value slows
     // down more dramatically near the center (but never to a full stop); a
     // higher value stays closer to constant speed throughout. Critically,
-    // `t` itself is never divided or rescaled — it always spans the element's
+    // `t` itself is never divided or rescaled, it always spans the element's
     // full, real entry-to-exit journey, so there is no point where a line
     // can saturate early and sit still for a stretch of scroll. Values kept
     // high (close to 1) so each line's own motion reads as one continuous,
@@ -778,7 +789,7 @@ window.addEventListener('resize', fitVideoText);
             var center = rect.top + rect.height / 2;
             var t = Math.max(-1, Math.min(1, (vh / 2 - center) / (vh / 2))); // -1 entering below, 0 centered, 1 exiting above
             // Blend a linear term (constant speed) with a cubic term (fast at the
-            // edges), remapped from [-1,1] to [0,1] — slope is never zero, so the
+            // edges), remapped from [-1,1] to [0,1], slope is never zero, so the
             // line is always moving, just slower near the center.
             var minSpeed = shapes[i];
             var blend = minSpeed * t + (1 - minSpeed) * Math.pow(t, 3);
@@ -789,7 +800,7 @@ window.addEventListener('resize', fitVideoText);
             if (clip) {
                 // Measure the element's natural (untransformed) position and its
                 // clipping ancestor's edges, so the ceiling is exactly the real
-                // safe space — reached only at t=+1, never clamped into a flat,
+                // safe space, reached only at t=+1, never clamped into a flat,
                 // non-moving range.
                 el.style.transform = 'none';
                 var naturalRect = el.getBoundingClientRect();
@@ -800,7 +811,7 @@ window.addEventListener('resize', fitVideoText);
         });
 
         // Shared ceiling per clip group: the amplitude staircase should scale
-        // off ONE common max, not each line's own — otherwise short lines
+        // off ONE common max, not each line's own, otherwise short lines
         // (more natural room) and long lines (less room) drift apart from
         // the intended even spacing regardless of their assigned amplitude.
         var sharedMaxByClip = new Map();

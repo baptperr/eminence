@@ -1,0 +1,140 @@
+{
+  "detector": {
+    "ignoreRules": [],
+    "ignoreFiles": [],
+    "ignoreValues": [
+      {
+        "rule": "design-system-font",
+        "value": "red hat display",
+        "reason": "User explicitly replaced Cormorant with Red Hat Display ExtraBold",
+        "createdAt": "2026-06-28T18:54:31.651Z"
+      },
+      {
+        "rule": "design-system-color",
+        "value": "oklch(7.5% 0.012 55 / 0.4)",
+        "reason": "Light-surface form label color, intentional",
+        "createdAt": "2026-06-28T18:54:44.939Z"
+      },
+      {
+        "rule": "design-system-color",
+        "value": "oklch(7.5% 0.012 55 / 0.18)",
+        "reason": "Light-surface input border color, intentional",
+        "createdAt": "2026-06-28T18:54:48.697Z"
+      },
+      {
+        "rule": "design-system-color",
+        "value": "oklch(7.5% 0.012 55 / 0.22)",
+        "reason": "Light-surface placeholder color, intentional",
+        "createdAt": "2026-06-28T18:54:50.474Z"
+      },
+      {
+        "rule": "design-system-color",
+        "value": "oklch(7.5% 0.012 55 / 0.35)",
+        "reason": "Light-surface form note color, intentional",
+        "createdAt": "2026-06-28T18:54:50.900Z"
+      },
+      {
+        "rule": "design-system-color",
+        "value": "oklch(7.5% 0.012 55 / 0.65)",
+        "reason": "Light-surface checkbox label color, intentional",
+        "createdAt": "2026-06-28T18:54:51.313Z"
+      },
+      {
+        "rule": "design-system-color",
+        "value": "oklch(93% 0.018 80 / 0.45)",
+        "reason": "Kicker-bone tint, intentional muted bone variant",
+        "createdAt": "2026-06-28T18:55:07.948Z"
+      },
+      {
+        "rule": "design-system-font",
+        "value": "lobster",
+        "reason": "User confirmed Lobster is intentional for hero accent words",
+        "createdAt": "2026-06-29T10:57:53.268Z"
+      },
+      {
+        "rule": "design-system-color",
+        "value": "#fff",
+        "reason": "User confirmed #fff is intentional for video overlay and clear button",
+        "createdAt": "2026-06-29T10:57:53.294Z"
+      },
+      {
+        "rule": "design-system-color",
+        "value": "#000",
+        "reason": "User confirmed #000 is intentional for clear button hover state",
+        "createdAt": "2026-06-29T10:57:53.318Z"
+      },
+      {
+        "rule": "design-system-font",
+        "value": "bebas neue",
+        "reason": "User confirmed Bebas Neue is intentional for BRANDING/PROMOTE/MONETIZE pillar display",
+        "createdAt": "2026-07-01T11:46:00.068Z"
+      },
+      {
+        "rule": "design-system-color",
+        "value": "rgba(0,0,0,0.7)",
+        "reason": "Black overlay on black-themed page, intentional design decision",
+        "createdAt": "2026-07-01T21:37:00.252Z"
+      },
+      {
+        "rule": "design-system-color",
+        "value": "rgba(0,0,0,0.9)",
+        "reason": "Hero video overlay gradient, intentional",
+        "createdAt": "2026-07-05T14:23:03.196Z"
+      },
+      {
+        "rule": "design-system-color",
+        "value": "rgba(0,0,0,0.5)",
+        "reason": "Hero video overlay gradient, intentional",
+        "createdAt": "2026-07-05T14:23:03.228Z"
+      },
+      {
+        "rule": "design-system-color",
+        "value": "rgba(0,0,0,0.08)",
+        "reason": "Hero video overlay gradient, intentional",
+        "createdAt": "2026-07-05T14:23:03.254Z"
+      },
+      {
+        "rule": "design-system-color",
+        "value": "rgba(0,0,0,0.4)",
+        "reason": "Text on white apply section, intentional",
+        "createdAt": "2026-07-05T14:23:03.279Z"
+      },
+      {
+        "rule": "design-system-color",
+        "value": "rgba(0,0,0,0.1)",
+        "reason": "Border on white apply section, intentional",
+        "createdAt": "2026-07-05T14:23:03.303Z"
+      },
+      {
+        "rule": "design-system-color",
+        "value": "rgba(255,255,255,0.04)",
+        "reason": "Subtle hero radial glow, intentional",
+        "createdAt": "2026-07-05T14:23:03.329Z"
+      },
+      {
+        "rule": "design-system-color",
+        "value": "rgba(255,255,255,0.05)",
+        "reason": "Subtle hero radial glow, intentional",
+        "createdAt": "2026-07-05T14:23:03.352Z"
+      },
+      {
+        "rule": "design-system-color",
+        "value": "rgba(255,255,255,0.1)",
+        "reason": "White tint on dark surface, intentional",
+        "createdAt": "2026-07-05T14:23:03.376Z"
+      },
+      {
+        "rule": "design-system-color",
+        "value": "rgba(255,255,255,0.4)",
+        "reason": "White text on dark bg, intentional",
+        "createdAt": "2026-07-05T14:23:03.406Z"
+      },
+      {
+        "rule": "design-system-color",
+        "value": "rgba(255,255,255,0.7)",
+        "reason": "White text on dark bg, intentional",
+        "createdAt": "2026-07-05T14:23:03.429Z"
+      }
+    ]
+  }
+}

@@ -10,7 +10,7 @@ Combat athletes — amateurs to full-time professionals — aged roughly 18–35
 
 ## Product Purpose
 
-First Light Society turns combat athletes into earning enterprises. It does this through a three-tier service (Spark / Rise / Reign) built on the Fame-to-Fortune Formula™: Brand Amplification, Visibility Acceleration, Monetization Engine. The page's single job is to get an athlete to submit an application — not to buy, but to be considered.
+First Light Society turns combat athletes into earning enterprises. It does this through a two-tier service (Spark / Blaze) built on the Fame-to-Fortune Formula™: Brand Amplification, Visibility Acceleration, Monetization Engine. The page's single job is to get an athlete to submit an application — not to buy, but to be considered.
 
 ## Brand Personality
 

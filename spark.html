@@ -9,7 +9,6 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Red+Hat+Display:wght@800&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap" rel="stylesheet">
-    <script async src="https://js.stripe.com/v3/buy-button.js"></script>
     <link rel="stylesheet" href="style.css">
     <style>
         /* ── HERO ── */
@@ -17,17 +16,18 @@
             min-height: 100svh;
             display: flex; flex-direction: column;
             justify-content: flex-end; padding: 9rem 3rem 5rem;
-            position: relative;
-            background: var(--night);
+            position: relative; background: var(--night);
         }
         .hero::before {
             content: '';
             position: absolute; inset: 0; pointer-events: none;
-            background: radial-gradient(ellipse 60% 70% at 70% 30%,
-                rgba(255,255,255,0.04) 0%, transparent 60%);
+            background:
+                radial-gradient(ellipse 50% 60% at 20% 80%, rgba(255,255,255,0.05) 0%, transparent 55%),
+                radial-gradient(ellipse 40% 40% at 80% 20%, rgba(255,255,255,0.04) 0%, transparent 50%);
             z-index: 1;
         }
-        .hero-vid-bg { position: absolute; inset: 0; z-index: 0; }
+        .hero-vid-bg { position: absolute; inset: 0; z-index: 0; overflow: hidden; }
+        .hero-vid-bg video { transform: scale(0.9); }
         .hero-vid-bg .offer-vid-fallback { font-size: clamp(4rem, 14vw, 12rem); }
         .hero-vid-overlay {
             position: absolute; inset: 0; z-index: 1; pointer-events: none;
@@ -38,49 +38,42 @@
             font-family: 'Red Hat Display', sans-serif;
             font-size: clamp(3rem, 7vw, 6rem);
             font-weight: 800; line-height: 1.1;
-            letter-spacing: 0em; margin-bottom: 2rem; max-width: 16ch;
+            letter-spacing: 0em; margin-bottom: 2rem; max-width: 18ch;
         }
         .hero-sub {
             font-size: clamp(0.9rem, 1.6vw, 1rem);
-            color: var(--t2); max-width: 44ch; line-height: 1.9;
-            margin-bottom: 3rem;
+            color: var(--t2); max-width: 44ch; line-height: 1.9; margin-bottom: 3rem;
         }
-        .hero-price {
-            font-size: 0.72rem; color: var(--t3);
-            margin-top: 1.25rem; display: block;
-        }
+        .hero-price { font-size: 0.72rem; color: var(--t3); margin-top: 1.25rem; display: block; }
 
-        /* ── EMPATHY ── */
-        .empathy {
-            padding: 8rem 3rem; background: var(--night-surface);
-            max-width: 100%;
-        }
-        .empathy-inner { max-width: 820px; }
-        .empathy p {
+        /* ── FRICTION ── */
+        .friction { padding: 8rem 3rem; }
+        .friction-inner { max-width: 820px; }
+        .friction p {
             font-size: clamp(1rem, 1.8vw, 1.12rem);
-            color: var(--t2); line-height: 1.95; margin-bottom: 1.75rem;
-            max-width: 62ch;
+            color: var(--t2); line-height: 1.95; margin-bottom: 1.75rem; max-width: 62ch;
         }
-        .empathy p strong { color: var(--bone); font-weight: 400; }
-        .empathy-pull {
+        .friction p strong { color: var(--bone); font-weight: 400; }
+        .friction-pull {
             font-family: 'Red Hat Display', sans-serif; font-weight: 800;
             font-size: clamp(1.35rem, 2.5vw, 1.8rem);
             color: var(--bone); line-height: 1.5; max-width: 48ch;
             margin: 3.5rem 0; text-wrap: balance;
         }
 
-        /* ── WHAT YOU GET ── */
-        .deliverables { padding: 7rem 3rem; }
+        /* ── DELIVERABLES ── */
+        .deliverables { padding: 7rem 3rem; background: var(--night-surface); }
         .deliverables-inner { max-width: 1100px; margin: 0 auto; }
-        .deliverables h2 {
-            font-size: clamp(1.8rem, 3.5vw, 2.8rem); font-weight: 300;
-            margin-bottom: 3.5rem;
+        .deliverables h2 { font-size: clamp(1.8rem, 3.5vw, 2.8rem); font-weight: 300; margin-bottom: 3.5rem; }
+        .deliv-list { border-top: 1px solid var(--border-d); }
+        .deliv-item {
+            display: grid; grid-template-columns: 1fr 1.6fr;
+            gap: 1.5rem 4rem; padding: 1.75rem 0;
+            border-bottom: 1px solid var(--border-n); align-items: start;
         }
-        .deliv-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1px; background: var(--border-n); }
-        .deliv-item { background: var(--night); padding: 2.25rem; }
         .deliv-name {
-            font-family: 'Red Hat Display', sans-serif; font-size: 1.25rem; font-weight: 800;
-            letter-spacing: 0.03em; color: var(--bone); display: block; margin-bottom: 0.5rem;
+            font-family: 'Red Hat Display', sans-serif; font-size: 1.2rem; font-weight: 800;
+            letter-spacing: 0.03em; color: var(--bone); line-height: 1.2;
         }
         .deliv-dfy {
             font-size: 0.58rem; font-weight: 500; letter-spacing: 0.1em;
@@ -89,14 +82,16 @@
             padding: 0.15em 0.4em; margin-left: 0.4rem;
         }
         .deliv-desc { font-size: 0.85rem; color: var(--t2); line-height: 1.75; }
+        .deliverables-note {
+            font-size: 0.9rem; color: var(--t2); line-height: 1.85;
+            max-width: 62ch; margin-top: 3rem;
+        }
+        .deliverables-note strong { color: var(--bone); font-weight: 400; }
 
         /* ── HOW IT WORKS ── */
-        .how { padding: 7rem 3rem; background: var(--night-surface); }
+        .how { padding: 7rem 3rem; }
         .how-inner { max-width: 820px; margin: 0 auto; }
-        .how h2 {
-            font-size: clamp(1.8rem, 3.5vw, 2.8rem); font-weight: 300;
-            margin-bottom: 3.5rem;
-        }
+        .how h2 { font-size: clamp(1.8rem, 3.5vw, 2.8rem); font-weight: 300; margin-bottom: 3.5rem; }
         .step-list { border-top: 1px solid var(--border-d); }
         .step {
             display: grid; grid-template-columns: 3.5rem 1fr;
@@ -111,37 +106,53 @@
         .step h3 { font-size: 1.1rem; font-weight: 400; margin-bottom: 0.5rem; }
         .step p { font-size: 0.88rem; color: var(--t2); line-height: 1.8; max-width: 48ch; }
 
+        /* ── THE DEAL ── */
+        .guarantee { background: var(--night-surface); padding: 7rem 3rem; }
+        .guarantee-inner { max-width: 820px; margin: 0 auto; }
+        .guar-kicker {
+            font-size: 0.65rem; font-weight: 500; letter-spacing: 0.22em;
+            text-transform: uppercase; color: rgba(255,255,255,0.4);
+            display: block; margin-bottom: 1.25rem;
+        }
+        .guarantee h2 {
+            font-size: clamp(1.8rem, 3.5vw, 2.8rem); font-weight: 300;
+            color: var(--bone); margin-bottom: 1.75rem;
+        }
+        .guarantee p {
+            font-size: 0.95rem; color: rgba(255,255,255,0.7);
+            line-height: 1.9; max-width: 58ch; margin-bottom: 1.25rem;
+        }
+        .guarantee p strong { color: var(--bone); font-weight: 400; }
+        .guarantee p em { color: var(--t2); font-style: italic; }
+
         /* ── APPLY ── */
-        .apply { background: var(--bone); padding: 8rem 3rem; }
+        .apply { background: var(--night-surface); padding: 8rem 3rem; }
         .apply-inner { max-width: 640px; }
         .apply-kicker {
             font-size: 0.65rem; font-weight: 500; letter-spacing: 0.22em;
-            text-transform: uppercase; color: rgba(0,0,0,0.5);
+            text-transform: uppercase; color: var(--dawn-mid);
             display: block; margin-bottom: 1.25rem;
         }
         .apply h2 {
             font-family: 'Red Hat Display', sans-serif;
             font-size: clamp(2rem, 4vw, 3rem); font-weight: 800;
-            color: var(--night); letter-spacing: -0.01em;
-            margin-bottom: 0.75rem;
+            letter-spacing: -0.01em; margin-bottom: 0.75rem;
         }
         .apply-sub {
-            font-size: 0.92rem; color: rgba(0,0,0,0.5);
-            line-height: 1.85; margin-bottom: 3rem; max-width: 50ch;
+            font-size: 0.92rem; color: var(--t2); line-height: 1.85;
+            margin-bottom: 1.75rem; max-width: 50ch;
         }
         .apply-price {
-            font-size: 0.82rem; color: rgba(0,0,0,0.4);
+            font-size: 0.82rem; color: var(--t3);
             margin-bottom: 2.5rem; padding-bottom: 2.5rem;
-            border-bottom: 1px solid rgba(0,0,0,0.1);
+            border-bottom: 1px solid var(--border-n);
         }
-        .apply-price strong { color: var(--night); font-weight: 400; font-size: 1.1rem; }
+        .apply-price strong { color: var(--bone); font-weight: 400; font-size: 1.1rem; }
 
         @media (max-width: 900px) {
             .hero { padding: 8rem 1.5rem 4rem; }
-            .empathy { padding: 5rem 1.5rem; }
-            .deliverables, .how { padding: 5rem 1.5rem; }
-            .apply { padding: 5rem 1.5rem; }
-            .deliv-grid { grid-template-columns: 1fr; }
+            .friction, .deliverables, .how, .guarantee, .apply { padding: 5rem 1.5rem; }
+            .deliv-item { grid-template-columns: 1fr; gap: 0.5rem; }
         }
     </style>
 </head>
@@ -164,15 +175,11 @@
             <div class="drawer-tier-list">
                 <a href="spark.html" class="drawer-link drawer-tier-link" data-page="spark.html">
                     <span class="drawer-tier-name">Spark</span>
-                    <span class="drawer-tier-desc">Start earning from the sport</span>
+                    <span class="drawer-tier-desc">Start building real income</span>
                 </a>
-                <a href="rise.html" class="drawer-link drawer-tier-link" data-page="rise.html">
-                    <span class="drawer-tier-name">Rise</span>
-                    <span class="drawer-tier-desc">Build serious income</span>
-                </a>
-                <a href="reign.html" class="drawer-link drawer-tier-link" data-page="reign.html">
-                    <span class="drawer-tier-name">Reign</span>
-                    <span class="drawer-tier-desc">Compound what you've built</span>
+                <a href="blaze.html" class="drawer-link drawer-tier-link" data-page="blaze.html">
+                    <span class="drawer-tier-name">Blaze</span>
+                    <span class="drawer-tier-desc">Compound your name and income</span>
                 </a>
                 <a href="quiz.html" class="drawer-link drawer-link-findfit" data-page="quiz.html">Find Your Fit</a>
             </div>
@@ -192,142 +199,143 @@
     </div>
     <div class="hero-vid-overlay"></div>
     <div class="hero-content">
-        <h1 class="hero-hl" data-r style="--d:60ms">Your sport can pay you back.</h1>
-        <p class="hero-sub" data-r style="--d:140ms">A real side income from the sport you're already dedicated to. No agent required. No massive audience required. Just the system, and the discipline you already have.</p>
+        <h1 class="hero-hl" data-r style="--d:60ms">A team behind you, while you focus on your sport.</h1>
+        <p class="hero-sub" data-r style="--d:140ms">You've built something real: skill people respect, an audience that cares. It just isn't paying what it should. Spark closes that gap: we run the business off the mats so you don't have to.</p>
         <div data-r style="--d:220ms">
-            <a href="#apply" class="btn hero-cta">Sign Up</a>
-            <span class="hero-price">$29/mo · cancel anytime</span>
+            <a href="#apply" class="btn hero-cta">Apply</a>
+            <span class="hero-price">$299/mo · 3-month minimum · free exit after</span>
         </div>
     </div>
 </section>
 
-<!-- EMPATHY -->
-<section class="empathy">
-    <div class="empathy-inner">
-        <p data-r>You never thought of yourself as a brand. Nobody in the sport taught you that part. You learned technique, discipline, how to push when everything in you wants to stop. You learned what it takes to win.</p>
-        <p data-r><strong>The business side of this world: the sponsorships, the coaching income, the content that converts — nobody mapped that out for you.</strong> You've watched people with half your dedication make twice your money from the sport, and you couldn't figure out what they knew that you didn't.</p>
-        <blockquote class="empathy-pull" data-r>
-            They didn't just train better. They had a system you never got to see.
+<!-- FRICTION -->
+<section class="friction">
+    <div class="friction-inner">
+        <p data-r>You know what you have. You've put in the years on the mats: the training, the competing, the reputation you've earned. People in your sport know you, and you've got an audience of real people who respect what you do.</p>
+        <p data-r>It just isn't paying you yet. There's a gap between what you've spent years building and what it should be putting in your pocket, whether you want that to be real side income or a full-time name.</p>
+        <blockquote class="friction-pull" data-r>
+            You're not missing talent. You're missing the team and the system.
         </blockquote>
-        <p data-r>Spark is that system. A clear brand definition done for you in the first week, a content playbook built for athletes who can't spend three hours a day posting, and a practical roadmap for turning your dedication into a side income that grows over time.</p>
-        <p data-r>You don't need to change what you love about the sport. You just need the architecture that makes it pay.</p>
+        <p data-r>Spark puts both behind you. A team that produces and publishes your content, sources and pitches your sponsors, and keeps your direction sharp so your name starts working while you keep training. You stay in the loop as much as you want. Nothing about your brand happens without you; it just doesn't <strong>depend</strong> on you anymore.</p>
     </div>
 </section>
 
-<!-- DELIVERABLES -->
+<!-- WHAT SPARK RUNS FOR YOU -->
 <section class="deliverables">
     <div class="deliverables-inner">
-        <h2 data-r>What's in Spark.</h2>
-        <div class="deliv-grid">
+        <h2 data-r>What Spark runs for you.</h2>
+        <div class="deliv-list">
             <div class="deliv-item" data-r>
-                <span class="deliv-name">We figure out who you are, so the world can see it <span class="deliv-dfy">Done for you</span></span>
-                <p class="deliv-desc">We define your story, your angle, and your market position: the things that make you worth following and worth sponsoring. Delivered in week one.</p>
+                <span class="deliv-name">Brand Foundation <span class="deliv-dfy">One-time, done with you</span></span>
+                <p class="deliv-desc">We define your story, your angle, your market position and persona: the things that make you worth following and worth sponsoring. Delivered in week one. It's the foundation everything else is built on.</p>
             </div>
             <div class="deliv-item" data-r style="--d:60ms">
-                <span class="deliv-name">Where you fit, and why anyone should care <span class="deliv-dfy">Done for you</span></span>
-                <p class="deliv-desc">Where you sit in the market, who your audience is, and what makes you different from every other fighter posting training clips.</p>
+                <span class="deliv-name">Content Production &amp; Publishing <span class="deliv-dfy">Done for you</span></span>
+                <p class="deliv-desc">You send us raw footage to a simple shot list; we handle the rest: editing, captions, scheduling, posting. One short-form piece a day across your core platforms. You don't touch the production.</p>
             </div>
             <div class="deliv-item" data-r>
-                <span class="deliv-name">A posting system that doesn't eat your training time</span>
-                <p class="deliv-desc">A system that generates content ideas without burning you out. Built around your schedule, your sport, and your audience. Not generic social media advice.</p>
+                <span class="deliv-name">Sponsor Pipeline <span class="deliv-dfy">Done for you</span></span>
+                <p class="deliv-desc">We source the right brands, build your media kit, write the pitches, and send them. Real outreach, real pipeline; you're kept in the loop, and you decide what to say yes to.</p>
             </div>
             <div class="deliv-item" data-r style="--d:60ms">
-                <span class="deliv-name">Your first recurring income stream</span>
-                <p class="deliv-desc">Frameworks for filling your private lesson schedule. Positioning, pricing, how to pitch it: the full system for your first recurring income stream.</p>
+                <span class="deliv-name">Media &amp; PR Placement <span class="deliv-dfy">Done for you</span></span>
+                <p class="deliv-desc">We pitch you onto other people's platforms: podcasts, features, interviews, commentary, to build a presence beyond your own channels.</p>
             </div>
             <div class="deliv-item" data-r>
-                <span class="deliv-name">Run seminars people actually pay for</span>
-                <p class="deliv-desc">Ready-to-use templates for marketing and running seminars that people actually pay to attend. The formats that work, not the ones that feel good.</p>
+                <span class="deliv-name">Monthly Strategy Call <span class="deliv-dfy">With your operator</span></span>
+                <p class="deliv-desc">Once a month, we review what's working, fix what isn't, and set the next 30 days. Real-time direction, not a static plan.</p>
             </div>
             <div class="deliv-item" data-r style="--d:60ms">
-                <span class="deliv-name">Sell coaching without building a course</span>
-                <p class="deliv-desc">A step-by-step guide to building an online coaching offer: packaging, pricing, delivery, and how to sell it without building a whole course from scratch.</p>
-            </div>
-            <div class="deliv-item" data-r>
-                <span class="deliv-name">Land your first brand deal</span>
-                <p class="deliv-desc">How to find brands aligned with your sport and audience, how to approach them, and what to send. The outreach process that actually gets responses.</p>
+                <span class="deliv-name">Support</span>
+                <p class="deliv-desc">Reach us on email, WhatsApp, or DM. A real person replies within 24 hours, never a bot.</p>
             </div>
         </div>
+        <p class="deliverables-note" data-r><strong>When there's money to be made off your name: a seminar, a private-lesson push, an instructional, a merch drop, we build and run it, and we only earn when you do.</strong> No fixed menu; we do what actually fits where you are.</p>
     </div>
 </section>
 
-<!-- HOW IT WORKS -->
+<!-- HOW SPARK WORKS -->
 <section class="how">
     <div class="how-inner">
-        <h2 data-r>How it works.</h2>
+        <h2 data-r>How Spark works.</h2>
         <div class="step-list">
             <div class="step" data-r>
                 <span class="step-n">I</span>
                 <div>
-                    <h3>We define your brand</h3>
-                    <p>In the first week, we do the thinking for you: your story, your market position, your angle. You review and approve. This is the foundation everything else is built on.</p>
+                    <h3>We define your brand.</h3>
+                    <p>In the first week, we work closely to find your story, your market position, your angle. It's not about inventing a persona; it's about sharpening what's already there. Everything else is built on it.</p>
                 </div>
             </div>
             <div class="step" data-r style="--d:60ms">
                 <span class="step-n">II</span>
                 <div>
-                    <h3>You follow the playbook</h3>
-                    <p>Everything in Spark is built to be executed by someone with limited time and zero marketing background. The system is designed to fit around your training schedule, not compete with it.</p>
+                    <h3>We run the machine.</h3>
+                    <p>Content gets produced and published. Sponsors get pitched. Media gets chased. You send footage and show up for what needs you, we handle the rest, on a cadence that fits around your training, not against it.</p>
                 </div>
             </div>
             <div class="step" data-r style="--d:120ms">
                 <span class="step-n">III</span>
                 <div>
-                    <h3>Your first income stream starts</h3>
-                    <p>The tools, templates, and frameworks are there to activate immediately. Private lessons, seminars, online coaching — you pick the starting point that makes sense for where you are.</p>
+                    <h3>Your name starts paying.</h3>
+                    <p>Sponsorships, seminars, private lessons, instructionals; we build the income streams that fit you and run them. You focus on your sport; the business runs alongside it.</p>
                 </div>
             </div>
         </div>
     </div>
 </section>
 
-<!-- SIGN UP -->
+<!-- THE DEAL -->
+<section class="guarantee">
+    <div class="guarantee-inner">
+        <span class="guar-kicker" data-r>The deal</span>
+        <h2 data-r>$299/mo. 3-month minimum, then leave anytime.</h2>
+        <p data-r>When we source and close a commercial deal for you, we take a small commission; because we only win when you win. Deals you bring yourself, you keep. We never touch your fight contracts, and we never conflict with your manager.</p>
+        <p data-r><em>A performance guarantee is coming, we're calibrating it on our first athletes so that what we promise is something we've already seen happen. For now, the deal is simple: three months to feel the difference, and the freedom to walk if you don't.</em></p>
+    </div>
+</section>
+
+<!-- APPLY -->
 <section class="apply" id="apply">
     <div class="apply-inner">
-        <span class="apply-kicker">Sign Up</span>
-        <h2>Join Spark.</h2>
-        <p class="apply-sub">$29/mo. Cancel anytime. Your brand definition starts in week one.</p>
-        <p class="apply-price"><strong>$29/mo</strong> · cancel anytime · no minimum commitment</p>
-
-        <p class="form-note" style="margin-bottom:1.5rem;text-align:left;">Step 1 — Payment</p>
-        <!-- Replace buy-button-id and publishable-key with your Stripe credentials -->
-        <stripe-buy-button
-            buy-button-id="buy_btn_REPLACE_ME"
-            publishable-key="pk_live_REPLACE_ME">
-        </stripe-buy-button>
-
-        <p class="form-note" style="margin-top:2.5rem;margin-bottom:1.5rem;text-align:left;">Step 2 — Tell us about yourself</p>
+        <span class="apply-kicker">Apply</span>
+        <h2>Apply for Spark.</h2>
+        <p class="apply-sub">We take on a limited number of Spark athletes at a time. Tell us where you are, and we'll confirm whether it's a fit within 24 hours.</p>
+        <p class="apply-price"><strong>$299/mo</strong> · 3-month minimum · free exit after</p>
         <form class="apply-form-wrap">
             <input type="hidden" name="tier" value="spark">
             <div class="form-row">
-                <div class="form-g">
+                <div class="form-g on-dark">
                     <label for="s-name">Name *</label>
                     <input id="s-name" name="name" type="text" placeholder="First and last name" required autocomplete="name">
                 </div>
-                <div class="form-g">
+                <div class="form-g on-dark">
                     <label for="s-email">Email *</label>
                     <input id="s-email" name="email" type="email" placeholder="you@example.com" required autocomplete="email">
                 </div>
             </div>
             <div class="form-row">
-                <div class="form-g">
+                <div class="form-g on-dark">
                     <label for="s-sport">Sport(s) *</label>
                     <input id="s-sport" name="sports" type="text" placeholder="e.g. MMA, BJJ, Muay Thai" required>
                 </div>
-                <div class="form-g">
+                <div class="form-g on-dark">
                     <label for="s-country">Country *</label>
                     <input id="s-country" name="country" type="text" placeholder="e.g. United States" required autocomplete="country-name">
                 </div>
             </div>
-            <div class="form-g">
-                <label>Your Socials <span style="opacity:.5;font-size:.85em;letter-spacing:0">(optional · up to 10)</span></label>
-                <div class="socials-wrap" data-dark="false">
+            <div class="form-g on-dark">
+                <label>Your Socials <span style="opacity:.5;font-size:.85em;letter-spacing:0">(up to 10)</span></label>
+                <div class="socials-wrap" data-dark="true">
                     <div class="socials-list"></div>
-                    <button type="button" class="add-social-btn">Add social</button>
+                    <button type="button" class="add-social-btn on-dark">Add social</button>
                 </div>
             </div>
-            <button type="submit" class="btn btn-night btn-full">Submit</button>
-            <p class="form-note">We'll be in touch within 24 hours to get you started.</p>
+            <div class="form-g on-dark">
+                <label for="s-message">Message</label>
+                <textarea id="s-message" name="message" placeholder="Tell us about yourself: your sport, your platform, your intentions, what you're trying to build." style="min-height:120px"></textarea>
+            </div>
+            <button type="submit" class="btn btn-amber btn-full">Submit Application</button>
+            <p class="form-note on-dark">We review every application within 24 hours.</p>
         </form>
     </div>
 </section>
@@ -336,8 +344,7 @@
     <a href="index.html" class="foot-logo"><img src="logo.svg" alt="First Light" class="foot-logo-img"></a>
     <nav class="foot-links">
         <a href="spark.html" class="foot-link">Spark</a>
-        <a href="rise.html" class="foot-link">Rise</a>
-        <a href="reign.html" class="foot-link">Reign</a>
+        <a href="blaze.html" class="foot-link">Blaze</a>
         <a href="quiz.html" class="foot-link">Find Your Fit</a>
     </nav>
     <p class="foot-copy">© 2026 First Light</p>
