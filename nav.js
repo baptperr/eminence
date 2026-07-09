@@ -117,10 +117,10 @@
             // into frame for the drift, so it reads clearly during a normal scroll — going much
             // lower resolves it while the row is still mostly below the fold, invisibly fast.
             const CONFIG = [
-                { drift: 200, range: 0.6, mobileRange: 0.21 },
-                { drift: 260, range: 1.4, mobileRange: 0.185 },
-                { drift: 320, range: 2.8, mobileRange: 0.245 },
-                { drift: 380, range: 5.5, mobileRange: 0.245 },
+                { drift: 140, range: 0.3, mobileRange: 0.21 },
+                { drift: 170, range: 0.5, mobileRange: 0.185 },
+                { drift: 200, range: 0.7, mobileRange: 0.245 },
+                { drift: 230, range: 0.9, mobileRange: 0.245 },
             ];
             let ticking = false;
 
