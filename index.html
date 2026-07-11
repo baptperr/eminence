@@ -125,7 +125,7 @@
             margin-bottom: 4.5rem;
         }
         .wwd-sub p {
-            font-size: clamp(1.45rem, 2.6vw, 2.15rem);
+            font-size: clamp(1.16rem, 2.08vw, 1.72rem);
             font-weight: 500;
             color: var(--t2);
             line-height: 1.6;
@@ -196,6 +196,19 @@
             top: 0; left: 0; right: 0;
             width: 100%; height: 100%; object-fit: cover; object-position: center center; display: block;
         }
+        /* Sports tags */
+        .wwd-sports {
+            display: flex; flex-wrap: wrap; justify-content: center;
+            gap: 1.1rem; margin-top: 2.75rem;
+        }
+        .wwd-sport-pill {
+            font-size: 1rem; font-weight: 700; letter-spacing: 0.09em;
+            text-transform: uppercase;
+            color: #fff; border: 1px solid var(--bone);
+            padding: 0.85rem 2rem;
+            transition: background 0.2s, color 0.2s;
+        }
+        .wwd-sport-pill:hover { background: #fff; color: #000; }
 
         @media (max-width: 900px) {
             .belief { grid-template-columns: 1fr; gap: 0.5rem; }
@@ -204,7 +217,7 @@
             .wwd-sub p, .paths-hd p { max-width: 46ch; }
         }
         @media (max-width: 640px) {
-            .wwd-sub p { font-size: 1.1rem; line-height: 1.5; }
+            .wwd-sub p { font-size: 0.88rem; line-height: 1.5; }
         }
         @media (max-width: 768px) {
             .wwd { padding-top: 4rem; padding-bottom: 3rem; }
@@ -337,7 +350,7 @@
             right: 4%;
             top: 62%;
             transform: translateY(-50%);
-            max-width: 44ch;
+            max-width: 38ch;
             z-index: 3;
             opacity: 0;
             text-align: right;
@@ -345,10 +358,10 @@
         .video-sub {
             font-family: 'DM Sans', sans-serif;
             font-weight: 300;
-            font-size: clamp(1.1rem, 2.2vw, 1.8rem);
+            font-size: clamp(0.95rem, 1.85vw, 1.5rem);
             color: #fff;
-            margin: 0 0 2rem;
-            line-height: 1.8;
+            margin: 0 0 1.5rem;
+            line-height: 1.7;
             text-wrap: balance;
         }
         .video-cta.btn {
@@ -356,8 +369,8 @@
             color: #fff;
             border: 1px solid #fff;
             border-radius: 0;
-            font-size: 1.25rem;
-            padding: 1.75rem 4.5rem;
+            font-size: 1.05rem;
+            padding: 1.4rem 3.6rem;
         }
         @media (orientation: portrait) {
             .video-cta.btn {
@@ -480,6 +493,11 @@
             <p>A fighter is a business.</p>
             <p>You run it every day like a pro. Growing it is a different game, that no coach or gym plays.</p>
             <p><strong style="color:#fff;font-weight:700;">We build and run the machine that turns your name into income.</strong></p>
+        </div>
+        <div class="wwd-sports" data-r style="--d:140ms">
+            <span class="wwd-sport-pill">MMA</span>
+            <span class="wwd-sport-pill">Jiu Jitsu / Grappling</span>
+            <span class="wwd-sport-pill">Muay Thai / Kickboxing</span>
         </div>
     </div>
     <div class="wwd-pillars">
