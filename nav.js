@@ -1,4 +1,11 @@
 (function () {
+    // Where the application forms post. This is the /exec URL of the Apps Script web
+    // app in apps-script/ — it appends a row to the applications Sheet and emails a
+    // notification. Paste the URL here after deploying; see apps-script/README.md.
+    // Until it is set, the forms refuse to submit and say so rather than pretending
+    // an application was sent.
+    const FORM_ENDPOINT = 'https://script.google.com/macros/s/AKfycbw2wB29YbAfUXGh5efd-AZfb2zA7He8O7j0wZE4-TsiptrCLdghdfy1eOu7bvr_AQ4OIg/exec';
+
     document.addEventListener('DOMContentLoaded', function () {
         // ── Drawer ──
         const navLogo = document.getElementById('navLogo');
@@ -98,6 +105,53 @@
             });
         }, { threshold: 0.08, rootMargin: '0px 0px -32px 0px' });
         document.querySelectorAll('[data-r]').forEach(function (el) { io.observe(el); });
+
+        // ── Offer hero video: dissolve to black instead of scrolling away ──
+        // The video layer is position:fixed on the offer pages, so it holds still while the
+        // hero copy scrolls over it. Its opacity is scrubbed to scroll position and reaches
+        // 0 well before the hero ends, so the second section is read against flat black —
+        // the hero's own background — with no video edge sliding past it.
+        (function () {
+            const hero = document.querySelector('.hero');
+            const vid = hero && hero.querySelector('.hero-vid-bg');
+            if (!hero || !vid) return;
+
+            // The fade spans the hero itself rather than a fixed number of screenfuls, so
+            // the video is still faintly there for as long as any sliver of the hero is,
+            // and only reaches full black as the next section takes the whole viewport.
+            // 0.95 lands it a moment early, so the last of the wordmark is gone rather
+            // than winking out at the exact hand-off.
+            const FADE_END = 0.95;
+            const media = vid.querySelector('video');
+            let ticking = false;
+            let hidden = false;
+
+            function update() {
+                const span = hero.offsetHeight * FADE_END;
+                const p = span > 0 ? Math.min(1, Math.max(0, window.scrollY / span)) : 1;
+                const fade = 1 - p;
+                hero.style.setProperty('--hero-vid-fade', fade.toFixed(3));
+                const gone = fade <= 0.001;
+                if (gone !== hidden) {
+                    hidden = gone;
+                    hero.classList.toggle('hero-vid-gone', gone);
+                    // Nothing is on screen to decode once it's hidden.
+                    if (media) {
+                        if (gone) { media.pause(); }
+                        else { const r = media.play(); if (r && r.catch) { r.catch(function () {}); } }
+                    }
+                }
+                ticking = false;
+            }
+
+            function onScroll() {
+                if (!ticking) { requestAnimationFrame(update); ticking = true; }
+            }
+
+            window.addEventListener('scroll', onScroll, { passive: true });
+            window.addEventListener('resize', onScroll);
+            update();
+        })();
 
         // ── Beliefs: horizontal drift scrubbed continuously to scroll position ──
         (function () {
@@ -231,6 +285,72 @@
             btn.addEventListener('click', function () {
                 const count = list.querySelectorAll('.social-entry').length;
                 if (count < MAX_SOCIALS) addSocialEntry(list, darkMode);
+            });
+        });
+
+        // ── Application forms ──
+        // Posted to the Apps Script web app rather than submitted natively, so the
+        // applicant stays on the page and gets told what happened. A failure leaves
+        // every answer on screen: a form that clears itself on a network error has
+        // thrown away an application.
+        document.querySelectorAll('form.apply-form-wrap').forEach(function (form) {
+            const btn = form.querySelector('button[type="submit"]');
+            if (!btn) return;
+            const label = btn.textContent;
+            const onDark = form.querySelector('.form-note.on-dark') !== null;
+            let status = null;
+
+            function setStatus(msg, isError) {
+                if (!status) {
+                    status = document.createElement('p');
+                    status.className = 'form-status' + (onDark ? ' on-dark' : '');
+                    // Announced to screen readers when it changes, since the result of
+                    // pressing submit is otherwise invisible to them.
+                    status.setAttribute('role', 'status');
+                    status.setAttribute('aria-live', 'polite');
+                    btn.insertAdjacentElement('afterend', status);
+                }
+                status.textContent = msg;
+                status.classList.toggle('err', !!isError);
+                status.style.display = msg ? '' : 'none';
+            }
+
+            form.addEventListener('submit', function (e) {
+                e.preventDefault();
+                if (!form.reportValidity()) return;
+
+                if (FORM_ENDPOINT.indexOf('https://') !== 0) {
+                    setStatus('This form isn\'t connected yet. Nothing was sent.', true);
+                    return;
+                }
+
+                const body = new URLSearchParams(new FormData(form));
+                body.set('page', location.href);
+
+                btn.disabled = true;
+                btn.textContent = 'Sending…';
+                setStatus('', false);
+
+                // URL-encoded keeps this a CORS "simple" request: Apps Script web apps
+                // answer a preflight with a redirect, which browsers reject, so a JSON
+                // content type would fail here.
+                fetch(FORM_ENDPOINT, { method: 'POST', body: body })
+                    .then(function (r) {
+                        return r.json().catch(function () { return { ok: r.ok }; });
+                    })
+                    .then(function (res) {
+                        if (!res || !res.ok) throw new Error((res && res.error) || 'rejected');
+                        const done = document.createElement('p');
+                        done.className = 'form-done' + (onDark ? ' on-dark' : '');
+                        done.setAttribute('role', 'status');
+                        done.textContent = 'Application received. We\'ll get back to you within 24 hours.';
+                        form.replaceChildren(done);
+                    })
+                    .catch(function () {
+                        btn.disabled = false;
+                        btn.textContent = label;
+                        setStatus('That didn\'t send, so we haven\'t got it. Check your connection and try again.', true);
+                    });
             });
         });
     });

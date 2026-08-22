@@ -149,7 +149,7 @@ body.page-loaded .split-accent { transform: translateX(0); opacity: 1; }
 
 .drawer {
     position: fixed; top: 0; left: 0; bottom: 0;
-    width: 300px;
+    width: 19rem; max-width: 92vw;
     background: var(--night-surface);
     border-right: 1px solid var(--border-d);
     transform: translateX(-100%);
@@ -222,11 +222,33 @@ body.page-loaded .split-accent { transform: translateX(0); opacity: 1; }
     text-transform: uppercase; color: var(--amber);
 }
 .drawer-link-findfit:hover { color: var(--amber-mid); }
+/* Flags that Find Your Fit opens a quiz rather than an ordinary page, so nobody
+   lands on it by surprise. Deliberately quieter than the amber label beside it —
+   a signpost, not a second call to action. Same pill vocabulary as .deliv-dfy:
+   tiny, tracked, translucent fill, zero radius. */
+.drawer-pill {
+    display: inline-block;
+    margin-left: 0.5rem;
+    font-size: 0.5rem; font-weight: 500; letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--t2);
+    background: rgba(255,255,255,0.1);
+    padding: 0.35em 0.55em;
+    line-height: 1;
+    vertical-align: 0.1em;
+    transition: color 0.2s, background 0.2s;
+}
+.drawer-link-findfit:hover .drawer-pill { color: var(--bone); background: rgba(255,255,255,0.16); }
 .drawer-tier-list .drawer-link-findfit {
-    border-top: 1px dashed var(--border-d);
+    border-top: none;
     border-bottom: none;
     padding: 0.85rem 0 0.35rem 0.75rem;
-    margin-top: 0.35rem;
+    margin-top: 0;
+}
+.drawer-link-commercial {
+    font-size: 1.15rem; font-weight: 700;
+    padding: 0.85rem 0;
+    white-space: nowrap;
 }
 
 /* ── NAV ── */
@@ -358,6 +380,16 @@ footer {
 .add-social-btn::before { content: '+'; font-size: 1rem; line-height: 1; }
 .form-note { font-size: 0.75rem; color: oklch(7.5% 0.012 55 / 0.35); margin-top: 1rem; text-align: center; }
 .form-note.on-dark { color: var(--t3); }
+/* Spam trap. Kept out of sight without display:none or visibility:hidden — some bots
+   skip fields hidden that way, which is exactly the behaviour this relies on. */
+.hp-field {
+    position: absolute; left: -9999px; width: 1px; height: 1px;
+    opacity: 0; pointer-events: none;
+}
+/* Result of a submission, in place of the button's own label. */
+.form-status { font-size: 0.8rem; line-height: 1.7; margin-top: 0.9rem; text-align: center; color: var(--t3); }
+.form-status.err { color: var(--bone); }
+.form-done { font-size: 0.95rem; line-height: 1.9; color: var(--bone); text-align: center; padding: 1.5rem 0; }
 
 /* ── KICKER ── */
 .kicker {
@@ -392,7 +424,13 @@ footer {
     .drawer-tier-link { padding: 0.5rem 0 0.5rem 0.6rem; }
     .drawer-tier-name { font-size: 1rem; }
     .drawer-tier-desc { font-size: 0.6rem; }
-    .drawer-tier-list .drawer-link-findfit { padding: 0.6rem 0 0.3rem 0.6rem; margin-top: 0.25rem; }
+    .drawer-tier-list .drawer-link-findfit { padding: 0.6rem 0 0.3rem 0.6rem; margin-top: 0; }
+    .drawer-link-commercial { font-size: 1rem; padding: 0.6rem 0; }
+}
+@media (max-width: 380px) {
+    .drawer-nav { padding: 1.25rem 1.15rem; }
+    .drawer-tier-name, .drawer-link-commercial { font-size: 0.92rem; }
+    .drawer-pill { margin-left: 0.4rem; letter-spacing: 0.1em; }
 }
 
 /* ── OFFER VIDEO (tier-name graphic, with text fallback) ── */

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>First Light</title>
+    <title>FIRST LIGHT</title>
     <link rel="icon" type="image/png" href="favicon.png">
     <link rel="apple-touch-icon" href="favicon.png">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -21,8 +21,8 @@
         .beliefs-inner { max-width: 1180px; margin: 0 auto; }
         .belief-list { border-top: 1px solid var(--border-d); }
         .belief {
-            display: grid; grid-template-columns: 1.3fr 1.7fr;
-            gap: 1rem 3rem; padding: 1.75rem 0;
+            display: grid; grid-template-columns: 1fr 2.7fr;
+            gap: 1rem 2rem; padding: 1.75rem 0;
             border-bottom: 1px solid var(--border-n);
             align-items: start;
         }
@@ -36,7 +36,30 @@
             font-size: clamp(1.6rem, 2.4vw, 2.2rem); font-weight: 800; color: var(--bone);
             letter-spacing: 0.02em; line-height: 1.2;
         }
-        .belief-body { font-size: 1.05rem; color: var(--t2); line-height: 1.6; max-width: 52ch; }
+        /* No tight ch cap here — the body should fill its column so the copy wraps in
+           ~4 lines rather than a narrow 6. 74ch only guards against silly line lengths. */
+        .belief-body { font-size: 1.05rem; color: var(--t2); line-height: 1.6; max-width: 74ch; }
+
+        /* ── CREED — the refusal, then the promise ──
+           Sits outside .beliefs-inner so it runs the full section width. */
+        .creed {
+            margin-top: 4.5rem;
+            margin-inline: 1.5rem; /* on top of the section's own padding */
+            display: flex; flex-direction: column; gap: 1.1rem;
+        }
+        .creed-line {
+            font-family: 'Red Hat Display', sans-serif;
+            font-weight: 800;
+            font-size: clamp(1.1rem, 3.1vw, 2.7rem); /* mobile size; desktop is fitted by JS */
+            line-height: 1.15; letter-spacing: -0.01em;
+            max-width: none; /* override the global 68ch cap on <p> */
+        }
+        /* Desktop: each line is scaled to the container width, so it must not wrap */
+        @media (min-width: 769px) {
+            .creed-line { white-space: nowrap; }
+        }
+        .creed-neg { color: var(--t3); }
+        .creed-pos { color: var(--bone); }
 
         /* ── PATHS ── */
         .paths { padding: 8rem 3.5rem 0; overflow: hidden; }
@@ -45,6 +68,8 @@
             font-size: clamp(2.5rem, 9vw, 8rem); font-weight: 300;
             margin-bottom: 1.25rem; line-height: 0.95; letter-spacing: -0.02em;
         }
+        /* the paragraph is already 500, so strong needs a real step up to read */
+        .paths-hd p strong { font-weight: 700; }
         .paths-hd p {
             font-size: clamp(1.45rem, 2.6vw, 2.15rem);
             font-weight: 500;
@@ -55,14 +80,14 @@
         }
         .path-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 2px; background: rgba(255,255,255,0.4); }
         .path {
-            background: var(--night); padding: 0 0 1.875rem;
+            background: var(--night); padding: 0 0 1.25rem;
             text-decoration: none; display: flex; flex-direction: column;
             transition: background 0.25s;
         }
         .path:hover { background: var(--night-surface); }
         .path-vid {
             width: 100%; aspect-ratio: 20/9; overflow: hidden;
-            margin-bottom: 2rem; background: var(--night-surface);
+            margin-bottom: 1.125rem; background: var(--night-surface);
         }
         .path-vid .offer-vid-fallback { font-size: clamp(1.6rem, 3.2vw, 2.75rem); }
         .path-for {
@@ -76,18 +101,127 @@
             display: flex; flex-direction: column; gap: 0.4rem;
         }
         .path-list li {
-            font-size: 1.3rem; color: var(--t2); line-height: 1.5;
+            font-size: 1rem; color: var(--t2); line-height: 1.5;
             position: relative; padding-left: 1.4rem;
         }
         .path-list li::before { content: '—'; position: absolute; left: 0; color: var(--amber); font-size: 0.8em; }
-        .path-desc { font-size: 1.3rem; color: var(--t2); line-height: 1.65; margin-bottom: auto; padding: 0 3rem; }
+        .path-desc { font-size: 1rem; color: var(--t2); line-height: 1.65; margin-bottom: auto; padding: 0 3rem; }
         .path-arrow {
             font-size: 1.1rem; letter-spacing: 0.03em; text-transform: uppercase;
-            color: var(--dawn-mid); margin-top: 2.5rem; font-weight: 600;
+            color: var(--dawn-mid); margin-top: 1.25rem; font-weight: 600;
             transition: color 0.2s;
             padding: 0 3rem;
         }
         .path:hover .path-arrow { color: var(--amber); }
+
+        /* ── MONEY TEASER (downstream of the tiers, not a peer option) ── */
+        .money-teaser {
+            position: relative;
+            padding: 7rem 3.5rem;
+            /* #000 to match the offer-page heroes, so the video box leaves no seam */
+            background: #000;
+            border-top: 1px solid var(--border-n);
+            /* Built like the offer heroes: the wordmark video fills the whole section
+               and the copy reads on top of it, rather than sitting above it. */
+            min-height: 100svh;
+            display: flex; flex-direction: column; justify-content: center;
+            overflow: hidden;
+        }
+        .money-teaser-inner { position: relative; z-index: 2; max-width: 1180px; margin: 0 auto; }
+        /* Same treatment as the offer-page heroes: `contain` so the whole wordmark
+           survives on viewports narrower than 16:9, black behind it to hide the
+           letterboxing, scale(0.9) to inset it from the edges. */
+        .money-teaser-vid {
+            position: absolute; inset: 0; z-index: 0;
+            overflow: hidden; background: #000;
+        }
+        .money-teaser-vid video { object-fit: contain; transform: scale(0.9); }
+        .money-teaser-vid .offer-vid-fallback { font-size: clamp(4rem, 14vw, 12rem); }
+        .money-teaser-overlay {
+            position: absolute; inset: 0; z-index: 1; pointer-events: none;
+            background: linear-gradient(to top, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.5) 45%, rgba(0,0,0,0.08) 75%);
+        }
+        .money-teaser h2 {
+            font-size: clamp(1.9rem, 4.5vw, 3.4rem); font-weight: 300;
+            line-height: 1.05; letter-spacing: -0.02em; margin-bottom: 1.5rem;
+        }
+        /* "pays" — a bulb struggling on as the section scrolls into view,
+           then never quite settling. White letters, green phosphor bloom. */
+        .money-teaser h2 .flicker {
+            font-weight: 700;
+            --glow-core: rgba(88, 255, 138, 0.95);
+            --glow-mid:  rgba(88, 255, 138, 0.62);
+            --glow-halo: rgba(88, 255, 138, 0.34);
+            /* layers stack to compound brightness: hot core → mid bloom → wide spill */
+            --lit:  0 0 4px  var(--glow-core),
+                    0 0 12px var(--glow-core),
+                    0 0 26px var(--glow-mid),
+                    0 0 52px var(--glow-mid),
+                    0 0 90px var(--glow-halo);
+            --half: 0 0 8px var(--glow-mid), 0 0 26px var(--glow-halo);
+            --off:  #0d0d0d;  /* dead filament — barely separable from the section black */
+        }
+        .js .money-teaser h2 .flicker { color: var(--off); text-shadow: none; }
+        .js .money-teaser h2.on .flicker {
+            /* ignition plays once, then the unsteady loop takes over at 2.8s */
+            animation: bulb-flicker  2.4s steps(1, end) 0.4s 1 both,
+                       bulb-unsteady 6.5s steps(1, end) 2.8s infinite;
+        }
+        @keyframes bulb-flicker {
+            0%, 5%   { color: var(--off);  text-shadow: none; }
+            6%,  8%  { color: var(--bone);  text-shadow: var(--lit); }
+            9%,  19% { color: var(--off);  text-shadow: none; }
+            20%, 21% { color: var(--bone);  text-shadow: var(--lit); }
+            22%, 33% { color: var(--off);  text-shadow: none; }
+            34%, 36% { color: var(--dawn);  text-shadow: var(--half); }
+            37%, 43% { color: var(--off);  text-shadow: none; }
+            44%, 50% { color: var(--bone);  text-shadow: var(--lit); }
+            51%, 54% { color: var(--off);  text-shadow: none; }
+            55%, 62% { color: var(--bone);  text-shadow: var(--lit); }
+            63%, 65% { color: var(--dawn);  text-shadow: var(--half); }
+            66%, 71% { color: var(--bone);  text-shadow: var(--lit); }
+            72%, 74% { color: var(--off);  text-shadow: none; }
+            75%, 100% { color: var(--bone); text-shadow: var(--lit); }
+        }
+        /* lit, but never for long — brief dips and one hard blink per cycle */
+        @keyframes bulb-unsteady {
+            0%,  10%  { color: var(--bone); text-shadow: var(--lit); }
+            11%       { color: var(--dawn-mid); text-shadow: var(--half); }
+            12%, 25%  { color: var(--bone); text-shadow: var(--lit); }
+            26%       { color: var(--off);  text-shadow: none; }
+            27%, 28%  { color: var(--bone); text-shadow: var(--lit); }
+            29%       { color: var(--dawn-mid); text-shadow: var(--half); }
+            30%, 44%  { color: var(--bone); text-shadow: var(--lit); }
+            45%, 46%  { color: var(--dawn-mid); text-shadow: var(--half); }
+            47%, 61%  { color: var(--bone); text-shadow: var(--lit); }
+            62%       { color: var(--dawn-mid); text-shadow: var(--half); }
+            63%, 76%  { color: var(--bone); text-shadow: var(--lit); }
+            77%       { color: var(--off);  text-shadow: none; }
+            78%       { color: var(--bone); text-shadow: var(--lit); }
+            79%       { color: var(--dawn-mid); text-shadow: var(--half); }
+            80%, 100% { color: var(--bone); text-shadow: var(--lit); }
+        }
+        @media (prefers-reduced-motion: reduce) {
+            .js .money-teaser h2 .flicker,
+            .js .money-teaser h2.on .flicker {
+                color: var(--bone); text-shadow: var(--lit); animation: none;
+            }
+        }
+        .money-teaser p {
+            font-size: 1.05rem; color: var(--t2); line-height: 1.85;
+            max-width: 56ch; margin-bottom: 1rem;
+        }
+        .money-teaser p strong { color: var(--bone); font-weight: 500; }
+        .money-teaser-note {
+            font-size: 0.85rem; color: var(--t3); font-style: italic;
+            margin-bottom: 2.25rem;
+        }
+        .money-teaser-arrow {
+            font-size: 1rem; letter-spacing: 0.03em; text-transform: uppercase;
+            color: var(--dawn-mid); font-weight: 600; text-decoration: none;
+            display: inline-block; transition: color 0.2s;
+        }
+        .money-teaser-arrow:hover { color: var(--amber); }
 
         /* ── QUIZ CTA ── */
         .quiz-cta {
@@ -109,13 +243,13 @@
         .wwd {
             background: #000;
             padding-top: 10rem;
-            padding-bottom: 9rem;
+            padding-bottom: 3rem;
             overflow: hidden;
         }
         .wwd-inner {
             max-width: 1800px;
             margin: 0 auto;
-            padding: 0 3rem 8rem;
+            padding: 0 3rem 3rem;
         }
         .wwd-title {
             font-size: clamp(2.5rem, 9vw, 8rem);
@@ -135,7 +269,12 @@
         }
         /* ── Pillars ── */
         .wwd-pillars { display: flex; flex-direction: column; gap: 6rem; }
-        .wwd-item { padding-top: 3.5rem; }
+        .wwd-item {
+            padding-top: 3.5rem;
+            /* Width left for the text column: viewport minus the video, the 5rem outer
+               padding, the 3.5rem gap, and 1rem of safety. Drives .wwd-name sizing. */
+            --wwd-avail: calc(100vw - clamp(380px, 46vw, 820px) - 9.5rem);
+        }
         .wwd-item:last-child { padding-bottom: 3.5rem; }
         .wwd-grid {
             display: grid;
@@ -157,7 +296,11 @@
         }
         .wwd-name {
             font-family: 'Bebas Neue', sans-serif;
-            font-size: clamp(6rem, 14vw, 14rem);
+            /* --wwd-w is the word's width in ems in Bebas Neue (letter-spacing included),
+               set per pillar. Sizing off it lets the word fill the text column without a
+               long one like MONETIZATION running under the video. */
+            --wwd-w: 4.7;
+            font-size: min(clamp(3rem, 14vw, 14rem), calc(var(--wwd-avail) / var(--wwd-w)));
             color: #fff; letter-spacing: 0.02em;
             line-height: 0.9; white-space: nowrap;
             margin-bottom: 0.5rem;
@@ -196,7 +339,8 @@
             top: 0; left: 0; right: 0;
             width: 100%; height: 100%; object-fit: cover; object-position: center center; display: block;
         }
-        /* Sports tags */
+        /* Sports tags — currently unused: the pills were pulled from the WWD intro.
+           Kept in case they come back. */
         .wwd-sports {
             display: flex; flex-wrap: wrap; justify-content: center;
             gap: 1.1rem; margin-top: 2.75rem;
@@ -244,15 +388,24 @@
             .wwd-item--flip .wwd-grid > .wwd-vid { order: 1; }
             .quiz-cta h2 { white-space: normal; font-size: clamp(1.5rem, 6vw, 2rem); }
             .beliefs { padding: 3rem 1.5rem 3rem; }
+            /* No extra side margin on mobile — the width is needed for the wrap */
+            .creed { margin-top: 2.5rem; margin-inline: 0; gap: 0.85rem; }
+            /* Sized so L1 fills two lines and L2 runs one-and-a-bit — ~3½ lines of text */
+            .creed-line { font-size: clamp(1.1rem, 5vw, 1.7rem); }
             .belief-body { font-size: 0.95rem; max-width: none; }
 
             .paths { padding: 3rem 1.25rem 0; }
             .path-vid { margin-bottom: 1.5rem; }
             .path-for, .path-lead, .path-list, .path-desc, .path-arrow { padding: 0 0.25rem; }
             .path-for { font-size: 0.65rem; }
-            .path-lead, .path-desc { font-size: 1rem; line-height: 1.6; }
-            .path-list li { font-size: 1rem; line-height: 1.5; }
+            .path-lead { font-size: 1rem; line-height: 1.6; }
+            .path-desc { font-size: 0.85rem; line-height: 1.6; }
+            .path-list li { font-size: 0.85rem; line-height: 1.5; }
             .path-arrow { font-size: 0.85rem; margin-top: 1.5rem; }
+
+            .money-teaser { padding: 3.5rem 1.25rem; }
+            .money-teaser p { font-size: 0.95rem; }
+            .money-teaser-arrow { font-size: 0.85rem; }
 
             .quiz-cta { padding: 2.5rem 1.25rem 4rem; }
             .quiz-cta p { font-size: 0.85rem; }
@@ -423,7 +576,7 @@
 <div class="drawer-overlay" id="drawerOverlay"></div>
 <aside class="drawer" id="drawer">
     <div class="drawer-head">
-        <a href="index.html" class="drawer-logo"><img src="logo.svg" alt="First Light" class="drawer-logo-img"></a>
+        <a href="index.html" class="drawer-logo"><img src="logo.svg" alt="FIRST LIGHT" class="drawer-logo-img"></a>
         <button class="drawer-close" id="drawerClose" aria-label="Close menu">
             <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M1 1l12 12M13 1L1 13" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
         </button>
@@ -433,24 +586,25 @@
         <a href="#wwd" class="drawer-link drawer-link-quiz">What We Do</a>
         <a href="#beliefs" class="drawer-link drawer-link-quiz">What We Believe</a>
         <div class="drawer-offers-group">
-            <a href="#offers" class="drawer-link drawer-link-quiz drawer-link-offers">Offers</a>
+            <a href="#offers" class="drawer-link drawer-link-quiz drawer-link-offers">Services</a>
             <div class="drawer-tier-list">
-                <a href="spark.html" class="drawer-link drawer-tier-link" data-page="spark.html">
-                    <span class="drawer-tier-name">Spark</span>
-                    <span class="drawer-tier-desc">Start building real income</span>
+                <a href="promotion.html" class="drawer-link drawer-tier-link" data-page="promotion.html">
+                    <span class="drawer-tier-name">Promotion</span>
+                    <span class="drawer-tier-desc">We steer; you execute</span>
                 </a>
-                <a href="blaze.html" class="drawer-link drawer-tier-link" data-page="blaze.html">
-                    <span class="drawer-tier-name">Blaze</span>
-                    <span class="drawer-tier-desc">Compound your name and income</span>
+                <a href="production.html" class="drawer-link drawer-tier-link" data-page="production.html">
+                    <span class="drawer-tier-name">Production</span>
+                    <span class="drawer-tier-desc">Full promotion, executed</span>
                 </a>
-                <a href="quiz.html" class="drawer-link drawer-link-findfit" data-page="quiz.html">Find Your Fit</a>
+                <a href="quiz.html" class="drawer-link drawer-link-findfit" data-page="quiz.html">Find Your Fit<span class="drawer-pill">Quiz</span></a>
             </div>
         </div>
+        <a href="commercial.html" class="drawer-link drawer-link-quiz drawer-link-commercial" data-page="commercial.html">FIRST LIGHT Commercial</a>
     </nav>
 </aside>
 
 <nav class="nav nav-hidden" id="mainNav">
-    <a href="index.html" class="nav-logo" id="navLogo" aria-haspopup="true" aria-expanded="false"><img src="logo.svg" alt="First Light" class="nav-logo-img"></a>
+    <a href="index.html" class="nav-logo" id="navLogo" aria-haspopup="true" aria-expanded="false"><img src="logo.svg" alt="FIRST LIGHT" class="nav-logo-img"></a>
 </nav>
 
 <!-- VIDEO HERO -->
@@ -478,8 +632,8 @@
         </div>
     </div>
     <div class="video-extra" id="videoExtra">
-        <p class="video-sub">First Light exists to close the gap between what combat athletes are worth and what they're paid.</p>
-        <a href="quiz.html" class="btn video-cta">Find Your Path</a>
+        <p class="video-sub">FIRST LIGHT exists to close the gap between what combat athletes are worth and what they're paid.</p>
+        <a href="#offers" class="btn video-cta">Find Your Path</a>
     </div>
 </section>
 
@@ -490,14 +644,10 @@
     <div class="wwd-inner">
         <h2 class="wwd-title" data-r>What we do.</h2>
         <div class="wwd-sub" data-r style="--d:80ms">
-            <p>A fighter is a business.</p>
-            <p>You run it every day like a pro. Growing it is a different game, that no coach or gym plays.</p>
-            <p><strong style="color:#fff;font-weight:700;">We build and run the machine that turns your name into income.</strong></p>
-        </div>
-        <div class="wwd-sports" data-r style="--d:140ms">
-            <span class="wwd-sport-pill">MMA</span>
-            <span class="wwd-sport-pill">Jiu Jitsu / Grappling</span>
-            <span class="wwd-sport-pill">Muay Thai / Kickboxing</span>
+            <p>A fighter is a product in the entertainment business.</p>
+            <p>You train every day like a pro, but skill is only one part of the equation.</p>
+            <p>No coach or gym teaches you the rest: how to build a name.</p>
+            <p><strong style="color:#fff;font-weight:700;">We build your name, and turn it into income.</strong></p>
         </div>
     </div>
     <div class="wwd-pillars">
@@ -505,7 +655,7 @@
         <div class="wwd-item">
             <div class="wwd-grid">
                 <div class="wwd-left">
-                    <span class="wwd-name" data-r>BRAND</span>
+                    <span class="wwd-name" data-r style="--wwd-w:3.25">BRANDING</span>
                     <p class="wwd-tagline" data-r style="--d:80ms">You are the product, in the cage and out of it. We build an identity promoters can't ignore and fans can't forget.</p>
                     <ul class="wwd-list" data-r style="--d:180ms">
                         <li><strong style="font-weight:700">Define what you stand for</strong>, so your story carries you.</li>
@@ -521,7 +671,7 @@
             </div>
         </div>
 
-        <!-- PROMOTE -->
+        <!-- PROMOTION -->
         <div class="wwd-item wwd-item--flip">
             <div class="wwd-grid">
                 <div class="wwd-vid" data-r style="--d:80ms">
@@ -530,27 +680,27 @@
                     </video>
                 </div>
                 <div class="wwd-left">
-                    <span class="wwd-name" data-r>PROMOTE</span>
+                    <span class="wwd-name" data-r style="--wwd-w:3.72">PROMOTION</span>
                     <p class="wwd-tagline" data-r style="--d:80ms">A product no one sees doesn't sell. We put you in front of the right audience without touching your training time.</p>
                     <ul class="wwd-list" data-r style="--d:180ms">
                         <li><strong style="font-weight:700">Run a content engine</strong> that produces while you're deep in fight camp.</li>
-                        <li><strong style="font-weight:700">Land on bigger platforms</strong>: podcasts, media, events, all pitched and booked for you.</li>
+                        <li><strong style="font-weight:700">Land on bigger platforms</strong>: podcasts, media, social media, events...</li>
                         <li><strong style="font-weight:700">Grow a hungry audience</strong> before you ever need them to buy.</li>
                     </ul>
                 </div>
             </div>
         </div>
 
-        <!-- MONETIZE -->
+        <!-- MONETIZATION -->
         <div class="wwd-item">
             <div class="wwd-grid">
                 <div class="wwd-left">
-                    <span class="wwd-name" data-r>MONETIZE</span>
+                    <span class="wwd-name" data-r style="--wwd-w:4.70">MONETIZATION</span>
                     <p class="wwd-tagline" data-r style="--d:80ms">Attention isn't income. We turn your name into revenue that recurs, compounds, and outlasts your career.</p>
                     <ul class="wwd-list" data-r style="--d:180ms">
-                        <li><strong style="font-weight:700">Build the income streams around your expertise</strong>: seminars, coaching, instructionals.</li>
-                        <li><strong style="font-weight:700">Source, pitch, and negotiate sponsorships</strong> on your behalf.</li>
-                        <li><strong style="font-weight:700">Set up paydays outside of fights</strong>, without taking you away from fighting.</li>
+                        <li><strong style="font-weight:700">Negotiate sponsorships</strong> with the leverage of your name.</li>
+                        <li><strong style="font-weight:700">Set up income streams around your expertise</strong>: coaching, seminars, instructionals.</li>
+                        <li><strong style="font-weight:700">Build your own brand</strong> to set up paydays outside of fights.</li>
                     </ul>
                 </div>
                 <div class="wwd-vid" data-r style="--d:80ms">
@@ -571,22 +721,26 @@
     <div class="beliefs-inner">
         <div class="belief-list">
             <div class="belief">
-                <span class="belief-n">Your name is an asset</span>
-                <p class="belief-body">Stop relying on sparse fight purses. With the right architecture, your personal brand generates income across multiple streams, compounds over time, and outlasts your competitive career.</p>
+                <span class="belief-n">Being known is the monetization lever</span>
+                <p class="belief-body">Stop relying on sparse fight purses. With the right architecture, your personal brand generates income across multiple streams and outlasts your competitive career. The gap between mid-tier pay and real money isn't talent; it's attention. </p>
             </div>
             <div class="belief">
-                <span class="belief-n">Fame is not the destination</span>
-                <p class="belief-body">Followers don't pay the bills. We build sustainable income on top of your audience, without selling out or diluting your brand.</p>
+                <span class="belief-n">You're in the entertainment business</span>
+                <p class="belief-body">When you turned pro, you entered a market that sells attention, not skill. Fans, promoters, and sponsors pay for the fighters they can't stop watching. Your skill got you to the big leagues, but your name is what will get you paid.</p>
             </div>
             <div class="belief">
                 <span class="belief-n">The system is the advantage</span>
-                <p class="belief-body">You don't need more talent; you need infrastructure. We install and <em>operate</em> the branding, content production, and sponsor outreach that work while you train.</p>
+                <p class="belief-body">You don't need to be a full-time content creator, you don't need a million followers. Our fighters range from thousands to hundreds of thousands of followers. We build your presence at every level of your fight career.</p>
             </div>
             <div class="belief">
-                <span class="belief-n">You don't need a million followers</span>
-                <p class="belief-body">The athletes we work with range from a few thousand followers to hundreds of thousands, and the system works at every level, scaled to where you actually are.</p>
+                <span class="belief-n">Fame is not the destination</span>
+                <p class="belief-body">Followers don't pay the bills. Get known first, then the money follows the name. We build sustainable income on top of your audience that outlasts your competitive years — without selling out or diluting your brand.</p>
             </div>
         </div>
+    </div>
+    <div class="creed">
+        <p class="creed-line creed-neg" data-r>We are not a PR firm. We do not script fighters, censor them, or invent gimmicks.</p>
+        <p class="creed-line creed-pos" data-r style="--d:120ms">We enable fighters to fully express their true identities.</p>
     </div>
 </section>
 
@@ -596,42 +750,60 @@
 <section class="paths" id="offers">
     <div class="paths-hd" data-r>
         <h2>Two ways in.</h2>
-        <p>Same expertise behind both.</p>
-        <p>The difference is how much of it, how fast, and whose hands are on it.</p>
+        <p>One goal: <strong>MAKE THE WORLD WATCH</strong>.</p>
+        <p>The difference is who does the work.</p>
     </div>
     <div class="path-grid">
-        <a href="spark.html" class="path" data-r>
+        <a href="promotion.html" class="path" data-r>
             <div class="path-vid offer-vid">
-                <span class="offer-vid-fallback">Spark</span>
-                <video autoplay muted loop playsinline src="spark-offer.mp4" onerror="this.style.display='none'"></video>
+                <span class="offer-vid-fallback">Promotion</span>
+                <video autoplay muted loop playsinline src="promotion-offer.mp4" onerror="this.style.display='none'"></video>
             </div>
-            <span class="path-for">For</span>
-            <p class="path-lead">A team behind you while you focus on training.</p>
+            <!-- <span class="path-for">For</span> -->
+            <p class="path-lead"><strong>We steer; you execute.</strong></p>
             <ul class="path-list">
-                <li>Your content produced and published</li>
-                <li>Your sponsors sourced and pitched</li>
-                <li>Your services promoted and sold</li>
-                <li>Your brand direction sharpened every month</li>
+                <li>Personal brand definition & strategy</li>
+                <li>Content and platforms direction</li>
+                <li>Narrative around every fight</li>
+                <li>Audience & engagement reviews</li>
             </ul>
-            <p class="path-desc">All while you keep training. For the athlete who's good at what they do and wants their sport to start paying, whether as's side income or a full-time name.</p>
-            <span class="path-arrow">Explore Spark →</span>
+            <p class="path-desc">For rising prospects or high level fighters still stuck on the undercard, ready to build their name with a promoter in their corner. You record, you speak, you post. We do the strategic thinking so you can focus on the fight.</p>
+            <p class="path-desc"><em><br>$297/week of camp.</em></p>
+            <span class="path-arrow">Explore Promotion →</span>
         </a>
-        <a href="blaze.html" class="path" data-r style="--d:80ms">
+        <a href="production.html" class="path" data-r style="--d:80ms">
             <div class="path-vid offer-vid">
-                <span class="offer-vid-fallback">Blaze</span>
-                <video autoplay muted loop playsinline src="blaze-offer.mp4" onerror="this.style.display='none'"></video>
+                <span class="offer-vid-fallback">Production</span>
+                <video autoplay muted loop playsinline src="production-offer.mp4" onerror="this.style.display='none'"></video>
             </div>
-            <span class="path-for">For</span>
-            <p class="path-lead">The flagship. Everything in Spark, turned all the way up.</p>
+            <!-- <span class="path-for">For</span> -->
+            <p class="path-lead"><strong>We do it. Full production, executed.</strong></p>
             <ul class="path-list">
-                <li>More content</li>
-                <li>More platforms</li>
-                <li>Faster</li>
-                <li>Priority access and support</li>
+                <li>Everything in PROMOTION</li>
+                <li>Film crew on the ground</li>
+                <li>Content editing, producing, publishing</li>
+                <li>Live your life, we build your name</li>
             </ul>
-            <p class="path-desc">For the established pro whose name earns them far less than it's worth.</p>
-            <span class="path-arrow">Explore Blaze →</span>
+            <p class="path-desc">For fighters with existing visibility, whose life in camp is worth filming and putting out there. Build anticipation for title shots and grudge matches, with a crew on the ground instead of a phone in your hand.</p>
+            <p class="path-desc"><em><br>Quoted per fight, limited capacity.</em></p>
+            <span class="path-arrow">Explore Production →</span>
         </a>
+    </div>
+</section>
+
+<!-- MONEY TEASER — downstream of the tiers, never a peer option -->
+<section class="money-teaser">
+    <div class="money-teaser-vid offer-vid">
+        <span class="offer-vid-fallback">Commercial</span>
+        <video autoplay muted loop playsinline src="commercial-offer.mp4" onerror="this.style.display='none'"></video>
+    </div>
+    <div class="money-teaser-overlay"></div>
+    <div class="money-teaser-inner">
+        <h2 data-r>And then... the name <strong class="flicker">pays</strong>.</h2>
+        <p data-r>Once the world is watching, the game changes: sponsorships, seminars, event appearances, brand deals. That's a different problem, and it's the next one we solve.</p>
+        <p data-r style="--d:60ms"><strong>FIRST LIGHT Commercial</strong> turns your name into income without diluting your brand. We do not offer this service as a standalone option; it's something you earn your way into once you've got the fame to convert.</p>
+        <p class="money-teaser-note" data-r style="--d:120ms">Commission only. Only FIRST LIGHT athletes are eligible.</p>
+        <a href="commercial.html" class="money-teaser-arrow" data-r style="--d:180ms">Discover FIRST LIGHT Commercial →</a>
     </div>
 </section>
 
@@ -639,20 +811,21 @@
 <section class="quiz-cta">
     <div class="quiz-cta-inner">
         <h2 data-r>Not sure which fits?</h2>
-        <p data-r>Four questions. Two minutes. A clear recommendation and why.</p>
+        <p data-r>Five questions. Two minutes.<br>A clear recommendation and why.</p>
         <a href="quiz.html" class="btn btn-outline" data-r>Find Your Fit →</a>
     </div>
 </section>
 
 <footer>
-    <a href="index.html" class="foot-logo"><img src="logo.svg" alt="First Light" class="foot-logo-img"></a>
+    <a href="index.html" class="foot-logo"><img src="logo.svg" alt="FIRST LIGHT" class="foot-logo-img"></a>
     <nav class="foot-links">
-        <a href="spark.html" class="foot-link">Spark</a>
-        <a href="blaze.html" class="foot-link">Blaze</a>
+        <a href="promotion.html" class="foot-link">Promotion</a>
+        <a href="production.html" class="foot-link">Production</a>
+        <a href="commercial.html" class="foot-link">Commercial</a>
         <a href="quiz.html" class="foot-link">Find Your Fit</a>
     </nav>
-    <p class="foot-copy">© 2026 First Light</p>
-    <p class="foot-disclaimer">Fighters shown in videos are used as illustrative examples only and are not necessarily First Light clients.</p>
+    <p class="foot-copy">© 2026 FIRST LIGHT</p>
+    <p class="foot-disclaimer">Fighters shown in videos are used as illustrative examples only and are not necessarily FIRST LIGHT clients.</p>
 </footer>
 
 <script src="nav.js"></script>
@@ -712,6 +885,41 @@ function fitVideoText() {
 }
 (document.fonts ? document.fonts.ready : Promise.resolve()).then(fitVideoText);
 window.addEventListener('resize', fitVideoText);
+
+// ── Creed: scale each line so both fill the same measure ──
+// Same binary-search fit as the hero above. Because line 2 has fewer characters
+// than line 1, filling an identical width lands it on a larger size — that size
+// difference is the effect, not something set by hand. Below the mobile
+// breakpoint the lines are left to wrap at their CSS clamp size instead, since
+// fitting a 75-character line to a phone width would shrink it to ~6px.
+function fitCreed() {
+    var lines = Array.prototype.slice.call(document.querySelectorAll('.creed-line'));
+    var wrap  = document.querySelector('.creed');
+    if (!lines.length || !wrap) return;
+
+    lines.forEach(function (el) { el.style.fontSize = ''; });
+    if (window.innerWidth <= 768) return;
+
+    var targetW = wrap.clientWidth;
+    if (targetW <= 0) return;
+
+    // Measure the text run via a Range, not the element box: these are flex
+    // items in a column flex container, so the box is stretched to the full
+    // container width no matter how small the type is.
+    var range = document.createRange();
+    lines.forEach(function (el) {
+        var lo = 6, hi = 400, mid;
+        for (var i = 0; i < 26; i++) {
+            mid = (lo + hi) / 2;
+            el.style.fontSize = mid + 'px';
+            range.selectNodeContents(el);
+            if (range.getBoundingClientRect().width > targetW) hi = mid; else lo = mid;
+        }
+        el.style.fontSize = lo + 'px';
+    });
+}
+(document.fonts ? document.fonts.ready : Promise.resolve()).then(fitCreed);
+window.addEventListener('resize', fitCreed);
 
 (function () {
     var video = document.getElementById('heroVideo');
@@ -792,8 +1000,18 @@ window.addEventListener('resize', fitVideoText);
     var ticking = false;
 
     var clipAncestors = lines.map(function (el) { return el.closest('.wwd, .paths'); });
-    var shapes = lines.map(function (el, i) { return SHAPE_POOL[i % SHAPE_POOL.length]; });
-    var amplitudes = lines.map(function (el, i) { return AMPLITUDE_POOL[i % AMPLITUDE_POOL.length]; });
+    // Position within the line's OWN clip group, not the flat document order.
+    // Indexing globally made each section inherit the previous one's offset
+    // into the staircase, so a later section's first line could start on a
+    // near-zero amplitude and read as frozen.
+    var seenPerClip = new Map();
+    var groupIndex = clipAncestors.map(function (clip) {
+        var n = seenPerClip.get(clip) || 0;
+        seenPerClip.set(clip, n + 1);
+        return n;
+    });
+    var shapes = lines.map(function (el, i) { return SHAPE_POOL[groupIndex[i] % SHAPE_POOL.length]; });
+    var amplitudes = lines.map(function (el, i) { return AMPLITUDE_POOL[groupIndex[i] % AMPLITUDE_POOL.length]; });
 
     function update() {
         ticking = false;

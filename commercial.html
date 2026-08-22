@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Commercial — FIRST LIGHT</title>
+    <link rel="icon" type="image/png" href="favicon.png">
+    <link rel="apple-touch-icon" href="favicon.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Red+Hat+Display:wght@800&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <style>
+        /* ── HERO ── */
+        .hero {
+            min-height: 100svh;
+            display: flex; flex-direction: column;
+            justify-content: center; align-items: flex-start;
+            padding: 10rem 3rem 6rem;
+            position: relative; z-index: 0; background: #000;
+        }
+        .hero::before {
+            content: '';
+            position: absolute; inset: 0; pointer-events: none;
+            background: radial-gradient(ellipse 50% 60% at 100% 0%,
+                rgba(255,255,255,0.04) 0%, transparent 55%);
+            z-index: 1;
+        }
+        /* Matches the Promotion/Production heroes: the video is a title card whose
+           wordmark runs nearly the full width of the frame, so `cover` shears the
+           first and last letters off on any viewport narrower than 16:9. `contain`
+           keeps the whole word; the frame is black around the letters, so a black
+           box behind it hides the letterboxing. scale(0.9) sits the wordmark at the
+           same size and inset as the other two offer heroes. */
+                /* The video box is fixed to the first screenful rather than stretched to the
+           hero's full height (`inset: 0`) or scrolled along with it. The hero grows with
+           its copy, and a taller hero would drop the centred wordmark below the fold —
+           Commercial's longer headline pushed it ~110px lower than the other two. Pinning
+           to 100svh sits the wordmark identically on all three offer pages. `fixed` holds
+           the frame still while the copy scrolls over it; nav.js scrubs --hero-vid-fade
+           from 1 to 0 across the first screenful so the video dissolves into the hero's
+           black instead of sliding away, leaving pure black by the second section. The
+           overlay is pinned to the same box, and fades with it, so the two stay in
+           register. .hero carries z-index:0 to open a stacking context, which keeps the
+           fixed layers painting below every section that follows. */
+        .hero-vid-bg { position: fixed; top: 0; left: 0; right: 0; height: 100svh; z-index: 0; overflow: hidden; background: #000; }
+        .hero-vid-bg, .hero-vid-overlay { opacity: var(--hero-vid-fade, 1); will-change: opacity; }
+        /* Once fully dissolved the layers are taken out of paint entirely, so the video
+           isn't being composited under the whole rest of the page. */
+        .hero.hero-vid-gone .hero-vid-bg, .hero.hero-vid-gone .hero-vid-overlay { visibility: hidden; }
+        .hero-vid-bg video { object-fit: contain; transform: scale(0.9); }
+        .hero-vid-bg .offer-vid-fallback { font-size: clamp(4rem, 14vw, 12rem); }
+        .hero-vid-overlay {
+            position: fixed; top: 0; left: 0; right: 0; height: 100svh; z-index: 1; pointer-events: none;
+            /* Bottom-weighted, matching the other offer heroes: a left-weighted wash
+               would black out half the wordmark instead of a bright photo. */
+            background: linear-gradient(to top, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.5) 45%, rgba(0,0,0,0.08) 75%);
+        }
+        .hero-content { position: relative; z-index: 2; }
+        .hero-hl {
+            font-family: 'Red Hat Display', sans-serif;
+            font-size: clamp(3rem, 7vw, 6rem);
+            font-weight: 800; line-height: 1.05;
+            letter-spacing: 0em; max-width: 16ch;
+            margin-bottom: 1.5rem;
+        }
+        .hero-sub {
+            font-size: clamp(0.9rem, 1.5vw, 1rem);
+            color: var(--t2); max-width: 46ch; line-height: 1.95;
+            margin-bottom: 1.5rem;
+        }
+        .hero-sub strong { color: var(--bone); font-weight: 400; }
+        .hero-earned {
+            font-size: 0.95rem; color: var(--bone); font-style: italic;
+            margin-bottom: 2rem; display: block;
+        }
+        .hero-price { font-size: 0.72rem; color: var(--t3); margin-top: 1.25rem; display: block; }
+
+        /* ── STATEMENT ── */
+                /* Lifted above the hero's fixed video layer (which sits at z-index 0 and
+           covers the whole viewport). Without this the wordmark paints over this
+           section's copy for the whole length of the fade. Only the section
+           immediately after the hero needs it — the video is hidden by the time
+           anything below it scrolls into view. */
+        .statement { padding: 8rem 3rem; max-width: 820px; position: relative; z-index: 1; }
+        .statement-kicker {
+            font-size: 0.65rem; font-weight: 500; letter-spacing: 0.22em;
+            text-transform: uppercase; color: var(--dawn-mid);
+            display: block; margin-bottom: 1.25rem;
+        }
+        .statement h2 { font-size: clamp(1.8rem, 3.5vw, 2.8rem); font-weight: 300; margin-bottom: 2.25rem; }
+        .statement p {
+            font-size: clamp(1rem, 1.8vw, 1.12rem);
+            color: var(--t2); line-height: 1.95; margin-bottom: 1.75rem; max-width: 60ch;
+        }
+        .statement p strong { color: var(--bone); font-weight: 400; }
+
+        /* ── WHAT MONEY DOES ── */
+        .handles { padding: 7rem 3rem; background: var(--night-surface); border-top: 1px solid var(--border-d); }
+        .handles-inner { max-width: 1100px; margin: 0 auto; }
+        .handles h2 { font-size: clamp(1.8rem, 3.5vw, 2.8rem); font-weight: 300; margin-bottom: 3.5rem; }
+        .handle-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1px; background: var(--border-d); }
+        .handle { background: var(--night); padding: 2.25rem; }
+        .handle-name {
+            font-family: 'Red Hat Display', sans-serif; font-size: 1.15rem; font-weight: 800;
+            letter-spacing: 0.03em; color: var(--bone); display: block; margin-bottom: 0.75rem;
+        }
+        .handle-desc { font-size: 0.83rem; color: var(--t2); line-height: 1.75; }
+        .handles-note {
+            font-size: 0.9rem; color: var(--t2); line-height: 1.85;
+            max-width: 62ch; margin-top: 3rem;
+        }
+
+        /* ── THE STRUCTURE ── */
+        .terms-section { padding: 7rem 3rem; }
+        .terms-inner { max-width: 820px; margin: 0 auto; }
+        .terms-kicker {
+            font-size: 0.65rem; font-weight: 500; letter-spacing: 0.22em;
+            text-transform: uppercase; color: var(--dawn-mid); display: block; margin-bottom: 1.25rem;
+        }
+        .terms-section h2 { font-size: clamp(1.8rem, 3.5vw, 2.8rem); font-weight: 300; margin-bottom: 1.75rem; }
+        .terms-section p { font-size: 0.95rem; color: var(--t2); line-height: 1.9; max-width: 58ch; margin-bottom: 1.25rem; }
+        .terms-section p strong { color: var(--bone); font-weight: 400; }
+        .terms-section p em { font-style: italic; color: var(--t3); }
+
+        /* ── WAITLIST ── */
+        .waitlist { background: var(--night-surface); padding: 8rem 3rem; border-top: 1px solid var(--border-d); }
+        .waitlist-inner { max-width: 640px; }
+        .waitlist-kicker {
+            font-size: 0.65rem; font-weight: 500; letter-spacing: 0.22em;
+            text-transform: uppercase; color: var(--dawn-mid);
+            display: block; margin-bottom: 1.25rem;
+        }
+        .waitlist h2 {
+            font-family: 'Red Hat Display', sans-serif;
+            font-size: clamp(2rem, 4vw, 3rem); font-weight: 800;
+            letter-spacing: -0.01em; margin-bottom: 0.75rem;
+        }
+        .waitlist-sub {
+            font-size: 0.92rem; color: var(--t2); line-height: 1.85;
+            margin-bottom: 1.75rem; max-width: 52ch;
+        }
+        .waitlist-alt {
+            font-size: 0.82rem; color: var(--t3);
+            margin-bottom: 2.5rem; padding-bottom: 2.5rem;
+            border-bottom: 1px solid var(--border-n);
+        }
+        .waitlist-alt a { color: var(--dawn-mid); text-decoration: none; transition: color 0.2s; }
+        .waitlist-alt a:hover { color: var(--amber); }
+        .waitlist-foot {
+            font-size: 0.8rem; color: var(--t3); font-style: italic;
+            line-height: 1.8; margin-top: 2rem; max-width: 56ch;
+        }
+
+        @media (max-width: 900px) {
+            .hero { padding: 9rem 1.5rem 5rem; }
+            .statement, .handles, .terms-section, .waitlist { padding: 5rem 1.5rem; }
+            .handle-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="drawer-overlay" id="drawerOverlay"></div>
+<aside class="drawer" id="drawer">
+    <div class="drawer-head">
+        <a href="index.html" class="drawer-logo"><img src="logo.svg" alt="FIRST LIGHT" class="drawer-logo-img"></a>
+        <button class="drawer-close" id="drawerClose" aria-label="Close menu">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M1 1l12 12M13 1L1 13" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+        </button>
+    </div>
+    <nav class="drawer-nav">
+        <a href="index.html#hero" class="drawer-link drawer-link-quiz">Home</a>
+        <a href="index.html#wwd" class="drawer-link drawer-link-quiz">What We Do</a>
+        <a href="index.html#beliefs" class="drawer-link drawer-link-quiz">What We Believe</a>
+        <div class="drawer-offers-group">
+            <a href="index.html#offers" class="drawer-link drawer-link-quiz drawer-link-offers">Services</a>
+            <div class="drawer-tier-list">
+                <a href="promotion.html" class="drawer-link drawer-tier-link" data-page="promotion.html">
+                    <span class="drawer-tier-name">Promotion</span>
+                    <span class="drawer-tier-desc">We steer; you execute</span>
+                </a>
+                <a href="production.html" class="drawer-link drawer-tier-link" data-page="production.html">
+                    <span class="drawer-tier-name">Production</span>
+                    <span class="drawer-tier-desc">Full promotion, executed</span>
+                </a>
+                <a href="quiz.html" class="drawer-link drawer-link-findfit" data-page="quiz.html">Find Your Fit<span class="drawer-pill">Quiz</span></a>
+            </div>
+        </div>
+        <a href="commercial.html" class="drawer-link drawer-link-quiz drawer-link-commercial" data-page="commercial.html">FIRST LIGHT Commercial</a>
+    </nav>
+</aside>
+
+<nav class="nav">
+    <a href="index.html" class="nav-logo" id="navLogo" aria-haspopup="true" aria-expanded="false"><img src="logo.svg" alt="FIRST LIGHT" class="nav-logo-img"></a>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+    <div class="hero-vid-bg offer-vid">
+        <span class="offer-vid-fallback">Commercial</span>
+        <video autoplay muted loop playsinline src="commercial-offer.mp4" onerror="this.style.display='none'"></video>
+    </div>
+    <div class="hero-vid-overlay"></div>
+    <div class="hero-content">
+        <h1 class="hero-hl" data-r style="--d:80ms">A name is only worth what you turn it into.</h1>
+        <p class="hero-sub" data-r style="--d:200ms">You did the hard part. The world's watching. Now the same fame that took years to build has a shelf life, and every month it isn't earning is money you'll never get back.</p>
+        <p class="hero-sub" data-r style="--d:240ms"><strong>FIRST LIGHT Commercial is how a name becomes income.</strong><br> Sponsorships sourced and negotiated. Seminars and appearances that pay. Products that carry your name. The commercial machine that turns attention into a living, and into wealth that outlasts the day you stop fighting.</p>
+        <span class="hero-earned" data-r style="--d:300ms">Not a standalone service. Only FIRST LIGHT athletes are eligible.</span>
+        <div data-r style="--d:340ms">
+            <a href="#waitlist" class="btn hero-cta">Tell us when you're ready</a>
+        </div>
+    </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section class="statement">
+    <span class="statement-kicker" data-r>How it works</span>
+    <h2 data-r>This isn't step one. It's step three.</h2>
+    <p data-r>Chasing sponsors before anyone's watching is a waste of everyone's time. Brands pay for audiences, not potential. That's why our Commercial service isn't something you buy on day one. It's what we build <strong>after</strong> your name is big enough that the money is real.</p>
+    <p data-r>Get known first — that's our <a href="promotion.html" style="color:var(--bone);text-decoration:none;border-bottom:1px solid var(--border-d)">Promotion</a> and <a href="production.html" style="color:var(--bone);text-decoration:none;border-bottom:1px solid var(--border-d)">Production</a> services. Once the audience is there, our Commercial service turns it into income. Try to skip the line and you're selling something nobody's buying yet.</p>
+    <p data-r>When it opens, it usually opens on a moment: the week after a win, a clip that runs away from you, sponsors landing in your DMs, a main-card or title-shot booking. That's when your name is worth the most it has ever been worth, and that's when we move on it.</p>
+</section>
+
+<!-- WHAT MONEY DOES -->
+<section class="handles">
+    <div class="handles-inner">
+        <h2 data-r>What our Commercial service does.</h2>
+        <div class="handle-grid">
+            <div class="handle" data-r>
+                <span class="handle-name">Sponsorship Deals</span>
+                <p class="handle-desc">We source the right brands, build the pitch, and negotiate on your behalf: real partnerships, priced to your actual reach.</p>
+            </div>
+            <div class="handle" data-r style="--d:60ms">
+                <span class="handle-name">Paid Appearances &amp; Seminars</span>
+                <p class="handle-desc">We line up and run the paydays your name can now command: filled, organised, and handed to you.</p>
+            </div>
+            <div class="handle" data-r>
+                <span class="handle-name">Products That Carry Your Name</span>
+                <p class="handle-desc">Instructionals, merch, offers built off your following: created and sold, not just talked about.</p>
+            </div>
+            <div class="handle" data-r style="--d:60ms">
+                <span class="handle-name">Deal-Flow Management</span>
+                <p class="handle-desc">One commercial operation handling the money side, so it doesn't become a second job the week of a fight.</p>
+            </div>
+        </div>
+        <p class="handles-note" data-r>Brokerage only. We bring you commercial revenue: sponsors, appearances, seminars, product, licensing. We do not negotiate your purse, we do not touch your fight contracts, and we do not manage you. We work with your manager, not around them.</p>
+    </div>
+</section>
+
+<!-- THE STRUCTURE -->
+<section class="terms-section">
+    <div class="terms-inner">
+        <span class="terms-kicker" data-r>The structure</span>
+        <h2 data-r>We only win when you win.</h2>
+        <p data-r>Our Commercial service runs on commission, not a retainer. We don't get paid unless you get paid, which means we only push the deals that are actually worth your name, and we're on the hook to make them real.</p>
+        <p data-r style="--d:60ms"><strong>No access fee. No monthly fee. No paying for potential.</strong> Nothing costs you anything until it has made you something. You earn, then we share in it. If you close something yourself, you keep all of it.</p>
+        <p data-r style="--d:120ms">Commission applies only to revenue we bring in. Your purse is yours: your manager and your gym already have their share of it, and we are never a claimant on top.</p>
+        <p data-r style="--d:180ms">The rest is a conversation, not a price list. Commercial isn't sold on its own, and the numbers are set with you once we know what's actually on your table.</p>
+    </div>
+</section>
+
+<!-- WAITLIST -->
+<section class="waitlist" id="waitlist">
+    <div class="waitlist-inner">
+        <span class="waitlist-kicker">If your name isn't there yet</span>
+        <h2>Tell us when you're ready.</h2>
+        <p class="waitlist-sub">That means you've got a name to build first, and that's exactly what we do. Start with promotion. When your fame is ready to pay, our Commercial service will be here.</p>
+        <p class="waitlist-alt"><a href="quiz.html">Start building your name →</a></p>
+        <form class="apply-form-wrap" method="post">
+            <input type="hidden" name="tier" value="commercial-waitlist">
+            <!-- Honeypot: off-screen and skipped by tab order, so only a bot fills it in. -->
+            <input class="hp-field" type="text" name="company" tabindex="-1" autocomplete="off" aria-hidden="true">
+            <div class="form-row">
+                <div class="form-g on-dark">
+                    <label for="m-name">Name *</label>
+                    <input id="m-name" name="name" type="text" placeholder="First and last name" required autocomplete="name">
+                </div>
+                <div class="form-g on-dark">
+                    <label for="m-email">Email *</label>
+                    <input id="m-email" name="email" type="email" placeholder="you@example.com" required autocomplete="email">
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-g on-dark">
+                    <label for="m-record">MMA record / level *</label>
+                    <input id="m-record" name="record" type="text" placeholder="e.g. 12-3 pro, UFC ranked" required>
+                </div>
+                <div class="form-g on-dark">
+                    <label for="m-org">Fight promotion / org</label>
+                    <input id="m-org" name="promotion" type="text" placeholder="e.g. UFC, PFL">
+                </div>
+            </div>
+            <div class="form-g on-dark">
+                <label>Your Socials <span style="opacity:.5;font-size:.85em;letter-spacing:0">(up to 10)</span></label>
+                <div class="socials-wrap" data-dark="true">
+                    <div class="socials-list"></div>
+                    <button type="button" class="add-social-btn on-dark">Add social</button>
+                </div>
+            </div>
+            <div class="form-g on-dark">
+                <label for="m-sponsors">Sponsors <span style="opacity:.5;font-size:.85em;letter-spacing:0">(optional)</span></label>
+                <textarea id="m-sponsors" name="sponsors" placeholder="Any brands backing you now, or that have before. Leave blank if none yet." style="min-height:80px"></textarea>
+            </div>
+            <div class="form-g on-dark">
+                <label for="m-message">Where are you headed?</label>
+                <textarea id="m-message" name="message" placeholder="Tell us where your career is going and what you want your name to be worth." style="min-height:120px"></textarea>
+            </div>
+            <button type="submit" class="btn btn-amber btn-full">Flag me for when I qualify</button>
+        </form>
+        <p class="waitlist-foot">Our Commercial service isn't sold on its own. Only FIRST LIGHT athletes are eligible, and it opens once a name is big enough to monetize — which is why there's nothing to buy here yet. Tell us where you're headed, and when your reach is ready, we'll build the money around it.</p>
+    </div>
+</section>
+
+<footer>
+    <a href="index.html" class="foot-logo"><img src="logo.svg" alt="FIRST LIGHT" class="foot-logo-img"></a>
+    <nav class="foot-links">
+        <a href="promotion.html" class="foot-link">Promotion</a>
+        <a href="production.html" class="foot-link">Production</a>
+        <a href="commercial.html" class="foot-link">Commercial</a>
+        <a href="quiz.html" class="foot-link">Find Your Fit</a>
+    </nav>
+    <p class="foot-copy">© 2026 FIRST LIGHT</p>
+    <p class="foot-disclaimer">Fighters shown in videos are used as illustrative examples only and are not necessarily FIRST LIGHT clients.</p>
+</footer>
+
+<script src="nav.js"></script>
+</body>
+</html>
