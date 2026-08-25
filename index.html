@@ -223,21 +223,27 @@
         }
         .money-teaser-arrow:hover { color: var(--amber); }
 
-        /* ── QUIZ CTA ── */
-        .quiz-cta {
+        /* ── CLOSE ── */
+        .close-cta {
             padding: 3.5rem 2.5rem 7rem; text-align: center;
         }
-        .quiz-cta-inner { max-width: 900px; margin: 0 auto; }
-        .quiz-cta h2 {
+        .close-cta-inner { max-width: 900px; margin: 0 auto; }
+        .close-cta h2 {
             font-size: clamp(1.6rem, 3vw, 2.6rem); font-weight: 300;
-            margin-bottom: 1rem; white-space: nowrap;
+            margin-bottom: 2.25rem; white-space: nowrap;
         }
-        .quiz-cta p { font-size: 1.2rem; color: var(--t2); line-height: 1.85; max-width: 640px; margin: 0 auto 2.5rem; }
-        .quiz-cta .btn-outline {
-            font-size: 1.1rem; font-weight: 600; padding: 1.25rem 3rem;
-            background: transparent; color: #fff; border: 1px solid #fff; border-radius: 0;
+        /* Two peers, not a primary and a secondary — same weight, same treatment,
+           side by side on desktop and stacked on a phone. */
+        .close-cta-links {
+            display: flex; justify-content: center; flex-wrap: wrap;
+            gap: 1rem 3.5rem;
         }
-        .quiz-cta .btn-outline:hover { background: #fff; color: #000; border-color: #fff; }
+        .close-cta-links a {
+            font-size: 1.05rem; color: var(--t2); text-decoration: none;
+            padding-bottom: 0.35rem; border-bottom: 1px solid var(--border-d);
+            transition: color 0.2s, border-color 0.2s;
+        }
+        .close-cta-links a:hover { color: var(--bone); border-color: var(--bone); }
 
         /* ── WHAT WE DO ── */
         .wwd {
@@ -386,7 +392,7 @@
             .wwd-list li { font-size: 0.8rem; line-height: 1.5; }
             .wwd-vid { aspect-ratio: 16/9; height: auto; width: 100%; justify-self: stretch; margin-top: 0.4rem; }
             .wwd-item--flip .wwd-grid > .wwd-vid { order: 1; }
-            .quiz-cta h2 { white-space: normal; font-size: clamp(1.5rem, 6vw, 2rem); }
+            .close-cta h2 { white-space: normal; font-size: clamp(1.5rem, 6vw, 2rem); }
             .beliefs { padding: 3rem 1.5rem 3rem; }
             /* No extra side margin on mobile — the width is needed for the wrap */
             .creed { margin-top: 2.5rem; margin-inline: 0; gap: 0.85rem; }
@@ -407,9 +413,9 @@
             .money-teaser p { font-size: 0.95rem; }
             .money-teaser-arrow { font-size: 0.85rem; }
 
-            .quiz-cta { padding: 2.5rem 1.25rem 4rem; }
-            .quiz-cta p { font-size: 0.85rem; }
-            .quiz-cta .btn-outline { font-size: 0.85rem; font-weight: 600; padding: 1rem 2rem; }
+            .close-cta { padding: 2.5rem 1.25rem 4rem; }
+            .close-cta-links { flex-direction: column; align-items: center; gap: 1.1rem; }
+            .close-cta-links a { font-size: 0.9rem; }
         }
 
         /* ── NAV REVEAL ── */
@@ -582,11 +588,11 @@
         </button>
     </div>
     <nav class="drawer-nav">
-        <a href="#hero" class="drawer-link drawer-link-quiz" data-page="index.html">Home</a>
-        <a href="#wwd" class="drawer-link drawer-link-quiz">What We Do</a>
-        <a href="#beliefs" class="drawer-link drawer-link-quiz">What We Believe</a>
+        <a href="#hero" class="drawer-link drawer-link-top" data-page="index.html">Home</a>
+        <a href="#wwd" class="drawer-link drawer-link-top">What We Do</a>
+        <a href="#beliefs" class="drawer-link drawer-link-top">What We Believe</a>
         <div class="drawer-offers-group">
-            <a href="#offers" class="drawer-link drawer-link-quiz drawer-link-offers">Services</a>
+            <a href="#offers" class="drawer-link drawer-link-top drawer-link-offers">Services</a>
             <div class="drawer-tier-list">
                 <a href="promotion.html" class="drawer-link drawer-tier-link" data-page="promotion.html">
                     <span class="drawer-tier-name">Promotion</span>
@@ -596,10 +602,9 @@
                     <span class="drawer-tier-name">Production</span>
                     <span class="drawer-tier-desc">Full promotion, executed</span>
                 </a>
-                <a href="quiz.html" class="drawer-link drawer-link-findfit" data-page="quiz.html">Find Your Fit<span class="drawer-pill">Quiz</span></a>
             </div>
         </div>
-        <a href="commercial.html" class="drawer-link drawer-link-quiz drawer-link-commercial" data-page="commercial.html">FIRST LIGHT Commercial</a>
+        <a href="commercial.html" class="drawer-link drawer-link-top drawer-link-commercial" data-page="commercial.html">FIRST LIGHT Commercial</a>
     </nav>
 </aside>
 
@@ -730,7 +735,7 @@
             </div>
             <div class="belief">
                 <span class="belief-n">The system is the advantage</span>
-                <p class="belief-body">You don't need to be a full-time content creator, you don't need a million followers. Our fighters range from thousands to hundreds of thousands of followers. We build your presence at every level of your fight career.</p>
+                <p class="belief-body">You don't need to be a full-time content creator, you don't need a million followers. The architecture is the same at a few thousand followers as it is at a few hundred thousand; only the scale changes. We build your presence at every stage of your fight career.</p>
             </div>
             <div class="belief">
                 <span class="belief-n">Fame is not the destination</span>
@@ -767,8 +772,8 @@
                 <li>Narrative around every fight</li>
                 <li>Audience & engagement reviews</li>
             </ul>
-            <p class="path-desc">For rising prospects or high level fighters still stuck on the undercard, ready to build their name with a promoter in their corner. You record, you speak, you post. We do the strategic thinking so you can focus on the fight.</p>
-            <p class="path-desc"><em><br>$297/week of camp.</em></p>
+            <p class="path-desc">For fighters who will do the work themselves, with a promoter in their corner. You record, you speak, you post. We do the strategic thinking so you can focus on the fight.</p>
+            <p class="path-desc"><em><br>$197/week of camp prepaid, or $297 with half after your purse · 6-week minimum</em></p>
             <span class="path-arrow">Explore Promotion →</span>
         </a>
         <a href="production.html" class="path" data-r style="--d:80ms">
@@ -784,8 +789,8 @@
                 <li>Content editing, producing, publishing</li>
                 <li>Live your life, we build your name</li>
             </ul>
-            <p class="path-desc">For fighters with existing visibility, whose life in camp is worth filming and putting out there. Build anticipation for title shots and grudge matches, with a crew on the ground instead of a phone in your hand.</p>
-            <p class="path-desc"><em><br>Quoted per fight, limited capacity.</em></p>
+            <p class="path-desc">For camps where the fight already carries attention and the only thing missing is someone capturing it. A crew on the ground instead of a phone in your hand.</p>
+            <p class="path-desc"><em><br>Quoted from $8,000 per fight · limited capacity</em></p>
             <span class="path-arrow">Explore Production →</span>
         </a>
     </div>
@@ -807,12 +812,14 @@
     </div>
 </section>
 
-<!-- QUIZ CTA -->
-<section class="quiz-cta">
-    <div class="quiz-cta-inner">
-        <h2 data-r>Not sure which fits?</h2>
-        <p data-r>Five questions. Two minutes.<br>A clear recommendation and why.</p>
-        <a href="quiz.html" class="btn btn-outline" data-r>Find Your Fit →</a>
+<!-- CLOSE — the page ends on what can actually be started, not on Commercial -->
+<section class="close-cta">
+    <div class="close-cta-inner">
+        <h2 data-r>All of it starts in a camp.</h2>
+        <div class="close-cta-links" data-r>
+            <a href="promotion.html">FIRST LIGHT Promotion →</a>
+            <a href="production.html">FIRST LIGHT Production →</a>
+        </div>
     </div>
 </section>
 
@@ -822,7 +829,7 @@
         <a href="promotion.html" class="foot-link">Promotion</a>
         <a href="production.html" class="foot-link">Production</a>
         <a href="commercial.html" class="foot-link">Commercial</a>
-        <a href="quiz.html" class="foot-link">Find Your Fit</a>
+        <a href="privacy.html" class="foot-link foot-link-legal">Privacy</a>
     </nav>
     <p class="foot-copy">© 2026 FIRST LIGHT</p>
     <p class="foot-disclaimer">Fighters shown in videos are used as illustrative examples only and are not necessarily FIRST LIGHT clients.</p>

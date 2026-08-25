@@ -174,13 +174,40 @@
             font-size: clamp(1.8rem, 3.5vw, 2.8rem); font-weight: 300;
             color: var(--bone); margin-bottom: 1.75rem;
         }
-        /* The terms line is set at 0.484em: measured in Red Hat Display, that is the
-           ratio at which this longer sentence renders exactly as wide as "$297 a week
-           of camp." above it, so the two lines square off flush on both edges. Being a
-           ratio rather than a size, it holds at every step of the h2's clamp. It is
-           deliberately not `nowrap` — on a viewport too narrow for the price line
-           itself, both lines are left free to wrap rather than clip. */
-        .deal-terms { display: block; font-size: 0.484em; margin-top: 0.45em; }
+        /* The heading carries three pieces of information, so it is set at three
+           sizes rather than two. The rate is the headline. Its payment schedule sits
+           inline on the same baseline at a third of the size — small enough to read
+           as a condition attached to that number rather than a second statement
+           competing with it. The alternative rail takes the next line at a middle
+           size: a real choice, so it stays bone-white and clearly legible, but never
+           mistaken for the headline rate. All three are ems, so the relationship
+           holds at every step of the h2's clamp. */
+        /* Body font, not the heading's. Red Hat Display is loaded at 800 only, so a
+           light weight on it is either faux-lit or ignored; DM Sans carries a real
+           300. Dropping to it also releases the h2's tight tracking, which is set for
+           large type and reads cramped at this size. Slightly larger em than the
+           display face would need, to match x-heights. */
+        .deal-note {
+            font-family: 'DM Sans', sans-serif;
+            font-weight: 300; letter-spacing: 0;
+            font-size: 0.32em; margin-left: 0.85em;
+            color: var(--t3); white-space: nowrap;
+        }
+        .deal-alt { display: block; font-size: 0.55em; margin-top: 0.35em; }
+        /* The off-camp terms fork after period eight. Two branches side by side, so
+           the split is visible before either is read; on narrow viewports they stack
+           and the rule flips from the left edge to the top so the pairing survives. */
+        .deal-fork {
+            display: grid; grid-template-columns: 1fr 1fr;
+            gap: 1.5rem 2.5rem; margin: 0 0 1.25rem; max-width: 58ch;
+        }
+        .deal-branch { padding-left: 1.25rem; border-left: 1px solid var(--border-d); }
+        .deal-branch-k {
+            display: block; margin-bottom: 0.5rem;
+            font-size: 0.62rem; font-weight: 500; letter-spacing: 0.16em;
+            text-transform: uppercase; color: var(--dawn-mid);
+        }
+        .guarantee .deal-branch p { margin-bottom: 0; max-width: none; }
         .guarantee p {
             font-size: 0.95rem; color: rgba(255,255,255,0.7);
             line-height: 1.9; max-width: 58ch; margin-bottom: 1.25rem;
@@ -233,6 +260,13 @@
         .apply-price strong { color: var(--bone); font-weight: 400; font-size: 1.1rem; }
 
         @media (max-width: 900px) {
+            .deal-note {
+                display: block; margin-left: 0; margin-top: 0.5em;
+                font-size: 0.44em; white-space: normal;
+            }
+            .deal-alt { font-size: 0.62em; margin-top: 0.25em; }
+            .deal-fork { grid-template-columns: 1fr; gap: 1.25rem; }
+            .deal-branch { padding: 1rem 0 0; border-left: none; border-top: 1px solid var(--border-d); }
             .hero { padding: 8rem 1.5rem 4rem; }
             .friction, .deliverables, .how, .guarantee, .apply { padding: 5rem 1.5rem; }
             .deliv-item { grid-template-columns: 1fr; gap: 0.5rem; }
@@ -250,11 +284,11 @@
         </button>
     </div>
     <nav class="drawer-nav">
-        <a href="index.html#hero" class="drawer-link drawer-link-quiz">Home</a>
-        <a href="index.html#wwd" class="drawer-link drawer-link-quiz">What We Do</a>
-        <a href="index.html#beliefs" class="drawer-link drawer-link-quiz">What We Believe</a>
+        <a href="index.html#hero" class="drawer-link drawer-link-top">Home</a>
+        <a href="index.html#wwd" class="drawer-link drawer-link-top">What We Do</a>
+        <a href="index.html#beliefs" class="drawer-link drawer-link-top">What We Believe</a>
         <div class="drawer-offers-group">
-            <a href="index.html#offers" class="drawer-link drawer-link-quiz drawer-link-offers">Services</a>
+            <a href="index.html#offers" class="drawer-link drawer-link-top drawer-link-offers">Services</a>
             <div class="drawer-tier-list">
                 <a href="promotion.html" class="drawer-link drawer-tier-link" data-page="promotion.html">
                     <span class="drawer-tier-name">Promotion</span>
@@ -264,10 +298,9 @@
                     <span class="drawer-tier-name">Production</span>
                     <span class="drawer-tier-desc">Full promotion, executed</span>
                 </a>
-                <a href="quiz.html" class="drawer-link drawer-link-findfit" data-page="quiz.html">Find Your Fit<span class="drawer-pill">Quiz</span></a>
             </div>
         </div>
-        <a href="commercial.html" class="drawer-link drawer-link-quiz drawer-link-commercial" data-page="commercial.html">FIRST LIGHT Commercial</a>
+        <a href="commercial.html" class="drawer-link drawer-link-top drawer-link-commercial" data-page="commercial.html">FIRST LIGHT Commercial</a>
     </nav>
 </aside>
 
@@ -288,7 +321,7 @@
         <p class="hero-sub" data-r style="--d:180ms">Your level is already high. Your name isn't. FIRST LIGHT Promotion sharpens your brand, brings you the ideas worth putting out, and builds the narrative around every fight, so your name catches up to what you can actually do.<br>We steer; you execute.</p>
         <div data-r style="--d:240ms">
             <a href="#apply" class="btn hero-cta">Apply</a>
-            <span class="hero-price">$297 per week of camp · 6-week minimum</span>
+            <span class="hero-price">$197 a week of camp prepaid, or $297 with half after your purse lands · 6-week minimum</span>
         </div>
     </div>
 </section>
@@ -309,9 +342,9 @@
 <section class="deliverables">
     <div class="deliverables-inner">
         <h2 data-r>What we do for you.</h2>
-        <p class="deliv-intro" data-r style="--d:60ms"><strong>One engagement, two gears.</strong> The work doesn't stop at the fight and start again at the next announcement — it changes pace. Dense through camp, light between. You sign once, and the rate follows your calendar.</p>
+        <p class="deliv-intro" data-r style="--d:60ms"><strong>One engagement, two gears.</strong> The work doesn't stop at the fight and start again at the next announcement; it changes pace. Dense through camp, light between. You sign once, and the rate follows your calendar.</p>
 
-        <span class="deliv-group" data-r>Fight camp — announcement to fight night</span>
+        <span class="deliv-group" data-r>Fight camp: announcement to fight night</span>
         <div class="deliv-list">
             <div class="deliv-item" data-r>
                 <span class="deliv-name">Brand Definition &amp; Strategy <span class="deliv-dfy">Week one, once</span></span>
@@ -319,7 +352,7 @@
             </div>
             <div class="deliv-item" data-r style="--d:60ms">
                 <span class="deliv-name">Weekly Strategy Call <span class="deliv-dfy">Every week of camp</span></span>
-                <p class="deliv-desc">Once a week through camp, direct with the person running your name. We review what landed, fix what didn't, and set the next seven days around where you actually are in the camp. Real-time direction, not a static plan.</p>
+                <p class="deliv-desc">Once a week through camp we review what landed, fix what didn't, and set the next seven days around where you actually are in the camp. Real-time direction, not a static plan.</p>
             </div>
             <div class="deliv-item" data-r>
                 <span class="deliv-name">Daily Content Directives <span class="deliv-dfy">Daily</span></span>
@@ -331,7 +364,7 @@
             </div>
             <div class="deliv-item" data-r>
                 <span class="deliv-name">Media-Day Prep <span class="deliv-dfy">Before you face the room</span></span>
-                <p class="deliv-desc">The angles, the lines that are yours, and the questions coming. You walk into face-offs, pressers and interviews knowing what you want the room to leave with. Not a script — your own position, sharpened.</p>
+                <p class="deliv-desc">The angles, the headlines, and the questions coming. You walk into face-offs, pressers and interviews knowing what you want the room to leave with.</p>
             </div>
             <div class="deliv-item" data-r style="--d:60ms">
                 <span class="deliv-name">Post-Fight Play <span class="deliv-dfy">The morning after</span></span>
@@ -339,11 +372,11 @@
             </div>
             <div class="deliv-item" data-r>
                 <span class="deliv-name">Support &amp; Contact <span class="deliv-dfy">Any time</span></span>
-                <p class="deliv-desc">Reach us on any communication channel; your contact will reply within 24 hours.</p>
+                <p class="deliv-desc">Reach us on whatever channel you already use. We reply within 24 hours.</p>
             </div>
         </div>
 
-        <span class="deliv-group" data-r>Between fights — fight night to the next announcement</span>
+        <span class="deliv-group" data-r>Between fights: fight night to the next announcement</span>
         <div class="deliv-list">
             <div class="deliv-item" data-r>
                 <span class="deliv-name">Keep-Warm Call <span class="deliv-dfy">Every two weeks</span></span>
@@ -363,8 +396,8 @@
             </div>
         </div>
 
-        <p class="deliverables-note" data-r><strong>Our Promotion service is direction, not production. And never a script.</strong><br>A phone is all the gear you need. You press record and publish. You say what you want in the interviews and the podcasts. You walk out and fight. <br><em>We make sure you're impossible not to watch.</em></p>
-        <p class="deliverables-note" data-r style="margin-top:1.25rem"><strong>Our Promotion service builds the name. Selling it is a different job.</strong> Sponsorships, seminars, instructionals, merch: that's <a href="commercial.html" style="color:var(--bone);text-decoration:none;border-bottom:1px solid var(--border-d)">our Commercial service</a>, and it opens once your name is big enough to command it.</p>
+        <p class="deliverables-note" data-r><strong>FIRST LIGHT Promotion is direction, not production. And never a script.</strong><br>A phone is all the gear you need. You press record and publish. You say what you want in the interviews and the podcasts. You walk out and fight. <br><em>We make sure you're impossible not to watch.</em></p>
+        <p class="deliverables-note" data-r style="margin-top:1.25rem"><strong>FIRST LIGHT Promotion builds the name. Selling it is a different job.</strong> Sponsorships, seminars, instructionals, merch: that's <a href="commercial.html" style="color:var(--bone);text-decoration:none;border-bottom:1px solid var(--border-d)">FIRST LIGHT Commercial</a>, and it opens once your name is big enough to command it.</p>
     </div>
 </section>
 
@@ -409,13 +442,25 @@
 <section class="guarantee">
     <div class="guarantee-inner">
         <span class="guar-kicker" data-r>The deal</span>
-        <h2 data-r>$297 a week of camp.<span class="deal-terms">Half at camp start, half after your purse lands.</span></h2>
-        <p data-r>Six weeks is the minimum billable camp, so a short-notice booking still gets done properly. A typical ten-week camp is <strong>$2,970</strong>: half invoiced when camp opens, the rest once you've actually been paid. <strong>We never take a cut of your purse.</strong> We invoice after it reaches you.</p>
-        <p data-r>Between fights it goes quiet and so does the bill. Your first eight off-camp periods are free. After that it's <strong>$97 per four-week period</strong>, and you can stop any time at no cost. Off-camp isn't something you buy on its own — it's what our Promotion service becomes between fights.</p>
-        <p data-r>That's the whole fee. Sponsorships, seminars and products are handled separately through <a href="commercial.html" style="color:var(--bone);text-decoration:none;border-bottom:1px solid var(--border-d)">our Commercial service</a>, on commission, once your name is ready for them. We never touch your fight contracts, and we never conflict with your manager.</p>
+        <h2 data-r>$297 a week of camp.<span class="deal-note">Half after your purse lands.</span><span class="deal-alt">Or $197 a week, prepaid.</span></h2>
+        <p data-r>A one-time <strong>$497 onboarding fee</strong> covers the brand definition work in week one: your story, your angle, your market position. It is the foundation every decision after it is built on. It is waived when a fighter commits to a next camp at signing.</p>
+        <p data-r>Six weeks is the minimum billable camp. A short-notice fight gets the same work, compressed into the time the calendar gives us. <strong>We never take a cut of your purse.</strong> We invoice after it reaches you.</p>
+        <p data-r>Between fights it goes quiet and so does the bill. Off-camp isn't a separate product — it's what FIRST LIGHT Promotion becomes between fights. <strong>The first eight four-week off-camp periods are free</strong>, for everyone, with no conditions. Past the eighth it forks:</p>
+        <div class="deal-fork" data-r>
+            <div class="deal-branch">
+                <span class="deal-branch-k">Next camp committed</span>
+                <p>The rest of the gap stays free, up to one year in total.</p>
+            </div>
+            <div class="deal-branch">
+                <span class="deal-branch-k">No next camp committed</span>
+                <p>$97 per four-week period.</p>
+            </div>
+        </div>
+        <p data-r>Either way, you can stop at any time at no cost.</p>
+        <p data-r>Onboarding, camp weeks and off-camp periods are the whole of it — nothing else is billed. Sponsorships, seminars and products are handled separately through <a href="commercial.html" style="color:var(--bone);text-decoration:none;border-bottom:1px solid var(--border-d)">FIRST LIGHT Commercial</a>, on commission, once your name is ready for them. We never touch your fight contracts, and we never conflict with your manager.</p>
         <p class="guar-quiet" data-r><a href="#apply"><em>Some fighters never pay for a camp out of pocket. If you've already got an audience, ask us about <strong>sponsor-funded camps.</strong></em></a></p>
         <div class="guar-promise">
-            <h3 data-r>Satisfaction guaranteed.</h3>
+            <h3 data-r>Guarantee.</h3>
             <p data-r>If you get to the end of a camp and don't feel we delivered — the work wasn't what we promised, or the results weren't what we set out for — tell us, and <strong>we'll credit what you paid toward your next camp</strong>.</p>
             <p data-r>No claim window, no forms, no arbitration clause. You tell us at the end of camp what we could have done better and the credit is applied. <br>All we ask is that you held up your side; most of the execution is yours to do.</p>
         </div>
@@ -427,8 +472,8 @@
     <div class="apply-inner">
         <span class="apply-kicker">Apply</span>
         <h2>Apply for FIRST LIGHT Promotion.</h2>
-        <p class="apply-sub">We run our Promotion service at limited capacity. Tell us about you, and we'll get back to you within 24 hours.</p>
-        <p class="apply-price"><strong>$297 a week of camp</strong> · 6-week minimum · half after your purse lands</p>
+        <p class="apply-sub">We run FIRST LIGHT Promotion at limited capacity. Tell us about you, and we'll get back to you within 24 hours.</p>
+        <p class="apply-price"><strong>$197 a week of camp, prepaid</strong> · or $297 with half after your purse lands · 6-week minimum</p>
         <form class="apply-form-wrap" method="post">
             <input type="hidden" name="tier" value="promotion">
             <!-- Honeypot: off-screen and skipped by tab order, so only a bot fills it in. -->
@@ -468,6 +513,7 @@
                 <label for="s-message">Message</label>
                 <textarea id="s-message" name="message" placeholder="Tell us about yourself: your sport, your platform, when your next camp starts, what you're trying to build." style="min-height:120px"></textarea>
             </div>
+            <p class="form-privacy on-dark">Submitting sends us these details. We handle them as set out in our <a href="privacy.html">privacy notice</a>.</p>
             <button type="submit" class="btn btn-amber btn-full">Submit Application</button>
             <p class="form-note on-dark">We review every application within 24 hours.</p>
         </form>
@@ -480,7 +526,7 @@
         <a href="promotion.html" class="foot-link">Promotion</a>
         <a href="production.html" class="foot-link">Production</a>
         <a href="commercial.html" class="foot-link">Commercial</a>
-        <a href="quiz.html" class="foot-link">Find Your Fit</a>
+        <a href="privacy.html" class="foot-link foot-link-legal">Privacy</a>
     </nav>
     <p class="foot-copy">© 2026 FIRST LIGHT</p>
     <p class="foot-disclaimer">Fighters shown in videos are used as illustrative examples only and are not necessarily FIRST LIGHT clients.</p>

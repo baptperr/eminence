@@ -188,13 +188,13 @@ body.page-loaded .split-accent { transform: translateX(0); opacity: 1; }
 }
 .drawer-link:hover, .drawer-link.active { color: var(--bone); }
 .drawer-link.active { color: var(--amber); }
-.drawer-link-quiz {
+.drawer-link-top {
     font-family: 'Red Hat Display', sans-serif;
     font-size: 1.3rem; font-weight: 800; letter-spacing: 0;
     text-transform: none; color: var(--t2);
     padding: 1rem 0;
 }
-.drawer-link-quiz:hover, .drawer-link-quiz.active { color: var(--bone); }
+.drawer-link-top:hover, .drawer-link-top.active { color: var(--bone); }
 .drawer-offers-group { margin-top: 0.25rem; }
 .drawer-link-offers { border-bottom: none; padding-bottom: 0.5rem; }
 .drawer-tier-list {
@@ -217,34 +217,6 @@ body.page-loaded .split-accent { transform: translateX(0); opacity: 1; }
 .drawer-tier-link:hover .drawer-tier-name { color: var(--amber); }
 .drawer-tier-link.active .drawer-tier-name { color: var(--amber); }
 .drawer-tier-desc { font-size: 0.66rem; color: var(--t3); }
-.drawer-link-findfit {
-    font-size: 0.62rem; font-weight: 500; letter-spacing: 0.14em;
-    text-transform: uppercase; color: var(--amber);
-}
-.drawer-link-findfit:hover { color: var(--amber-mid); }
-/* Flags that Find Your Fit opens a quiz rather than an ordinary page, so nobody
-   lands on it by surprise. Deliberately quieter than the amber label beside it —
-   a signpost, not a second call to action. Same pill vocabulary as .deliv-dfy:
-   tiny, tracked, translucent fill, zero radius. */
-.drawer-pill {
-    display: inline-block;
-    margin-left: 0.5rem;
-    font-size: 0.5rem; font-weight: 500; letter-spacing: 0.12em;
-    text-transform: uppercase;
-    color: var(--t2);
-    background: rgba(255,255,255,0.1);
-    padding: 0.35em 0.55em;
-    line-height: 1;
-    vertical-align: 0.1em;
-    transition: color 0.2s, background 0.2s;
-}
-.drawer-link-findfit:hover .drawer-pill { color: var(--bone); background: rgba(255,255,255,0.16); }
-.drawer-tier-list .drawer-link-findfit {
-    border-top: none;
-    border-bottom: none;
-    padding: 0.85rem 0 0.35rem 0.75rem;
-    margin-top: 0;
-}
 .drawer-link-commercial {
     font-size: 1.15rem; font-weight: 700;
     padding: 0.85rem 0;
@@ -287,6 +259,7 @@ footer {
     transition: color 0.2s;
 }
 .foot-link:hover { color: var(--bone); }
+.foot-link-legal { color: var(--t3); }
 .foot-copy { font-size: 0.72rem; color: var(--t3); }
 .foot-disclaimer { font-size: 0.6rem; color: var(--t3); text-transform: uppercase; letter-spacing: 0.06em; margin-top: 0.5rem; }
 
@@ -378,6 +351,12 @@ footer {
 .add-social-btn.on-dark { color: var(--amber); }
 .add-social-btn.on-dark:hover { color: var(--amber-mid); }
 .add-social-btn::before { content: '+'; font-size: 1rem; line-height: 1; }
+/* Sits directly above the submit button on every form. Deliberately smaller and
+   dimmer than .form-note: a disclosure, not a piece of the offer. */
+.form-privacy { font-size: 0.68rem; line-height: 1.6; color: oklch(7.5% 0.012 55 / 0.35); margin: -0.5rem 0 1.1rem; }
+.form-privacy.on-dark { color: var(--t3); }
+.form-privacy a { color: inherit; text-decoration: none; border-bottom: 1px solid var(--border-d); transition: color 0.2s; }
+.form-privacy.on-dark a:hover { color: var(--bone); }
 .form-note { font-size: 0.75rem; color: oklch(7.5% 0.012 55 / 0.35); margin-top: 1rem; text-align: center; }
 .form-note.on-dark { color: var(--t3); }
 /* Spam trap. Kept out of sight without display:none or visibility:hidden — some bots
@@ -405,7 +384,9 @@ footer {
     .form-row { grid-template-columns: 1fr; }
     .sport-grid { grid-template-columns: repeat(2, 1fr); }
     footer { flex-wrap: wrap; padding: 2rem 1.5rem; }
-    .foot-links { display: none; }
+    /* The service links are already in the drawer, so they go; the privacy
+       notice has no other route in from a phone, so it stays. */
+    .foot-links .foot-link:not(.foot-link-legal) { display: none; }
 }
 @media (max-width: 640px) {
     .nav { padding: 0.8rem 1.25rem; }
@@ -418,19 +399,17 @@ footer {
     .drawer-logo-img { height: 70px; }
     .drawer-nav { padding: 1.25rem 1.5rem; }
     .drawer-link { padding: 0.55rem 0; font-size: 0.82rem; }
-    .drawer-link-quiz { font-size: 1.05rem; padding: 0.6rem 0; }
+    .drawer-link-top { font-size: 1.05rem; padding: 0.6rem 0; }
     .drawer-offers-group { margin-top: 0.15rem; }
     .drawer-tier-list { padding-left: 0.6rem; margin: 0 0 0.75rem 0.3rem; }
     .drawer-tier-link { padding: 0.5rem 0 0.5rem 0.6rem; }
     .drawer-tier-name { font-size: 1rem; }
     .drawer-tier-desc { font-size: 0.6rem; }
-    .drawer-tier-list .drawer-link-findfit { padding: 0.6rem 0 0.3rem 0.6rem; margin-top: 0; }
     .drawer-link-commercial { font-size: 1rem; padding: 0.6rem 0; }
 }
 @media (max-width: 380px) {
     .drawer-nav { padding: 1.25rem 1.15rem; }
     .drawer-tier-name, .drawer-link-commercial { font-size: 0.92rem; }
-    .drawer-pill { margin-left: 0.4rem; letter-spacing: 0.1em; }
 }
 
 /* ── OFFER VIDEO (tier-name graphic, with text fallback) ── */
