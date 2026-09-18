@@ -1,9 +1,9 @@
 /**
- * FIRST LIGHT — application intake.
+ * FIRST LIGHT — contact intake.
  *
- * Receives the application forms on promotion.html, production.html and
- * commercial.html, appends one row per application to the bound Sheet, and
- * emails a notification so nothing depends on remembering to check the Sheet.
+ * Receives the contact form on index.html, appends one row per message to the
+ * bound Sheet, and emails a notification so nothing depends on remembering to
+ * check the Sheet.
  *
  * Deploy steps and gotchas: see README.md next to this file.
  */
@@ -14,9 +14,9 @@ const NOTIFY_EMAIL = '';
 /** Tab the applications are written to. Created automatically if missing. */
 const SHEET_NAME = 'Applications';
 
-// Promotion and Production ask for sport and country; Commercial asks for record and
-// org instead. One superset of columns keeps every application in one tab, with the
-// cells that don't apply left blank.
+// A superset of columns: the live form sends name, email and message, and the rest
+// are left blank. They are kept so the rows written by the old per-service
+// application forms still line up under the same headers.
 const HEADERS = ['Received', 'Service', 'Name', 'Email', 'Sports', 'Country', 'Record / level',
                  'Fight promotion', 'Socials', 'Sponsors', 'Message', 'Other fields', 'Submitted from'];
 
@@ -25,7 +25,7 @@ const MAPPED = ['tier', 'name', 'email', 'sports', 'country', 'record', 'promoti
                 'platform[]', 'handle[]', 'sponsors', 'message', 'page', 'company'];
 
 /**
- * The site posts here. Anything that isn't a real application is dropped quietly.
+ * The site posts here. Anything that isn't a real message is dropped quietly.
  *
  * The row built below must stay in the same order as HEADERS — the notification email
  * zips the two together, so an extra field in one and not the other mislabels every
@@ -69,14 +69,14 @@ function doPost(e) {
     return json({ ok: true });
   } catch (err) {
     console.error(err);
-    // The site shows an error and keeps the applicant's answers on screen.
+    // The site shows an error and keeps the sender's answers on screen.
     return json({ ok: false, error: String(err) });
   }
 }
 
 /** Opening the web app URL in a browser — a quick "is it deployed?" check. */
 function doGet() {
-  return json({ ok: true, service: 'FIRST LIGHT application intake' });
+  return json({ ok: true, service: 'FIRST LIGHT contact intake' });
 }
 
 function sheet() {
@@ -124,21 +124,20 @@ function unmapped(multi) {
 
 function notify(row) {
   const to = NOTIFY_EMAIL || Session.getEffectiveUser().getEmail();
-  const service = row[1] || 'application';
   const name = row[2] || 'Someone';
-  const applicantEmail = row[3];
+  const senderEmail = row[3];
 
   const body = HEADERS.map(function (label, i) {
     const value = i === 0 ? Utilities.formatDate(row[0], Session.getScriptTimeZone(), 'yyyy-MM-dd HH:mm z') : row[i];
     return label + ': ' + (value || '—');
   }).join('\n\n');
 
-  const options = { name: 'FIRST LIGHT applications' };
-  // Reply-to the applicant, so answering within the promised 24 hours is one tap
+  const options = { name: 'FIRST LIGHT website' };
+  // Reply-to the sender, so answering within the promised 24 hours is one tap
   // from the notification itself.
-  if (applicantEmail) options.replyTo = applicantEmail;
+  if (senderEmail) options.replyTo = senderEmail;
 
-  MailApp.sendEmail(to, 'New ' + service + ' application — ' + name, body, options);
+  MailApp.sendEmail(to, 'New message via the site — ' + name, body, options);
 }
 
 function json(obj) {

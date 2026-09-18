@@ -1,96 +1,12 @@
 (function () {
-    // Where the application forms post. This is the /exec URL of the Apps Script web
-    // app in apps-script/ — it appends a row to the applications Sheet and emails a
+    // Where the contact form posts. This is the /exec URL of the Apps Script web
+    // app in apps-script/ — it appends a row to the Sheet and emails a
     // notification. Paste the URL here after deploying; see apps-script/README.md.
-    // Until it is set, the forms refuse to submit and say so rather than pretending
-    // an application was sent.
+    // Until it is set, the form refuses to submit and says so rather than
+    // pretending a message was sent.
     const FORM_ENDPOINT = 'https://script.google.com/macros/s/AKfycbw2wB29YbAfUXGh5efd-AZfb2zA7He8O7j0wZE4-TsiptrCLdghdfy1eOu7bvr_AQ4OIg/exec';
 
     document.addEventListener('DOMContentLoaded', function () {
-        // ── Drawer ──
-        const navLogo = document.getElementById('navLogo');
-        const drawer = document.getElementById('drawer');
-        const overlay = document.getElementById('drawerOverlay');
-        const drawerClose = document.getElementById('drawerClose');
-        const canHover = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
-
-        function openDrawer() {
-            drawer.classList.add('open');
-            overlay.classList.add('open');
-            document.body.style.overflow = 'hidden';
-            if (navLogo) navLogo.setAttribute('aria-expanded', 'true');
-        }
-        function closeDrawer() {
-            drawer.classList.remove('open');
-            overlay.classList.remove('open');
-            document.body.style.overflow = '';
-            if (navLogo) navLogo.setAttribute('aria-expanded', 'false');
-        }
-
-        if (drawerClose) drawerClose.addEventListener('click', closeDrawer);
-        if (overlay) overlay.addEventListener('click', closeDrawer);
-        document.addEventListener('keydown', function (e) { if (e.key === 'Escape') closeDrawer(); });
-
-        if (navLogo) {
-            if (canHover) {
-                // Desktop: hovering the logo pulls the drawer out; moving away closes it.
-                var closeTimer = null;
-                var cancelClose = function () { clearTimeout(closeTimer); };
-                var scheduleClose = function () { cancelClose(); closeTimer = setTimeout(closeDrawer, 200); };
-                navLogo.addEventListener('mouseenter', function () { cancelClose(); openDrawer(); });
-                navLogo.addEventListener('mouseleave', scheduleClose);
-                drawer.addEventListener('mouseenter', cancelClose);
-                drawer.addEventListener('mouseleave', scheduleClose);
-            } else {
-                // Touch: tapping the logo opens the drawer instead of navigating immediately.
-                navLogo.addEventListener('click', function (e) {
-                    if (!drawer.classList.contains('open')) {
-                        e.preventDefault();
-                        openDrawer();
-                    }
-                });
-            }
-        }
-
-        // Active page in drawer
-        const page = window.location.pathname.split('/').pop() || 'index.html';
-        document.querySelectorAll('.drawer-link[data-page]').forEach(function (link) {
-            if (link.dataset.page === page) link.classList.add('active');
-        });
-
-        // ── Hero word-split reveal (load) ──
-        document.querySelectorAll('.hero-hl').forEach(function (el) {
-            var wordIndex = 0;
-            var walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT, null, false);
-            var textNodes = [];
-            var n;
-            while ((n = walker.nextNode())) { if (n.textContent.trim()) textNodes.push(n); }
-            textNodes.forEach(function (textNode) {
-                var isAccent = !!textNode.parentElement.closest('.hero-accent');
-                var chunks = textNode.textContent.split(/(\s+)/);
-                var frag = document.createDocumentFragment();
-                chunks.forEach(function (chunk) {
-                    if (/^\s+$/.test(chunk)) {
-                        frag.appendChild(document.createTextNode(chunk));
-                    } else if (chunk) {
-                        var wrap = document.createElement('span');
-                        wrap.className = isAccent ? 'split-wrap split-wrap-accent' : 'split-wrap';
-                        var inner = document.createElement('span');
-                        inner.className = isAccent ? 'split-word split-accent' : 'split-word';
-                        inner.style.setProperty('--wi', isAccent ? 999 : wordIndex++);
-                        inner.textContent = chunk;
-                        wrap.appendChild(inner);
-                        frag.appendChild(wrap);
-                    }
-                });
-                textNode.parentNode.replaceChild(frag, textNode);
-            });
-            // Push accent words to after all normal words, with an extra 3-step pause (~225ms gap)
-            var total = wordIndex;
-            el.querySelectorAll('.split-accent').forEach(function (w, i) {
-                w.style.setProperty('--wi', total + 3 + i);
-            });
-        });
         requestAnimationFrame(function () {
             requestAnimationFrame(function () {
                 document.body.classList.add('page-loaded');
@@ -105,53 +21,6 @@
             });
         }, { threshold: 0.08, rootMargin: '0px 0px -32px 0px' });
         document.querySelectorAll('[data-r]').forEach(function (el) { io.observe(el); });
-
-        // ── Offer hero video: dissolve to black instead of scrolling away ──
-        // The video layer is position:fixed on the offer pages, so it holds still while the
-        // hero copy scrolls over it. Its opacity is scrubbed to scroll position and reaches
-        // 0 well before the hero ends, so the second section is read against flat black —
-        // the hero's own background — with no video edge sliding past it.
-        (function () {
-            const hero = document.querySelector('.hero');
-            const vid = hero && hero.querySelector('.hero-vid-bg');
-            if (!hero || !vid) return;
-
-            // The fade spans the hero itself rather than a fixed number of screenfuls, so
-            // the video is still faintly there for as long as any sliver of the hero is,
-            // and only reaches full black as the next section takes the whole viewport.
-            // 0.95 lands it a moment early, so the last of the wordmark is gone rather
-            // than winking out at the exact hand-off.
-            const FADE_END = 0.95;
-            const media = vid.querySelector('video');
-            let ticking = false;
-            let hidden = false;
-
-            function update() {
-                const span = hero.offsetHeight * FADE_END;
-                const p = span > 0 ? Math.min(1, Math.max(0, window.scrollY / span)) : 1;
-                const fade = 1 - p;
-                hero.style.setProperty('--hero-vid-fade', fade.toFixed(3));
-                const gone = fade <= 0.001;
-                if (gone !== hidden) {
-                    hidden = gone;
-                    hero.classList.toggle('hero-vid-gone', gone);
-                    // Nothing is on screen to decode once it's hidden.
-                    if (media) {
-                        if (gone) { media.pause(); }
-                        else { const r = media.play(); if (r && r.catch) { r.catch(function () {}); } }
-                    }
-                }
-                ticking = false;
-            }
-
-            function onScroll() {
-                if (!ticking) { requestAnimationFrame(update); ticking = true; }
-            }
-
-            window.addEventListener('scroll', onScroll, { passive: true });
-            window.addEventListener('resize', onScroll);
-            update();
-        })();
 
         // ── Beliefs: horizontal drift scrubbed continuously to scroll position ──
         (function () {
@@ -215,95 +84,21 @@
             update();
         })();
 
-        // ── Social fields ──
-        const MAX_SOCIALS = 10;
-        const PLATFORMS = ['Instagram', 'TikTok', 'YouTube', 'Twitter / X', 'Facebook', 'Snapchat', 'LinkedIn', 'Threads', 'Other'];
-
-        function makePlatformSelect() {
-            const sel = document.createElement('select');
-            sel.name = 'platform[]';
-            sel.setAttribute('aria-label', 'Platform');
-            PLATFORMS.forEach(function (p) {
-                const opt = document.createElement('option');
-                opt.value = p; opt.textContent = p;
-                sel.appendChild(opt);
-            });
-            return sel;
-        }
-
-        function makeHandleInput() {
-            const inp = document.createElement('input');
-            inp.type = 'text';
-            inp.name = 'handle[]';
-            inp.placeholder = '@handle or URL';
-            inp.setAttribute('aria-label', 'Handle or URL');
-            return inp;
-        }
-
-        function addSocialEntry(list, darkMode) {
-            const entry = document.createElement('div');
-            entry.className = 'social-entry' + (darkMode ? ' on-dark' : '');
-            const sel = makePlatformSelect();
-            if (darkMode) {
-                sel.style.setProperty('background-image', "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%23d4925a' stroke-width='1.2' fill='none' stroke-linecap='round'/%3E%3C/svg%3E\")");
-                sel.style.setProperty('background-repeat', 'no-repeat');
-                sel.style.setProperty('background-position', 'right 0.25rem center');
-            }
-            const inp = makeHandleInput();
-            const rm = document.createElement('button');
-            rm.type = 'button'; rm.className = 'remove-social'; rm.textContent = '×';
-            rm.setAttribute('aria-label', 'Remove social');
-            rm.addEventListener('click', function () {
-                entry.remove();
-                updateAddBtn(list);
-            });
-            entry.appendChild(sel);
-            entry.appendChild(inp);
-            entry.appendChild(rm);
-            list.appendChild(entry);
-            updateAddBtn(list);
-        }
-
-        function updateAddBtn(list) {
-            const wrap = list.closest('.socials-wrap');
-            if (!wrap) return;
-            const btn = wrap.querySelector('.add-social-btn');
-            if (!btn) return;
-            const count = list.querySelectorAll('.social-entry').length;
-            btn.style.display = count >= MAX_SOCIALS ? 'none' : '';
-            btn.textContent = 'Add social';
-            btn.style.setProperty('--before-content', '"+"');
-        }
-
-        document.querySelectorAll('.socials-wrap').forEach(function (wrap) {
-            const list = wrap.querySelector('.socials-list');
-            const btn = wrap.querySelector('.add-social-btn');
-            const darkMode = wrap.dataset.dark === 'true';
-            if (!list || !btn) return;
-            // Seed one entry
-            addSocialEntry(list, darkMode);
-            btn.addEventListener('click', function () {
-                const count = list.querySelectorAll('.social-entry').length;
-                if (count < MAX_SOCIALS) addSocialEntry(list, darkMode);
-            });
-        });
-
-        // ── Application forms ──
+        // ── Contact form ──
         // Posted to the Apps Script web app rather than submitted natively, so the
-        // applicant stays on the page and gets told what happened. A failure leaves
+        // sender stays on the page and gets told what happened. A failure leaves
         // every answer on screen: a form that clears itself on a network error has
-        // thrown away an application.
+        // thrown away a message.
         document.querySelectorAll('form.apply-form-wrap').forEach(function (form) {
             const btn = form.querySelector('button[type="submit"]');
             if (!btn) return;
             const label = btn.textContent;
-            const onDark = form.querySelector('.form-note.on-dark') !== null;
             let status = null;
 
             function setStatus(msg, isError) {
                 if (!status) {
                     status = document.createElement('p');
-                    status.className = 'form-status' + (onDark ? ' on-dark' : '');
+                    status.className = 'form-status';
                     // Announced to screen readers when it changes, since the result of
                     // pressing submit is otherwise invisible to them.
                     status.setAttribute('role', 'status');
@@ -326,6 +121,14 @@
 
                 const body = new URLSearchParams(new FormData(form));
                 body.set('page', location.href);
+                // The intake Sheet has a single Name column, so the two name fields
+                // are joined here rather than landing in "Other fields" apart.
+                if (body.has('firstname') || body.has('lastname')) {
+                    body.set('name', [body.get('firstname'), body.get('lastname')]
+                        .filter(Boolean).join(' ').trim());
+                    body.delete('firstname');
+                    body.delete('lastname');
+                }
 
                 btn.disabled = true;
                 btn.textContent = 'Sending…';
@@ -341,9 +144,9 @@
                     .then(function (res) {
                         if (!res || !res.ok) throw new Error((res && res.error) || 'rejected');
                         const done = document.createElement('p');
-                        done.className = 'form-done' + (onDark ? ' on-dark' : '');
+                        done.className = 'form-done';
                         done.setAttribute('role', 'status');
-                        done.textContent = 'Application received. We\'ll get back to you within 24 hours.';
+                        done.textContent = 'Message received. We\'ll get back to you.';
                         form.replaceChildren(done);
                     })
                     .catch(function () {

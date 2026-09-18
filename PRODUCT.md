@@ -10,7 +10,9 @@ Combat athletes — amateurs to full-time professionals — aged roughly 18–35
 
 ## Product Purpose
 
-First Light Society turns combat athletes into earning enterprises. It does this through three descriptively named services — Promotion (fight-camp promotion, consulted, at a fixed weekly camp rate), Production (fight-camp promotion, executed, quoted per fight) and Commercial (sponsorship and monetization, commission only) — built on the Fame-to-Fortune Formula™: Brand Amplification, Visibility Acceleration, Monetization Engine. Promotion and Production are the two ways in; Commercial opens once a name is worth selling. The page's single job is to get an athlete to submit an application — not to buy, but to be considered.
+First Light Society turns combat athletes into earning enterprises. The work runs on three pillars — Branding, Promotion, Monetization — and that is as far as the site describes it: what we do, what we believe, and how to reach us.
+
+The site is one page. It names no services, no scope and no prices. Those are settled in conversation, not on a landing page: an athlete who needs the deal spelled out before they have spoken to us is not the athlete this is for. The page's single job is to get a message sent through the contact form at the bottom.
 
 ## Brand Personality
 
@@ -22,7 +24,7 @@ Not a hype machine. Not a hustle-culture coach. Not a tech-startup. The tone is 
 
 - **Logotype**: "FIRST LIGHT" in Cormorant SC uppercase, thin Bone rule, "SOCIETY" in Cormorant SC below
 - **Monogram**: FL in Cormorant SC on Warm Night square
-- **Typography**: Cormorant SC (titles, tier names, display) + Cormorant italic (pullquotes, tier promises) + DM Sans 300/400/500 (body, labels, buttons)
+- **Typography**: Cormorant SC (titles, display) + Cormorant italic (pullquotes) + DM Sans 300/400/500 (body, labels, buttons)
 - **Palette**:
   - Warm Night: #12100e (background)
   - Bone: #f0ebe3 (text, form background)
@@ -41,7 +43,7 @@ Not a hype machine. Not a hustle-culture coach. Not a tech-startup. The tone is 
 
 1. **Prove it by being it.** If we're selling brand-building, the page itself is the proof of concept. Every design decision should communicate that First Light Society knows what it's doing.
 2. **Authority through restraint.** Premium doesn't shout. The feeling of exclusivity comes from what's left out, not from what's piled on.
-3. **The athlete applies, not the other way around.** The CTA framing and page arc should make the athlete feel like they're being considered, not sold to.
+3. **The athlete reaches out, not the other way around.** The CTA framing and page arc should make the athlete feel like they're being considered, not sold to.
 4. **Cinematic over editorial.** Drama through scale, atmosphere, and contrast — not through grids, rules, and typographic hierarchy for its own sake.
 5. **Content earns the format.** Section structure follows meaning, not template. Numbers when there's a sequence. Labels when they orient. Nothing decorative.
 
