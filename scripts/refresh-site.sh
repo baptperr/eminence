@@ -14,7 +14,9 @@ set -euo pipefail
 cd "$(dirname "$0")/.."
 
 # launchd starts with a bare PATH; add the usual places node lives.
-export PATH="/opt/homebrew/bin:/usr/local/bin:$HOME/.nvm/versions/node/current/bin:$PATH"
+# nvm keeps each Node version in its own folder, so add the newest one.
+NVM_NODE="$(ls -d "$HOME"/.nvm/versions/node/*/bin 2>/dev/null | sort -V | tail -1)"
+export PATH="/opt/homebrew/bin:/usr/local/bin:${NVM_NODE:+$NVM_NODE:}$PATH"
 # `set -a` exports every variable the file defines, so plain KEY=value lines reach wrangler.
 if [ -f "$HOME/.config/first-light/env" ]; then set -a; . "$HOME/.config/first-light/env"; set +a; fi
 
