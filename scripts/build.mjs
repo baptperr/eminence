@@ -6,6 +6,7 @@
 // Only the files listed in STATIC are copied into the output. Everything else in the repo
 // (data exports, scripts, docs, the Apps Script source) stays out of what gets served.
 
+import { createHash } from 'node:crypto';
 import { cp, mkdir, readdir, readFile, rm, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -113,11 +114,31 @@ ${routes.map((r) => `  <url><loc>${SITE}${r.url}</loc>${r.lastmod ? `<lastmod>${
   X-Content-Type-Options: nosniff
 `);
 
+    await versionAssets();
+
     await verify(privatePages);
 
     console.log(`${SAMPLE ? 'Sample build' : 'Built'} → ${path.relative(ROOT, OUT)}/`);
     console.log(`  ${articles.length} article(s), index ${indexData ? 'from data' : 'placeholder (no data/index.json)'}, ${privatePages.length} private page(s)`);
     if (SAMPLE) console.log('  Preview only: fictional data. Deploys come from dist/, not this folder.');
+}
+
+// Cloudflare lets browsers keep a stylesheet or script for four hours, and a page is fetched fresh, so
+// a returning visitor could pair a new page with an old stylesheet (an unstyled dropdown, for one).
+// Every local css/js reference gets ?v=<hash of that file's content>, so a changed file is a new URL.
+const VERSIONED = ['style.css', 'pages.css', 'manifesto.css', 'nav.js', 'menu.js', 'manifesto.js'];
+async function versionAssets() {
+    const hashes = {};
+    for (const f of VERSIONED) {
+        hashes[f] = createHash('sha256').update(await readFile(path.join(OUT, f))).digest('hex').slice(0, 10);
+    }
+    const ref = new RegExp(`((?:href|src)=")(/?)(${VERSIONED.map((f) => f.replace('.', '\\.')).join('|')})(")`, 'g');
+    for (const file of await walk(OUT)) {
+        if (!file.endsWith('.html')) continue;
+        const html = await readFile(file, 'utf8');
+        const next = html.replace(ref, (_, pre, slash, name, post) => `${pre}${slash}${name}?v=${hashes[name]}${post}`);
+        if (next !== html) await writeFile(file, next);
+    }
 }
 
 // Fails the build if anything public points at, or contains, a private page.
