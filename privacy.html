@@ -122,8 +122,16 @@
 </head>
 <body>
 
-<nav class="nav">
-    <a href="index.html" class="nav-logo"><img src="logo.svg" alt="FIRST LIGHT" class="nav-logo-img"></a>
+<nav class="nav" id="mainNav" aria-label="Site">
+    <div class="nav-menu">
+        <a href="index.html" class="nav-logo"><img src="logo.svg" alt="FIRST LIGHT" class="nav-logo-img"></a>
+        <div class="nav-drop" id="navDrop">
+            <ul>
+                <li><a href="/publications/">Publications</a></li>
+                <li><a href="/index/">Index</a></li>
+            </ul>
+        </div>
+    </div>
 </nav>
 
 <!-- HEAD -->
@@ -266,6 +274,7 @@
     <p class="foot-disclaimer">Fighters shown in videos are used as illustrative examples only and are not necessarily FIRST LIGHT clients.</p>
 </footer>
 
+<script src="menu.js"></script>
 <script src="nav.js"></script>
 </body>
 </html>

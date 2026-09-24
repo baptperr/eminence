@@ -252,6 +252,45 @@ strong { font-weight: 500; }
 .nav-logo { display: inline-flex; text-decoration: none; overflow: hidden; height: 44px; align-items: center; }
 .nav-logo-img { height: 130px; width: auto; flex-shrink: 0; }
 
+/* Logo-triggered dropdown. The logo is the only thing visible at rest; the two links
+   appear on hover, on keyboard focus, or after a first tap on touch (menu.js). They stay
+   in the tab order and accessibility tree while closed — only opacity and pointer events
+   change — so a keyboard or screen-reader user reaches them without a hover. The panel's
+   padding-top bridges the gap under the logo so the pointer can travel into it. */
+.nav-menu { position: relative; }
+.nav-drop {
+    position: absolute; top: 100%; left: 0;
+    min-width: 15rem; padding-top: 0.6rem;
+    opacity: 0; pointer-events: none; transform: translateY(-6px);
+    transition: opacity 0.2s var(--ease) 0.12s, transform 0.2s var(--ease) 0.12s;
+}
+.nav-menu.open .nav-drop,
+.nav-menu:has(:focus-visible) .nav-drop {
+    opacity: 1; pointer-events: auto; transform: none; transition-delay: 0s;
+}
+@media (hover: hover) {
+    .nav-menu:hover .nav-drop { opacity: 1; pointer-events: auto; transform: none; transition-delay: 0s; }
+}
+.nav-drop ul {
+    list-style: none;
+    background: #000; border: 1px solid var(--border-d);
+}
+.nav-drop li + li { border-top: 1px solid var(--border-n); }
+.nav-drop a {
+    display: block; padding: 0.95rem 1.5rem;
+    font-family: 'Red Hat Display', sans-serif; font-weight: 800;
+    font-size: 1.15rem; line-height: 1.2; letter-spacing: -0.01em;
+    color: var(--bone); text-decoration: none;
+    transition: background 0.2s, color 0.2s;
+}
+.nav-drop a:hover, .nav-drop a:focus-visible { background: #fff; color: #000; outline: none; }
+.nav-drop a[aria-current="page"] { color: var(--t3); }
+.nav-drop a[aria-current="page"]:hover,
+.nav-drop a[aria-current="page"]:focus-visible { color: #000; }
+@media (prefers-reduced-motion: reduce) {
+    .nav-drop { transition: none; transform: none; }
+}
+
 /* ── FOOTER ── */
 footer {
     padding: 2.5rem 3rem;

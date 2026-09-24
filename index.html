@@ -377,8 +377,16 @@
 </head>
 <body>
 
-<nav class="nav nav-hidden" id="mainNav">
-    <a href="#hero" class="nav-logo"><img src="logo.svg" alt="FIRST LIGHT" class="nav-logo-img"></a>
+<nav class="nav nav-hidden" id="mainNav" aria-label="Site">
+    <div class="nav-menu">
+        <a href="#hero" class="nav-logo"><img src="logo.svg" alt="FIRST LIGHT" class="nav-logo-img"></a>
+        <div class="nav-drop" id="navDrop">
+            <ul>
+                <li><a href="/publications/">Publications</a></li>
+                <li><a href="/index/">Index</a></li>
+            </ul>
+        </div>
+    </div>
 </nav>
 
 <!-- VIDEO HERO -->
@@ -559,6 +567,7 @@
     <p class="foot-disclaimer">Fighters shown in videos are used as illustrative examples only and are not necessarily FIRST LIGHT clients.</p>
 </footer>
 
+<script src="menu.js"></script>
 <script src="nav.js"></script>
 <script>
 // Fit all four text lines to the same pixel width as WATCH at its natural CSS size
