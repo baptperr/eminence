@@ -1,0 +1,57 @@
+/* The manifesto template. Deliberately not the reading shell: no column, no header, no
+   rules. Two full-viewport bands, each holding one word set as large as the width will
+   take. The first is the site turned inside out (white ground, black type); the second
+   is the site as it normally is. Loaded after style.css for fonts and the nav. */
+
+body.page-manifesto { background: #000; color: #fff; }
+
+/* The nav sits over both bands, so it blends against them: the white logo reads black on
+   the paper band and white on the ink band. */
+.page-manifesto .nav { mix-blend-mode: difference; }
+.page-manifesto .nav::before { display: none; }
+
+.mf { display: block; }
+.mf-band {
+    position: relative; overflow: hidden;
+    min-height: 100vh; min-height: 100svh;
+    display: flex; flex-direction: column; justify-content: flex-end;
+    padding: 0 0 clamp(1rem, 2.5vw, 2rem);
+}
+.mf-band--paper { background: #fff; color: #000; }
+.mf-band--ink { background: #000; color: #fff; }
+
+/* Sized in vw so the word fills the width at every viewport. MANIFESTO and COMING SOON.
+   are different lengths, hence different sizes. */
+.mf-word {
+    font-family: 'Red Hat Display', sans-serif; font-weight: 800;
+    text-transform: uppercase; white-space: nowrap;
+    font-size: 17vw; line-height: 0.82; letter-spacing: -0.03em;
+    margin: 0; padding-inline: 1.5vw; max-width: none;
+}
+.mf-word--soon { font-size: 13.2vw; }
+.mf-clip { display: block; overflow: hidden; padding-bottom: 0.06em; }
+.mf-slide { display: inline-block; }
+
+.mf-note {
+    order: -1; align-self: flex-end; max-width: 24ch;
+    margin: 0 var(--pad, 3rem) clamp(1.5rem, 4vw, 3rem);
+    font-size: clamp(1rem, 1.6vw, 1.3rem); font-weight: 500; line-height: 1.5;
+    text-wrap: balance;
+}
+.mf-back {
+    position: absolute; top: clamp(1.25rem, 3vw, 2rem); right: var(--pad, 3rem);
+    font-size: 0.7rem; font-weight: 500; letter-spacing: 0.14em; text-transform: uppercase;
+}
+.mf-back a { color: #fff; text-decoration: none; border-bottom: 1px solid rgba(255,255,255,0.4); padding-bottom: 0.2rem; }
+.mf-back a:hover, .mf-back a:focus-visible { border-color: #fff; outline: none; }
+
+:root { --pad: clamp(1.5rem, 5vw, 3rem); }
+
+/* Words rise into place as their band arrives. The hidden start is only applied when
+   manifesto.js is running (.mf-js) and motion is allowed, so it can never leave the
+   page blank. */
+@media (prefers-reduced-motion: no-preference) {
+    .mf-js .mf-slide { transform: translateY(105%); transition: transform 0.9s var(--ease); }
+    .mf-js .mf-band.on .mf-slide { transform: none; }
+    .mf-js .mf-band--ink .mf-slide { transition-delay: 0.1s; }
+}

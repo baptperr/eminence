@@ -1,0 +1,16 @@
+{
+  "name": "first-light-site",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "preview": "node scripts/build.mjs --sample && node scripts/serve.mjs dist-preview",
+    "new-private": "node scripts/new-private.mjs",
+    "deploy": "node scripts/build.mjs && npx wrangler deploy",
+    "refresh": "bash scripts/refresh-site.sh",
+    "preview:real": "node scripts/build.mjs && node scripts/serve.mjs dist"
+  }
+}

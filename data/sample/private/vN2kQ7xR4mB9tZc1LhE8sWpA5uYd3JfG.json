@@ -1,0 +1,25 @@
+{
+  "token": "vN2kQ7xR4mB9tZc1LhE8sWpA5uYd3JfG",
+  "title": "Media kit",
+  "updated": "2026-09-24",
+  "fighter": {
+    "name": "Dario Okonkwo-Reyes",
+    "nickname": "Sample",
+    "record": "14-2-0",
+    "division": "Lightweight",
+    "organization": "Sample Promotions",
+    "gym": "Sample Combat Club",
+    "location": "Lisbon, PT",
+    "bio": "Sample biography for previewing the layout. Replace with the real text.\n\nA second paragraph, to see how the measure and spacing behave.",
+    "stats": [
+      { "label": "Instagram", "value": "128k" },
+      { "label": "Avg. event viewership", "value": "412k" }
+    ]
+  },
+  "manager": { "name": "Sample Manager", "company": "Sample Management", "email": "manager@example.com", "phone": "+351 000 000 000" },
+  "media": [
+    { "label": "Press photos", "url": "https://example.com/photos.zip", "note": "High-res, 2026 camp" },
+    { "label": "One-sheet", "url": "https://example.com/one-sheet.pdf" }
+  ],
+  "notes": "Sample internal note."
+}

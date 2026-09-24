@@ -1,0 +1,372 @@
+/* Subpages: /publications/, articles, /index/, and the private one-off pages.
+   Loaded after style.css, so it inherits its tokens, fonts, nav and footer. Same
+   language as the landing page — black ground, Red Hat Display at scale, hairline
+   rules instead of cards — but built for reading and scanning rather than scrolling
+   past. The manifesto has its own stylesheet and does not use this one. */
+
+:root {
+    --pad: clamp(1.5rem, 5vw, 3rem);
+    /* Data colours. Green and red only ever mean good and bad for the fighter; they are kept
+       bright enough for text on black (both clear 4.5:1) and are never the only signal: every
+       coloured figure also carries a sign or a glyph. */
+    --good: oklch(0.82 0.17 152);
+    --bad: oklch(0.70 0.19 25);
+}
+
+.sr-only {
+    position: absolute; width: 1px; height: 1px; overflow: hidden;
+    clip-path: inset(50%); white-space: nowrap;
+}
+
+/* ── PAGE FRAME ── */
+.pg-inner { max-width: 1180px; margin: 0 auto; }
+.pg-inner--read { max-width: 720px; }
+
+.pg-head { padding: clamp(8.5rem, 15vw, 12rem) var(--pad) clamp(3rem, 6vw, 5rem); }
+.pg-title {
+    font-size: clamp(2.5rem, 9vw, 8rem);
+    line-height: 0.95; letter-spacing: -0.02em;
+    margin-bottom: 2rem; overflow-wrap: anywhere;
+}
+.pg-lede {
+    font-size: clamp(1.1rem, 2vw, 1.6rem); font-weight: 500;
+    color: var(--t2); line-height: 1.5; letter-spacing: -0.01em;
+    max-width: 44ch; text-wrap: balance;
+}
+.pg-asof { margin-top: 1.5rem; font-size: 0.8rem; color: var(--t3); }
+
+.pg-body { padding: clamp(3rem, 6vw, 5rem) var(--pad); }
+.pg-body--rule { border-top: 1px solid var(--border-n); }
+.pg-h2 {
+    font-size: clamp(2rem, 5vw, 3.75rem);
+    line-height: 1; letter-spacing: -0.02em; margin-bottom: 2.5rem;
+}
+.pg-h2--small { font-size: clamp(1.5rem, 3vw, 2.25rem); margin-bottom: 1.75rem; }
+.pg-empty { color: var(--t3); }
+.pg-fine { font-size: 0.85rem; color: var(--t3); line-height: 1.8; max-width: 76ch; }
+.pg-fine strong { color: var(--t2); }
+
+/* ── ARCHIVE ROWS (also used for "From the archive" on /index/) ── */
+.entries { list-style: none; border-top: 1px solid var(--border-d); }
+.entry {
+    display: grid; grid-template-columns: 9rem 1fr auto;
+    gap: 0.5rem 2rem; align-items: baseline;
+    padding: 1.75rem 1rem; margin-inline: -1rem;
+    border-bottom: 1px solid var(--border-n);
+    text-decoration: none;
+    transition: background 0.25s;
+}
+.entry:hover, .entry:focus-visible { background: var(--night-card); outline: none; }
+.entry-date { font-size: 0.8rem; color: var(--t3); font-variant-numeric: tabular-nums; }
+.entry-main { display: flex; flex-direction: column; gap: 0.4rem; min-width: 0; }
+.entry-title {
+    font-family: 'Red Hat Display', sans-serif; font-weight: 800;
+    font-size: clamp(1.3rem, 2.4vw, 1.9rem); line-height: 1.15; letter-spacing: -0.01em;
+    text-wrap: balance;
+}
+.entry-sum { color: var(--t2); max-width: 62ch; }
+.entry-type {
+    font-size: 0.65rem; font-weight: 500; letter-spacing: 0.22em;
+    text-transform: uppercase; color: var(--t3); white-space: nowrap;
+}
+
+/* ── ARTICLE ── */
+.art-head { padding: clamp(8.5rem, 14vw, 11rem) var(--pad) 3rem; }
+.art-meta { font-size: 0.8rem; color: var(--t3); margin-bottom: 1.75rem; }
+.art-meta a { color: var(--t2); text-decoration: none; border-bottom: 1px solid var(--border-d); }
+.art-meta a:hover { color: var(--bone); border-color: var(--bone); }
+.art-title {
+    font-size: clamp(2.1rem, 5.5vw, 4rem); line-height: 1.02; letter-spacing: -0.02em;
+    margin-bottom: 1.5rem; overflow-wrap: anywhere;
+}
+.art-dek { font-size: clamp(1.1rem, 1.8vw, 1.35rem); font-weight: 500; color: var(--t2); line-height: 1.55; max-width: 50ch; }
+
+.art > .pg-inner { padding: 0 var(--pad); }
+.prose { padding-bottom: 1rem; }
+.prose > * + * { margin-top: 1.5rem; }
+.prose p, .prose li { font-size: 1.05rem; line-height: 1.85; color: var(--t2); max-width: 68ch; text-wrap: pretty; }
+.prose h2 {
+    font-size: clamp(1.45rem, 2.6vw, 1.9rem); color: var(--bone);
+    margin-top: 3.25rem; line-height: 1.15;
+}
+.prose h3 { font-size: 1.2rem; color: var(--bone); margin-top: 2.5rem; }
+.prose strong { color: var(--bone); font-weight: 500; }
+.prose a { color: var(--bone); text-decoration: none; border-bottom: 1px solid var(--border-d); transition: border-color 0.2s; }
+.prose a:hover { border-color: var(--bone); }
+.prose ul, .prose ol { padding-left: 1.5rem; }
+.prose ul { list-style: none; padding-left: 0; }
+.prose ul li { position: relative; padding-left: 1.5rem; }
+.prose ul li::before { content: ''; position: absolute; left: 0; top: 0.95em; width: 0.6rem; height: 1px; background: var(--t3); }
+.prose li + li { margin-top: 0.6rem; }
+.prose blockquote { border-top: 1px solid var(--border-d); padding-top: 1.25rem; margin-block: 2.5rem; }
+.prose blockquote p {
+    font-family: 'Red Hat Display', sans-serif; font-weight: 800;
+    font-size: clamp(1.3rem, 2.6vw, 1.85rem); line-height: 1.3; color: var(--bone);
+}
+.prose hr { border: none; border-top: 1px solid var(--border-d); margin-block: 3rem; }
+.prose code { font-size: 0.9em; background: var(--night-card); padding: 0.1em 0.35em; }
+.prose figure { margin-block: 2.5rem; }
+.prose img { display: block; width: 100%; height: auto; }
+
+.art-end {
+    display: flex; flex-wrap: wrap; gap: 1rem 2.5rem;
+    margin: 4.5rem 0 6rem; padding-top: 2rem; border-top: 1px solid var(--border-d);
+}
+.art-end a {
+    font-family: 'Red Hat Display', sans-serif; font-weight: 800; font-size: 1.05rem;
+    color: var(--bone); text-decoration: none; border-bottom: 1px solid var(--border-d);
+    padding-bottom: 0.15rem; transition: border-color 0.2s;
+}
+.art-end a:hover { border-color: var(--bone); }
+
+/* ── INDEX: RANKINGS ── */
+.pg-head--rankings { padding-bottom: clamp(1.5rem, 3vw, 2.5rem); }
+.subtabs { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0.4rem clamp(1.25rem, 3vw, 2.75rem); margin-bottom: 1.5rem; }
+.subtab {
+    font-family: 'Red Hat Display', sans-serif; font-weight: 800; letter-spacing: -0.02em; text-wrap: balance;
+    font-size: clamp(2rem, 4.6vw, 3.75rem); line-height: 1; margin: 0; padding-bottom: 0.12em;
+    color: rgb(98, 98, 98); text-decoration: none; border-bottom: 3px solid transparent;
+    transition: color 0.2s;
+}
+a.subtab:hover, a.subtab:focus-visible { color: rgb(150, 150, 150); outline: none; }
+.subtab.is-on { color: #fff; border-bottom-color: #fff; }
+.pg-head--rankings .art-meta { margin-bottom: 1.25rem; }
+.pg-head--rankings .art-meta a { font-size: 0.85rem; }
+.pg-asof a { color: var(--bone); text-decoration: none; border-bottom: 1px solid var(--border-d); }
+.pg-asof a:hover { border-color: var(--bone); }
+.pg-body--flush { padding-top: clamp(1rem, 2vw, 1.5rem); }
+
+/* In-page shortcuts to each division, so the far ones are one click away. */
+.jump { list-style: none; display: flex; flex-wrap: wrap; gap: 0.5rem 1.5rem; margin-top: 1.75rem; }
+.jump a { font-size: 0.85rem; color: var(--t2); text-decoration: none; border-bottom: 1px solid var(--border-d); transition: color 0.2s, border-color 0.2s; }
+.jump a:hover, .jump a:focus-visible { color: var(--bone); border-color: var(--bone); outline: none; }
+
+.rk-div { scroll-margin-top: 5.5rem; }
+.rk-div + .rk-div { margin-top: 2.75rem; }
+.rk-div-name { font-size: clamp(1.4rem, 2.6vw, 2rem); margin-bottom: 1.25rem; }
+.rk { width: 100%; border-collapse: collapse; table-layout: fixed; text-align: left; }
+.rk thead th {
+    font-size: 0.65rem; font-weight: 500; letter-spacing: 0.22em; text-transform: uppercase;
+    color: var(--t3); padding: 0 1rem 0.9rem 0; border-bottom: 1px solid var(--border-d);
+}
+.rk tbody th, .rk tbody td {
+    padding: 0.62rem 1rem 0.62rem 0; border-bottom: 1px solid var(--border-n); vertical-align: middle;
+    font-weight: 300;
+}
+.rk-rank, col.c-rank { width: 4.5rem; }
+col.c-num { width: 7rem; }
+col.c-fli { width: 15rem; }
+.rk-n {
+    font-family: 'Red Hat Display', sans-serif; font-weight: 800;
+    font-size: clamp(1.35rem, 2.3vw, 1.9rem); line-height: 1; font-variant-numeric: tabular-nums;
+}
+.rk-name {
+    font-family: 'Red Hat Display', sans-serif; font-weight: 800;
+    font-size: clamp(1.05rem, 1.8vw, 1.35rem); line-height: 1.2;
+}
+thead .rk-name { font-family: inherit; font-size: 0.65rem; }
+.rk-weight {
+    display: inline-block; margin-left: 0.6rem; vertical-align: 0.12em; white-space: nowrap;
+    font-family: 'DM Sans', sans-serif; font-weight: 300; font-size: 0.78rem; color: var(--t3);
+}
+/* Rank movement is a plain fact beside the name: an arrow and a number, no colour. The FLI is the only ticker. */
+.rk-move {
+    display: inline-block; margin-left: 0.6rem; vertical-align: 0.12em; white-space: nowrap;
+    font-family: 'DM Sans', sans-serif; font-weight: 400; font-size: 0.75rem; color: var(--t3);
+    font-variant-numeric: tabular-nums;
+}
+.rk-glyph { margin-right: 0.1em; }
+.rk-num { font-variant-numeric: tabular-nums; }
+.rk-fli { padding-right: 0; position: relative; }
+tbody .rk-fli { padding-right: 0; }
+.rk-fli-top { display: flex; align-items: baseline; gap: 0.75rem; }
+.rk-fli-n { font-variant-numeric: tabular-nums; color: var(--fli-color, #fff); }
+/* Sign picks the hue, size (--m, 0 to 1) picks how far it travels from white. */
+.fli-pos { --tone: var(--good); --fli-color: var(--good); }
+.fli-neg { --tone: var(--bad); --fli-color: var(--bad); }
+.fli-zero { --fli-color: #fff; }
+@supports (color: color-mix(in oklch, red, blue)) {
+    .fli-pos, .fli-neg { --fli-color: color-mix(in oklch, #fff, var(--tone) calc(var(--m) * 100%)); }
+}
+
+/* 30-day ticker beside the FLI, with the sparkline in a popover on hover or focus. */
+.rk-tickwrap { position: relative; display: inline-block; }
+.rk-tick {
+    font: inherit; font-size: 0.85rem; font-variant-numeric: tabular-nums; line-height: 1.4;
+    background: none; border: 0; padding: 0.1rem 0; color: var(--t2); white-space: nowrap;
+}
+button.rk-tick { cursor: default; border-bottom: 1px dotted var(--t3); }
+.rk-tick--up { color: var(--good); }
+.rk-tick--down { color: var(--bad); }
+.rk-tick--flat { color: var(--t3); }
+.rk-tickwrap--up { color: var(--good); }
+.rk-tickwrap--down { color: var(--bad); }
+.rk-tickwrap--flat { color: var(--t2); }
+.rk-spark {
+    position: absolute; z-index: 5; left: 50%; bottom: calc(100% + 0.6rem);
+    transform: translate(-50%, 4px);
+    display: flex; flex-direction: column; gap: 0.35rem;
+    padding: 0.75rem 0.85rem 0.6rem; background: #000; border: 1px solid var(--border-d);
+    opacity: 0; visibility: hidden; pointer-events: none;
+    transition: opacity 0.15s var(--ease), transform 0.15s var(--ease), visibility 0s linear 0.15s;
+}
+.rk-tickwrap:hover .rk-spark, .rk-tickwrap:focus-within .rk-spark {
+    opacity: 1; visibility: visible; transform: translate(-50%, 0); transition-delay: 0s;
+}
+.rk-tick:focus-visible { outline: 1px solid var(--bone); outline-offset: 3px; }
+.rk-spark-cap { font-size: 0.72rem; color: var(--t2); white-space: nowrap; font-variant-numeric: tabular-nums; }
+.sp { display: block; overflow: visible; }
+.sp-line { fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linejoin: round; stroke-linecap: round; }
+.sp-end { fill: currentColor; }
+.sp-zero { stroke: var(--t3); stroke-width: 1; stroke-dasharray: 2 3; }
+@media (prefers-reduced-motion: reduce) { .rk-spark { transition: none; transform: translate(-50%, 0); } }
+
+/* FLI runs -1..+1, so the bar grows from a centre mark: right for positive, left for negative. */
+.rk-bar { position: relative; display: block; height: 2px; background: var(--border-d); margin-top: 0.5rem; }
+.rk-bar::after { content: ''; position: absolute; left: 50%; top: -3px; width: 1px; height: 8px; background: var(--t3); }
+.rk-bar > span { position: absolute; top: 0; height: 100%; }
+.rk-bar > .pos { left: 50%; background: var(--fli-color, #fff); }
+.rk-bar > .neg { right: 50%; background: var(--fli-color, var(--t3)); }
+
+/* Ranks beyond the top three are collapsed by default behind a checkbox; its label is the
+   button, and it comes after the rows so it is always at the bottom of whatever is showing. */
+.rk-div { position: relative; }
+.rk-toggle { position: absolute; opacity: 0; width: 1px; height: 1px; pointer-events: none; }
+.rk-rest { display: none; }
+.rk-toggle:checked ~ .rk-rest { display: block; }
+.rk-more {
+    display: flex; align-items: center; gap: 0.75rem; cursor: pointer; padding: 1rem 0;
+    border-bottom: 1px solid var(--border-n);
+    font-size: 0.7rem; font-weight: 500; letter-spacing: 0.14em; text-transform: uppercase; color: var(--t2);
+    transition: color 0.2s;
+}
+.rk-more::before { content: '+'; font-size: 1rem; line-height: 1; width: 1rem; }
+.rk-toggle:checked ~ .rk-more::before { content: '−'; }
+.rk-more:hover { color: var(--bone); }
+.rk-toggle:focus-visible ~ .rk-more { outline: 1px solid var(--bone); outline-offset: 2px; color: var(--bone); }
+.rk-more-close, .rk-toggle:checked ~ .rk-more .rk-more-open { display: none; }
+.rk-toggle:checked ~ .rk-more .rk-more-close { display: inline; }
+
+/* One-line explanations on the column headers, and the pending flag. */
+.hint { position: relative; cursor: help; border-bottom: 1px dotted var(--t3); }
+.hint-tip {
+    position: absolute; z-index: 6; left: 0; bottom: calc(100% + 0.7rem);
+    padding: 0.6rem 0.85rem; background: #000; border: 1px solid var(--border-d);
+    font-size: 0.85rem; font-weight: 400; letter-spacing: 0; text-transform: none; line-height: 1.45;
+    text-align: left; color: var(--t2); width: max-content; max-width: min(16rem, 70vw);
+    opacity: 0; visibility: hidden; pointer-events: none; transition: opacity 0.15s var(--ease);
+}
+.hint-tip strong { display: block; color: var(--bone); font-weight: 700; }
+.hint-desc { display: block; margin-top: 0.3rem; font-size: 0.6rem; font-weight: 500; letter-spacing: 0.16em; text-transform: uppercase; color: var(--t3); }
+.hint--right .hint-tip, .rk-flag .hint-tip { left: auto; right: 0; }
+.hint:hover .hint-tip { opacity: 1; visibility: visible; }
+.rk-flag { font-size: 0.85rem; color: var(--t3); font-style: italic; }
+@media (prefers-reduced-motion: reduce) { .hint-tip { transition: none; } }
+
+/* ── INDEX: WHAT FLR AND FLI MEAN ── */
+.key { padding: clamp(4rem, 9vw, 8rem) var(--pad); margin-top: clamp(3rem, 6vw, 5rem); border-top: 1px solid var(--border-d); }
+.key .pg-inner { display: flex; flex-direction: column; gap: clamp(3.5rem, 7vw, 6rem); }
+.key-item { display: grid; grid-template-columns: minmax(9rem, 0.5fr) 1.6fr; gap: 1.5rem clamp(2rem, 5vw, 5rem); align-items: start; }
+.key-name { font-size: clamp(3.5rem, 9vw, 8rem); line-height: 0.9; letter-spacing: -0.02em; }
+.key-text { font-size: clamp(1.16rem, 2.08vw, 1.72rem); font-weight: 500; color: var(--t2); line-height: 1.55; letter-spacing: -0.01em; max-width: 44ch; text-wrap: pretty; }
+.key-text strong { display: block; color: var(--bone); font-weight: 700; margin-bottom: 0.4rem; }
+
+/* ── INDEX: WINNERS & LOSERS ── */
+.wl { display: grid; grid-template-columns: 1fr 1fr; gap: 4rem 5rem; align-items: start; }
+.wl-col .pg-h2 { margin-bottom: 1.5rem; }
+.wl-list { list-style: none; border-top: 1px solid var(--border-d); }
+.wl-row {
+    display: grid; grid-template-columns: 1fr auto; column-gap: 1.5rem; align-items: start;
+    padding: 1.35rem 0 1.4rem; border-bottom: 1px solid var(--border-n);
+}
+.wl-row--none { display: block; color: var(--t3); }
+.wl-who { display: flex; flex-direction: column; min-width: 0; gap: 0.1rem; }
+.wl-name { font-family: 'Red Hat Display', sans-serif; font-weight: 800; font-size: 1.3rem; line-height: 1.25; }
+.wl-line { font-size: 0.9rem; color: var(--t2); }
+.wl-line--dim { color: var(--t3); font-size: 0.82rem; }
+/* The result and the fame are coloured for the fighter: a red loss beside green fame, or a green
+   win beside red fame, is the whole point of the page. */
+.wl-res { font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; font-size: 0.78rem; }
+.wl-res--won { color: var(--good); }
+.wl-res--lost { color: var(--bad); }
+.wl-change {
+    text-align: right; white-space: nowrap;
+    font-family: 'Red Hat Display', sans-serif; font-weight: 800; font-size: 1.5rem; line-height: 1.2;
+    font-variant-numeric: tabular-nums;
+}
+.wl-change--winners { color: var(--good); }
+.wl-change--losers { color: var(--bad); }
+.wl-glyph { font-size: 0.6em; vertical-align: 0.18em; }
+
+/* ── PRIVATE PAGES ── */
+.pv-flag {
+    font-size: 0.65rem; font-weight: 500; letter-spacing: 0.22em; text-transform: uppercase;
+    color: var(--t3); margin-bottom: 1.5rem;
+}
+.pg-title--name { font-size: clamp(2.5rem, 8vw, 6.5rem); }
+.pv-rows { border-top: 1px solid var(--border-d); margin-top: 2rem; }
+.prose + div .pv-rows, .pv-rows:first-child { margin-top: 0; }
+.pv-row {
+    display: grid; grid-template-columns: 1fr 2fr; gap: 0.5rem 3rem;
+    padding: 1.1rem 0; border-bottom: 1px solid var(--border-n); align-items: baseline;
+}
+.pv-row dt { font-size: 0.85rem; color: var(--t3); }
+.pv-row dd { color: var(--bone); margin: 0; }
+.pv-row a { text-decoration: none; border-bottom: 1px solid var(--border-d); }
+.pv-row a:hover { border-color: var(--bone); }
+.pv-files { list-style: none; border-top: 1px solid var(--border-d); }
+.pv-file {
+    display: flex; align-items: baseline; gap: 0.5rem 1.5rem; flex-wrap: wrap;
+    padding: 1.25rem 1rem; margin-inline: -1rem;
+    border-bottom: 1px solid var(--border-n); text-decoration: none;
+    transition: background 0.25s;
+}
+.pv-file:hover, .pv-file:focus-visible { background: var(--night-card); outline: none; }
+.pv-file-label { font-family: 'Red Hat Display', sans-serif; font-weight: 800; font-size: 1.2rem; }
+.pv-file-note { color: var(--t3); font-size: 0.85rem; flex: 1; }
+.pv-file::after { content: '→'; margin-left: auto; color: var(--t3); }
+
+/* ── RESPONSIVE ── */
+@media (max-width: 900px) {
+    .wl { grid-template-columns: 1fr; gap: 3.5rem; }
+    .key-item { grid-template-columns: 1fr; }
+    .entry { grid-template-columns: 1fr auto; }
+    .entry-date { grid-column: 1 / -1; }
+    .entry-main { grid-column: 1; }
+    .entry-type { grid-column: 2; grid-row: 2; }
+    .pv-row { grid-template-columns: 1fr; gap: 0.25rem; }
+}
+
+/* Rankings become stacked rows on a phone: rank, fighter and movement on one line, the
+   numbers beneath, each with its own label since the column headers are gone. */
+@media (max-width: 700px) {
+    .rk thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
+    .rk, .rk tbody { display: block; }
+    .rk colgroup { display: none; }
+    /* The visible header is hidden here (labels come from each row); its tips must not widen the page. */
+    .rk thead .hint-tip { display: none; }
+    .rk-flag .hint-tip { display: none; }
+    .rk tbody tr {
+        display: grid; grid-template-columns: 2.5rem 1fr; column-gap: 0.75rem;
+        align-items: baseline; padding: 0.8rem 0; border-bottom: 1px solid var(--border-n);
+    }
+    .rk tbody th, .rk tbody td { display: block; padding: 0; border: none; width: auto; }
+    .rk-n { font-size: 1.45rem; }
+    .rk tbody .rk-num, .rk tbody .rk-fli {
+        grid-column: 2 / -1; display: flex; align-items: center; gap: 0.75rem;
+        margin-top: 0.4rem; font-size: 0.9rem; min-width: 0;
+    }
+    .rk tbody .rk-num::before, .rk tbody .rk-fli::before {
+        content: attr(data-label); width: 2.75rem; flex: none;
+        font-size: 0.65rem; font-weight: 500; letter-spacing: 0.22em; text-transform: uppercase; color: var(--t3);
+    }
+    .rk-fli-top { flex: none; }
+    .rk-fli-n { display: inline; min-width: 3.25rem; }
+    .rk-bar { flex: 1; margin-top: 0; }
+    .rk-spark { left: auto; right: -0.5rem; transform: translate(0, 4px); }
+    .rk-tickwrap:hover .rk-spark, .rk-tickwrap:focus-within .rk-spark { transform: none; }
+}
+
+@media (max-width: 640px) {
+    .entry-title { font-size: 1.3rem; }
+}

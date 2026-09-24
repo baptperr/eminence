@@ -1,3 +1,7 @@
 .claude/
 *.ipynb
 .DS_Store
+dist/
+dist-preview/
+data/private/
+data/index.json

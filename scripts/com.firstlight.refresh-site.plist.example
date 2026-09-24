@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!--
+  Runs scripts/refresh-site.sh every morning. To install:
+    1. Replace /Users/YOU below with your home directory (two places, plus the log paths).
+    2. cp scripts/com.firstlight.refresh-site.plist.example ~/Library/LaunchAgents/com.firstlight.refresh-site.plist
+    3. launchctl load ~/Library/LaunchAgents/com.firstlight.refresh-site.plist
+  To test now:  launchctl start com.firstlight.refresh-site   (then read the log)
+  To remove:    launchctl unload ~/Library/LaunchAgents/com.firstlight.refresh-site.plist
+
+  If the laptop is asleep at 07:30, launchd runs the job when it wakes. If it is switched off
+  or lid-closed and asleep all day, nothing runs and the site simply keeps its last data.
+-->
+<plist version="1.0">
+<dict>
+    <key>Label</key><string>com.firstlight.refresh-site</string>
+    <key>ProgramArguments</key>
+    <array>
+        <string>/bin/bash</string>
+        <string>/Users/YOU/code/baptperr/eminence/scripts/refresh-site.sh</string>
+    </array>
+    <key>StartCalendarInterval</key>
+    <dict><key>Hour</key><integer>7</integer><key>Minute</key><integer>30</integer></dict>
+    <key>StandardOutPath</key><string>/Users/YOU/Library/Logs/first-light-refresh.log</string>
+    <key>StandardErrorPath</key><string>/Users/YOU/Library/Logs/first-light-refresh.log</string>
+</dict>
+</plist>
