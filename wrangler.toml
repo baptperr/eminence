@@ -1,5 +1,5 @@
+# Cloudflare Pages project. Deployed from the laptop with `npm run deploy`
+# (wrangler pages deploy), not from Git: the private pages' data only exists there.
 name = "eminence"
+pages_build_output_dir = "./dist"
 compatibility_date = "2025-01-01"
-
-[assets]
-directory = "./dist"

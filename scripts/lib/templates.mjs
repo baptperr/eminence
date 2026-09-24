@@ -511,3 +511,18 @@ ${FOOTER}`;
         url: '', site, current: null, body, priv: true,
     });
 }
+
+// ── 404 ── Cloudflare Pages serves the homepage for any unknown URL unless a 404.html exists, so a
+// wrong or guessed address (a private-page URL included) would look like a real page.
+export function notFoundPage({ site }) {
+    const body = `<main>
+    <header class="pg-head">
+        <div class="pg-inner">
+            <h1 class="pg-title">Not found.</h1>
+            <p class="pg-lede"><a href="/">FIRST LIGHT</a></p>
+        </div>
+    </header>
+</main>
+${FOOTER}`;
+    return shell({ title: 'Not found — FIRST LIGHT', url: '', site, current: null, body, priv: true });
+}

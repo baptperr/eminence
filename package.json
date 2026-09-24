@@ -9,7 +9,7 @@
     "build": "node scripts/build.mjs",
     "preview": "node scripts/build.mjs --sample && node scripts/serve.mjs dist-preview",
     "new-private": "node scripts/new-private.mjs",
-    "deploy": "node scripts/build.mjs && npx wrangler deploy",
+    "deploy": "node scripts/build.mjs && npx wrangler pages deploy dist --project-name eminence --branch master --commit-dirty=true",
     "refresh": "bash scripts/refresh-site.sh",
     "preview:real": "node scripts/build.mjs && node scripts/serve.mjs dist"
   }

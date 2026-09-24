@@ -8,11 +8,12 @@ HTML at the repo root; everything under `/publications/` and `/index/` is genera
 npm run preview       # build with fictional fixtures + drafts and serve at localhost:8765 (never deployed)
 npm run build         # build for real into dist/
 npm run new-private   # create data/private/<random-token>.json for a one-off page
-npm run deploy        # build, then `wrangler deploy` (serves dist/)
+npm run deploy        # build, then upload dist/ to the Cloudflare Pages project (firstlight.agency)
 npm run refresh       # export from the Observatory, then deploy if the rankings changed
 ```
 
-`wrangler.toml` serves `dist/`, not the repo root. Only the files listed in `STATIC` in
+The site is a Cloudflare **Pages** project named `eminence` (it serves firstlight.agency). `wrangler.toml`
+points at `dist/`, not the repo root, and deploys go up with `wrangler pages deploy`. Only the files listed in `STATIC` in
 `scripts/build.mjs` are copied there, so a new root-level asset (image, video) has to be added to that
 list. Everything else, including `data/`, `scripts/` and `apps-script/`, is not published.
 
@@ -48,9 +49,9 @@ once:
    Create the file `~/.config/first-light/env` (it does not exist until you make it: `mkdir -p ~/.config/first-light`
    then open the file in any editor) with two lines, `CLOUDFLARE_API_TOKEN=…` and `CLOUDFLARE_ACCOUNT_ID=…`, and
    run `chmod 600` on it. It lives outside the repo so the token never gets committed.
-2. **Disconnect the Git build** in the Cloudflare project (Settings → Build). The laptop is the only deployer,
-   because it holds the private pages' data; a build from Git would replace the site without them. If the Git
-   build is left on, it fails on purpose (`WORKERS_CI` and no `data/index.json`) and the live site is untouched.
+2. **Don't let Git deploy it.** The laptop is the only deployer, because it holds the private pages' data; a
+   build from Git would replace the site without them. If a Git build does run, it fails on purpose
+   (`CF_PAGES` set and no `data/index.json`) and the live site is untouched.
 3. Install the launchd job.
 
 The laptop has to be awake at the scheduled time (launchd runs a missed job on wake). If it is off, the site

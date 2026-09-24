@@ -10,7 +10,7 @@ import { cp, mkdir, readdir, readFile, rm, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { loadArticles, loadIndex, loadPrivate } from './lib/data.mjs';
-import { archivePage, articlePage, indexPage, manifestoPage, privatePage, winnersLosersPage } from './lib/templates.mjs';
+import { archivePage, articlePage, indexPage, manifestoPage, notFoundPage, privatePage, winnersLosersPage } from './lib/templates.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const args = new Set(process.argv.slice(2));
@@ -71,6 +71,7 @@ async function main() {
         { url: '/publications/manifesto/', lastmod: null },
         { url: '/index/', lastmod: indexData?.generated_at ?? null },
     ];
+    await write('404.html', notFoundPage({ site: SITE }));
     await write('publications/index.html', archivePage({ articles, site: SITE }));
     await write('publications/manifesto/index.html', manifestoPage({ site: SITE }));
     await write('index/index.html', indexPage({ data: indexData, articles, site: SITE }));
