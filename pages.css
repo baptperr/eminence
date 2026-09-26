@@ -377,8 +377,12 @@ button.rk-tick { cursor: default; border-bottom: 1px dotted var(--t3); }
 
     /* Name, weight and move share the row; the name is the only one allowed to give up space
        (min-width: 0 lets a flex child shrink below its content size, which text-overflow needs
-       to ever actually trigger instead of just overflowing the row). */
-    .rk-name { display: flex; align-items: baseline; gap: 0.3rem; font-size: 0.82rem; }
+       to ever actually trigger instead of just overflowing the row). The flex lives on the inner
+       span, not the <td> itself — a table-cell that's told to be a flex container stops acting
+       like a table cell (vertical-align: middle, matching the row's height) and just sizes to
+       its own content instead, which is what set this cell adrift from the others' baseline. */
+    .rk-name { font-size: 0.82rem; }
+    .rk-name-row { display: flex; align-items: baseline; gap: 0.3rem; }
     .rk-name-text { min-width: 0; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
     .rk-weight, .rk-move { flex: none; }
     /* The abbreviation (data-abbr, e.g. "LHW" for "Light Heavyweight") replaces the full division

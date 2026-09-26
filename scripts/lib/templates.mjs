@@ -264,7 +264,7 @@ function rankRows(rows, { hasMove, hasFlr, hasFli }) {
         return `
                     <tr>
                         <th scope="row" class="rk-rank"><span class="rk-n">${r.rank}</span></th>
-                        <td class="rk-name"><span class="rk-name-text">${esc(r.name)}</span>${weight}${move}</td>${hasFlr ? `
+                        <td class="rk-name"><span class="rk-name-row"><span class="rk-name-text">${esc(r.name)}</span>${weight}${move}</span></td>${hasFlr ? `
                         <td class="rk-num" data-label="FLR">${r.rating != null ? num(r.rating) : '—'}</td>` : ''}${hasFli ? `
                         <td ${fliAttrs(r)} data-label="FLI">${fliCell(r)}</td>` : ''}
                     </tr>`;
