@@ -136,8 +136,15 @@ a.subtab:hover, a.subtab:focus-visible { color: rgb(150, 150, 150); outline: non
 .pg-asof a:hover { border-color: var(--bone); }
 .pg-body--flush { padding-top: clamp(1rem, 2vw, 1.5rem); }
 
-/* In-page shortcuts to each division, so the far ones are one click away. */
-.jump { list-style: none; display: flex; flex-wrap: wrap; gap: 0.5rem 1.5rem; margin-top: 1.75rem; }
+/* In-page shortcuts to each division, so the far ones are one click away. On a phone the list
+   alone can run to two wrapped rows before the rankings even start, so it sits behind a
+   "Jump to a division" toggle there; on a wider screen the toggle is hidden and the list is
+   simply always open (the [open] rules below are what does the showing/hiding, not the
+   browser's own summary/details behaviour, so desktop showing it regardless of that attribute
+   is just two ordinary CSS rules, nothing hacky). */
+.jump-wrap { margin-top: 1.75rem; }
+.jump-summary { display: none; }
+.jump { list-style: none; display: flex; flex-wrap: wrap; gap: 0.5rem 1.5rem; }
 .jump a { font-size: 0.85rem; color: var(--t2); text-decoration: none; border-bottom: 1px solid var(--border-d); transition: color 0.2s, border-color 0.2s; }
 .jump a:hover, .jump a:focus-visible { color: var(--bone); border-color: var(--bone); outline: none; }
 
@@ -337,34 +344,76 @@ button.rk-tick { cursor: default; border-bottom: 1px dotted var(--t3); }
     .pv-row { grid-template-columns: 1fr; gap: 0.25rem; }
 }
 
-/* Rankings become stacked rows on a phone: rank, fighter and movement on one line, the
-   numbers beneath, each with its own label since the column headers are gone. */
+/* On a phone the row stays a single line — name, weight, move, FLR, FLI together — rather than
+   stacking each stat on its own line under the fighter. It is still a real <table>, just a
+   tighter one: smaller type and narrower fixed columns (the <colgroup> widths below override the
+   desktop ones, and table-layout: fixed, set unconditionally on .rk, is what makes a column
+   width stick instead of growing to fit its content). The header stays visible (unlike before)
+   so the per-row "FLR"/"FLI" labels aren't needed and don't have to eat into the row's width;
+   the collapsed "ranks 4-15" table's own header keeps hiding itself as it already did (.sr-only,
+   set in the markup, not by anything here). */
 @media (max-width: 700px) {
-    .rk thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
-    .rk, .rk tbody { display: block; }
-    .rk colgroup { display: none; }
-    /* The visible header is hidden here (labels come from each row); its tips must not widen the page. */
-    .rk thead .hint-tip { display: none; }
-    .rk-flag .hint-tip { display: none; }
-    .rk tbody tr {
-        display: grid; grid-template-columns: 2.5rem 1fr; column-gap: 0.75rem;
-        align-items: baseline; padding: 0.8rem 0; border-bottom: 1px solid var(--border-n);
-    }
-    .rk tbody th, .rk tbody td { display: block; padding: 0; border: none; width: auto; }
-    .rk-n { font-size: 1.45rem; }
-    .rk tbody .rk-num, .rk tbody .rk-fli {
-        grid-column: 2 / -1; display: flex; align-items: center; gap: 0.75rem;
-        margin-top: 0.4rem; font-size: 0.9rem; min-width: 0;
-    }
-    .rk tbody .rk-num::before, .rk tbody .rk-fli::before {
-        content: attr(data-label); width: 2.75rem; flex: none;
-        font-size: 0.65rem; font-weight: 500; letter-spacing: 0.22em; text-transform: uppercase; color: var(--t3);
-    }
-    .rk-fli-top { flex: none; }
-    .rk-fli-n { display: inline; min-width: 3.25rem; }
-    .rk-bar { flex: 1; margin-top: 0; }
+    .rk-div-name { font-size: 1.3rem; margin-bottom: 0.9rem; }
+    .rk thead th { font-size: 0.56rem; letter-spacing: 0.12em; padding: 0 0.35rem 0.5rem 0; }
+    .rk tbody th, .rk tbody td { padding: 0.55rem 0.35rem 0.55rem 0; }
+    .rk-rank, col.c-rank { width: 1.7rem; }
+    .rk-n { font-size: 1rem; }
+    /* "Rank" doesn't fit its own 1.7rem-wide header cell at this size (it ran into "Fighter"
+       next to it); "#" says the same thing in the space the number itself gets. Scoped to the
+       header only — the font-size: 0/::before swap (see .rk-weight below) would otherwise also
+       hit .rk-n, the big rank numeral in the body, but that sets its own font-size, so it isn't
+       affected either way; this is just about not repeating the same trick with a second target
+       by accident. */
+    .rk thead .rk-rank { font-size: 0; }
+    .rk thead .rk-rank::before { content: '#'; font-size: 0.7rem; }
+    col.c-num { width: 3.1rem; }
+    col.c-fli { width: 4.5rem; }
+
+    /* Column headers keep their tooltip hover on desktop; on a phone there's no good hover, so
+       the label stays but the interaction cue (and the tooltip content, which would otherwise
+       just sit there unreachable) goes. Same for the "Pending" flag's tooltip. */
+    .rk .hint { border-bottom: none; cursor: default; }
+    .rk .hint-tip { display: none; }
+
+    /* Name, weight and move share the row; the name is the only one allowed to give up space
+       (min-width: 0 lets a flex child shrink below its content size, which text-overflow needs
+       to ever actually trigger instead of just overflowing the row). */
+    .rk-name { display: flex; align-items: baseline; gap: 0.3rem; font-size: 0.82rem; }
+    .rk-name-text { min-width: 0; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+    .rk-weight, .rk-move { flex: none; }
+    /* The abbreviation (data-abbr, e.g. "LHW" for "Light Heavyweight") replaces the full division
+       name visually — font-size: 0 hides the original text without display: none, which would
+       also remove it from the accessibility tree; a screen reader still gets "Light Heavyweight". */
+    .rk-weight { font-size: 0; }
+    .rk-weight::before { content: attr(data-abbr); font-size: 0.62rem; letter-spacing: 0.03em; }
+    .rk-move { font-size: 0.68rem; }
+
+    .rk-num { font-size: 0.74rem; }
+    .rk-fli-top { gap: 0.3rem; }
+    .rk-fli-n { font-size: 0.74rem; }
+    .rk-tick, button.rk-tick { font-size: 0.74rem; }
+    /* The bar and the trend's numeric delta are the two things a full-width desktop cell had
+       room for and a 4.5rem one does not; the FLI figure and the trend's direction (the glyph)
+       still show, the size of the move is a tap/hover on the figure away via its sparkline. */
+    .rk-bar { display: none; }
+    .rk-tick-delta { display: none; }
     .rk-spark { left: auto; right: -0.5rem; transform: translate(0, 4px); }
     .rk-tickwrap:hover .rk-spark, .rk-tickwrap:focus-within .rk-spark { transform: none; }
+}
+
+/* The division jump list, collapsed behind a toggle only below this width (see the base .jump-*
+   rules above for why the same markup stays permanently open above it). */
+@media (max-width: 700px) {
+    .jump-summary {
+        display: inline-flex; align-items: center; gap: 0.6rem; cursor: pointer; list-style: none;
+        font-size: 0.78rem; color: var(--t2); padding: 0.7rem 0; border-bottom: 1px solid var(--border-n);
+    }
+    .jump-summary::-webkit-details-marker { display: none; }
+    .jump-summary::before { content: '+'; font-size: 0.95rem; line-height: 1; width: 0.9rem; color: var(--t3); }
+    .jump-wrap[open] .jump-summary::before { content: '−'; }
+    .jump-wrap[open] .jump-summary { border-bottom-color: var(--border-d); }
+    .jump { display: none; padding: 1rem 0 0.25rem; }
+    .jump-wrap[open] .jump { display: flex; }
 }
 
 @media (max-width: 640px) {

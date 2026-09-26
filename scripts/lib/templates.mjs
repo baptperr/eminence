@@ -217,6 +217,16 @@ const hint = (label, name, desc, right = false) =>
 const HINT_FLR = (right) => hint('FLR', 'First Light Rating', 'measure of true skill', right);
 const HINT_FLI = (right) => hint('FLI', 'First Light Index', 'fame compared to skill', right);
 
+// Mobile shrinks a division name beside the fighter's own to a 2-4 letter code (own row is too
+// narrow for "Light Heavyweight"). Standard MMA-media shorthand; the full name is still the text
+// a screen reader gets, since only the visual rendering swaps (see .rk-weight in pages.css).
+const WEIGHT_ABBR = {
+    'Heavyweight': 'HW', 'Light Heavyweight': 'LHW', 'Middleweight': 'MW', 'Welterweight': 'WW',
+    'Lightweight': 'LW', 'Featherweight': 'FW', 'Bantamweight': 'BW', 'Flyweight': 'FLW',
+    "Women's Featherweight": 'WFW', "Women's Bantamweight": 'WBW', "Women's Flyweight": 'WFLW',
+    "Women's Strawweight": 'WSW', "Women's Atomweight": 'WAW',
+};
+
 // FLI value, its 30-day ticker, and (when there is a history) the sparkline on hover/focus.
 function fliCell(r) {
     if (r.fli_status === 'pending') return `<span class="rk-flag hint">Pending<span class="hint-tip">Withheld until this fighter’s audience has been fully checked.</span></span>`;
@@ -226,7 +236,9 @@ function fliCell(r) {
     let tick = '';
     if (tr) {
         const glyph = tr.dir === 'up' ? '▲' : tr.dir === 'down' ? '▼' : '';
-        const text = tr.dir === 'flat' ? '—' : `${glyph} ${signed(tr.delta, 2)}`;
+        // The delta ("+0.13") sits in its own span so a narrow row can drop it and keep only the
+        // glyph — the direction still reads, the magnitude is a tap/hover away via the sparkline.
+        const text = tr.dir === 'flat' ? '—' : `${glyph}<span class="rk-tick-delta"> ${signed(tr.delta, 2)}</span>`;
         const said = tr.dir === 'flat' ? 'unchanged' : `${tr.dir === 'up' ? 'up' : 'down'} ${num(Math.abs(tr.delta), 2)}`;
         const label = `FLI ${said} over ${tr.days} days`;
         tick = hist
@@ -245,10 +257,14 @@ function fliAttrs(r) {
 function rankRows(rows, { hasMove, hasFlr, hasFli }) {
     return rows.map((r) => {
         const mv = movement(r);
+        const weight = r.weight
+            ? ` <span class="rk-weight" data-abbr="${esc(WEIGHT_ABBR[r.weight] || r.weight)}">${esc(r.weight)}</span>` : '';
+        const move = hasMove && mv.text
+            ? ` <span class="rk-move rk-move--${mv.dir}" aria-label="${esc(mv.label)}">${mv.glyph ? `<span class="rk-glyph" aria-hidden="true">${mv.glyph}</span>` : ''}${esc(mv.text)}</span>` : '';
         return `
                     <tr>
                         <th scope="row" class="rk-rank"><span class="rk-n">${r.rank}</span></th>
-                        <td class="rk-name">${esc(r.name)}${r.weight ? ` <span class="rk-weight">${esc(r.weight)}</span>` : ''}${hasMove && mv.text ? ` <span class="rk-move rk-move--${mv.dir}" aria-label="${esc(mv.label)}">${mv.glyph ? `<span class="rk-glyph" aria-hidden="true">${mv.glyph}</span>` : ''}${esc(mv.text)}</span>` : ''}</td>${hasFlr ? `
+                        <td class="rk-name"><span class="rk-name-text">${esc(r.name)}</span>${weight}${move}</td>${hasFlr ? `
                         <td class="rk-num" data-label="FLR">${r.rating != null ? num(r.rating) : '—'}</td>` : ''}${hasFli ? `
                         <td ${fliAttrs(r)} data-label="FLI">${fliCell(r)}</td>` : ''}
                     </tr>`;
@@ -377,7 +393,10 @@ ${FOOTER}`,
         <div class="pg-inner pg-inner--wide">
             ${subtabs('rankings', !!data.winners_losers)}
             <p class="pg-asof" data-r style="--d:80ms">${data.period ? `${esc(data.period)} · ` : ''}Updated <time datetime="${esc(data.generated_at)}">${fmtDate(data.generated_at)}</time></p>
-            ${divisions.size > 1 ? `<ul class="jump" aria-label="Jump to a division">${[...divisions.keys()].map((d) => `<li><a href="#${esc(slugify(d))}">${esc(d)}</a></li>`).join('')}</ul>
+            ${divisions.size > 1 ? `<details class="jump-wrap">
+                <summary class="jump-summary">Jump to a division</summary>
+                <ul class="jump" aria-label="Jump to a division">${[...divisions.keys()].map((d) => `<li><a href="#${esc(slugify(d))}">${esc(d)}</a></li>`).join('')}</ul>
+            </details>
 ` : ''}        </div>
     </header>
 
