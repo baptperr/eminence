@@ -9,7 +9,7 @@
   "fighter": {
    "name": "Marko Ivanescu",
    "nickname": "The Wolf",
-   "division": "lightweight",
+   "division": "Lightweight",
    "nationality": "Romania",
    "gym": "Titan Fight Team",
    "organization": "UFC",
@@ -38,26 +38,26 @@
   },
   "social": [
    {
-    "platform": "instagram",
+    "platform": "Instagram",
     "followers": 812000,
-    "avg_likes": 46545,
-    "avg_comments": 993,
+    "avg_likes": 47833,
+    "avg_comments": 1077,
     "avg_video_views": 396250,
-    "engagement_rate": 0.0566,
-    "engagement_basis": "median of 11 of 12 posts",
-    "posts_per_30d": 3.3,
+    "engagement_rate": 0.056,
+    "engagement_basis": "the median over the last 12 of 12 posts",
+    "posts_per_30d": 4.0,
     "media_mix": [
      {
-      "type": "photo",
-      "share": 50.0
+      "type": "Photo",
+      "share": 0.5
      },
      {
-      "type": "video",
-      "share": 33.3
+      "type": "Video",
+      "share": 0.3333
      },
      {
-      "type": "carousel",
-      "share": 16.7
+      "type": "Carousel",
+      "share": 0.1667
      }
     ],
     "measured_on": "2026-09-27"
@@ -65,35 +65,35 @@
   ],
   "top_posts": [
    {
-    "platform": "instagram",
-    "media_type": "video",
-    "date": "2026-09-07",
+    "platform": "Instagram",
+    "media_type": "Video",
+    "date": "2026-09-12",
     "likes": 72000,
     "comments": 2100,
     "views": 505000,
     "caption": "Q&A with the team."
    },
    {
-    "platform": "instagram",
-    "media_type": "video",
+    "platform": "Instagram",
+    "media_type": "Video",
     "date": "2026-09-22",
     "likes": 61000,
     "comments": 1500,
-    "views": 410000,
-    "caption": "Full training camp recap."
-   },
-   {
-    "platform": "instagram",
-    "media_type": "video",
-    "date": "2026-08-06",
-    "likes": 58000,
-    "comments": 1300,
     "views": 380000,
     "caption": "Fight week vlog, part 1."
    },
    {
-    "platform": "instagram",
-    "media_type": "photo",
+    "platform": "Instagram",
+    "media_type": "Video",
+    "date": "2026-09-07",
+    "likes": 58000,
+    "comments": 1300,
+    "views": 410000,
+    "caption": "Highlight reel."
+   },
+   {
+    "platform": "Instagram",
+    "media_type": "Photo",
     "date": "2026-09-25",
     "likes": 54000,
     "comments": 1200,
@@ -101,18 +101,18 @@
     "caption": "Fight week is here."
    },
    {
-    "platform": "instagram",
-    "media_type": "video",
-    "date": "2026-06-24",
+    "platform": "Instagram",
+    "media_type": "Video",
+    "date": "2026-09-05",
     "likes": 51000,
     "comments": 1100,
     "views": 290000,
-    "caption": "Highlight reel."
+    "caption": "Full training camp recap."
    },
    {
-    "platform": "instagram",
-    "media_type": "carousel",
-    "date": "2026-07-09",
+    "platform": "Instagram",
+    "media_type": "Carousel",
+    "date": "2026-09-18",
     "likes": 45000,
     "comments": 990,
     "views": null,
@@ -125,22 +125,22 @@
    "languages": [
     {
      "market": "English",
-     "share": 58.0,
+     "share": 0.58,
      "views": 342000
     },
     {
      "market": "Romanian",
-     "share": 22.0,
+     "share": 0.22,
      "views": 129800
     },
     {
      "market": "Portuguese",
-     "share": 9.0,
+     "share": 0.09,
      "views": 53100
     },
     {
      "market": "Spanish",
-     "share": 6.0,
+     "share": 0.06,
      "views": 35400
     }
    ]
@@ -167,25 +167,25 @@
     "date": "2026-08-15",
     "event": "UFC 308",
     "promotion": "UFC",
-    "card_section": "main_card",
-    "event_tier": "numbered",
-    "result": "win"
+    "card_section": "Main card",
+    "event_tier": "Numbered event",
+    "result": "Win"
    },
    {
     "date": "2026-03-07",
     "event": "UFC 300",
     "promotion": "UFC",
-    "card_section": "main_card",
-    "event_tier": "numbered",
-    "result": "win"
+    "card_section": "Main card",
+    "event_tier": "Numbered event",
+    "result": "Win"
    },
    {
     "date": "2025-10-11",
     "event": "UFC Fight Night 250",
     "promotion": "UFC",
-    "card_section": "main_card",
-    "event_tier": "fight_night",
-    "result": "win"
+    "card_section": "Early prelims",
+    "event_tier": "Fight Night",
+    "result": "Win"
    }
   ],
   "charts": {

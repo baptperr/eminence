@@ -881,17 +881,22 @@ function billingBlock(b) {
 function cohortBlock(c) {
     if (!c) return '';
     const t = c.target;
+    // Every cohort figure arrives with its own printed form (`*_text`): a rate as "5.6%",
+    // a count as "11 posts", a multiplier as "×2.4". The raw `value` beside it is for the
+    // chart's geometry only. Formatting the raw number here instead is what once put
+    // "0.06" in this block next to a sentence saying "5.6%" about the same quantity.
+    const shown = (text, raw) => (text != null ? esc(text) : raw != null ? num(raw, 2) : '—');
     const target = statRow([
-        [num(t.fighter_value, 2), t.label],
-        [num(t.peer_median, 2), `Peer median (${t.basis}, n=${t.n})`],
+        [shown(t.fighter_value_text, t.fighter_value), t.label],
+        [shown(t.peer_median_text, t.peer_median), `Peer median (${t.basis}, n=${t.n})`],
     ]);
     const diffs = c.differentiators.map((d) => `
             <div class="pub-diff">
                 <p class="pub-line"><strong>${esc(d.label)}</strong></p>
                 ${statRow([
-                    [num(d.fighter_value, 2), 'This fighter'],
-                    [num(d.better_median, 2), `Better cohort (n=${d.n_better})`],
-                    [num(d.worse_median, 2), `Worse cohort (n=${d.n_worse})`],
+                    [shown(d.fighter_value_text, d.fighter_value), 'This fighter'],
+                    [shown(d.better_median_text, d.better_median), `Kept more (n=${d.n_better})`],
+                    [shown(d.worse_median_text, d.worse_median), `Kept less (n=${d.n_worse})`],
                 ])}
                 ${distributionChart(d.distribution)}
                 <p class="pub-note">${esc(d.sentence)}</p>

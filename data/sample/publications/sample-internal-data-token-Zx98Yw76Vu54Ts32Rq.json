@@ -73,19 +73,19 @@
      "width": 78.0,
      "platforms": [
       {
-       "platform": "instagram",
+       "platform": "Instagram",
        "text": "812,000"
       },
       {
-       "platform": "youtube",
+       "platform": "YouTube",
        "text": "not measured"
       },
       {
-       "platform": "tiktok",
+       "platform": "TikTok",
        "text": "not collected"
       },
       {
-       "platform": "x",
+       "platform": "X",
        "text": "not collected"
       }
      ],
@@ -218,22 +218,22 @@
    "languages": [
     {
      "market": "English",
-     "share": 58.0,
+     "share": 0.58,
      "views": 342000
     },
     {
      "market": "Romanian",
-     "share": 22.0,
+     "share": 0.22,
      "views": 129800
     },
     {
      "market": "Portuguese",
-     "share": 9.0,
+     "share": 0.09,
      "views": 53100
     },
     {
      "market": "Spanish",
-     "share": 6.0,
+     "share": 0.06,
      "views": 35400
     }
    ]
@@ -300,7 +300,7 @@
     "ratio": 23.9,
     "baseline": 410.0,
     "nearest_bout_date": "2026-08-15",
-    "days_from_bout": -74
+    "days_from_bout": -73
    },
    {
     "week_start": "2026-02-16",
@@ -313,31 +313,31 @@
   "billing": {
    "rows": [
     {
-     "date": "2025-10-11",
-     "event": "UFC Fight Night 250",
-     "card_section": "main_card",
-     "event_tier": "fight_night",
-     "actual": 0.55,
-     "expected": 0.4,
-     "signal": 0.15
+     "date": "2026-08-15",
+     "event": "UFC 308",
+     "card_section": "Main card",
+     "event_tier": "Numbered event",
+     "actual": 0.91,
+     "expected": 0.7,
+     "signal": 0.21
     },
     {
      "date": "2026-03-07",
      "event": "UFC 300",
-     "card_section": "main_card",
-     "event_tier": "numbered",
+     "card_section": "Main card",
+     "event_tier": "Numbered event",
      "actual": 0.78,
      "expected": 0.6,
      "signal": 0.18
     },
     {
-     "date": "2026-08-15",
-     "event": "UFC 308",
-     "card_section": "main_card",
-     "event_tier": "numbered",
-     "actual": 0.91,
-     "expected": 0.7,
-     "signal": 0.21
+     "date": "2025-10-11",
+     "event": "UFC Fight Night 250",
+     "card_section": "Early prelims",
+     "event_tier": "Fight Night",
+     "actual": 0.55,
+     "expected": 0.4,
+     "signal": 0.15
     }
    ],
    "chart": {
@@ -353,7 +353,9 @@
     "metric": "search_afterglow",
     "label": "fight-week search attention retained 30 days out",
     "fighter_value": 0.3,
-    "peer_median": 0.3185,
+    "fighter_value_text": "30.0%",
+    "peer_median": 0.29900000000000004,
+    "peer_median_text": "29.9%",
     "basis": "overall",
     "n": 70
    },
@@ -362,8 +364,11 @@
      "metric": "post_fight_cadence",
      "label": "post-fight posting cadence",
      "fighter_value": 11.0,
+     "fighter_value_text": "11 posts",
      "better_median": 11.0,
+     "better_median_text": "11 posts",
      "worse_median": 2.5,
+     "worse_median_text": "2 posts",
      "n_better": 35,
      "n_worse": 35,
      "distribution": {
@@ -505,14 +510,17 @@
        }
       ]
      },
-     "sentence": "Among similar fighters, those who kept more of their fight-week search attention posted a median of 11 times in the month after the fight, versus posted a median of 2 times in the month after the fight for the rest."
+     "sentence": "Among similar fighters, those who kept more of their fight-week search attention posted a median of 11 times in the month after the fight; the rest posted 2."
     },
     {
      "metric": "media_mix_share",
      "label": "short-form video share of posts",
      "fighter_value": 33.3,
+     "fighter_value_text": "33%",
      "better_median": 44.0,
+     "better_median_text": "44%",
      "worse_median": 10.0,
+     "worse_median_text": "10%",
      "n_better": 35,
      "n_worse": 35,
      "distribution": {
@@ -654,14 +662,17 @@
        }
       ]
      },
-     "sentence": "Among similar fighters, those who kept more of their fight-week search attention posted a median of 44% of their content as short-form video, versus posted a median of 10% of their content as short-form video for the rest."
+     "sentence": "Among similar fighters, those who kept more of their fight-week search attention posted a median of 44% of their content as short-form video; the rest posted 10%."
     },
     {
      "metric": "engagement_rate",
      "label": "per-post engagement rate",
      "fighter_value": 0.061,
+     "fighter_value_text": "6.1%",
      "better_median": 0.056,
+     "better_median_text": "5.6%",
      "worse_median": 0.016,
+     "worse_median_text": "1.6%",
      "n_better": 35,
      "n_worse": 35,
      "distribution": {
@@ -803,14 +814,17 @@
        }
       ]
      },
-     "sentence": "Among similar fighters, those who kept more of their fight-week search attention had a median per-post engagement rate of 5.6%, versus had a median per-post engagement rate of 1.6% for the rest."
+     "sentence": "Among similar fighters, those who kept more of their fight-week search attention had a median per-post engagement rate of 5.6%; the rest had 1.6%."
     },
     {
      "metric": "growth_velocity",
      "label": "follower growth velocity",
      "fighter_value": 2.4,
+     "fighter_value_text": "+2.4%",
      "better_median": 2.6,
+     "better_median_text": "+2.6%",
      "worse_median": -0.3,
+     "worse_median_text": "-0.3%",
      "n_better": 35,
      "n_worse": 35,
      "distribution": {
@@ -952,14 +966,17 @@
        }
       ]
      },
-     "sentence": "Among similar fighters, those who kept more of their fight-week search attention grew followers a median of +2.6% over the following 30 days, versus grew followers a median of -0.3% over the following 30 days for the rest."
+     "sentence": "Among similar fighters, those who kept more of their fight-week search attention grew followers a median of +2.6% over the following 30 days; the rest grew -0.3%."
     },
     {
      "metric": "search_spike_presence",
      "label": "a confirmed search spike near the fight",
      "fighter_value": 1.0,
+     "fighter_value_text": "100%",
      "better_median": 0.6571428571428571,
+     "better_median_text": "66%",
      "worse_median": 0.0,
+     "worse_median_text": "0%",
      "n_better": 35,
      "n_worse": 35,
      "distribution": {
@@ -1101,7 +1118,7 @@
        }
       ]
      },
-     "sentence": "Among similar fighters, those who kept more of their fight-week search attention showed a confirmed search spike near the fight 66% of the time, versus showed a confirmed search spike near the fight 0% of the time for the rest."
+     "sentence": "Among similar fighters, those who kept more of their fight-week search attention showed a confirmed search spike near the fight 66% of the time; the rest did so 0% of the time."
     }
    ]
   }
