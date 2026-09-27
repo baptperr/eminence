@@ -10,8 +10,8 @@ import { createHash } from 'node:crypto';
 import { cp, mkdir, readdir, readFile, rm, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { loadArticles, loadIndex, loadPrivate } from './lib/data.mjs';
-import { archivePage, articlePage, indexPage, manifestoPage, notFoundPage, privatePage, winnersLosersPage } from './lib/templates.mjs';
+import { loadArticles, loadIndex, loadPrivate, loadPublications } from './lib/data.mjs';
+import { archivePage, articlePage, indexPage, internalDataPage, manifestoPage, mediaKitPage, notFoundPage, privatePage, winnersLosersPage } from './lib/templates.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const args = new Set(process.argv.slice(2));
@@ -23,7 +23,7 @@ const SITE = (process.env.SITE_URL || 'https://firstlight.agency').replace(/\/$/
 
 const STATIC = [
     'index.html', 'privacy.html', '_redirects',
-    'style.css', 'pages.css', 'manifesto.css',
+    'style.css', 'pages.css', 'manifesto.css', 'publication.css',
     'nav.js', 'menu.js', 'manifesto.js',
     'favicon.png', 'logo.png', 'logo.svg',
     'fonts',
@@ -64,6 +64,7 @@ async function main() {
     const articles = await loadArticles(path.join(ROOT, 'content/publications'), { drafts: SAMPLE });
     const indexData = await loadIndex(path.join(DATA, 'index.json'));
     const privatePages = await loadPrivate(path.join(DATA, 'private'));
+    const publications = await loadPublications(path.join(DATA, 'publications'));
 
     // Public routes. `lastmod` feeds the sitemap.
     const routes = [
@@ -96,6 +97,18 @@ async function main() {
         await write(`publications/private/${page.token}/index.html`, privatePage({ page, site: SITE }));
     }
 
+    // Publications: two pages per fighter, each its own token, never added to `routes` either.
+    // The route segment is "<slug>-<token>", so a media kit and an internal-data page for the
+    // same fighter live under two different directories even though they share a slug.
+    const PUB_KIND = {
+        media_kit: { segment: 'media-kit', render: mediaKitPage },
+        internal_data: { segment: 'internal-data', render: internalDataPage },
+    };
+    for (const page of publications) {
+        const { segment, render } = PUB_KIND[page.kind];
+        await write(`publications/kit/${page.slug}-${page.token}/${segment}/index.html`, render({ page, site: SITE }));
+    }
+
     const day = (iso) => (iso ? new Date(iso).toISOString().slice(0, 10) : null);
     await write('sitemap.xml', `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
@@ -112,21 +125,27 @@ ${routes.map((r) => `  <url><loc>${SITE}${r.url}</loc>${r.lastmod ? `<lastmod>${
   Referrer-Policy: no-referrer
   Cache-Control: private, no-store
   X-Content-Type-Options: nosniff
+
+/publications/kit/*
+  X-Robots-Tag: noindex, nofollow, noarchive, nosnippet
+  Referrer-Policy: no-referrer
+  Cache-Control: private, no-store
+  X-Content-Type-Options: nosniff
 `);
 
     await versionAssets();
 
-    await verify(privatePages);
+    await verify(privatePages, publications);
 
     console.log(`${SAMPLE ? 'Sample build' : 'Built'} → ${path.relative(ROOT, OUT)}/`);
-    console.log(`  ${articles.length} article(s), index ${indexData ? 'from data' : 'placeholder (no data/index.json)'}, ${privatePages.length} private page(s)`);
+    console.log(`  ${articles.length} article(s), index ${indexData ? 'from data' : 'placeholder (no data/index.json)'}, ${privatePages.length} private page(s), ${publications.length} publication(s)`);
     if (SAMPLE) console.log('  Preview only: fictional data. Deploys come from dist/, not this folder.');
 }
 
 // Cloudflare lets browsers keep a stylesheet or script for four hours, and a page is fetched fresh, so
 // a returning visitor could pair a new page with an old stylesheet (an unstyled dropdown, for one).
 // Every local css/js reference gets ?v=<hash of that file's content>, so a changed file is a new URL.
-const VERSIONED = ['style.css', 'pages.css', 'manifesto.css', 'nav.js', 'menu.js', 'manifesto.js'];
+const VERSIONED = ['style.css', 'pages.css', 'manifesto.css', 'publication.css', 'nav.js', 'menu.js', 'manifesto.js'];
 async function versionAssets() {
     const hashes = {};
     for (const f of VERSIONED) {
@@ -141,30 +160,62 @@ async function versionAssets() {
     }
 }
 
-// Fails the build if anything public points at, or contains, a private page.
-async function verify(privatePages) {
+// Fails the build if anything public points at, or contains, a private page or a publication.
+async function verify(privatePages, publications) {
     const privRoot = path.join(OUT, 'publications', 'private');
+    const kitRoot = path.join(OUT, 'publications', 'kit');
     const problems = [];
-    const tokens = privatePages.map((p) => p.token);
+    const privTokens = privatePages.map((p) => p.token);
+    const kitTokens = publications.map((p) => p.token);
     const TEXT = /\.(html|xml|txt|css|js|json|svg|md)$/;
+
+    // The one file each publication token is allowed to appear in: its own kind's page, under
+    // its own slug-token directory. media-kit and internal-data never share a token, so this map
+    // alone is what stops one page's build output from ever containing the other's address.
+    const PUB_SEGMENT = { media_kit: 'media-kit', internal_data: 'internal-data' };
+    const kitExpected = new Map(publications.map((p) => [p.token, `${p.slug}-${p.token}/${PUB_SEGMENT[p.kind]}/index.html`]));
 
     for (const file of await walk(OUT)) {
         const rel = path.relative(OUT, file).split(path.sep).join('/');
         const inPrivate = file.startsWith(privRoot + path.sep);
+        const inKit = file.startsWith(kitRoot + path.sep);
+
         if (inPrivate) {
             const parts = rel.split('/');
             // Exactly publications/private/<token>/index.html — no listing page, nothing else.
-            if (!(parts.length === 4 && tokens.includes(parts[2]) && parts[3] === 'index.html')) {
+            if (!(parts.length === 4 && privTokens.includes(parts[2]) && parts[3] === 'index.html')) {
                 problems.push(`unexpected file in private tree: ${rel}`);
             } else if (!/name="robots" content="noindex/.test(await readFile(file, 'utf8'))) {
                 problems.push(`${rel}: missing noindex`);
             }
             continue;
         }
+
+        if (inKit) {
+            const relInKit = path.relative(kitRoot, file).split(path.sep).join('/');
+            const ownToken = kitTokens.find((t) => relInKit === kitExpected.get(t));
+            if (!ownToken) {
+                // Exactly publications/kit/<slug>-<token>/{media-kit,internal-data}/index.html —
+                // nothing else, no listing page.
+                problems.push(`unexpected file in kit tree: ${rel}`);
+                continue;
+            }
+            const text = await readFile(file, 'utf8');
+            if (!/name="robots" content="noindex/.test(text)) problems.push(`${rel}: missing noindex`);
+            if (!/property="og:title"/.test(text)) problems.push(`${rel}: missing Open Graph tags`);
+            // A media-kit page must never contain the internal-data token for the same
+            // fighter (or anyone else's), and vice versa — that's the whole point of two tokens.
+            for (const t of kitTokens) {
+                if (t !== ownToken && text.includes(t)) problems.push(`${rel}: contains another publication's token`);
+            }
+            continue;
+        }
+
         if (rel === '_headers' || !TEXT.test(rel)) continue;
         const text = await readFile(file, 'utf8');
         if (text.includes('publications/private')) problems.push(`${rel}: mentions the private path`);
-        for (const t of tokens) if (text.includes(t)) problems.push(`${rel}: contains a private token`);
+        if (text.includes('publications/kit')) problems.push(`${rel}: mentions the publications/kit path`);
+        for (const t of [...privTokens, ...kitTokens]) if (text.includes(t)) problems.push(`${rel}: contains a private or publication token`);
     }
 
     if (problems.length) {
