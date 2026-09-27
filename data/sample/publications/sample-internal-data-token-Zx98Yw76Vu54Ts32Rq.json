@@ -1,1126 +1,1126 @@
 {
- "token": "sample-internal-data-token-Zx98Yw76Vu54Ts32Rq",
- "kind": "internal_data",
- "slug": "marko-ivanescu",
- "fighter_name": "Marko Ivanescu",
- "generated_at": "2026-09-27T11:04:00Z",
- "measured_on": "2026-09-27",
- "data": {
-  "first_light": {
-   "score": 0.34,
-   "rating": 1812.0,
-   "expected": 640000,
-   "actual": 812000,
-   "gap": 0.4,
-   "reading": "more fame than skill alone predicts"
-  },
-  "funnel": {
-   "stages": [
-    {
-     "key": "awareness",
-     "n": 1,
-     "title": "Awareness",
-     "what": "Wikipedia lookups, 12 months, every language",
-     "measured": true,
-     "value": 590000,
-     "text": "590K views",
-     "pct": {
-      "pct": 71.0,
-      "basis": "similar",
-      "n": 42
-     },
-     "pct_text": "top 29% of similar-skill fighters",
-     "width": 71.0,
-     "details": [],
-     "peer_text": "typical: 210K views"
+  "token": "sample-internal-data-token-Zx98Yw76Vu54Ts32Rq",
+  "kind": "internal_data",
+  "slug": "marko-ivanescu",
+  "fighter_name": "Marko Ivanescu",
+  "generated_at": "2026-09-27T11:04:00Z",
+  "measured_on": "2026-09-27",
+  "data": {
+    "first_light": {
+      "score": 0.34,
+      "rating": 1812.0,
+      "expected": 640000,
+      "actual": 812000,
+      "gap": 0.4,
+      "reading": "more fame than skill alone predicts"
     },
-    {
-     "key": "sustained",
-     "n": 2,
-     "title": "Sustained interest",
-     "what": "how much is left outside fight weeks: median month",
-     "measured": true,
-     "value": 28000,
-     "text": "28.0K views / month",
-     "pct": {
-      "pct": 66.0,
-      "basis": "similar",
-      "n": 42
-     },
-     "pct_text": "top 34% of similar-skill fighters",
-     "width": 66.0,
-     "details": [
-      "peak month August 2026: 58.0K views",
-      "peak is 2.1x the median month",
-      "fight-week afterglow +62%"
-     ],
-     "peer_text": "typical: 180K views / month"
-    },
-    {
-     "key": "following",
-     "n": 3,
-     "title": "Following",
-     "what": "followers on the platforms collected",
-     "measured": true,
-     "value": 812000,
-     "text": "812,000 followers",
-     "pct": {
-      "pct": 78.0,
-      "basis": "similar",
-      "n": 42
-     },
-     "pct_text": "top 22% of similar-skill fighters",
-     "width": 78.0,
-     "platforms": [
-      {
-       "platform": "Instagram",
-       "text": "812,000"
+    "funnel": {
+      "stages": [
+        {
+          "key": "awareness",
+          "n": 1,
+          "title": "Awareness",
+          "what": "Wikipedia lookups, 12 months, every language",
+          "measured": true,
+          "value": 590000,
+          "text": "590K views",
+          "pct": {
+            "pct": 71.0,
+            "basis": "similar",
+            "n": 42
+          },
+          "pct_text": "top 29% of similar-skill fighters",
+          "width": 71.0,
+          "details": [],
+          "peer_text": "typical: 210K views"
+        },
+        {
+          "key": "sustained",
+          "n": 2,
+          "title": "Sustained interest",
+          "what": "how much is left outside fight weeks: median month",
+          "measured": true,
+          "value": 28000,
+          "text": "28.0K views / month",
+          "pct": {
+            "pct": 66.0,
+            "basis": "similar",
+            "n": 42
+          },
+          "pct_text": "top 34% of similar-skill fighters",
+          "width": 66.0,
+          "details": [
+            "peak month August 2026: 58.0K views",
+            "peak is 2.1x the median month",
+            "fight-week afterglow +62%"
+          ],
+          "peer_text": "typical: 180K views / month"
+        },
+        {
+          "key": "following",
+          "n": 3,
+          "title": "Following",
+          "what": "followers on the platforms collected",
+          "measured": true,
+          "value": 812000,
+          "text": "812,000 followers",
+          "pct": {
+            "pct": 78.0,
+            "basis": "similar",
+            "n": 42
+          },
+          "pct_text": "top 22% of similar-skill fighters",
+          "width": 78.0,
+          "platforms": [
+            {
+              "platform": "Instagram",
+              "text": "812,000"
+            },
+            {
+              "platform": "YouTube",
+              "text": "not measured"
+            },
+            {
+              "platform": "TikTok",
+              "text": "not collected"
+            },
+            {
+              "platform": "X",
+              "text": "not collected"
+            }
+          ],
+          "details": [],
+          "peer_text": "typical: 340,000 followers"
+        },
+        {
+          "key": "engagement",
+          "n": 4,
+          "title": "Engagement",
+          "what": "Instagram engagement rate: per post",
+          "measured": true,
+          "value": 0.061,
+          "text": "6.10% per post",
+          "pct": {
+            "pct": 58.0,
+            "basis": "similar",
+            "n": 42
+          },
+          "pct_text": "8th percentile of similar-skill fighters",
+          "width": 58.0,
+          "eng_basis": "post",
+          "eng_details": [
+            {
+              "label": "per-post rate (last 12 posts)",
+              "text": "6.10%",
+              "pct_text": "top 42% of similar-skill fighters",
+              "basis": "similar"
+            },
+            {
+              "label": "posts in the last 90 days",
+              "text": "9",
+              "pct_text": "top 51% of similar-skill fighters",
+              "basis": "similar"
+            },
+            {
+              "label": "Instagram follower growth per 30 days (over 32 days)",
+              "text": "+2.4%",
+              "pct_text": "top 60% of similar-skill fighters",
+              "basis": "similar"
+            }
+          ],
+          "details": [
+            "about 49,500 engaged people per post (812,000 Instagram followers x 6.10% per-post rate)"
+          ],
+          "peer_text": "typical: 5.8%"
+        }
+      ],
+      "graphic": {
+        "width": 480,
+        "height": 220,
+        "typical_width": 100,
+        "segments": [
+          {
+            "key": "awareness",
+            "index": 115,
+            "width": 115,
+            "clipped": false
+          },
+          {
+            "key": "sustained",
+            "index": 108,
+            "width": 108,
+            "clipped": false
+          },
+          {
+            "key": "following",
+            "index": 96,
+            "width": 96,
+            "clipped": false
+          },
+          {
+            "key": "engagement",
+            "index": 62,
+            "width": 62,
+            "clipped": false
+          }
+        ],
+        "transitions": [
+          {
+            "key": "awareness_following",
+            "to_text": "0.98 followers per lookup",
+            "drop": 3.0
+          },
+          {
+            "key": "following_engagement",
+            "to_text": "6.10% engagement (per post)",
+            "drop": 20.0
+          }
+        ]
       },
-      {
-       "platform": "YouTube",
-       "text": "not measured"
-      },
-      {
-       "platform": "TikTok",
-       "text": "not collected"
-      },
-      {
-       "platform": "X",
-       "text": "not collected"
+      "leak": {
+        "named": true,
+        "sentence": "The following is high (top 22% of similar-skill fighters) but it is quiet: its engagement rate is in the 8th percentile of similar-skill fighters."
       }
-     ],
-     "details": [],
-     "peer_text": "typical: 340,000 followers"
     },
-    {
-     "key": "engagement",
-     "n": 4,
-     "title": "Engagement",
-     "what": "Instagram engagement rate: per post",
-     "measured": true,
-     "value": 0.061,
-     "text": "6.10% per post",
-     "pct": {
-      "pct": 58.0,
-      "basis": "similar",
-      "n": 42
-     },
-     "pct_text": "8th percentile of similar-skill fighters",
-     "width": 58.0,
-     "eng_basis": "post",
-     "eng_details": [
+    "geography": {
+      "countries": [
+        {
+          "country": "Romania",
+          "search_volume_index": 100.0,
+          "market_value_index": 18.0,
+          "estimated": true
+        },
+        {
+          "country": "United States",
+          "search_volume_index": 71.0,
+          "market_value_index": 100.0,
+          "estimated": false
+        },
+        {
+          "country": "Brazil",
+          "search_volume_index": 44.0,
+          "market_value_index": 22.0,
+          "estimated": true
+        },
+        {
+          "country": "United Kingdom",
+          "search_volume_index": 31.0,
+          "market_value_index": 46.0,
+          "estimated": false
+        },
+        {
+          "country": "Germany",
+          "search_volume_index": 19.0,
+          "market_value_index": 39.0,
+          "estimated": true
+        }
+      ],
+      "languages": [
+        {
+          "market": "English",
+          "share": 0.58,
+          "views": 342000
+        },
+        {
+          "market": "Romanian",
+          "share": 0.22,
+          "views": 129800
+        },
+        {
+          "market": "Portuguese",
+          "share": 0.09,
+          "views": 53100
+        },
+        {
+          "market": "Spanish",
+          "share": 0.06,
+          "views": 35400
+        }
+      ]
+    },
+    "retention": [
       {
-       "label": "per-post rate (last 12 posts)",
-       "text": "6.10%",
-       "pct_text": "top 42% of similar-skill fighters",
-       "basis": "similar"
+        "fight_date": "2026-08-15",
+        "opponent": "Yusuf Demir",
+        "search_afterglow": 0.62,
+        "wiki_afterglow": 0.62,
+        "growth_velocity": 1.09,
+        "peak": 58000.0,
+        "baseline": 420.0,
+        "curve": {
+          "width": 320,
+          "height": 96,
+          "points": "10,80 40,70 70,20 100,15 130,60 160,75",
+          "extra_points": "28,82.0 312,82.0",
+          "labels": [
+            {
+              "x": 70.0,
+              "y": 10,
+              "text": "fight day"
+            }
+          ]
+        }
       },
       {
-       "label": "posts in the last 90 days",
-       "text": "9",
-       "pct_text": "top 51% of similar-skill fighters",
-       "basis": "similar"
+        "fight_date": "2026-03-07",
+        "opponent": "Chase Whitfield",
+        "search_afterglow": 0.41,
+        "wiki_afterglow": 0.41,
+        "growth_velocity": 1.04,
+        "peak": 41000.0,
+        "baseline": 380.0,
+        "curve": {
+          "width": 320,
+          "height": 96,
+          "points": "10,80 40,65 70,25 100,20 130,66 160,74",
+          "extra_points": "28,80.0 312,80.0",
+          "labels": [
+            {
+              "x": 70.0,
+              "y": 10,
+              "text": "fight day"
+            }
+          ]
+        }
       },
       {
-       "label": "Instagram follower growth per 30 days (over 32 days)",
-       "text": "+2.4%",
-       "pct_text": "top 60% of similar-skill fighters",
-       "basis": "similar"
+        "fight_date": "2025-10-11",
+        "opponent": "Lior Ben-David",
+        "search_afterglow": 0.35,
+        "wiki_afterglow": 0.35,
+        "growth_velocity": 1.02,
+        "peak": 26000.0,
+        "baseline": 300.0,
+        "curve": null
       }
-     ],
-     "details": [
-      "about 49,500 engaged people per post (812,000 Instagram followers x 6.10% per-post rate)"
-     ],
-     "peer_text": "typical: 5.8%"
-    }
-   ],
-   "graphic": {
-    "width": 480,
-    "height": 220,
-    "typical_width": 100,
-    "segments": [
-     {
-      "key": "awareness",
-      "index": 115,
-      "width": 115,
-      "clipped": false
-     },
-     {
-      "key": "sustained",
-      "index": 108,
-      "width": 108,
-      "clipped": false
-     },
-     {
-      "key": "following",
-      "index": 96,
-      "width": 96,
-      "clipped": false
-     },
-     {
-      "key": "engagement",
-      "index": 62,
-      "width": 62,
-      "clipped": false
-     }
     ],
-    "transitions": [
-     {
-      "key": "awareness_following",
-      "to_text": "0.98 followers per lookup",
-      "drop": 3.0
-     },
-     {
-      "key": "following_engagement",
-      "to_text": "6.10% engagement (per post)",
-      "drop": 20.0
-     }
-    ]
-   },
-   "leak": {
-    "named": true,
-    "sentence": "The following is high (top 22% of similar-skill fighters) but it is quiet: its engagement rate is in the 8th percentile of similar-skill fighters."
-   }
-  },
-  "geography": {
-   "countries": [
-    {
-     "country": "Romania",
-     "search_volume_index": 100.0,
-     "market_value_index": 18.0,
-     "estimated": true
-    },
-    {
-     "country": "United States",
-     "search_volume_index": 71.0,
-     "market_value_index": 100.0,
-     "estimated": false
-    },
-    {
-     "country": "Brazil",
-     "search_volume_index": 44.0,
-     "market_value_index": 22.0,
-     "estimated": true
-    },
-    {
-     "country": "United Kingdom",
-     "search_volume_index": 31.0,
-     "market_value_index": 46.0,
-     "estimated": false
-    },
-    {
-     "country": "Germany",
-     "search_volume_index": 19.0,
-     "market_value_index": 39.0,
-     "estimated": true
-    }
-   ],
-   "languages": [
-    {
-     "market": "English",
-     "share": 0.58,
-     "views": 342000
-    },
-    {
-     "market": "Romanian",
-     "share": 0.22,
-     "views": 129800
-    },
-    {
-     "market": "Portuguese",
-     "share": 0.09,
-     "views": 53100
-    },
-    {
-     "market": "Spanish",
-     "share": 0.06,
-     "views": 35400
-    }
-   ]
-  },
-  "retention": [
-   {
-    "fight_date": "2026-08-15",
-    "opponent": "Yusuf Demir",
-    "search_afterglow": 0.62,
-    "wiki_afterglow": 0.62,
-    "growth_velocity": 1.09,
-    "peak": 58000.0,
-    "baseline": 420.0,
-    "curve": {
-     "width": 320,
-     "height": 96,
-     "points": "10,80 40,70 70,20 100,15 130,60 160,75",
-     "extra_points": "28,82.0 312,82.0",
-     "labels": [
+    "off_cycle": [
       {
-       "x": 70.0,
-       "y": 10,
-       "text": "fight day"
-      }
-     ]
-    }
-   },
-   {
-    "fight_date": "2026-03-07",
-    "opponent": "Chase Whitfield",
-    "search_afterglow": 0.41,
-    "wiki_afterglow": 0.41,
-    "growth_velocity": 1.04,
-    "peak": 41000.0,
-    "baseline": 380.0,
-    "curve": {
-     "width": 320,
-     "height": 96,
-     "points": "10,80 40,65 70,25 100,20 130,66 160,74",
-     "extra_points": "28,80.0 312,80.0",
-     "labels": [
+        "week_start": "2026-06-01",
+        "ratio": 23.9,
+        "baseline": 410.0,
+        "nearest_bout_date": "2026-08-15",
+        "days_from_bout": -73
+      },
       {
-       "x": 70.0,
-       "y": 10,
-       "text": "fight day"
+        "week_start": "2026-02-16",
+        "ratio": 5.38,
+        "baseline": 390.0,
+        "nearest_bout_date": "2026-03-07",
+        "days_from_bout": -17
       }
-     ]
+    ],
+    "billing": {
+      "rows": [
+        {
+          "date": "2026-08-15",
+          "event": "UFC 308",
+          "card_section": "Main card",
+          "event_tier": "Numbered event",
+          "actual": 0.91,
+          "expected": 0.7,
+          "signal": 0.21
+        },
+        {
+          "date": "2026-03-07",
+          "event": "UFC 300",
+          "card_section": "Main card",
+          "event_tier": "Numbered event",
+          "actual": 0.78,
+          "expected": 0.6,
+          "signal": 0.18
+        },
+        {
+          "date": "2025-10-11",
+          "event": "UFC Fight Night 250",
+          "card_section": "Early prelims",
+          "event_tier": "Fight Night",
+          "actual": 0.55,
+          "expected": 0.4,
+          "signal": 0.15
+        }
+      ],
+      "chart": {
+        "width": 300,
+        "height": 70,
+        "points": "0,60 150,35 300,10",
+        "extra_points": "0,55 150,40 300,25",
+        "labels": []
+      }
+    },
+    "cohort": {
+      "target": {
+        "metric": "search_afterglow",
+        "label": "fight-week search attention retained 30 days out",
+        "fighter_value": 0.3,
+        "fighter_value_text": "30.0%",
+        "peer_median": 0.29900000000000004,
+        "peer_median_text": "29.9%",
+        "basis": "overall",
+        "n": 70
+      },
+      "differentiators": [
+        {
+          "metric": "post_fight_cadence",
+          "label": "post-fight posting cadence",
+          "fighter_value": 11.0,
+          "fighter_value_text": "11 posts",
+          "better_median": 11.0,
+          "better_median_text": "11 posts",
+          "worse_median": 2.5,
+          "worse_median_text": "2 posts",
+          "n_better": 35,
+          "n_worse": 35,
+          "distribution": {
+            "values": [
+              2.0,
+              2.0,
+              2.0,
+              2.0,
+              2.0,
+              2.0,
+              2.0,
+              2.0,
+              2.0,
+              2.0,
+              2.0,
+              2.0,
+              2.5,
+              2.5,
+              2.5,
+              2.5,
+              2.5,
+              2.5,
+              2.5,
+              2.5,
+              2.5,
+              2.5,
+              2.5,
+              3.0,
+              3.0,
+              3.0,
+              3.0,
+              3.0,
+              3.0,
+              3.0,
+              3.0,
+              3.0,
+              3.0,
+              3.0,
+              3.0,
+              9.0,
+              9.0,
+              9.0,
+              9.0,
+              9.0,
+              9.0,
+              9.0,
+              10.0,
+              10.0,
+              10.0,
+              10.0,
+              10.0,
+              10.0,
+              10.0,
+              11.0,
+              11.0,
+              11.0,
+              11.0,
+              11.0,
+              11.0,
+              11.0,
+              12.0,
+              12.0,
+              12.0,
+              12.0,
+              12.0,
+              12.0,
+              12.0,
+              13.0,
+              13.0,
+              13.0,
+              13.0,
+              13.0,
+              13.0,
+              13.0
+            ],
+            "marker": 245.5,
+            "width": 300,
+            "height": 60,
+            "bins": [
+              {
+                "x0": 2.0,
+                "x1": 2.917,
+                "count": 23
+              },
+              {
+                "x0": 2.917,
+                "x1": 3.833,
+                "count": 12
+              },
+              {
+                "x0": 3.833,
+                "x1": 4.75,
+                "count": 0
+              },
+              {
+                "x0": 4.75,
+                "x1": 5.667,
+                "count": 0
+              },
+              {
+                "x0": 5.667,
+                "x1": 6.583,
+                "count": 0
+              },
+              {
+                "x0": 6.583,
+                "x1": 7.5,
+                "count": 0
+              },
+              {
+                "x0": 7.5,
+                "x1": 8.417,
+                "count": 0
+              },
+              {
+                "x0": 8.417,
+                "x1": 9.333,
+                "count": 7
+              },
+              {
+                "x0": 9.333,
+                "x1": 10.25,
+                "count": 7
+              },
+              {
+                "x0": 10.25,
+                "x1": 11.167,
+                "count": 7
+              },
+              {
+                "x0": 11.167,
+                "x1": 12.083,
+                "count": 7
+              },
+              {
+                "x0": 12.083,
+                "x1": 13.0,
+                "count": 7
+              }
+            ]
+          },
+          "sentence": "Among similar fighters, those who kept more of their fight-week search attention posted a median of 11 times in the month after the fight; the rest posted 2."
+        },
+        {
+          "metric": "media_mix_share",
+          "label": "short-form video share of posts",
+          "fighter_value": 33.3,
+          "fighter_value_text": "33%",
+          "better_median": 44.0,
+          "better_median_text": "44%",
+          "worse_median": 10.0,
+          "worse_median_text": "10%",
+          "n_better": 35,
+          "n_worse": 35,
+          "distribution": {
+            "values": [
+              8.0,
+              8.0,
+              8.0,
+              8.0,
+              8.0,
+              8.0,
+              8.0,
+              9.0,
+              9.0,
+              9.0,
+              9.0,
+              9.0,
+              9.0,
+              9.0,
+              10.0,
+              10.0,
+              10.0,
+              10.0,
+              10.0,
+              10.0,
+              10.0,
+              11.0,
+              11.0,
+              11.0,
+              11.0,
+              11.0,
+              11.0,
+              11.0,
+              12.0,
+              12.0,
+              12.0,
+              12.0,
+              12.0,
+              12.0,
+              12.0,
+              40.0,
+              40.0,
+              40.0,
+              40.0,
+              41.0,
+              41.0,
+              41.0,
+              41.0,
+              42.0,
+              42.0,
+              42.0,
+              42.0,
+              43.0,
+              43.0,
+              43.0,
+              43.0,
+              44.0,
+              44.0,
+              44.0,
+              44.0,
+              45.0,
+              45.0,
+              45.0,
+              46.0,
+              46.0,
+              46.0,
+              47.0,
+              47.0,
+              47.0,
+              48.0,
+              48.0,
+              48.0,
+              49.0,
+              49.0,
+              49.0
+            ],
+            "marker": 185.1,
+            "width": 300,
+            "height": 60,
+            "bins": [
+              {
+                "x0": 8.0,
+                "x1": 11.417,
+                "count": 28
+              },
+              {
+                "x0": 11.417,
+                "x1": 14.833,
+                "count": 7
+              },
+              {
+                "x0": 14.833,
+                "x1": 18.25,
+                "count": 0
+              },
+              {
+                "x0": 18.25,
+                "x1": 21.667,
+                "count": 0
+              },
+              {
+                "x0": 21.667,
+                "x1": 25.083,
+                "count": 0
+              },
+              {
+                "x0": 25.083,
+                "x1": 28.5,
+                "count": 0
+              },
+              {
+                "x0": 28.5,
+                "x1": 31.917,
+                "count": 0
+              },
+              {
+                "x0": 31.917,
+                "x1": 35.333,
+                "count": 0
+              },
+              {
+                "x0": 35.333,
+                "x1": 38.75,
+                "count": 0
+              },
+              {
+                "x0": 38.75,
+                "x1": 42.167,
+                "count": 12
+              },
+              {
+                "x0": 42.167,
+                "x1": 45.583,
+                "count": 11
+              },
+              {
+                "x0": 45.583,
+                "x1": 49.0,
+                "count": 12
+              }
+            ]
+          },
+          "sentence": "Among similar fighters, those who kept more of their fight-week search attention posted a median of 44% of their content as short-form video; the rest posted 10%."
+        },
+        {
+          "metric": "engagement_rate",
+          "label": "per-post engagement rate",
+          "fighter_value": 0.061,
+          "fighter_value_text": "6.1%",
+          "better_median": 0.056,
+          "better_median_text": "5.6%",
+          "worse_median": 0.016,
+          "worse_median_text": "1.6%",
+          "n_better": 35,
+          "n_worse": 35,
+          "distribution": {
+            "values": [
+              0.015,
+              0.015,
+              0.015,
+              0.015,
+              0.015,
+              0.015,
+              0.015,
+              0.015,
+              0.015,
+              0.016,
+              0.016,
+              0.016,
+              0.016,
+              0.016,
+              0.016,
+              0.016,
+              0.016,
+              0.016,
+              0.017,
+              0.017,
+              0.017,
+              0.017,
+              0.017,
+              0.017,
+              0.017,
+              0.017,
+              0.018,
+              0.018,
+              0.018,
+              0.018,
+              0.018,
+              0.018,
+              0.018,
+              0.018,
+              0.018,
+              0.05,
+              0.05,
+              0.05,
+              0.05,
+              0.05,
+              0.052,
+              0.052,
+              0.052,
+              0.052,
+              0.052,
+              0.054,
+              0.054,
+              0.054,
+              0.054,
+              0.054,
+              0.056,
+              0.056,
+              0.056,
+              0.056,
+              0.056,
+              0.058,
+              0.058,
+              0.058,
+              0.058,
+              0.058,
+              0.06,
+              0.06,
+              0.06,
+              0.06,
+              0.06,
+              0.062,
+              0.062,
+              0.062,
+              0.062,
+              0.062
+            ],
+            "marker": 293.6,
+            "width": 300,
+            "height": 60,
+            "bins": [
+              {
+                "x0": 0.015,
+                "x1": 0.019,
+                "count": 35
+              },
+              {
+                "x0": 0.019,
+                "x1": 0.023,
+                "count": 0
+              },
+              {
+                "x0": 0.023,
+                "x1": 0.027,
+                "count": 0
+              },
+              {
+                "x0": 0.027,
+                "x1": 0.031,
+                "count": 0
+              },
+              {
+                "x0": 0.031,
+                "x1": 0.035,
+                "count": 0
+              },
+              {
+                "x0": 0.035,
+                "x1": 0.039,
+                "count": 0
+              },
+              {
+                "x0": 0.039,
+                "x1": 0.042,
+                "count": 0
+              },
+              {
+                "x0": 0.042,
+                "x1": 0.046,
+                "count": 0
+              },
+              {
+                "x0": 0.046,
+                "x1": 0.05,
+                "count": 5
+              },
+              {
+                "x0": 0.05,
+                "x1": 0.054,
+                "count": 10
+              },
+              {
+                "x0": 0.054,
+                "x1": 0.058,
+                "count": 10
+              },
+              {
+                "x0": 0.058,
+                "x1": 0.062,
+                "count": 10
+              }
+            ]
+          },
+          "sentence": "Among similar fighters, those who kept more of their fight-week search attention had a median per-post engagement rate of 5.6%; the rest had 1.6%."
+        },
+        {
+          "metric": "growth_velocity",
+          "label": "follower growth velocity",
+          "fighter_value": 2.4,
+          "fighter_value_text": "+2.4%",
+          "better_median": 2.6,
+          "better_median_text": "+2.6%",
+          "worse_median": -0.3,
+          "worse_median_text": "-0.3%",
+          "n_better": 35,
+          "n_worse": 35,
+          "distribution": {
+            "values": [
+              -0.5,
+              -0.5,
+              -0.5,
+              -0.5,
+              -0.5,
+              -0.5,
+              -0.5,
+              -0.5,
+              -0.5,
+              -0.3,
+              -0.3,
+              -0.3,
+              -0.3,
+              -0.3,
+              -0.3,
+              -0.3,
+              -0.3,
+              -0.3,
+              -0.1,
+              -0.1,
+              -0.1,
+              -0.1,
+              -0.1,
+              -0.1,
+              -0.1,
+              -0.1,
+              0.1,
+              0.1,
+              0.1,
+              0.1,
+              0.1,
+              0.1,
+              0.1,
+              0.1,
+              0.1,
+              2.0,
+              2.0,
+              2.0,
+              2.0,
+              2.0,
+              2.0,
+              2.3,
+              2.3,
+              2.3,
+              2.3,
+              2.3,
+              2.3,
+              2.6,
+              2.6,
+              2.6,
+              2.6,
+              2.6,
+              2.6,
+              2.9,
+              2.9,
+              2.9,
+              2.9,
+              2.9,
+              2.9,
+              3.2,
+              3.2,
+              3.2,
+              3.2,
+              3.2,
+              3.2,
+              3.5,
+              3.5,
+              3.5,
+              3.5,
+              3.5
+            ],
+            "marker": 217.5,
+            "width": 300,
+            "height": 60,
+            "bins": [
+              {
+                "x0": -0.5,
+                "x1": -0.167,
+                "count": 18
+              },
+              {
+                "x0": -0.167,
+                "x1": 0.167,
+                "count": 17
+              },
+              {
+                "x0": 0.167,
+                "x1": 0.5,
+                "count": 0
+              },
+              {
+                "x0": 0.5,
+                "x1": 0.833,
+                "count": 0
+              },
+              {
+                "x0": 0.833,
+                "x1": 1.167,
+                "count": 0
+              },
+              {
+                "x0": 1.167,
+                "x1": 1.5,
+                "count": 0
+              },
+              {
+                "x0": 1.5,
+                "x1": 1.833,
+                "count": 0
+              },
+              {
+                "x0": 1.833,
+                "x1": 2.167,
+                "count": 6
+              },
+              {
+                "x0": 2.167,
+                "x1": 2.5,
+                "count": 6
+              },
+              {
+                "x0": 2.5,
+                "x1": 2.833,
+                "count": 6
+              },
+              {
+                "x0": 2.833,
+                "x1": 3.167,
+                "count": 6
+              },
+              {
+                "x0": 3.167,
+                "x1": 3.5,
+                "count": 11
+              }
+            ]
+          },
+          "sentence": "Among similar fighters, those who kept more of their fight-week search attention grew followers a median of +2.6% over the following 30 days; the rest grew -0.3%."
+        },
+        {
+          "metric": "search_spike_presence",
+          "label": "a confirmed search spike near the fight",
+          "fighter_value": 1.0,
+          "fighter_value_text": "100%",
+          "better_median": 0.6571428571428571,
+          "better_median_text": "66%",
+          "worse_median": 0.0,
+          "worse_median_text": "0%",
+          "n_better": 35,
+          "n_worse": 35,
+          "distribution": {
+            "values": [
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              1.0,
+              1.0,
+              1.0,
+              1.0,
+              1.0,
+              1.0,
+              1.0,
+              1.0,
+              1.0,
+              1.0,
+              1.0,
+              1.0,
+              1.0,
+              1.0,
+              1.0,
+              1.0,
+              1.0,
+              1.0,
+              1.0,
+              1.0,
+              1.0,
+              1.0,
+              1.0
+            ],
+            "marker": 300.0,
+            "width": 300,
+            "height": 60,
+            "bins": [
+              {
+                "x0": 0.0,
+                "x1": 0.083,
+                "count": 47
+              },
+              {
+                "x0": 0.083,
+                "x1": 0.167,
+                "count": 0
+              },
+              {
+                "x0": 0.167,
+                "x1": 0.25,
+                "count": 0
+              },
+              {
+                "x0": 0.25,
+                "x1": 0.333,
+                "count": 0
+              },
+              {
+                "x0": 0.333,
+                "x1": 0.417,
+                "count": 0
+              },
+              {
+                "x0": 0.417,
+                "x1": 0.5,
+                "count": 0
+              },
+              {
+                "x0": 0.5,
+                "x1": 0.583,
+                "count": 0
+              },
+              {
+                "x0": 0.583,
+                "x1": 0.667,
+                "count": 0
+              },
+              {
+                "x0": 0.667,
+                "x1": 0.75,
+                "count": 0
+              },
+              {
+                "x0": 0.75,
+                "x1": 0.833,
+                "count": 0
+              },
+              {
+                "x0": 0.833,
+                "x1": 0.917,
+                "count": 0
+              },
+              {
+                "x0": 0.917,
+                "x1": 1.0,
+                "count": 23
+              }
+            ]
+          },
+          "sentence": "Among similar fighters, those who kept more of their fight-week search attention showed a confirmed search spike near the fight 66% of the time; the rest did so 0% of the time."
+        }
+      ]
     }
-   },
-   {
-    "fight_date": "2025-10-11",
-    "opponent": "Lior Ben-David",
-    "search_afterglow": 0.35,
-    "wiki_afterglow": 0.35,
-    "growth_velocity": 1.02,
-    "peak": 26000.0,
-    "baseline": 300.0,
-    "curve": null
-   }
-  ],
-  "off_cycle": [
-   {
-    "week_start": "2026-06-01",
-    "ratio": 23.9,
-    "baseline": 410.0,
-    "nearest_bout_date": "2026-08-15",
-    "days_from_bout": -73
-   },
-   {
-    "week_start": "2026-02-16",
-    "ratio": 5.38,
-    "baseline": 390.0,
-    "nearest_bout_date": "2026-03-07",
-    "days_from_bout": -17
-   }
-  ],
-  "billing": {
-   "rows": [
-    {
-     "date": "2026-08-15",
-     "event": "UFC 308",
-     "card_section": "Main card",
-     "event_tier": "Numbered event",
-     "actual": 0.91,
-     "expected": 0.7,
-     "signal": 0.21
-    },
-    {
-     "date": "2026-03-07",
-     "event": "UFC 300",
-     "card_section": "Main card",
-     "event_tier": "Numbered event",
-     "actual": 0.78,
-     "expected": 0.6,
-     "signal": 0.18
-    },
-    {
-     "date": "2025-10-11",
-     "event": "UFC Fight Night 250",
-     "card_section": "Early prelims",
-     "event_tier": "Fight Night",
-     "actual": 0.55,
-     "expected": 0.4,
-     "signal": 0.15
-    }
-   ],
-   "chart": {
-    "width": 300,
-    "height": 70,
-    "points": "0,60 150,35 300,10",
-    "extra_points": "0,55 150,40 300,25",
-    "labels": []
-   }
-  },
-  "cohort": {
-   "target": {
-    "metric": "search_afterglow",
-    "label": "fight-week search attention retained 30 days out",
-    "fighter_value": 0.3,
-    "fighter_value_text": "30.0%",
-    "peer_median": 0.29900000000000004,
-    "peer_median_text": "29.9%",
-    "basis": "overall",
-    "n": 70
-   },
-   "differentiators": [
-    {
-     "metric": "post_fight_cadence",
-     "label": "post-fight posting cadence",
-     "fighter_value": 11.0,
-     "fighter_value_text": "11 posts",
-     "better_median": 11.0,
-     "better_median_text": "11 posts",
-     "worse_median": 2.5,
-     "worse_median_text": "2 posts",
-     "n_better": 35,
-     "n_worse": 35,
-     "distribution": {
-      "values": [
-       2.0,
-       2.0,
-       2.0,
-       2.0,
-       2.0,
-       2.0,
-       2.0,
-       2.0,
-       2.0,
-       2.0,
-       2.0,
-       2.0,
-       2.5,
-       2.5,
-       2.5,
-       2.5,
-       2.5,
-       2.5,
-       2.5,
-       2.5,
-       2.5,
-       2.5,
-       2.5,
-       3.0,
-       3.0,
-       3.0,
-       3.0,
-       3.0,
-       3.0,
-       3.0,
-       3.0,
-       3.0,
-       3.0,
-       3.0,
-       3.0,
-       9.0,
-       9.0,
-       9.0,
-       9.0,
-       9.0,
-       9.0,
-       9.0,
-       10.0,
-       10.0,
-       10.0,
-       10.0,
-       10.0,
-       10.0,
-       10.0,
-       11.0,
-       11.0,
-       11.0,
-       11.0,
-       11.0,
-       11.0,
-       11.0,
-       12.0,
-       12.0,
-       12.0,
-       12.0,
-       12.0,
-       12.0,
-       12.0,
-       13.0,
-       13.0,
-       13.0,
-       13.0,
-       13.0,
-       13.0,
-       13.0
-      ],
-      "marker": 245.5,
-      "width": 300,
-      "height": 60,
-      "bins": [
-       {
-        "x0": 2.0,
-        "x1": 2.917,
-        "count": 23
-       },
-       {
-        "x0": 2.917,
-        "x1": 3.833,
-        "count": 12
-       },
-       {
-        "x0": 3.833,
-        "x1": 4.75,
-        "count": 0
-       },
-       {
-        "x0": 4.75,
-        "x1": 5.667,
-        "count": 0
-       },
-       {
-        "x0": 5.667,
-        "x1": 6.583,
-        "count": 0
-       },
-       {
-        "x0": 6.583,
-        "x1": 7.5,
-        "count": 0
-       },
-       {
-        "x0": 7.5,
-        "x1": 8.417,
-        "count": 0
-       },
-       {
-        "x0": 8.417,
-        "x1": 9.333,
-        "count": 7
-       },
-       {
-        "x0": 9.333,
-        "x1": 10.25,
-        "count": 7
-       },
-       {
-        "x0": 10.25,
-        "x1": 11.167,
-        "count": 7
-       },
-       {
-        "x0": 11.167,
-        "x1": 12.083,
-        "count": 7
-       },
-       {
-        "x0": 12.083,
-        "x1": 13.0,
-        "count": 7
-       }
-      ]
-     },
-     "sentence": "Among similar fighters, those who kept more of their fight-week search attention posted a median of 11 times in the month after the fight; the rest posted 2."
-    },
-    {
-     "metric": "media_mix_share",
-     "label": "short-form video share of posts",
-     "fighter_value": 33.3,
-     "fighter_value_text": "33%",
-     "better_median": 44.0,
-     "better_median_text": "44%",
-     "worse_median": 10.0,
-     "worse_median_text": "10%",
-     "n_better": 35,
-     "n_worse": 35,
-     "distribution": {
-      "values": [
-       8.0,
-       8.0,
-       8.0,
-       8.0,
-       8.0,
-       8.0,
-       8.0,
-       9.0,
-       9.0,
-       9.0,
-       9.0,
-       9.0,
-       9.0,
-       9.0,
-       10.0,
-       10.0,
-       10.0,
-       10.0,
-       10.0,
-       10.0,
-       10.0,
-       11.0,
-       11.0,
-       11.0,
-       11.0,
-       11.0,
-       11.0,
-       11.0,
-       12.0,
-       12.0,
-       12.0,
-       12.0,
-       12.0,
-       12.0,
-       12.0,
-       40.0,
-       40.0,
-       40.0,
-       40.0,
-       41.0,
-       41.0,
-       41.0,
-       41.0,
-       42.0,
-       42.0,
-       42.0,
-       42.0,
-       43.0,
-       43.0,
-       43.0,
-       43.0,
-       44.0,
-       44.0,
-       44.0,
-       44.0,
-       45.0,
-       45.0,
-       45.0,
-       46.0,
-       46.0,
-       46.0,
-       47.0,
-       47.0,
-       47.0,
-       48.0,
-       48.0,
-       48.0,
-       49.0,
-       49.0,
-       49.0
-      ],
-      "marker": 185.1,
-      "width": 300,
-      "height": 60,
-      "bins": [
-       {
-        "x0": 8.0,
-        "x1": 11.417,
-        "count": 28
-       },
-       {
-        "x0": 11.417,
-        "x1": 14.833,
-        "count": 7
-       },
-       {
-        "x0": 14.833,
-        "x1": 18.25,
-        "count": 0
-       },
-       {
-        "x0": 18.25,
-        "x1": 21.667,
-        "count": 0
-       },
-       {
-        "x0": 21.667,
-        "x1": 25.083,
-        "count": 0
-       },
-       {
-        "x0": 25.083,
-        "x1": 28.5,
-        "count": 0
-       },
-       {
-        "x0": 28.5,
-        "x1": 31.917,
-        "count": 0
-       },
-       {
-        "x0": 31.917,
-        "x1": 35.333,
-        "count": 0
-       },
-       {
-        "x0": 35.333,
-        "x1": 38.75,
-        "count": 0
-       },
-       {
-        "x0": 38.75,
-        "x1": 42.167,
-        "count": 12
-       },
-       {
-        "x0": 42.167,
-        "x1": 45.583,
-        "count": 11
-       },
-       {
-        "x0": 45.583,
-        "x1": 49.0,
-        "count": 12
-       }
-      ]
-     },
-     "sentence": "Among similar fighters, those who kept more of their fight-week search attention posted a median of 44% of their content as short-form video; the rest posted 10%."
-    },
-    {
-     "metric": "engagement_rate",
-     "label": "per-post engagement rate",
-     "fighter_value": 0.061,
-     "fighter_value_text": "6.1%",
-     "better_median": 0.056,
-     "better_median_text": "5.6%",
-     "worse_median": 0.016,
-     "worse_median_text": "1.6%",
-     "n_better": 35,
-     "n_worse": 35,
-     "distribution": {
-      "values": [
-       0.015,
-       0.015,
-       0.015,
-       0.015,
-       0.015,
-       0.015,
-       0.015,
-       0.015,
-       0.015,
-       0.016,
-       0.016,
-       0.016,
-       0.016,
-       0.016,
-       0.016,
-       0.016,
-       0.016,
-       0.016,
-       0.017,
-       0.017,
-       0.017,
-       0.017,
-       0.017,
-       0.017,
-       0.017,
-       0.017,
-       0.018,
-       0.018,
-       0.018,
-       0.018,
-       0.018,
-       0.018,
-       0.018,
-       0.018,
-       0.018,
-       0.05,
-       0.05,
-       0.05,
-       0.05,
-       0.05,
-       0.052,
-       0.052,
-       0.052,
-       0.052,
-       0.052,
-       0.054,
-       0.054,
-       0.054,
-       0.054,
-       0.054,
-       0.056,
-       0.056,
-       0.056,
-       0.056,
-       0.056,
-       0.058,
-       0.058,
-       0.058,
-       0.058,
-       0.058,
-       0.06,
-       0.06,
-       0.06,
-       0.06,
-       0.06,
-       0.062,
-       0.062,
-       0.062,
-       0.062,
-       0.062
-      ],
-      "marker": 293.6,
-      "width": 300,
-      "height": 60,
-      "bins": [
-       {
-        "x0": 0.015,
-        "x1": 0.019,
-        "count": 35
-       },
-       {
-        "x0": 0.019,
-        "x1": 0.023,
-        "count": 0
-       },
-       {
-        "x0": 0.023,
-        "x1": 0.027,
-        "count": 0
-       },
-       {
-        "x0": 0.027,
-        "x1": 0.031,
-        "count": 0
-       },
-       {
-        "x0": 0.031,
-        "x1": 0.035,
-        "count": 0
-       },
-       {
-        "x0": 0.035,
-        "x1": 0.039,
-        "count": 0
-       },
-       {
-        "x0": 0.039,
-        "x1": 0.042,
-        "count": 0
-       },
-       {
-        "x0": 0.042,
-        "x1": 0.046,
-        "count": 0
-       },
-       {
-        "x0": 0.046,
-        "x1": 0.05,
-        "count": 5
-       },
-       {
-        "x0": 0.05,
-        "x1": 0.054,
-        "count": 10
-       },
-       {
-        "x0": 0.054,
-        "x1": 0.058,
-        "count": 10
-       },
-       {
-        "x0": 0.058,
-        "x1": 0.062,
-        "count": 10
-       }
-      ]
-     },
-     "sentence": "Among similar fighters, those who kept more of their fight-week search attention had a median per-post engagement rate of 5.6%; the rest had 1.6%."
-    },
-    {
-     "metric": "growth_velocity",
-     "label": "follower growth velocity",
-     "fighter_value": 2.4,
-     "fighter_value_text": "+2.4%",
-     "better_median": 2.6,
-     "better_median_text": "+2.6%",
-     "worse_median": -0.3,
-     "worse_median_text": "-0.3%",
-     "n_better": 35,
-     "n_worse": 35,
-     "distribution": {
-      "values": [
-       -0.5,
-       -0.5,
-       -0.5,
-       -0.5,
-       -0.5,
-       -0.5,
-       -0.5,
-       -0.5,
-       -0.5,
-       -0.3,
-       -0.3,
-       -0.3,
-       -0.3,
-       -0.3,
-       -0.3,
-       -0.3,
-       -0.3,
-       -0.3,
-       -0.1,
-       -0.1,
-       -0.1,
-       -0.1,
-       -0.1,
-       -0.1,
-       -0.1,
-       -0.1,
-       0.1,
-       0.1,
-       0.1,
-       0.1,
-       0.1,
-       0.1,
-       0.1,
-       0.1,
-       0.1,
-       2.0,
-       2.0,
-       2.0,
-       2.0,
-       2.0,
-       2.0,
-       2.3,
-       2.3,
-       2.3,
-       2.3,
-       2.3,
-       2.3,
-       2.6,
-       2.6,
-       2.6,
-       2.6,
-       2.6,
-       2.6,
-       2.9,
-       2.9,
-       2.9,
-       2.9,
-       2.9,
-       2.9,
-       3.2,
-       3.2,
-       3.2,
-       3.2,
-       3.2,
-       3.2,
-       3.5,
-       3.5,
-       3.5,
-       3.5,
-       3.5
-      ],
-      "marker": 217.5,
-      "width": 300,
-      "height": 60,
-      "bins": [
-       {
-        "x0": -0.5,
-        "x1": -0.167,
-        "count": 18
-       },
-       {
-        "x0": -0.167,
-        "x1": 0.167,
-        "count": 17
-       },
-       {
-        "x0": 0.167,
-        "x1": 0.5,
-        "count": 0
-       },
-       {
-        "x0": 0.5,
-        "x1": 0.833,
-        "count": 0
-       },
-       {
-        "x0": 0.833,
-        "x1": 1.167,
-        "count": 0
-       },
-       {
-        "x0": 1.167,
-        "x1": 1.5,
-        "count": 0
-       },
-       {
-        "x0": 1.5,
-        "x1": 1.833,
-        "count": 0
-       },
-       {
-        "x0": 1.833,
-        "x1": 2.167,
-        "count": 6
-       },
-       {
-        "x0": 2.167,
-        "x1": 2.5,
-        "count": 6
-       },
-       {
-        "x0": 2.5,
-        "x1": 2.833,
-        "count": 6
-       },
-       {
-        "x0": 2.833,
-        "x1": 3.167,
-        "count": 6
-       },
-       {
-        "x0": 3.167,
-        "x1": 3.5,
-        "count": 11
-       }
-      ]
-     },
-     "sentence": "Among similar fighters, those who kept more of their fight-week search attention grew followers a median of +2.6% over the following 30 days; the rest grew -0.3%."
-    },
-    {
-     "metric": "search_spike_presence",
-     "label": "a confirmed search spike near the fight",
-     "fighter_value": 1.0,
-     "fighter_value_text": "100%",
-     "better_median": 0.6571428571428571,
-     "better_median_text": "66%",
-     "worse_median": 0.0,
-     "worse_median_text": "0%",
-     "n_better": 35,
-     "n_worse": 35,
-     "distribution": {
-      "values": [
-       0.0,
-       0.0,
-       0.0,
-       0.0,
-       0.0,
-       0.0,
-       0.0,
-       0.0,
-       0.0,
-       0.0,
-       0.0,
-       0.0,
-       0.0,
-       0.0,
-       0.0,
-       0.0,
-       0.0,
-       0.0,
-       0.0,
-       0.0,
-       0.0,
-       0.0,
-       0.0,
-       0.0,
-       0.0,
-       0.0,
-       0.0,
-       0.0,
-       0.0,
-       0.0,
-       0.0,
-       0.0,
-       0.0,
-       0.0,
-       0.0,
-       0.0,
-       0.0,
-       0.0,
-       0.0,
-       0.0,
-       0.0,
-       0.0,
-       0.0,
-       0.0,
-       0.0,
-       0.0,
-       0.0,
-       1.0,
-       1.0,
-       1.0,
-       1.0,
-       1.0,
-       1.0,
-       1.0,
-       1.0,
-       1.0,
-       1.0,
-       1.0,
-       1.0,
-       1.0,
-       1.0,
-       1.0,
-       1.0,
-       1.0,
-       1.0,
-       1.0,
-       1.0,
-       1.0,
-       1.0,
-       1.0
-      ],
-      "marker": 300.0,
-      "width": 300,
-      "height": 60,
-      "bins": [
-       {
-        "x0": 0.0,
-        "x1": 0.083,
-        "count": 47
-       },
-       {
-        "x0": 0.083,
-        "x1": 0.167,
-        "count": 0
-       },
-       {
-        "x0": 0.167,
-        "x1": 0.25,
-        "count": 0
-       },
-       {
-        "x0": 0.25,
-        "x1": 0.333,
-        "count": 0
-       },
-       {
-        "x0": 0.333,
-        "x1": 0.417,
-        "count": 0
-       },
-       {
-        "x0": 0.417,
-        "x1": 0.5,
-        "count": 0
-       },
-       {
-        "x0": 0.5,
-        "x1": 0.583,
-        "count": 0
-       },
-       {
-        "x0": 0.583,
-        "x1": 0.667,
-        "count": 0
-       },
-       {
-        "x0": 0.667,
-        "x1": 0.75,
-        "count": 0
-       },
-       {
-        "x0": 0.75,
-        "x1": 0.833,
-        "count": 0
-       },
-       {
-        "x0": 0.833,
-        "x1": 0.917,
-        "count": 0
-       },
-       {
-        "x0": 0.917,
-        "x1": 1.0,
-        "count": 23
-       }
-      ]
-     },
-     "sentence": "Among similar fighters, those who kept more of their fight-week search attention showed a confirmed search spike near the fight 66% of the time; the rest did so 0% of the time."
-    }
-   ]
   }
- }
 }
