@@ -31,10 +31,22 @@
 
 /* ── HEADER: the fighter's name is the largest mark on the page ── */
 .pub-head { padding: clamp(3rem, 10vw, 5rem) 0 clamp(2rem, 5vw, 3rem); }
+/* Two lines, both fitted to the same measure by pub-fit.js -- the given name(s) over the
+   surname, so a long surname never wraps under a short given name. The clamp below is the
+   no-script size: legible, just not fitted. `nowrap` is safe because the fit only ever
+   shrinks a line to the container, and without the script the clamp is small enough that
+   the longest real surnames still sit inside 640px. */
 .pub-name {
     font-family: 'Red Hat Display', sans-serif; font-weight: 800;
-    font-size: clamp(2.25rem, 11vw, 4.25rem); line-height: 0.98; letter-spacing: -0.02em;
-    overflow-wrap: anywhere;
+    line-height: 0.92; letter-spacing: -0.02em;
+    /* A name long enough to need less than the 12px floor would otherwise push the page
+       sideways; clipping the overhang keeps the promise that no page scrolls horizontally.
+       No real name comes close -- "Nurmagomedov" wants 30px at a phone measure. */
+    overflow: hidden;
+}
+.pub-name-line {
+    display: block; white-space: nowrap;
+    font-size: clamp(2.25rem, 11vw, 4.25rem);
 }
 .pub-nick { margin-top: 0.6rem; font-size: 1.05rem; color: var(--t2); }
 .pub-meta { margin-top: 0.9rem; font-size: 0.88rem; color: var(--t2); }

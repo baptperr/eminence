@@ -24,7 +24,7 @@ const SITE = (process.env.SITE_URL || 'https://firstlight.agency').replace(/\/$/
 const STATIC = [
     'index.html', 'privacy.html', '_redirects',
     'style.css', 'pages.css', 'manifesto.css', 'publication.css',
-    'nav.js', 'menu.js', 'manifesto.js',
+    'nav.js', 'menu.js', 'manifesto.js', 'pub-fit.js',
     'favicon.png', 'logo.png', 'logo.svg',
     'fonts',
     'hero-pc.mp4', 'hero-mobile.mp4', 'brand-universal.mp4', 'promote.mp4', 'monetize.mp4',
@@ -145,7 +145,7 @@ ${routes.map((r) => `  <url><loc>${SITE}${r.url}</loc>${r.lastmod ? `<lastmod>${
 // Cloudflare lets browsers keep a stylesheet or script for four hours, and a page is fetched fresh, so
 // a returning visitor could pair a new page with an old stylesheet (an unstyled dropdown, for one).
 // Every local css/js reference gets ?v=<hash of that file's content>, so a changed file is a new URL.
-const VERSIONED = ['style.css', 'pages.css', 'manifesto.css', 'publication.css', 'nav.js', 'menu.js', 'manifesto.js'];
+const VERSIONED = ['style.css', 'pages.css', 'manifesto.css', 'publication.css', 'nav.js', 'menu.js', 'manifesto.js', 'pub-fit.js'];
 async function versionAssets() {
     const hashes = {};
     for (const f of VERSIONED) {

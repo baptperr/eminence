@@ -42,7 +42,7 @@ const FOOTER = `<footer>
 //                  no nav, no logo and no links out at all.
 // Existing call sites are unaffected: `priv: true` (the old private-page behaviour) is exactly
 // `noindex: true, og: false`, and every other site still gets its nav.
-function shell({ title, description, url, site, current, body, css = ['/pages.css'], bodyClass = '', noindex = false, og = true, nav = true, scripts = true }) {
+function shell({ title, description, url, site, current, body, css = ['/pages.css'], bodyClass = '', noindex = false, og = true, nav = true, scripts = true, js = null }) {
     const head = [];
     if (noindex) {
         head.push('<meta name="robots" content="noindex, nofollow, noarchive, nosnippet">', '<meta name="referrer" content="no-referrer">');
@@ -75,7 +75,12 @@ ${css.map((c) => `    <link rel="stylesheet" href="${c}">`).join('\n')}
 <body class="${bodyClass}">
 
 ${nav ? `${NAV(current)}\n\n` : ''}${body}
-${scripts ? `
+${js
+    // An explicit list replaces the site's own scripts rather than adding to them: the
+    // publication pages have no nav and no menu to drive, so shipping menu.js there
+    // would be a request that does nothing.
+    ? js.map((src) => `<script src="${src}" defer></script>`).join('\n')
+    : scripts ? `
 <script src="/menu.js"></script>
 <script src="/nav.js"></script>` : '<script src="/menu.js"></script>'}
 </body>
@@ -838,6 +843,25 @@ function resultTone(result) {
 // while keeping the short code where it is part of the name. A second strip here turned
 // "UFC 308" into a bare "308", which is why there is no longer one.
 
+// The fighter's name is the page's wordmark, so it is set like the site's own hero: the
+// last name on its own line, both lines fitted to the SAME measure. A long surname
+// ("Nurmagomedov") otherwise wraps mid-name under a short given name, which reads as a
+// layout accident on the one element the page is built around.
+//
+// The split is on the LAST space: everything before it is line one, the final word is
+// line two. A single-word name renders as one line and is simply fitted on its own.
+// The equal-width fit itself happens in the browser (pub-fit.js) by binary search, the
+// same technique index.html uses for the hero and the creed; with no script the clamp
+// size in publication.css still renders both lines legibly, it just does not fit them.
+function nameLines(full) {
+    const name = (full ?? '').trim();
+    if (!name) return '';
+    const cut = name.lastIndexOf(' ');
+    const lines = cut === -1 ? [name] : [name.slice(0, cut), name.slice(cut + 1)];
+    return `<h1 class="pub-name" data-fit-name>${lines
+        .map((l) => `<span class="pub-name-line">${esc(l)}</span>`).join('')}</h1>`;
+}
+
 // ── media kit ──
 
 function recordText(r) {
@@ -1028,7 +1052,7 @@ export function mediaKitPage({ page, site }) {
     const body = `<main class="pub">
     <header class="pub-head">
         <div class="pub-inner">
-            <h1 class="pub-name">${esc(f.name)}</h1>${f.nickname ? `
+            ${nameLines(f.name)}${f.nickname ? `
             <p class="pub-nick">“${esc(f.nickname)}”</p>` : ''}${headerMeta ? `
             <p class="pub-meta">${esc(headerMeta)}</p>` : ''}
             <p class="pub-asof">Data measured on ${fmtDate(page.measured_on)}.</p>
@@ -1061,7 +1085,7 @@ ${PUB_FOOTER}`;
         title: `${f.name} — Media kit — FIRST LIGHT`,
         description: `Audience and performance measurement for ${f.name}, measured ${page.measured_on}.`,
         url: '', site, current: null, body,
-        css: ['/publication.css'], noindex: true, og: true, nav: false,
+        css: ['/publication.css'], noindex: true, og: true, nav: false, js: ['/pub-fit.js'],
     });
 }
 
@@ -1295,7 +1319,7 @@ export function internalDataPage({ page, site }) {
     const body = `<main class="pub">
     <header class="pub-head">
         <div class="pub-inner">
-            <h1 class="pub-name">${esc(page.fighter_name)}</h1>
+            ${nameLines(page.fighter_name)}
             <p class="pub-asof">Data measured on ${fmtDate(page.measured_on)}.</p>
         </div>
     </header>
@@ -1323,6 +1347,6 @@ ${PUB_FOOTER}`;
         title: `${page.fighter_name} — Internal data — FIRST LIGHT`,
         description: `Internal measurement for ${page.fighter_name}'s management team, measured ${page.measured_on}.`,
         url: '', site, current: null, body,
-        css: ['/publication.css'], noindex: true, og: true, nav: false,
+        css: ['/publication.css'], noindex: true, og: true, nav: false, js: ['/pub-fit.js'],
     });
 }
