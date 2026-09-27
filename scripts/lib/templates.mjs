@@ -338,7 +338,7 @@ function subtabs(current, hasWinners) {
 }
 
 const KEY = `
-    <section class="key" aria-label="How to read the rankings">
+    <section class="key" id="key" aria-label="How to read the rankings">
         <div class="pg-inner pg-inner--wide">
             <div class="key-item" data-r>
                 <h2 class="key-name">FLR</h2>
@@ -574,26 +574,94 @@ const PUB_FOOTER = `<footer class="pub-foot">
     <div class="pub-inner"><p class="pub-foot-line">Data measured by the First Light Observatory · <a href="mailto:contact@firstlight.agency">contact@firstlight.agency</a></p></div>
 </footer>`;
 
-// The <series> geometry both repos share: {width, height, points, extra_points|null, labels}.
-// Computed in Python at generation time; this only draws it, following the sparkline() idiom
-// above — no client-side charting, nothing recomputed. `points` is always the fighter's own
-// series (bone/white); `extra_points`, when present, is the peer or reference series (mid-grey)
-// — the only two series either payload ever asks for.
-function chart(series) {
+// ── the one chart component ──
+//
+// Both pages are almost entirely numbers, and the owner's one complaint that mattered was
+// "line shape only — no axes, no ticks, no units, no legend, monochrome". Rather than fixing
+// that six times, everything that plots a <series> (the {width,height,points,extra_points,
+// labels} geometry the Observatory computes and both repos already share) goes through panel()
+// below. It moves to the Observatory's own ground for this one purpose — dark blue-green
+// surface, monospace figures, hairline grid — while the rest of the page keeps the site's own
+// type. `points` is always the fighter's own series; `extra_points`, when present, is the peer
+// or reference series (the contract's own convention, unchanged).
+//
+// Real ticks need a real domain, and the geometry the payload sends is pre-scaled pixels with
+// no domain attached (no y-min/max, no x start/end date) — the contract doesn't carry one yet.
+// Rather than invent a scale, panel() only ever labels a tick with a number the payload already
+// gave it somewhere else on the same page (a baseline, a peak, a row's own actual/expected, a
+// fight's own date) and places that label at the pixel the curve itself already puts it at.
+// Nothing here is a guess; see the build report for the domain fields that would remove the
+// remaining gaps (a continuous date axis on a curve with no per-row anchor to zip against).
+function parsePts(s) {
+    return String(s).trim().split(/\s+/).filter(Boolean).map((p) => p.split(',').map(Number));
+}
+function nearestY(pointsStr, x) {
+    const pts = parsePts(pointsStr);
+    if (!pts.length) return 0;
+    let best = pts[0];
+    for (const p of pts) if (Math.abs(p[0] - x) < Math.abs(best[0] - x)) best = p;
+    return best[1];
+}
+// Labels the curve's own highest and lowest point with a real number already sitting elsewhere
+// in the payload (a peak, a baseline) — never a value read off the pixel geometry itself.
+function extremeRefs(series, { hi, lo } = {}) {
+    if (!series || (hi == null && lo == null)) return [];
+    const pts = parsePts(series.points);
+    if (!pts.length) return [];
+    const out = [];
+    if (hi != null) out.push({ y: pts.reduce((a, b) => (b[1] < a[1] ? b : a))[1], text: hi });
+    if (lo != null) out.push({ y: pts.reduce((a, b) => (b[1] > a[1] ? b : a))[1], text: lo });
+    return out;
+}
+// Cross-references a marker's free text ("vs. Yusuf Demir") against bouts already named
+// elsewhere in the same payload, so the marker can carry the fight's real date without the
+// payload having to send the same date twice.
+function withBoutDate(text, bouts) {
+    const hit = (bouts ?? []).find((b) => b?.opponent && b?.date && text.includes(b.opponent));
+    return hit ? `${fmtDate(hit.date)} · ${text}` : text;
+}
+const TONE_LINE = { good: 'good', bad: 'bad', accent: 'accent', neutral: 'neutral' };
+function panel(series, opts = {}) {
     if (!series) return '';
-    const extra = series.extra_points ? `<polyline class="pub-chart-extra" points="${esc(series.extra_points)}"/>` : '';
-    const labels = (series.labels ?? [])
-        .map((l) => `<text x="${l.x}" y="${l.y}" class="pub-chart-label">${esc(l.text)}</text>`).join('');
-    return `<svg class="pub-chart" viewBox="0 0 ${series.width} ${series.height}" width="${series.width}" height="${series.height}" aria-hidden="true" focusable="false">${extra}<polyline class="pub-chart-main" points="${esc(series.points)}"/>${labels}</svg>`;
+    const {
+        unit, mainLabel = 'This fighter', refLabel = 'Similar fighters',
+        yRefs = [], bouts = [], caption, tone: seriesTone = 'accent',
+    } = opts;
+    const W = series.width, H = series.height, padTop = 16, padBottom = 34;
+    const grid = [0.25, 0.5, 0.75].map((f) => `<line class="pub-grid-line" x1="0" x2="${W}" y1="${(H * f).toFixed(1)}" y2="${(H * f).toFixed(1)}"/>`).join('');
+    const refLines = yRefs.map((r) => `<g class="pub-ref"><line class="pub-ref-line" x1="0" x2="${W}" y1="${r.y.toFixed(1)}" y2="${r.y.toFixed(1)}"/><text class="pub-ref-label" x="${W}" y="${(r.y - 4).toFixed(1)}" text-anchor="end">${esc(r.text)}</text></g>`).join('');
+    const extra = series.extra_points ? `<polyline class="pub-series pub-series--ref" points="${esc(series.extra_points)}"/>` : '';
+    const main = `<polyline class="pub-series pub-series--main pub-tone-line-${TONE_LINE[seriesTone] ?? 'accent'}" points="${esc(series.points)}"/>`;
+    // Two marks closer together than this collide if both labels sit on the same line, so
+    // adjacent marks alternate a line lower — a leader (the dashed line itself) still ties each
+    // label back to its own point, cheaper than computing real label widths.
+    const labels = series.labels ?? [];
+    const withBout = labels.map((l) => withBoutDate(l.text, bouts));
+    // These labels are free text of unknown width, so rather than measure it, every other one
+    // simply sits a line lower — two neighbours can never collide, however wide their text.
+    const marks = labels.map((l, i) => {
+        const y = nearestY(series.points, l.x);
+        const ly = H + 15 + (labels.length > 1 && i % 2 === 1 ? 11 : 0);
+        // A label centred on a mark right at the chart's edge would spill past the panel;
+        // the two end marks anchor inward instead, everything else stays centred on its line.
+        const anchor = l.x < W * 0.08 ? 'start' : l.x > W * 0.92 ? 'end' : 'middle';
+        return `<g class="pub-mark"><line class="pub-mark-line" x1="${l.x}" x2="${l.x}" y1="0" y2="${H}"/><circle class="pub-mark-dot" cx="${l.x}" cy="${y.toFixed(1)}" r="3.5"/><text class="pub-mark-label" x="${l.x}" y="${ly}" text-anchor="${anchor}">${esc(withBout[i])}</text></g>`;
+    }).join('');
+    const legend = series.extra_points ? `<div class="pub-legend"><span class="pub-legend-item"><i class="pub-legend-swatch pub-legend-swatch--main"></i>${esc(mainLabel)}</span><span class="pub-legend-item"><i class="pub-legend-swatch pub-legend-swatch--ref"></i>${esc(refLabel)}</span></div>` : '';
+    return `<figure class="pub-panel">
+        <svg class="pub-panel-svg" viewBox="0 -${padTop} ${W} ${H + padTop + padBottom}" role="img" aria-label="${esc(caption || unit || 'chart')}">
+            <g class="pub-grid">${grid}</g>
+            ${refLines}
+            ${extra}
+            ${main}
+            <g class="pub-marks">${marks}</g>
+        </svg>
+        ${legend}${unit ? `<p class="pub-panel-unit">${esc(unit)}</p>` : ''}
+    </figure>`;
 }
 
-// A small histogram for cohort.differentiators[].distribution. The contract doesn't pin down
-// the exact shape of `bins`, beyond that it sits alongside pre-computed geometry (width, height)
-// the same way every other chart here does — so bar heights are read off `bins` (a plain number,
-// or an object carrying one under "count" or "height") and spaced evenly across the box; `marker`
-// is read as the fighter's own value, in the same units as `values`, and placed proportionally
-// across the range those values span. Peer bars in mid-grey, the fighter's own position in bone,
-// matching every other chart in the payload.
+// A histogram for cohort.differentiators[].distribution, on the same Observatory ground: peer
+// bars quiet, this fighter's own position the one bright mark, exactly the funnel's convention.
 function distributionChart(dist) {
     const { values, marker, width, height, bins } = dist;
     const heights = bins.map((b) => (typeof b === 'number' ? b : (b?.count ?? b?.height ?? 0)));
@@ -610,16 +678,103 @@ function distributionChart(dist) {
     if (marker != null && values?.length) {
         const lo = Math.min(...values), hi = Math.max(...values);
         const mx = hi > lo ? ((marker - lo) / (hi - lo)) * width : width / 2;
-        markerMark = `<line class="pub-dist-marker" x1="${mx.toFixed(1)}" x2="${mx.toFixed(1)}" y1="0" y2="${height}"/><circle class="pub-dist-marker-dot" cx="${mx.toFixed(1)}" cy="0" r="3"/>`;
+        markerMark = `<line class="pub-dist-marker" x1="${mx.toFixed(1)}" x2="${mx.toFixed(1)}" y1="0" y2="${height}"/><circle class="pub-dist-marker-dot" cx="${mx.toFixed(1)}" cy="0" r="3.5"/>`;
     }
-    return `<svg class="pub-dist" viewBox="0 0 ${width} ${height}" width="${width}" height="${height}" aria-hidden="true" focusable="false">${bars}${markerMark}</svg>`;
+    return `<figure class="pub-panel pub-panel--dist">
+        <svg class="pub-panel-svg" viewBox="0 0 ${width} ${height}" role="img" aria-label="Distribution across similar fighters, with this fighter's own value marked">${bars}${markerMark}</svg>
+        <div class="pub-legend"><span class="pub-legend-item"><i class="pub-legend-swatch pub-legend-swatch--main"></i>This fighter</span><span class="pub-legend-item"><i class="pub-legend-swatch pub-legend-swatch--ref"></i>Similar fighters</span></div>
+    </figure>`;
+}
+
+// A horizontal bar panel for relative indices (Markets' two measures): one hue, top item = 100.
+function barsChart(items, opts = {}) {
+    if (!items?.length) return '';
+    const { unit } = opts;
+    const W = 300, rowH = 22, gapY = 8, labelW = 100;
+    const H = items.length * (rowH + gapY) - gapY;
+    const maxV = Math.max(...items.map((i) => i.value), 1);
+    const barsW = W - labelW - 34;
+    const rows = items.map((it, i) => {
+        const y = i * (rowH + gapY);
+        const w = Math.max(2, (it.value / maxV) * barsW);
+        return `<text class="pub-bar-label" x="0" y="${(y + rowH / 2 + 4).toFixed(1)}">${esc(it.label)}</text><rect class="pub-bar" x="${labelW}" y="${y.toFixed(1)}" width="${w.toFixed(1)}" height="${rowH - 5}" rx="2"/><text class="pub-bar-value" x="${(labelW + w + 7).toFixed(1)}" y="${(y + rowH / 2 + 4).toFixed(1)}">${Math.round(it.value)}</text>`;
+    }).join('');
+    return `<figure class="pub-panel pub-panel--bars">
+        <svg class="pub-panel-svg" viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(unit || 'index by market')}">${rows}</svg>
+        ${unit ? `<p class="pub-panel-unit">${esc(unit)}</p>` : ''}
+    </figure>`;
+}
+
+// The attention funnel, drawn as a funnel: one continuous silhouette, band width at each stage
+// = the retention index the assembler already computed (typical similar fighter = 100, the
+// dashed tube), the same idiom the Observatory's own panel uses. Colour is tone() again — wider
+// than typical reads green, narrower reads red, both shaded by how far from 100 they sit.
+function funnelGraphic(fn) {
+    const g = fn?.graphic;
+    if (!g || !Array.isArray(g.segments) || !g.segments.length) return '';
+    const bandH = 46, padTop = 6, padBottom = 6;
+    const H = g.segments.length * bandH + padTop + padBottom;
+    const W = g.width || 420;
+    const typical = g.typical_width || 100;
+    const maxW = Math.max(typical, ...g.segments.map((s) => s.width), 1);
+    const usable = W / 2 - 16;
+    const half = (w) => Math.max(2, (w / maxW) * usable);
+    const cx = W / 2;
+    const bands = g.segments.map((s, i) => {
+        const y0 = padTop + i * bandH, y1 = y0 + bandH;
+        const hTop = half(s.width);
+        const hBot = half(i + 1 < g.segments.length ? g.segments[i + 1].width : s.width);
+        const t = tone((s.width - typical) / typical, 1);
+        const cls = t.cls === 'fli-pos' ? 'good' : t.cls === 'fli-neg' ? 'bad' : 'zero';
+        const d = `M${(cx - hTop).toFixed(1)} ${y0} L${(cx + hTop).toFixed(1)} ${y0} L${(cx + hBot).toFixed(1)} ${y1} L${(cx - hBot).toFixed(1)} ${y1} Z`;
+        return `<path class="pub-funnel-band pub-funnel-band--${cls}" style="--m:${t.m}" d="${d}"/>`;
+    }).join('');
+    const dividers = g.segments.slice(0, -1).map((s, i) => {
+        const y = padTop + (i + 1) * bandH;
+        const h = half(g.segments[i + 1].width);
+        return `<line class="pub-funnel-div" x1="${(cx - h).toFixed(1)}" x2="${(cx + h).toFixed(1)}" y1="${y}" y2="${y}"/>`;
+    }).join('');
+    const tubeHalf = half(typical);
+    const tube = `<line class="pub-funnel-tube" x1="${(cx - tubeHalf).toFixed(1)}" x2="${(cx - tubeHalf).toFixed(1)}" y1="0" y2="${H}"/><line class="pub-funnel-tube" x1="${(cx + tubeHalf).toFixed(1)}" x2="${(cx + tubeHalf).toFixed(1)}" y1="0" y2="${H}"/>`;
+    const idx = g.segments.map((s, i) => {
+        const y = padTop + i * bandH + bandH / 2 + 4;
+        return `<text class="pub-funnel-idx" x="${W - 8}" y="${y.toFixed(1)}" text-anchor="end">${Math.round(s.width)}</text>`;
+    }).join('');
+    return `<figure class="pub-panel pub-panel--funnel">
+        <svg class="pub-panel-svg" viewBox="0 0 ${W} ${H}" role="img" aria-label="Attention funnel: how much of this fighter's audience is left at each stage, relative to a typical fighter at the same level">
+            <g class="pub-grid">${tube}</g>
+            ${bands}${dividers}${idx}
+        </svg>
+        <div class="pub-legend"><span class="pub-legend-item"><i class="pub-legend-swatch pub-legend-swatch--main"></i>This fighter</span><span class="pub-legend-item pub-legend-item--tube">Dashed = a typical similar fighter (100)</span></div>
+    </figure>`;
+}
+
+// A small centred bar for the FLI's own −1..+1 range, the rankings page's own rk-bar idiom
+// (see fliAttrs/fliCell above), reused rather than invented twice.
+function fliRangeBar(score) {
+    if (score == null) return '';
+    const t = tone(score, 0.6);
+    const w = (Math.min(Math.abs(score), 1) * 50).toFixed(1);
+    const side = score < 0 ? 'neg' : 'pos';
+    return `<div class="pub-fli-bar" role="img" aria-label="First Light Index ${signed(score, 2)} on a scale from -1 to +1, ${score < 0 ? 'below' : 'above'} the midpoint">
+        <span class="pub-fli-bar-track"><span class="pub-fli-bar-fill pub-fli-bar-fill--${side}" style="width:${w}%; --m:${t.m}"></span></span>
+        <span class="pub-fli-bar-scale"><span>−1</span><span>0</span><span>+1</span></span>
+    </div>`;
 }
 
 const pct = (v, digits = 1) => `${(v * 100).toFixed(digits)}%`;
+const median = (nums) => {
+    const s = nums.filter((n) => n != null).sort((a, b) => a - b);
+    if (!s.length) return null;
+    const mid = Math.floor(s.length / 2);
+    return s.length % 2 ? s[mid] : (s[mid - 1] + s[mid]) / 2;
+};
 
+// label may be a plain string, or {html} when it needs to carry markup (the FLI/FLR hover-link).
 function stat(value, label) {
     if (value == null) return '';
-    return `<div class="pub-stat"><span class="pub-stat-n">${esc(value)}</span><span class="pub-stat-label">${esc(label)}</span></div>`;
+    const lbl = label && typeof label === 'object' ? label.html : esc(label);
+    return `<div class="pub-stat"><span class="pub-stat-n">${esc(value)}</span><span class="pub-stat-label">${lbl}</span></div>`;
 }
 function statRow(items) {
     const parts = items.filter(([v]) => v != null).map(([v, l]) => stat(v, l));
@@ -628,6 +783,8 @@ function statRow(items) {
 
 // A plain table for internal-data's multi-column rows (geography, off-cycle, billing). Cells
 // arrive pre-escaped/pre-formatted by the caller, the same convention privatePage's rows() uses.
+// Wrapped so a table wider than the phone it's read on visibly continues past the edge, rather
+// than looking like the row simply ends (see .pub-table-wrap in publication.css).
 function table(headers, rows) {
     if (!rows.length) return '';
     return `<div class="pub-table-wrap"><table class="pub-table">
@@ -636,15 +793,45 @@ function table(headers, rows) {
             </table></div>`;
 }
 
-function section(id, heading, inner) {
+// A section always shows its explanation before its numbers. `note` is the payload's own
+// per-fighter sentence where the contract defines one (still landing — see the build report);
+// until then a fixed, evergreen line explains the section itself, exactly the pattern this file
+// already uses for engagement_basis: the page's own words, never invented data.
+function section(id, heading, inner, note) {
     if (!inner) return '';
     return `
     <section class="pub-section" aria-labelledby="${id}">
         <div class="pub-inner">
             <h2 class="pub-h2" id="${id}">${esc(heading)}</h2>
+            ${note ? `<p class="pub-note pub-note--lead">${esc(note)}</p>` : ''}
             ${inner}
         </div>
     </section>`;
+}
+
+// FLI/FLR: named, defined on hover, and linked to the rankings key — reusing the exact one-line
+// descriptions HINT_FLR/HINT_FLI already put on /index/, not a second, drifting copy of them.
+const KEY_HREF = '/index/#key';
+const hintLink = (label, name, desc) =>
+    `<a class="hint pub-hint" href="${KEY_HREF}">${label}<span class="hint-tip"><strong>${esc(name)}</strong><span class="hint-desc">${esc(desc)}</span></span></a>`;
+const fliHint = () => hintLink('FLI', 'First Light Index', 'fame compared to skill');
+const flrHint = () => hintLink('FLR', 'First Light Rating', 'measure of true skill');
+
+// Win green, loss red, a draw stays neutral — reusing tone()'s own two colours rather than a
+// second palette, the same rule the spec asks the charts to follow.
+function resultTone(result) {
+    const r = String(result ?? '').toLowerCase();
+    if (r.startsWith('w')) return 'good';
+    if (r.startsWith('l')) return 'bad';
+    return 'neutral';
+}
+// "UFC 308" beside a promotion column that already says "UFC" repeats itself; strip the leading
+// promotion name (case-insensitively) and fall back to the full event name if that would empty it.
+function dropPromotionPrefix(event, promotion) {
+    if (!promotion) return event;
+    const re = new RegExp(`^${promotion.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\s+`, 'i');
+    const stripped = event.replace(re, '');
+    return stripped.trim() ? stripped : event;
 }
 
 // ── media kit ──
@@ -661,14 +848,16 @@ function streakText(s) {
     return `${s.n} ${word}${s.n === 1 ? '' : 's'} in a row`;
 }
 
-function rankText(r) {
-    if (!r) return null;
-    return r.is_champion ? `${r.source} ${r.division} champion` : `${r.source} ${r.division} — #${r.rank}`;
+// A discreet line, not a stat tile: "Bantamweight: #84 ranked (First Light Skill Rankings)".
+function rankLine(r) {
+    if (!r) return '';
+    const place = r.is_champion ? 'Champion' : `#${r.rank} ranked`;
+    return `<p class="pub-rank-line">${esc(r.division)}: <strong>${esc(place)}</strong> <span class="pub-rank-src">(${esc(r.source)})</span></p>`;
 }
 
 function nextFightBlock(n) {
     if (!n) return '';
-    return `<p class="pub-line"><strong>${esc(n.opponent)}</strong> · ${esc(n.event)} (${esc(n.promotion)}) · ${fmtDate(n.date)}</p>`;
+    return `<p class="pub-line"><strong>vs ${esc(n.opponent)}</strong> · ${esc(n.event)} (${esc(n.promotion)}) · ${fmtDate(n.date)}</p>`;
 }
 
 function socialBlock(s) {
@@ -682,54 +871,120 @@ function socialBlock(s) {
     ]);
     const mix = (s.media_mix ?? []).length
         ? `<p class="pub-fine">${s.media_mix.map((m) => `${esc(m.type)} ${pct(m.share, 0)}`).join(' · ')}</p>` : '';
+    // The caveat, not the headline: engagement_basis is a real sentence ("the median over the
+    // last 12 of 12 posts"), not a 30-day window, and now reads that way — small print under
+    // everything else, not the second line of the block.
     return `
             <div class="pub-platform">
                 <h3 class="pub-h3">${esc(s.platform)}</h3>
                 ${rows}${mix}
-                <p class="pub-fine pub-fine--dim">Engagement is ${esc(s.engagement_basis)} — not a 30-day window. Measured ${fmtDate(s.measured_on)}.</p>
+                <p class="pub-fine pub-fine--tiny">Engagement is ${esc(s.engagement_basis)} — not a 30-day window. Measured ${fmtDate(s.measured_on)}.</p>
             </div>`;
 }
 
-function topPostsList(posts) {
+// A GitHub-contribution-style grid, one cell per day, symbol = media type, colour = that post's
+// engagement relative to this fighter's own — replacing a flat "top posts" list. Reads the
+// payload's own per-day field (`data.posting_calendar`, contract v2) once it lands; until then,
+// falls back to the days we can already place from `top_posts` alone, labelled honestly as the
+// posts on file so a sparse grid reads as a thin sample, never as "this fighter doesn't post".
+const TYPE_SYMBOL = { Photo: 'P', Video: 'V', Carousel: 'C', Reel: 'R', Story: 'S', Text: 'T' };
+function calendarCells(cells) {
+    if (!cells.length) return '';
+    const first = new Date(`${cells[0].date}T00:00:00Z`);
+    const pad = first.getUTCDay();
+    const padded = [...Array(pad).fill(null), ...cells];
+    return padded.map((c) => {
+        if (!c) return '<span class="pub-cal-cell pub-cal-cell--pad" aria-hidden="true"></span>';
+        if (!c.type) return `<span class="pub-cal-cell" title="${esc(fmtDate(c.date))}: no post on file"></span>`;
+        const sym = TYPE_SYMBOL[c.type] ?? c.type.slice(0, 1).toUpperCase();
+        const rel = c.rel != null ? Math.max(0.18, Math.min(1, c.rel)) : 0.55;
+        return `<span class="pub-cal-cell pub-cal-cell--post" style="--rel:${rel.toFixed(2)}" title="${esc(fmtDate(c.date))} · ${esc(c.type)}">${esc(sym)}</span>`;
+    }).join('');
+}
+function calendarLegend(types) {
+    const items = types.map((t) => `<span class="pub-cal-legend-item"><i class="pub-cal-sym">${esc(TYPE_SYMBOL[t] ?? t.slice(0, 1).toUpperCase())}</i>${esc(t)}</span>`).join('');
+    return `<div class="pub-cal-legend">${items}<span class="pub-cal-legend-item pub-cal-legend-item--scale"><i class="pub-cal-scale"></i>Less <span class="pub-cal-scale-arrow">→</span> more engagement</span></div>`;
+}
+function postingCalendarBlock(d) {
+    const cal = d.posting_calendar; // future field: {window_days, cells, media_types, best, typical}
+    if (cal?.cells?.length) {
+        const grid = calendarCells(cal.cells);
+        const types = cal.media_types ?? [...new Set(cal.cells.map((c) => c.type).filter(Boolean))];
+        return `<div class="pub-cal-wrap"><div class="pub-cal">${grid}</div></div>${calendarLegend(types)}
+            <p class="pub-fine pub-fine--dim">Posts on file over the last ${cal.window_days} days.</p>
+            ${statRow([[cal.best?.text ?? null, 'Best post'], [cal.typical?.text ?? null, 'Typical post']])}`;
+    }
+    const posts = d.top_posts ?? [];
     if (!posts.length) return '';
-    return `<ul class="pub-list">${posts.map((p) => `
-                <li class="pub-list-row">
-                    <div class="pub-list-main">
-                        <span class="pub-list-title">${esc(p.platform)} · ${esc(p.media_type)}</span>
-                        <time class="pub-list-date" datetime="${esc(p.date)}">${fmtDate(p.date)}</time>${p.caption ? `
-                        <p class="pub-caption">${esc(p.caption)}</p>` : ''}
-                    </div>
-                    <div class="pub-list-figures">${[
-                        p.likes != null ? `${num(p.likes)} likes` : null,
-                        p.comments != null ? `${num(p.comments)} comments` : null,
-                        p.views != null ? `${num(p.views)} views` : null,
-                    ].filter(Boolean).map((t) => `<span>${esc(t)}</span>`).join('')}</div>
-                </li>`).join('')}
-            </ul>`;
+    const dates = posts.map((p) => new Date(`${p.date}T00:00:00Z`).getTime()).sort((a, b) => a - b);
+    const start = new Date(dates[0]), end = new Date(dates[dates.length - 1]);
+    const byDate = new Map(posts.map((p) => [p.date, p]));
+    const maxEng = Math.max(...posts.map((p) => (p.likes ?? 0) + (p.comments ?? 0)), 1);
+    const cells = [];
+    for (let t = new Date(start); t <= end; t = new Date(t.getTime() + 86400000)) {
+        const iso = t.toISOString().slice(0, 10);
+        const p = byDate.get(iso);
+        cells.push(p ? { date: iso, type: p.media_type, rel: ((p.likes ?? 0) + (p.comments ?? 0)) / maxEng } : { date: iso, type: null });
+    }
+    const types = [...new Set(posts.map((p) => p.media_type))];
+    const best = posts.reduce((a, b) => (((b.likes ?? 0) + (b.comments ?? 0)) > ((a.likes ?? 0) + (a.comments ?? 0)) ? b : a));
+    const typicalLikes = median(posts.map((p) => p.likes));
+    return `<div class="pub-cal-wrap"><div class="pub-cal">${calendarCells(cells)}</div></div>${calendarLegend(types)}
+        <p class="pub-fine pub-fine--dim">Posts on file: ${fmtDate(start.toISOString())} – ${fmtDate(end.toISOString())} (${posts.length} posts). A sparse grid reflects what we have on file, not how often this fighter actually posts.</p>
+        ${statRow([
+            [best.likes != null ? `${num(best.likes)} likes` : null, 'Best post'],
+            [typicalLikes != null ? `${num(Math.round(typicalLikes))} likes` : null, 'Typical post'],
+        ])}`;
 }
 
-function wikipediaBlock(w) {
+function attentionBlock(w, series, bouts, fw) {
     if (!w) return '';
     const langs = (w.languages ?? []).length
         ? `<p class="pub-fine">${w.languages.map((l) => `${esc(l.market)} ${pct(l.share, 0)}`).join(' · ')}</p>` : '';
-    return `${statRow([[num(w.views_per_day), `Pageviews / day (${w.window_days}d avg)`]])}${langs}`;
+    // The same fight-week peak/baseline printed under "Fight week" below, reused here to label
+    // this curve's own extremes with real numbers rather than leaving the y-axis bare.
+    const refs = fw ? extremeRefs(series, { hi: `${num(fw.peak_views_per_day)}/day peak`, lo: `${num(fw.baseline)}/day baseline` }) : [];
+    return `${statRow([[num(w.views_per_day), `Pageviews / day (${w.window_days}d avg)`]])}
+            ${panel(series, { unit: 'Wikipedia pageviews per day', yRefs: refs, bouts, tone: 'accent' })}
+            ${langs}
+            <p class="pub-fine pub-fine--dim">Source: Wikipedia pageviews, all languages, ${w.window_days}-day average.</p>`;
 }
 
-function marketConcentrationBlock(mc) {
+// Bars when the payload gives relative indices per market (`data.market_concentration.countries`,
+// mirroring internal_data.geography's own field names — not yet in the contract for the media
+// kit, so this is a defensive read: it renders once that field lands, and falls back to today's
+// ordered list until then). Order only, no dollar figures, exactly as the contract requires.
+function marketsBlock(mc) {
     if (!mc) return '';
+    if (Array.isArray(mc.countries) && mc.countries.length) {
+        const search = mc.countries.filter((c) => c.search_volume_index != null).map((c) => ({ label: c.country, value: c.search_volume_index }));
+        const market = mc.countries.filter((c) => c.market_value_index != null).map((c) => ({ label: c.country, value: c.market_value_index }));
+        return `
+            <h3 class="pub-h3">Search interest</h3>
+            <p class="pub-fine">How much people search for this fighter, by country — relative only; the top market is 100.</p>
+            ${barsChart(search, { unit: 'Search-volume index (top market = 100)' })}
+            <h3 class="pub-h3">Market size</h3>
+            <p class="pub-fine">Ad spend per internet user, by country — relative only; the top market is 100.</p>
+            ${barsChart(market, { unit: 'Market-size index (top market = 100)' })}
+            <p class="pub-fine pub-fine--dim">Basis: ${esc(mc.basis)}. Relative indices only — no dollar figures.</p>`;
+    }
     return `<ol class="pub-order">${mc.countries_ranked.map((c) => `<li>${esc(c)}</li>`).join('')}</ol>
             <p class="pub-fine pub-fine--dim">Order of ${esc(mc.basis)}.</p>`;
 }
 
 function fightWeekBlock(fw, series) {
     if (!fw) return '';
-    return `<p class="pub-line"><strong>${esc(fw.opponent)}</strong> · ${fmtDate(fw.fight_date)}</p>
+    const refs = extremeRefs(series, {
+        hi: `${num(fw.peak_views_per_day)}/day peak`,
+        lo: `${num(fw.baseline)}/day baseline`,
+    });
+    return `<p class="pub-line"><strong>vs ${esc(fw.opponent)}</strong> · ${fmtDate(fw.fight_date)}</p>
             ${statRow([
                 [`×${fw.lift_ratio.toFixed(1)}`, 'Peak vs. baseline'],
                 [num(fw.peak_views_per_day), 'Peak pageviews / day'],
                 [num(fw.baseline), 'Baseline pageviews / day'],
             ])}
-            ${chart(series)}`;
+            ${panel(series, { unit: 'Wikipedia pageviews per day', yRefs: refs, bouts: [{ opponent: fw.opponent, date: fw.fight_date }], tone: 'accent' })}`;
 }
 
 function broadcastList(rows) {
@@ -737,19 +992,34 @@ function broadcastList(rows) {
     return `<ul class="pub-list">${rows.map((b) => `
                 <li class="pub-list-row">
                     <div class="pub-list-main">
-                        <span class="pub-list-title">${esc(b.event)}</span>
+                        <span class="pub-list-title">${esc(dropPromotionPrefix(b.event, b.promotion))}</span>
                         <time class="pub-list-date" datetime="${esc(b.date)}">${fmtDate(b.date)}</time>
                         <p class="pub-fine pub-fine--dim">${esc(b.promotion)} · ${esc(b.card_section)} · ${esc(b.event_tier)}</p>
                     </div>
-                    <div class="pub-list-figures"><span>${esc(b.result)}</span></div>
+                    <div class="pub-list-figures"><span class="pub-tone-text-${resultTone(b.result)}">${esc(b.result)}</span></div>
                 </li>`).join('')}
             </ul>`;
+}
+
+// Where the manager and the brand cannot get a read anywhere else: not where a fighter is, but
+// where they're headed. Every field here is payload-pending (contract v2, `data.trajectory`) —
+// rendered defensively, so the section simply doesn't appear until it lands (see build report).
+function trajectoryBlock(t) {
+    if (!t) return '';
+    const rows = statRow([
+        [t.followers_growth_text ?? null, 'Follower growth'],
+        [t.rank_movement_text ?? null, 'Rank movement'],
+    ]);
+    const shift = t.fame_shift?.sentence
+        ? `<p class="pub-note pub-tone-text-${t.fame_shift.direction === 'down' ? 'bad' : 'good'}">${esc(t.fame_shift.sentence)}</p>` : '';
+    return `${rows}${shift}${t.note ? `<p class="pub-note">${esc(t.note)}</p>` : ''}`;
 }
 
 export function mediaKitPage({ page, site }) {
     const d = page.data;
     const f = d.fighter;
     const headerMeta = [f.division, f.organization, f.gym, f.nationality].filter(Boolean).join(' · ');
+    const bouts = [d.fight_week, d.next_fight].filter(Boolean).map((x) => ({ opponent: x.opponent, date: x.date ?? x.fight_date }));
 
     const body = `<main class="pub">
     <header class="pub-head">
@@ -757,21 +1027,23 @@ export function mediaKitPage({ page, site }) {
             <h1 class="pub-name">${esc(f.name)}</h1>${f.nickname ? `
             <p class="pub-nick">“${esc(f.nickname)}”</p>` : ''}${headerMeta ? `
             <p class="pub-meta">${esc(headerMeta)}</p>` : ''}
-            <p class="pub-asof">Measured ${fmtDate(page.measured_on)}</p>
+            <p class="pub-asof">Data measured on ${fmtDate(page.measured_on)}.</p>
+            ${rankLine(d.rank)}
             ${statRow([
                 [recordText(f.record), 'Record'],
                 [streakText(f.streak), 'Streak'],
-                [rankText(d.rank), 'Ranking'],
             ])}
         </div>
     </header>
 ${section('pub-next', 'Next fight', nextFightBlock(d.next_fight))}
-${section('pub-social', 'Social', d.social.length ? `${d.social.map(socialBlock).join('')}${chart(d.charts.followers)}` : '')}
-${section('pub-posts', 'Top posts', topPostsList(d.top_posts))}
-${section('pub-wiki', 'Wikipedia attention', d.wikipedia ? `${wikipediaBlock(d.wikipedia)}${chart(d.charts.pageviews)}` : '')}
-${section('pub-geo', 'Where the attention is', marketConcentrationBlock(d.market_concentration))}
+${section('pub-social', 'Social', d.social.length ? `${d.social.map(socialBlock).join('')}${panel(d.charts.followers, { unit: 'Followers', yRefs: extremeRefs(d.charts.followers, { hi: d.social[0]?.followers != null ? `${num(d.social[0].followers)} today` : null }), tone: 'accent' })}` : '')}
+${section('pub-posts', 'Posting activity', postingCalendarBlock(d), 'One cell per day the window covers; colour shows how that post did against this fighter’s own average, not against anyone else’s.')}
+${section('pub-wiki', 'Attention', attentionBlock(d.wikipedia, d.charts.pageviews, bouts))}
+${section('pub-geo', 'Markets', marketsBlock(d.market_concentration))}
 ${section('pub-fw', 'Fight week', fightWeekBlock(d.fight_week, d.charts.fight_week))}
-${section('pub-broadcast', 'Broadcast history', broadcastList(d.broadcast))}
+${section('pub-off', 'Between fights', offCycleTable(offCycleRows(d.off_cycle)), offCycleNote(d.off_cycle) ?? (offCycleRows(d.off_cycle).length ? 'Weeks with a real jump in attention even though no fight was near — he draws attention outside fight weeks too.' : null))}
+${section('pub-broadcast', 'Recent broadcast history', broadcastList(d.broadcast), d.broadcast.length ? 'Recent results on file — not a complete record.' : null)}
+${section('pub-trajectory', 'Trajectory', trajectoryBlock(d.trajectory))}
 </main>
 ${PUB_FOOTER}`;
 
@@ -785,27 +1057,33 @@ ${PUB_FOOTER}`;
 
 // ── internal data ──
 
-function firstLightBlock(fl) {
+function overviewBlock(fl) {
     if (!fl) return '';
-    // expected/actual are fame MAGNITUDES (a followers-equivalent), not scores like `score`
-    // and `gap` — so they are printed as whole counts and labelled for what they are. Two
-    // numbers on one row in different units with bare labels ("Expected", "Actual") read as
-    // the same kind of thing and are not.
-    return `${statRow([
-        [num(fl.score, 2), 'Score'],
-        [num(fl.rating), 'Skill rating'],
-        [fl.expected != null ? num(fl.expected) : null, 'Audience its skill predicts'],
+    // Audience the fighter's level predicts, then what's actually measured, then the gap
+    // between them — leading with the audience, not the rating (FLR is context, per the spec).
+    const rows = statRow([
+        [fl.expected != null ? num(fl.expected) : null, 'Audience its level predicts'],
         [fl.actual != null ? num(fl.actual) : null, 'Audience measured'],
-        [signed(fl.gap, 2), 'Gap'],
-    ])}<p class="pub-note">${esc(fl.reading)}</p>`;
+        [fl.gap != null ? signed(fl.gap, 2) : null, 'Gap'],
+        [fl.rating != null ? num(fl.rating) : null, { html: flrHint() }],
+    ]);
+    const fliBlock = fl.score != null ? `
+        <div class="pub-fli-block">
+            <p class="pub-fli-label">${fliHint()} <span class="pub-fli-n pub-tone-text-${fl.score < -0.04 ? 'bad' : fl.score > 0.04 ? 'good' : 'neutral'}">${signed(fl.score, 2)}</span></p>
+            ${fliRangeBar(fl.score)}
+        </div>` : '';
+    return `${rows}${fliBlock}
+        <p class="pub-note pub-note--lead">Audience is a calibrated followers-equivalent across the platforms we track — not a number you can reproduce by adding up follower counts.</p>
+        ${fl.reading ? `<p class="pub-note">${esc(fl.reading)}</p>` : ''}`;
 }
 
 function funnelBlock(fn) {
     if (!fn) return '';
     // Each stage arrives display-ready from the assembler: `title` names it, `text` is the
     // figure already in its own units ("590K views"), `peer_text` is the typical fighter at
-    // the same level and `pct_text` where this one sits among them. An unmeasured stage says
-    // so rather than printing a zero.
+    // the same level and `pct_text` where this one sits among them ("better than X% of
+    // fighters at this level" — the assembler's own words, never "Xth percentile"). An
+    // unmeasured stage says so rather than printing a zero.
     const stages = (fn.stages ?? []).length
         ? `<ol class="pub-stages">${fn.stages.map((s) => `
                 <li class="pub-stage${s.measured === false ? ' pub-stage--none' : ''}">
@@ -814,9 +1092,8 @@ function funnelBlock(fn) {
                     ${s.what ? `<p class="pub-fine pub-fine--dim">${esc(s.what)}</p>` : ''}
                     ${s.peer_text || s.pct_text ? `<p class="pub-fine">${[s.peer_text, s.pct_text].filter(Boolean).map(esc).join(' · ')}</p>` : ''}
                 </li>`).join('')}</ol>` : '';
-    const g = fn.graphic;
-    const graphic = g && typeof g.width === 'number' && typeof g.height === 'number' && typeof g.points === 'string' ? chart(g) : '';
-    return `${stages}${graphic}${fn.leak?.sentence ? `<p class="pub-note">${esc(fn.leak.sentence)}</p>` : ''}`;
+    const graphic = funnelGraphic(fn);
+    return `${stages}${graphic}${fn.leak?.sentence ? `<p class="pub-note${fn.leak.named ? ' pub-tone-text-bad' : ''}">${esc(fn.leak.sentence)}</p>` : ''}`;
 }
 
 function geographyBlock(g) {
@@ -832,23 +1109,109 @@ function geographyBlock(g) {
     return `${rows}${hasEstimate ? '<p class="pub-fine pub-fine--dim">* modelled estimate.</p>' : ''}${langs}`;
 }
 
-function retentionBlock(items) {
-    if (!items.length) return '';
-    return items.map((r) => `
+// Retention only matters if it COMPOUNDS: a fight that spikes attention 30× for a week and
+// leaves nothing behind a month later is a fighter running in place, however big the spike
+// looked. So the section now leads with the level itself, across every fight, not with three
+// per-fight afterglow ratios — those move down to supporting detail underneath.
+//
+// Payload shape this expects (contract update in flight, so every field is read defensively):
+//   data.compounding: {
+//     n, span_text, mean_step_text, first_level_text, latest_level_text,
+//     compounding: true|false|null,   // which of the assembler's two readings applies
+//     sentence,                       // the assembler's own prose for that reading — never ours
+//     chart: <series>,                // level over time, one marker per fight (chart.labels)
+//     steps: [{ direction: 'up'|'down'|'flat' }],  // per fight, chronological, same order as chart.labels
+//   }
+//   data.retention[i].level_before / .level_after / .step_text  // optional, additive
+//
+// Until data.compounding lands this whole lead is skipped and the section falls back to
+// exactly the per-fight afterglow view it had before — never a claim this renderer invented.
+function stepTone(direction) {
+    return direction === 'up' ? 'good' : direction === 'down' ? 'bad' : 'neutral';
+}
+// One line, coloured green where the level holds higher after a fight and red where it falls
+// back — the segment between two fight markers takes its colour from the step INTO the next
+// marker, so the staircase (or the flat line with spikes on it) is unmistakable at a glance.
+function compoundingChart(comp) {
+    const series = comp?.chart;
+    if (!series || !Array.isArray(series.labels) || !series.labels.length) return '';
+    const W = series.width, H = series.height, padTop = 16, padBottom = 34;
+    const pts = parsePts(series.points);
+    const marks = series.labels;
+    const steps = comp.steps ?? [];
+    const bounds = [pts[0][0], ...marks.map((m) => m.x), pts[pts.length - 1][0]];
+    const segs = [];
+    for (let i = 0; i < bounds.length - 1; i++) {
+        const x0 = bounds[i], x1 = bounds[i + 1];
+        const segPts = pts.filter((p) => p[0] >= x0 - 0.01 && p[0] <= x1 + 0.01);
+        segs.push({ pts: segPts, dir: steps[i]?.direction });
+    }
+    const grid = [0.25, 0.5, 0.75].map((f) => `<line class="pub-grid-line" x1="0" x2="${W}" y1="${(H * f).toFixed(1)}" y2="${(H * f).toFixed(1)}"/>`).join('');
+    const lines = segs.filter((s) => s.pts.length > 1)
+        .map((s) => `<polyline class="pub-series pub-series--main pub-tone-line-${TONE_LINE[stepTone(s.dir)]}" points="${s.pts.map((p) => p.join(',')).join(' ')}"/>`).join('');
+    const marksHtml = marks.map((l, i) => {
+        const y = nearestY(series.points, l.x);
+        const ly = H + 15 + (marks.length > 1 && i % 2 === 1 ? 11 : 0);
+        const anchor = l.x < W * 0.08 ? 'start' : l.x > W * 0.92 ? 'end' : 'middle';
+        return `<g class="pub-mark"><line class="pub-mark-line" x1="${l.x}" x2="${l.x}" y1="0" y2="${H}"/><circle class="pub-mark-dot" cx="${l.x}" cy="${y.toFixed(1)}" r="3.5"/><text class="pub-mark-label" x="${l.x}" y="${ly}" text-anchor="${anchor}">${esc(l.text)}</text></g>`;
+    }).join('');
+    return `<figure class="pub-panel">
+        <svg class="pub-panel-svg" viewBox="0 -${padTop} ${W} ${H + padTop + padBottom}" role="img" aria-label="Audience level over time, one marker per fight, green where the level holds higher afterward and red where it falls back">
+            <g class="pub-grid">${grid}</g>
+            ${lines}
+            <g class="pub-marks">${marksHtml}</g>
+        </svg>
+        <p class="pub-panel-unit">Audience level (relative) — a step up holds, a spike falls back</p>
+    </figure>`;
+}
+function compoundingBlock(comp) {
+    if (!comp) return '';
+    const rows = statRow([
+        [comp.first_level_text ?? null, 'Level at the first fight tracked'],
+        [comp.latest_level_text ?? null, 'Level now'],
+        [comp.mean_step_text ?? null, 'Average step per fight'],
+    ]);
+    const verdictTone = comp.compounding === true ? ' pub-tone-text-good' : comp.compounding === false ? ' pub-tone-text-bad' : '';
+    const verdict = comp.sentence ? `<p class="pub-note pub-note--lead${verdictTone}">${esc(comp.sentence)}</p>` : '';
+    const chart = compoundingChart(comp);
+    const meta = [comp.span_text, comp.n != null ? `${comp.n} fights` : null].filter(Boolean).join(' · ');
+    return `${verdict}${rows}${chart}${meta ? `<p class="pub-fine pub-fine--dim">${esc(meta)}</p>` : ''}`;
+}
+
+function retentionBlock(items, comp) {
+    const compHtml = compoundingBlock(comp);
+    if (!items.length && !compHtml) return '';
+    const perFight = items.length ? `${compHtml ? '<h3 class="pub-h3">Fight by fight</h3>' : ''}${items.map((r) => {
+        const missingSearch = r.search_afterglow == null && r.wiki_afterglow != null
+            ? `<p class="pub-fine pub-fine--dim">No search reading: Google Trends only returns daily data for about three months, so a fight this old can never have one. Wikipedia has no such limit.</p>` : '';
+        return `
             <div class="pub-bout">
-                <p class="pub-line"><strong>${esc(r.opponent)}</strong> · ${fmtDate(r.fight_date)}</p>
+                <p class="pub-line"><strong>vs ${esc(r.opponent)}</strong> · ${fmtDate(r.fight_date)}</p>
                 ${statRow([
-                    [r.search_afterglow != null ? num(r.search_afterglow, 2) : null, 'Search afterglow'],
-                    [r.wiki_afterglow != null ? num(r.wiki_afterglow, 2) : null, 'Wiki afterglow'],
-                    [r.growth_velocity != null ? num(r.growth_velocity, 2) : null, 'Growth velocity'],
+                    [r.level_before ?? null, 'Level before'],
+                    [r.level_after ?? null, 'Level ~30 days after'],
+                    [r.step_text ?? null, 'Step'],
+                    [r.search_afterglow != null ? pct(r.search_afterglow) : null, 'Search attention kept, 30 days out'],
+                    [r.wiki_afterglow != null ? pct(r.wiki_afterglow) : null, 'Wikipedia attention kept, 30 days out'],
+                    [r.growth_velocity != null ? `×${num(r.growth_velocity, 2)}` : null, 'Follower growth velocity'],
                     [r.peak != null ? num(r.peak) : null, 'Peak'],
                     [r.baseline != null ? num(r.baseline) : null, 'Baseline'],
                 ])}
-                ${chart(r.curve)}
-            </div>`).join('');
+                ${missingSearch}
+                ${panel(r.curve, { unit: 'Attention, relative to baseline', bouts: [{ opponent: r.opponent, date: r.fight_date }], tone: 'accent' })}
+            </div>`;
+    }).join('')}` : '';
+    return `${compHtml}${perFight}`;
 }
 
+// Shared with the media kit, which now gets these too (a sponsor-relevant signal: this
+// fighter draws attention outside fight weeks). `off_cycle` may still arrive as the bare array
+// it always has been, or as {rows, note} once the assembler has a sentence to attach to it —
+// read both shapes rather than assume the newer one has landed.
+const offCycleRows = (oc) => (Array.isArray(oc) ? oc : (oc?.rows ?? []));
+const offCycleNote = (oc) => (Array.isArray(oc) ? null : (oc?.note ?? null));
 function offCycleTable(rows) {
+    if (!rows.length) return '';
     // days_from_bout is signed around the bout (negative = the spike came first), which is
     // unreadable as a bare "-74". Say which side of the fight it fell on instead.
     const whenVsBout = (d) => (d == null ? '—' : d === 0 ? 'fight day' : `${Math.abs(d)} days ${d < 0 ? 'before' : 'after'}`);
@@ -861,6 +1224,10 @@ function offCycleTable(rows) {
     ]));
 }
 
+// Zips the chart's own pixel points against the table's own rows (oldest first, matching the
+// rows sorted newest-first in reverse) when the two are the same length — which they always are,
+// since the assembler draws one point per billed fight — so every tick is a real date and a real
+// score already printed a few lines above, never a value read off the curve's geometry.
 function billingBlock(b) {
     if (!b) return '';
     const rows = table(['Date', 'Event', 'Card section', 'Tier', 'Actual', 'Expected', 'Signal'], b.rows.map((r) => [
@@ -875,7 +1242,15 @@ function billingBlock(b) {
         // page does not editorialise it into "outperformed".
         r.signal != null ? `${r.signal > 0 ? '+' : r.signal < 0 ? '−' : ''}${num(Math.abs(r.signal), 2)}` : '—',
     ]));
-    return `${rows}${chart(b.chart)}`;
+    const pts = b.chart ? parsePts(b.chart.points) : [];
+    let chartSeries = b.chart;
+    if (b.chart && pts.length === b.rows.length) {
+        const chron = [...b.rows].reverse();
+        chartSeries = { ...b.chart, labels: chron.map((r, i) => ({ x: pts[i][0], y: pts[i][1], text: `${fmtDate(r.date)} · ${r.actual != null ? num(r.actual, 2) : '—'}` })) };
+    }
+    return `${rows}
+        ${panel(chartSeries, { unit: 'Card-slot score', mainLabel: 'Actual', refLabel: 'Expected for this slot', tone: 'accent' })}
+        <p class="pub-fine pub-fine--dim">The score is usually between 0 and 1; a promotion's championship weighting (PFL, for one) can push it above 1.0.</p>`;
 }
 
 function cohortBlock(c) {
@@ -911,14 +1286,16 @@ export function internalDataPage({ page, site }) {
     <header class="pub-head">
         <div class="pub-inner">
             <h1 class="pub-name">${esc(page.fighter_name)}</h1>
-            <p class="pub-asof">Measured ${fmtDate(page.measured_on)}</p>
+            <p class="pub-asof">Data measured on ${fmtDate(page.measured_on)}.</p>
         </div>
     </header>
-${section('pub-fl', 'First Light read', firstLightBlock(d.first_light))}
-${section('pub-funnel', 'Attention funnel', funnelBlock(d.funnel))}
-${section('pub-geo', 'Geography', geographyBlock(d.geography))}
-${section('pub-retention', 'Fight-week retention', retentionBlock(d.retention))}
-${section('pub-off', 'Between fights', offCycleTable(d.off_cycle))}
+${section('pub-fl', 'Overview', overviewBlock(d.first_light))}
+${section('pub-funnel', 'Attention funnel', funnelBlock(d.funnel), 'Width at each stage shows how much of this fighter’s audience is still there, compared with a typical fighter at the same level (dashed = typical). Narrower than the tube means they lose more people than usual at that step; wider means they keep more.')}
+${section('pub-geo', 'Geography', geographyBlock(d.geography), 'Search-volume and market-size indices by country, each relative to its own top market (100). No dollar figures.')}
+${section('pub-retention', 'Fight-week retention', retentionBlock(d.retention, d.compounding), d.compounding
+    ? 'Each fight either lifts the baseline permanently — a step up the audience keeps — or attention fully fades back to where it started. The pattern across fights is what decides whether this audience compounds.'
+    : 'Afterglow: how much of the search and Wikipedia attention a fight brought is still there 30 days later, against this fighter’s own pre-fight baseline.')}
+${section('pub-off', 'Between fights', offCycleTable(offCycleRows(d.off_cycle)), offCycleNote(d.off_cycle) ?? 'Weeks where attention spiked with no fight nearby — a sponsor push, a media hit, a story — shown against how far that week sat from the nearest bout.')}
 ${section('pub-billing', 'Card position', billingBlock(d.billing))}
 ${section('pub-cohort', 'Compared to peers', cohortBlock(d.cohort))}
 </main>

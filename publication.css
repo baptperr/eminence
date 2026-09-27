@@ -7,12 +7,18 @@
    The reader of the media kit is a brand's marketing manager; the reader of the internal page
    is the fighter's manager. Both are on a phone, forwarding a link they didn't write. So: the
    fighter's name is the largest thing here, everything else is small and numeric, and nothing
-   is a card — hairline rules divide sections the same way the rest of the site does. Charts are
-   monochrome: the fighter's own series in --bone, a peer or reference series in --t3, drawn at
-   the same weight as the sparkline() lines on /index/. */
+   is a card — hairline rules divide sections the same way the rest of the site does.
+
+   v2: charts alone move to the Observatory's own ground (see the OBSERVATORY PANEL block below)
+   — a dark blue-green surface, monospace figures, a hairline grid — while headings and prose
+   stay exactly this site's own type and colour. --good/--bad are pages.css's own tokens
+   (identical oklch values), repeated here because publication.css loads *instead* of pages.css,
+   never alongside it. */
 
 :root {
     --pub-pad: clamp(1.25rem, 6vw, 2.5rem);
+    --good: oklch(0.82 0.17 152);
+    --bad: oklch(0.70 0.19 25);
 }
 
 .sr-only {
@@ -32,7 +38,14 @@
 }
 .pub-nick { margin-top: 0.6rem; font-size: 1.05rem; color: var(--t2); }
 .pub-meta { margin-top: 0.9rem; font-size: 0.88rem; color: var(--t2); }
-.pub-asof { margin-top: 1rem; font-size: 0.78rem; color: var(--t3); font-variant-numeric: tabular-nums; }
+/* Explicit, not implicit: "Data measured on 27 September 2026", not a bare date. */
+.pub-asof { margin-top: 1rem; font-size: 0.85rem; color: var(--t2); font-variant-numeric: tabular-nums; }
+/* The rank line is discreet: one sentence, the source in a smaller parenthetical, no separate
+   "Ranking" stat tile beneath it. */
+.pub-rank-line { margin-top: 0.6rem; font-size: 0.88rem; color: var(--t2); }
+.pub-rank-line strong { color: var(--bone); font-weight: 600; }
+.pub-rank-src { font-size: 0.8em; color: var(--t3); }
+.pub-head .pub-stat-row { margin-top: 1.25rem; }
 
 /* ── SECTIONS ── */
 .pub-section { padding: clamp(2rem, 6vw, 3rem) 0; border-top: 1px solid var(--border-n); }
@@ -44,6 +57,7 @@
     font-family: 'Red Hat Display', sans-serif; font-weight: 800;
     font-size: 1.05rem; margin-bottom: 0.9rem;
 }
+.pub-h3:not(:first-child) { margin-top: 1.75rem; }
 .pub-platform + .pub-platform { margin-top: 2.25rem; padding-top: 2.25rem; border-top: 1px solid var(--border-n); }
 
 .pub-line { font-size: 1rem; color: var(--t2); margin-bottom: 1.25rem; }
@@ -52,8 +66,36 @@
     margin-top: 1.25rem; padding-left: 1rem; border-left: 2px solid var(--border-d);
     font-size: 0.92rem; color: var(--t2); line-height: 1.7; max-width: 52ch;
 }
+/* A section's note leads: it reads before the numbers it explains, so it sits directly under
+   the heading with no top margin of its own — a plain paragraph, not an aside. */
+.pub-note--lead { margin-top: 0; margin-bottom: 1.5rem; padding-left: 1rem; }
 .pub-fine { margin-top: 0.9rem; font-size: 0.82rem; color: var(--t2); line-height: 1.6; }
 .pub-fine--dim { color: var(--t3); }
+/* A caveat, not a headline — engagement_basis and similar small print. */
+.pub-fine--tiny { font-size: 0.7rem; color: var(--t3); opacity: 0.85; }
+
+/* Good/bad/neutral text, reused wherever a result or a direction needs colour without a chart:
+   broadcast wins and losses, the FLI reading, a leak sentence, a trajectory shift. */
+.pub-tone-text-good { color: var(--good); }
+.pub-tone-text-bad { color: var(--bad); }
+.pub-tone-text-neutral { color: var(--t2); }
+
+/* FLI/FLR: a dotted hover-underline exactly like /index/'s own hint, plus a link — the only
+   links either page carries, both to the rankings key. */
+.hint { position: relative; cursor: help; }
+.pub-hint { border-bottom: 1px dotted var(--t3); color: inherit; text-decoration: none; }
+.pub-hint:hover, .pub-hint:focus-visible { color: var(--bone); }
+.hint-tip {
+    position: absolute; z-index: 6; left: 0; bottom: calc(100% + 0.6rem);
+    padding: 0.55rem 0.8rem; background: var(--night-card); border: 1px solid var(--border-d);
+    font-size: 0.8rem; font-weight: 400; line-height: 1.4; text-align: left; color: var(--t2);
+    width: max-content; max-width: min(15rem, 70vw);
+    opacity: 0; visibility: hidden; pointer-events: none; transition: opacity 0.15s ease;
+}
+.hint-tip strong { display: block; color: var(--bone); font-weight: 700; }
+.hint-desc { display: block; margin-top: 0.25rem; font-size: 0.6rem; font-weight: 500; letter-spacing: 0.14em; text-transform: uppercase; color: var(--t3); }
+.hint:hover .hint-tip, .hint:focus-visible .hint-tip { opacity: 1; visibility: visible; }
+@media (prefers-reduced-motion: reduce) { .hint-tip { transition: none; } }
 
 /* ── STATS: one big number, one small label — the same idiom as the FLI figure and the
    winners/losers change on /index/, so a page of numbers still reads as this site's numbers. ── */
@@ -66,13 +108,26 @@
 }
 .pub-stat-label { font-size: 0.72rem; color: var(--t3); max-width: 16rem; text-wrap: balance; }
 
+/* FLI range bar: −1..+1, centred, the same fill-from-the-middle idiom as /index/'s rk-bar,
+   coloured by tone() so a mild reading looks mild. */
+.pub-fli-block { margin-top: 1.5rem; max-width: 22rem; }
+.pub-fli-label { font-size: 0.8rem; color: var(--t2); display: flex; align-items: baseline; gap: 0.5rem; }
+.pub-fli-n { font-family: 'Red Hat Display', sans-serif; font-weight: 800; font-size: 1.1rem; font-variant-numeric: tabular-nums; }
+.pub-fli-bar { margin-top: 0.6rem; }
+.pub-fli-bar-track { position: relative; display: block; height: 6px; background: var(--border-d); border-radius: 3px; }
+.pub-fli-bar-track::after { content: ''; position: absolute; left: 50%; top: -3px; width: 1px; height: 12px; background: var(--t3); }
+.pub-fli-bar-fill { position: absolute; top: 0; height: 100%; border-radius: 3px; }
+.pub-fli-bar-fill--pos { left: 50%; background: color-mix(in oklch, #fff, var(--good) calc(var(--m) * 100%)); }
+.pub-fli-bar-fill--neg { right: 50%; background: color-mix(in oklch, #fff, var(--bad) calc(var(--m) * 100%)); }
+.pub-fli-bar-scale { display: flex; justify-content: space-between; margin-top: 0.4rem; font-size: 0.68rem; color: var(--t3); font-variant-numeric: tabular-nums; }
+
 /* ── ORDERED LISTS: market concentration and funnel stages both really are a sequence, so a
    number is the right mark here — nowhere else on the page uses one. ── */
 .pub-order { list-style: decimal; padding-left: 1.4rem; color: var(--t1); }
 .pub-order li { padding: 0.15rem 0; }
 .pub-order li::marker { color: var(--t3); font-variant-numeric: tabular-nums; }
 
-/* ── ROW LISTS: top posts, broadcast history — one hairline-divided list, entry-style. ── */
+/* ── ROW LISTS: broadcast history — one hairline-divided list, entry-style. ── */
 .pub-list { list-style: none; border-top: 1px solid var(--border-d); }
 .pub-list-row {
     display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between;
@@ -91,25 +146,27 @@
     white-space: nowrap;
 }
 
-/* ── TABLES: geography, between-fights and card-position rows — plain, no zebra, no borderbox;
-   a hairline under the header is the only structure the data needs. Horizontal scroll only ever
-   engages on a very narrow phone; nothing here is wide enough to need it in the common case. ── */
-.pub-table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+/* ── TABLES: geography, between-fights and card-position rows. A hairline under the header is
+   still the only structure the data needs, but the scroll region now looks like one: a faint
+   panel tint plus a persistent edge fade on whichever side still has more to show, using sticky
+   pseudo-elements inside the scroller — no script, and it never disappears into "black on
+   black" the way a bare overflow:auto did. ── */
+.pub-table-wrap {
+    position: relative; overflow-x: auto; -webkit-overflow-scrolling: touch;
+    background: rgba(255, 255, 255, 0.025); border-radius: 3px;
+}
+.pub-table-wrap::before, .pub-table-wrap::after {
+    content: ''; position: sticky; top: 0; bottom: 0; width: 22px; z-index: 1; pointer-events: none;
+    display: block; height: 100%;
+}
+.pub-table-wrap::before { left: 0; float: left; margin-right: -22px; background: linear-gradient(to right, rgba(255, 255, 255, 0.16), transparent); }
+.pub-table-wrap::after { right: 0; float: right; margin-left: -22px; background: linear-gradient(to left, rgba(255, 255, 255, 0.16), transparent); }
 .pub-table { width: 100%; border-collapse: collapse; font-size: 0.82rem; font-variant-numeric: tabular-nums; }
-.pub-table th, .pub-table td { padding: 0.6rem 0.9rem 0.6rem 0; text-align: left; white-space: nowrap; }
+.pub-table th, .pub-table td { padding: 0.6rem 0.9rem 0.6rem 0.9rem; text-align: left; white-space: nowrap; }
+.pub-table th:first-child, .pub-table td:first-child { padding-left: 0.9rem; }
 .pub-table th { color: var(--t3); font-weight: 500; border-bottom: 1px solid var(--border-d); }
 .pub-table td { border-bottom: 1px solid var(--border-n); color: var(--t1); }
 .pub-table td:first-child, .pub-table th:first-child { white-space: normal; }
-
-/* ── CHARTS: geometry from the payload, drawn exactly as given. The fighter's own series is
-   the brightest line on the page short of their name; a peer/reference series stays quiet. ── */
-.pub-chart, .pub-dist { display: block; width: 100%; height: auto; margin-top: 1.25rem; overflow: visible; }
-.pub-chart-main { fill: none; stroke: var(--bone); stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; }
-.pub-chart-extra { fill: none; stroke: var(--t3); stroke-width: 1.5; stroke-linejoin: round; stroke-linecap: round; opacity: 0.85; }
-.pub-chart-label { font-family: 'DM Sans', sans-serif; font-size: 8px; fill: var(--t3); }
-.pub-dist-bar { fill: var(--t3); opacity: 0.7; }
-.pub-dist-marker { stroke: var(--bone); stroke-width: 1.5; }
-.pub-dist-marker-dot { fill: var(--bone); }
 
 .pub-bout + .pub-bout, .pub-diff + .pub-diff { margin-top: 2.25rem; padding-top: 2.25rem; border-top: 1px solid var(--border-n); }
 
@@ -119,17 +176,20 @@
 .pub-foot-line a { color: var(--t3); text-decoration: none; border-bottom: 1px solid var(--border-d); }
 .pub-foot-line a:hover { color: var(--bone); border-color: var(--bone); }
 
-/* ── PRINT: decent, not the target. Charts and hairlines survive; the reveal/motion layer
-   (handled in JS via the .js class) never applies here since a printed page has no script. ── */
+/* ── PRINT: decent, not the target. Hairlines survive; the Observatory panel prints as a
+   light box, not a black one; the reveal/motion layer (handled in JS via the .js class) never
+   applies here since a printed page has no script. ── */
 @media print {
     body { background: #fff; color: #000; }
-    .pub-name, .pub-h2, .pub-h3, .pub-stat-n, .pub-list-title { color: #000; }
-    .pub-nick, .pub-meta, .pub-line, .pub-fine, .pub-note, .pub-stat-label,
+    .pub-name, .pub-h2, .pub-h3, .pub-stat-n, .pub-list-title, .pub-fli-n { color: #000; }
+    .pub-nick, .pub-meta, .pub-line, .pub-fine, .pub-note, .pub-stat-label, .pub-rank-line,
     .pub-list-date, .pub-list-figures, .pub-table th { color: #333; }
-    .pub-chart-main { stroke: #000; }
-    .pub-chart-extra, .pub-dist-bar { stroke: #999; fill: #999; }
-    .pub-dist-marker, .pub-dist-marker-dot { stroke: #000; fill: #000; }
     .pub-section, .pub-table th, .pub-table td, .pub-list-row { border-color: #ccc; }
+    .pub-panel { background: #f4f4f4; border-color: #ccc; }
+    .pub-grid-line, .pub-ref-line { stroke: #ccc; }
+    .pub-series--main, .pub-bar, .pub-funnel-tube, .pub-mark-dot { stroke: #000; fill: #000; }
+    .pub-series--ref, .pub-dist-bar { stroke: #999; fill: #999; }
+    .pub-ref-label, .pub-mark-label, .pub-bar-label, .pub-bar-value, .pub-funnel-idx { fill: #000; }
 }
 
 @media (max-width: 480px) {
@@ -138,7 +198,8 @@
 }
 
 /* Funnel stages: one block per step, figure first, the peer reading under it. The stage
-   list is not a ranking, so no numerals -- the order is the funnel's own. */
+   list is not a ranking, so no numerals -- the order is the funnel's own. The funnel SHAPE
+   itself is drawn in the Observatory panel just below this list (see .pub-panel--funnel). */
 .pub-stages { list-style: none; display: grid; gap: 1rem; margin: 1.25rem 0; }
 .pub-stage { border-top: 1px solid var(--border-n); padding-top: 0.75rem; }
 .pub-stage--none { color: var(--t3); }
@@ -146,3 +207,107 @@
     font-weight: 500; letter-spacing: 0.22em; text-transform: uppercase; color: var(--t3); }
 .pub-stage-figure { font-family: 'Red Hat Display', sans-serif; font-weight: 800;
     font-size: 1.35rem; line-height: 1.3; color: var(--bone); font-variant-numeric: tabular-nums; }
+
+/* ══════════════════════════════════════════════════════════════════════════════════════════
+   OBSERVATORY PANEL — the one look every chart on either page uses.
+
+   "Charts only move to the Observatory's look: each chart sits in a panel with that tool's
+   blue-green ground, monospace numerals and hairline grid — instruments set into an editorial
+   page." Everything below is scoped to .pub-panel and its children, so it never leaks into the
+   page's own headings or prose. Font: JetBrains Mono is not self-hosted on this site (every
+   other font here is, deliberately, to keep third-party requests at zero — see style.css) and
+   is named first only so a visitor who already has it locally gets it; the fallback chain is
+   what actually renders for everyone else, and reads close enough at this size.
+   ══════════════════════════════════════════════════════════════════════════════════════════ */
+.pub-panel {
+    --p-surface: #0A0F13;
+    --p-deep: #05070A;
+    --p-line: rgba(127, 212, 168, .16);
+    --p-ink: #D3E4DA;
+    --p-accent: #7FD4A8;
+    margin: 1.5rem 0 0;
+    padding: 1rem 1rem 0.85rem;
+    background: var(--p-surface);
+    border: 1px solid var(--p-line);
+    border-radius: 4px;
+    font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+.pub-panel-svg { display: block; width: 100%; height: auto; overflow: visible; }
+.pub-grid-line { stroke: var(--p-line); stroke-width: 1; }
+.pub-ref-line { stroke: var(--p-ink); stroke-width: 1; stroke-dasharray: 3 3; opacity: 0.55; }
+.pub-ref-label { fill: var(--p-ink); font-size: 9px; opacity: 0.85; }
+.pub-series { fill: none; stroke-linejoin: round; stroke-linecap: round; }
+.pub-series--main { stroke-width: 2; }
+.pub-series--ref { stroke-width: 1.5; stroke-dasharray: 4 3; opacity: 0.7; }
+.pub-tone-line-accent { stroke: var(--p-accent); }
+.pub-tone-line-good { stroke: var(--good); }
+.pub-tone-line-bad { stroke: var(--bad); }
+.pub-tone-line-neutral { stroke: var(--p-ink); }
+.pub-series--ref { stroke: var(--p-ink) !important; } /* the reference/peer series is always the quiet one, whatever tone the main series carries */
+.pub-mark-line { stroke: var(--p-ink); stroke-width: 1; stroke-dasharray: 2 3; opacity: 0.45; }
+.pub-mark-dot { fill: var(--p-accent); stroke: var(--p-surface); stroke-width: 2; }
+.pub-mark-label { fill: var(--p-ink); font-size: 9px; opacity: 0.8; }
+.pub-panel-unit { margin: 0.6rem 0 0; font-size: 0.68rem; color: var(--p-ink); opacity: 0.65; }
+
+.pub-legend { display: flex; flex-wrap: wrap; gap: 0.35rem 1.1rem; margin-top: 0.65rem; font-size: 0.68rem; color: var(--p-ink); opacity: 0.85; }
+.pub-legend-item { display: inline-flex; align-items: center; gap: 0.4rem; }
+.pub-legend-swatch { width: 12px; height: 2px; border-radius: 1px; display: inline-block; }
+.pub-legend-swatch--main { background: var(--p-accent); }
+.pub-legend-swatch--ref { background: var(--p-ink); opacity: 0.7; }
+.pub-legend-swatch--tube { border-top: 1px dashed var(--p-ink); width: 12px; height: 0; background: none; opacity: 0.7; }
+.pub-legend-item--tube { opacity: 0.7; }
+
+/* Distribution histogram (cohort): peer bars quiet, this fighter's own value the bright mark. */
+.pub-dist-bar { fill: var(--p-ink); opacity: 0.32; }
+.pub-dist-marker { stroke: var(--p-accent); stroke-width: 2; }
+.pub-dist-marker-dot { fill: var(--p-accent); }
+
+/* Horizontal index bars (Markets). */
+.pub-bar { fill: var(--p-accent); }
+.pub-bar-label { fill: var(--p-ink); font-size: 10px; dominant-baseline: middle; }
+.pub-bar-value { fill: var(--p-ink); font-size: 10px; opacity: 0.75; }
+
+/* Funnel silhouette: width per band = the retention index vs. a typical similar fighter (100);
+   colour is tone() again, so a band a touch narrow than typical stays a mild pink, not alarm-red. */
+.pub-funnel-band { opacity: 0.9; }
+.pub-funnel-band--good { fill: color-mix(in oklch, var(--p-surface), var(--good) calc(var(--m) * 55%)); stroke: var(--good); stroke-width: 1; stroke-opacity: 0.5; }
+.pub-funnel-band--bad { fill: color-mix(in oklch, var(--p-surface), var(--bad) calc(var(--m) * 55%)); stroke: var(--bad); stroke-width: 1; stroke-opacity: 0.5; }
+.pub-funnel-band--zero { fill: color-mix(in oklch, var(--p-surface), var(--p-ink) 20%); stroke: var(--p-ink); stroke-width: 1; stroke-opacity: 0.3; }
+.pub-funnel-div { stroke: var(--p-deep); stroke-width: 1.5; }
+.pub-funnel-tube { stroke: var(--p-ink); stroke-width: 1; stroke-dasharray: 3 3; opacity: 0.5; }
+.pub-funnel-idx { fill: var(--p-ink); font-size: 12px; font-weight: 700; }
+
+/* Posting calendar: a GitHub-contribution-style grid, one cell per day, symbol = media type,
+   colour intensity = that post's engagement relative to this fighter's own. */
+.pub-cal-wrap { overflow-x: auto; margin-top: 1.25rem; }
+.pub-cal {
+    display: grid; grid-auto-flow: column; grid-template-rows: repeat(7, 12px);
+    gap: 3px; width: max-content;
+    background: var(--p-surface, #0A0F13); border: 1px solid var(--p-line, rgba(127, 212, 168, .16));
+    border-radius: 4px; padding: 0.85rem;
+    font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+.pub-cal-cell {
+    width: 12px; height: 12px; border-radius: 2px; background: rgba(127, 212, 168, .10);
+    font-size: 7px; line-height: 12px; text-align: center; color: transparent;
+}
+.pub-cal-cell--post {
+    background: color-mix(in oklch, #0A0F13, #7FD4A8 calc(var(--rel, .5) * 85%));
+    color: #D3E4DA;
+}
+.pub-cal-cell--pad { background: transparent; }
+.pub-cal-legend { display: flex; flex-wrap: wrap; align-items: center; gap: 0.3rem 1rem; margin-top: 0.65rem; font-size: 0.7rem; color: var(--t3); }
+.pub-cal-legend-item { display: inline-flex; align-items: center; gap: 0.35rem; }
+.pub-cal-sym {
+    display: inline-flex; align-items: center; justify-content: center; width: 12px; height: 12px;
+    border-radius: 2px; background: rgba(127, 212, 168, .18); color: #D3E4DA; font-size: 7px;
+    font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-style: normal;
+}
+.pub-cal-scale { display: inline-block; width: 40px; height: 8px; border-radius: 2px;
+    background: linear-gradient(to right, color-mix(in oklch, #0A0F13, #7FD4A8 15%), color-mix(in oklch, #0A0F13, #7FD4A8 90%)); }
+.pub-cal-scale-arrow { opacity: 0.6; }
+
+@media (max-width: 480px) {
+    .pub-panel { padding: 0.85rem 0.75rem 0.7rem; }
+    .pub-ref-label, .pub-mark-label, .pub-bar-label, .pub-bar-value { font-size: 10px; }
+}
