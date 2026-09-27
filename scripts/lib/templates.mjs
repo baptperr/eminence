@@ -623,8 +623,14 @@ function withBoutDate(text, bouts) {
 const TONE_LINE = { good: 'good', bad: 'bad', accent: 'accent', neutral: 'neutral' };
 function panel(series, opts = {}) {
     if (!series) return '';
+    // The second line is NOT a peer series. Depending on the chart it is this same
+    // fighter's own 28-day level, his own pre-fight baseline, or the expected-slot
+    // model — so there is no honest default name for it, and the wrong one
+    // ("Similar fighters") is a false claim on a page a sponsor reads and checks.
+    // The payload names both lines; where it has not, the legend is omitted rather
+    // than guessed, and the caption still says what the chart shows.
     const {
-        unit, mainLabel = 'This fighter', refLabel = 'Similar fighters',
+        unit, mainLabel = series.label, refLabel = series.extra_label,
         yRefs = [], bouts = [], caption, tone: seriesTone = 'accent',
     } = opts;
     const W = series.width, H = series.height, padTop = 16, padBottom = 34;
@@ -647,7 +653,9 @@ function panel(series, opts = {}) {
         const anchor = l.x < W * 0.08 ? 'start' : l.x > W * 0.92 ? 'end' : 'middle';
         return `<g class="pub-mark"><line class="pub-mark-line" x1="${l.x}" x2="${l.x}" y1="0" y2="${H}"/><circle class="pub-mark-dot" cx="${l.x}" cy="${y.toFixed(1)}" r="3.5"/><text class="pub-mark-label" x="${l.x}" y="${ly}" text-anchor="${anchor}">${esc(withBout[i])}</text></g>`;
     }).join('');
-    const legend = series.extra_points ? `<div class="pub-legend"><span class="pub-legend-item"><i class="pub-legend-swatch pub-legend-swatch--main"></i>${esc(mainLabel)}</span><span class="pub-legend-item"><i class="pub-legend-swatch pub-legend-swatch--ref"></i>${esc(refLabel)}</span></div>` : '';
+    const legend = series.extra_points && mainLabel && refLabel
+        ? `<div class="pub-legend"><span class="pub-legend-item"><i class="pub-legend-swatch pub-legend-swatch--main"></i>${esc(mainLabel)}</span><span class="pub-legend-item"><i class="pub-legend-swatch pub-legend-swatch--ref"></i>${esc(refLabel)}</span></div>`
+        : '';
     return `<figure class="pub-panel">
         <svg class="pub-panel-svg" viewBox="0 -${padTop} ${W} ${H + padTop + padBottom}" role="img" aria-label="${esc(caption || unit || 'chart')}">
             <g class="pub-grid">${grid}</g>
