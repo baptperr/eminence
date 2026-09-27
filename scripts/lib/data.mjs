@@ -12,6 +12,11 @@ const isObj = (v) => v && typeof v === 'object' && !Array.isArray(v);
 const isNum = (v) => typeof v === 'number' && Number.isFinite(v);
 const isStr = (v) => typeof v === 'string' && v.trim() !== '';
 const isArr = (v) => Array.isArray(v);
+
+// A section arrives either as a bare array of rows, or as {rows, note, ...} once the
+// assembler has an explanation to carry beside them. Both are valid; readers take the
+// rows through this and never index the section directly.
+const rowsOf = (v) => (Array.isArray(v) ? v : (isObj(v) ? v.rows : undefined));
 const isInt = (v) => Number.isInteger(v);
 const isDate = (v) => v != null && !Number.isNaN(new Date(v).getTime());
 
@@ -233,8 +238,11 @@ function checkMediaKit(data, bad) {
         if (!isDate(s?.measured_on)) bad(`"${at}.measured_on" must be a date`);
     });
 
-    if (!isArr(data.top_posts)) bad('"data.top_posts" must be an array');
-    data.top_posts.forEach((p, i) => {
+    // Optional now: the posting calendar replaced the top-posts list, and a payload that
+    // carries only the calendar is the current shape, not a malformed one. Still validated
+    // where present, since older publications on the site were generated with it.
+    if (data.top_posts != null && !isArr(data.top_posts)) bad('"data.top_posts" must be an array when present');
+    (data.top_posts ?? []).forEach((p, i) => {
         const at = `data.top_posts[${i}]`;
         if (!isStr(p?.platform)) bad(`"${at}.platform" missing`);
         if (!isStr(p?.media_type)) bad(`"${at}.media_type" missing`);
@@ -259,14 +267,30 @@ function checkMediaKit(data, bad) {
 
     if (data.market_concentration != null) {
         const mc = data.market_concentration;
-        if (!isObj(mc) || !isArr(mc.countries_ranked) || !mc.countries_ranked.every(isStr)) {
-            bad('"data.market_concentration.countries_ranked" must be an array of names');
-        }
+        if (!isObj(mc)) bad('"data.market_concentration" must be an object or null');
         if (!isStr(mc.basis)) bad('"data.market_concentration.basis" missing');
-        // Order, never magnitude: a percentage or count here would read as a share of audience,
-        // which Google Trends does not measure.
-        if (mc.countries_ranked.some((c) => /[%\d]/.test(c))) {
-            bad('"data.market_concentration.countries_ranked" must carry order only, not a percentage or count');
+        // Two shapes. `countries` carries the two relative indices per country, each rescaled
+        // to its own top market at 100 — magnitudes, so the page can show how far apart the
+        // markets are rather than only their order. `countries_ranked` is the older
+        // order-only list, still accepted so publications generated before the change keep
+        // rendering. Exactly one of them must be present.
+        if (mc.countries != null) {
+            if (!isArr(mc.countries)) bad('"data.market_concentration.countries" must be an array');
+            mc.countries.forEach((c, i) => {
+                const at = `data.market_concentration.countries[${i}]`;
+                if (!isStr(c?.country)) bad(`"${at}.country" missing`);
+                for (const k of ['search_volume_index', 'market_value_index']) {
+                    if (c?.[k] != null && !isNum(c[k])) bad(`"${at}.${k}" must be a number or null`);
+                }
+            });
+        } else if (isArr(mc.countries_ranked) && mc.countries_ranked.every(isStr)) {
+            // Order, never magnitude: a percentage or count in a NAME would read as a share
+            // of audience, which Google Trends does not measure.
+            if (mc.countries_ranked.some((c) => /[%\d]/.test(c))) {
+                bad('"data.market_concentration.countries_ranked" must carry order only, not a percentage or count');
+            }
+        } else {
+            bad('"data.market_concentration" needs "countries" (with indices) or "countries_ranked" (names only)');
         }
     }
 
@@ -278,8 +302,9 @@ function checkMediaKit(data, bad) {
         }
     }
 
-    if (!isArr(data.broadcast)) bad('"data.broadcast" must be an array');
-    data.broadcast.forEach((b, i) => {
+    const broadcast = rowsOf(data.broadcast);
+    if (!isArr(broadcast)) bad('"data.broadcast" must be an array, or {rows, note}');
+    broadcast.forEach((b, i) => {
         const at = `data.broadcast[${i}]`;
         if (!isDate(b?.date)) bad(`"${at}.date" must be a date`);
         for (const k of ['event', 'promotion', 'card_section', 'event_tier', 'result']) {
@@ -325,8 +350,12 @@ function checkInternalData(data, bad) {
         });
     }
 
-    if (!isArr(data.retention)) bad('"data.retention" must be an array');
-    data.retention.forEach((r, i) => {
+    // Either a bare array of fights, or {note, rows, compounding} — the same two shapes
+    // off_cycle accepts, for the same reason: a section's own explanation belongs beside
+    // its rows, and the assembler groups them that way once a section grows one.
+    const retentionRows = rowsOf(data.retention);
+    if (!isArr(retentionRows)) bad('"data.retention" must be an array, or {rows, note, compounding}');
+    retentionRows.forEach((r, i) => {
         const at = `data.retention[${i}]`;
         if (!isDate(r?.fight_date)) bad(`"${at}.fight_date" must be a date`);
         if (!isStr(r?.opponent)) bad(`"${at}.opponent" missing`);
@@ -336,8 +365,9 @@ function checkInternalData(data, bad) {
         checkSeries(r?.curve, `${at}.curve`, bad);
     });
 
-    if (!isArr(data.off_cycle)) bad('"data.off_cycle" must be an array');
-    data.off_cycle.forEach((o, i) => {
+    const offCycle = rowsOf(data.off_cycle);
+    if (!isArr(offCycle)) bad('"data.off_cycle" must be an array, or {rows, note}');
+    offCycle.forEach((o, i) => {
         const at = `data.off_cycle[${i}]`;
         if (!isDate(o?.week_start)) bad(`"${at}.week_start" must be a date`);
         if (!isNum(o?.ratio)) bad(`"${at}.ratio" must be a number`);

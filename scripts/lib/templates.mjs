@@ -833,14 +833,10 @@ function resultTone(result) {
     if (r.startsWith('l')) return 'bad';
     return 'neutral';
 }
-// "UFC 308" beside a promotion column that already says "UFC" repeats itself; strip the leading
-// promotion name (case-insensitively) and fall back to the full event name if that would empty it.
-function dropPromotionPrefix(event, promotion) {
-    if (!promotion) return event;
-    const re = new RegExp(`^${promotion.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\s+`, 'i');
-    const stripped = event.replace(re, '');
-    return stripped.trim() ? stripped : event;
-}
+// Event names arrive display-ready: the assembler already drops a redundant long-form
+// promotion prefix ("Professional Fighters League - PFL New York" -> "PFL New York")
+// while keeping the short code where it is part of the name. A second strip here turned
+// "UFC 308" into a bare "308", which is why there is no longer one.
 
 // ── media kit ──
 
@@ -1000,7 +996,7 @@ function broadcastList(rows) {
     return `<ul class="pub-list">${rows.map((b) => `
                 <li class="pub-list-row">
                     <div class="pub-list-main">
-                        <span class="pub-list-title">${esc(dropPromotionPrefix(b.event, b.promotion))}</span>
+                        <span class="pub-list-title">${esc(b.event)}</span>
                         <time class="pub-list-date" datetime="${esc(b.date)}">${fmtDate(b.date)}</time>
                         <p class="pub-fine pub-fine--dim">${esc(b.promotion)} · ${esc(b.card_section)} · ${esc(b.event_tier)}</p>
                     </div>
@@ -1050,7 +1046,13 @@ ${section('pub-wiki', 'Attention', attentionBlock(d.wikipedia, d.charts.pageview
 ${section('pub-geo', 'Markets', marketsBlock(d.market_concentration))}
 ${section('pub-fw', 'Fight week', fightWeekBlock(d.fight_week, d.charts.fight_week))}
 ${section('pub-off', 'Between fights', offCycleTable(offCycleRows(d.off_cycle)), offCycleNote(d.off_cycle) ?? (offCycleRows(d.off_cycle).length ? 'Weeks with a real jump in attention even though no fight was near — he draws attention outside fight weeks too.' : null))}
-${section('pub-broadcast', 'Recent broadcast history', broadcastList(d.broadcast), d.broadcast.length ? 'Recent results on file — not a complete record.' : null)}
+${(() => {
+    // Bare array, or {rows, note} once the assembler carries its own explanation.
+    const rows = Array.isArray(d.broadcast) ? d.broadcast : (d.broadcast?.rows ?? []);
+    const note = (!Array.isArray(d.broadcast) && d.broadcast?.note)
+        || (rows.length ? 'Recent results on file — not a complete record.' : null);
+    return section('pub-broadcast', 'Recent broadcast history', broadcastList(rows), note);
+})()}
 ${section('pub-trajectory', 'Trajectory', trajectoryBlock(d.trajectory))}
 </main>
 ${PUB_FOOTER}`;
@@ -1300,9 +1302,17 @@ export function internalDataPage({ page, site }) {
 ${section('pub-fl', 'Overview', overviewBlock(d.first_light))}
 ${section('pub-funnel', 'Attention funnel', funnelBlock(d.funnel), 'Width at each stage shows how much of this fighter’s audience is still there, compared with a typical fighter at the same level (dashed = typical). Narrower than the tube means they lose more people than usual at that step; wider means they keep more.')}
 ${section('pub-geo', 'Geography', geographyBlock(d.geography), 'Search-volume and market-size indices by country, each relative to its own top market (100). No dollar figures.')}
-${section('pub-retention', 'Fight-week retention', retentionBlock(d.retention, d.compounding), d.compounding
-    ? 'Each fight either lifts the baseline permanently — a step up the audience keeps — or attention fully fades back to where it started. The pattern across fights is what decides whether this audience compounds.'
-    : 'Afterglow: how much of the search and Wikipedia attention a fight brought is still there 30 days later, against this fighter’s own pre-fight baseline.')}
+${(() => {
+    // retention arrives either as a bare array or as {note, rows, compounding}; compounding
+    // may also sit at the top level. Read both, so the section does not silently lose its
+    // lead just because the assembler grouped a section's parts together.
+    const rows = Array.isArray(d.retention) ? d.retention : (d.retention?.rows ?? []);
+    const comp = d.compounding ?? d.retention?.compounding ?? null;
+    const note = (!Array.isArray(d.retention) && d.retention?.note) || (comp
+        ? 'Each fight either lifts the baseline permanently — a step up the audience keeps — or attention fades back to where it started. The pattern across fights is what decides whether this audience compounds.'
+        : 'Afterglow: how much of the search and Wikipedia attention a fight brought is still there 30 days later, against this fighter’s own pre-fight baseline.');
+    return section('pub-retention', 'Fight-week retention', retentionBlock(rows, comp), note);
+})()}
 ${section('pub-off', 'Between fights', offCycleTable(offCycleRows(d.off_cycle)), offCycleNote(d.off_cycle) ?? 'Weeks where attention spiked with no fight nearby — a sponsor push, a media hit, a story — shown against how far that week sat from the nearest bout.')}
 ${section('pub-billing', 'Card position', billingBlock(d.billing))}
 ${section('pub-cohort', 'Compared to peers', cohortBlock(d.cohort))}

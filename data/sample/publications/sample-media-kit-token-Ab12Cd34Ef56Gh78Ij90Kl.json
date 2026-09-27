@@ -1,232 +1,415 @@
 {
-  "token": "sample-media-kit-token-Ab12Cd34Ef56Gh78Ij90Kl",
-  "kind": "media_kit",
-  "slug": "marko-ivanescu",
-  "fighter_name": "Marko Ivanescu",
-  "generated_at": "2026-09-27T11:04:00Z",
-  "measured_on": "2026-09-27",
-  "data": {
-    "fighter": {
-      "name": "Marko Ivanescu",
-      "nickname": "The Wolf",
-      "division": "Lightweight",
-      "nationality": "Romania",
-      "gym": "Titan Fight Team",
-      "organization": "UFC",
-      "record": {
-        "wins": 14,
-        "losses": 2,
-        "draws": 0,
-        "ncs": 0
-      },
-      "streak": {
-        "result": "win",
-        "n": 4
-      }
-    },
-    "rank": {
-      "source": "First Light Rankings",
-      "division": "Lightweight",
-      "rank": 6,
-      "is_champion": false
-    },
-    "next_fight": {
-      "date": "2027-01-24",
-      "event": "UFC 312",
-      "promotion": "UFC",
-      "opponent": "Dario Kessel"
-    },
-    "social": [
-      {
-        "platform": "Instagram",
-        "followers": 812000,
-        "avg_likes": 47833,
-        "avg_comments": 1077,
-        "avg_video_views": 396250,
-        "engagement_rate": 0.056,
-        "engagement_basis": "the median over the last 12 of 12 posts",
-        "posts_per_30d": 4.0,
-        "media_mix": [
-          {
-            "type": "Photo",
-            "share": 0.5
-          },
-          {
-            "type": "Video",
-            "share": 0.3333
-          },
-          {
-            "type": "Carousel",
-            "share": 0.1667
-          }
-        ],
-        "measured_on": "2026-09-27"
-      }
+ "token": "sample-media-kit-token-Ab12Cd34Ef56Gh78Ij90Kl",
+ "kind": "media_kit",
+ "slug": "marko-ivanescu",
+ "fighter_name": "Marko Ivanescu",
+ "generated_at": "2026-09-27T11:04:00Z",
+ "measured_on": "2026-09-27",
+ "data": {
+  "fighter": {
+   "name": "Marko Ivanescu",
+   "nickname": "The Wolf",
+   "division": "Lightweight",
+   "nationality": "Romania",
+   "gym": "Titan Fight Team",
+   "organization": "UFC",
+   "record": {
+    "wins": 14,
+    "losses": 2,
+    "draws": 0,
+    "ncs": 0
+   },
+   "streak": {
+    "result": "win",
+    "n": 4
+   }
+  },
+  "rank": {
+   "source": "First Light Rankings",
+   "division": "Lightweight",
+   "rank": 6,
+   "is_champion": false
+  },
+  "next_fight": {
+   "date": "2027-01-24",
+   "event": "UFC 312",
+   "promotion": "UFC",
+   "opponent": "Dario Kessel"
+  },
+  "social": [
+   {
+    "platform": "Instagram",
+    "followers": 812000,
+    "avg_likes": 47833,
+    "avg_comments": 1077,
+    "avg_video_views": 396250,
+    "engagement_rate": 0.056,
+    "engagement_basis": "the median over the last 12 of 12 posts",
+    "posts_per_30d": 4.0,
+    "media_mix": [
+     {
+      "type": "Photo",
+      "share": 0.5
+     },
+     {
+      "type": "Video",
+      "share": 0.3333
+     },
+     {
+      "type": "Carousel",
+      "share": 0.1667
+     }
     ],
-    "top_posts": [
-      {
-        "platform": "Instagram",
-        "media_type": "Video",
-        "date": "2026-09-12",
-        "likes": 72000,
-        "comments": 2100,
-        "views": 505000,
-        "caption": "Q&A with the team."
-      },
-      {
-        "platform": "Instagram",
-        "media_type": "Video",
-        "date": "2026-09-22",
-        "likes": 61000,
-        "comments": 1500,
-        "views": 380000,
-        "caption": "Fight week vlog, part 1."
-      },
-      {
-        "platform": "Instagram",
-        "media_type": "Video",
-        "date": "2026-09-07",
-        "likes": 58000,
-        "comments": 1300,
-        "views": 410000,
-        "caption": "Highlight reel."
-      },
-      {
-        "platform": "Instagram",
-        "media_type": "Photo",
-        "date": "2026-09-25",
-        "likes": 54000,
-        "comments": 1200,
-        "views": null,
-        "caption": "Fight week is here."
-      },
-      {
-        "platform": "Instagram",
-        "media_type": "Video",
-        "date": "2026-09-05",
-        "likes": 51000,
-        "comments": 1100,
-        "views": 290000,
-        "caption": "Full training camp recap."
-      },
-      {
-        "platform": "Instagram",
-        "media_type": "Carousel",
-        "date": "2026-09-18",
-        "likes": 45000,
-        "comments": 990,
-        "views": null,
-        "caption": "Sponsor shoot."
-      }
-    ],
-    "wikipedia": {
-      "views_per_day": 615,
-      "window_days": 28,
-      "languages": [
-        {
-          "market": "English",
-          "share": 0.58,
-          "views": 342000
-        },
-        {
-          "market": "Romanian",
-          "share": 0.22,
-          "views": 129800
-        },
-        {
-          "market": "Portuguese",
-          "share": 0.09,
-          "views": 53100
-        },
-        {
-          "market": "Spanish",
-          "share": 0.06,
-          "views": 35400
-        }
-      ]
+    "measured_on": "2026-09-27",
+    "note": "Followers is the latest count on file; the averages and engagement rate beside it are read from this fighter's own most recent posts, not a fixed calendar window -- see the caveat below for exactly how many."
+   }
+  ],
+  "posting_calendar": {
+   "window": {
+    "first_day": "2026-07-09",
+    "last_day": "2026-09-25"
+   },
+   "basis": "the 12 posts on file, 2026-07-09 to 2026-09-25 (2.6 months) -- these are the posts we have collected, not a claim about everything this fighter has posted.",
+   "days": [
+    {
+     "date": "2026-07-09",
+     "media_type": "Photo",
+     "intensity": 0.0
     },
-    "market_concentration": {
-      "countries_ranked": [
-        "Romania",
-        "United States",
-        "Brazil",
-        "United Kingdom",
-        "Germany"
-      ],
-      "basis": "Google search interest"
+    {
+     "date": "2026-07-26",
+     "media_type": "Photo",
+     "intensity": 0.28
     },
-    "fight_week": {
-      "fight_date": "2026-08-15",
-      "opponent": "Yusuf Demir",
-      "lift_ratio": 138.1,
-      "peak_views_per_day": 58000.0,
-      "baseline": 420.0
+    {
+     "date": "2026-08-03",
+     "media_type": "Photo",
+     "intensity": 0.076
     },
-    "broadcast": [
-      {
-        "date": "2026-08-15",
-        "event": "UFC 308",
-        "promotion": "UFC",
-        "card_section": "Main card",
-        "event_tier": "Numbered event",
-        "result": "Win"
-      },
-      {
-        "date": "2026-03-07",
-        "event": "UFC 300",
-        "promotion": "UFC",
-        "card_section": "Main card",
-        "event_tier": "Numbered event",
-        "result": "Win"
-      },
-      {
-        "date": "2025-10-11",
-        "event": "UFC Fight Night 250",
-        "promotion": "UFC",
-        "card_section": "Early prelims",
-        "event_tier": "Fight Night",
-        "result": "Win"
-      }
-    ],
-    "charts": {
-      "followers": {
-        "width": 200,
-        "height": 32,
-        "points": "0,60 20,55 40,50 60,44 80,30 100,20 120,10 140,4",
-        "extra_points": null,
-        "labels": []
-      },
-      "pageviews": {
-        "width": 640,
-        "height": 200,
-        "points": "0,180 100,170 200,60 300,40 400,150 500,120 600,90",
-        "extra_points": "0,175 100,168 200,90 300,70 400,140 500,125 600,100",
-        "labels": [
-          {
-            "x": 300.0,
-            "y": 14,
-            "text": "vs. Yusuf Demir"
-          },
-          {
-            "x": 460.0,
-            "y": 14,
-            "text": "vs. Dario Kessel"
-          }
-        ]
-      },
-      "fight_week": {
-        "width": 320,
-        "height": 96,
-        "points": "10,80 40,70 70,20 100,15 130,60 160,75",
-        "extra_points": "28,82.0 312,82.0",
-        "labels": [
-          {
-            "x": 70.0,
-            "y": 10,
-            "text": "fight day"
-          }
-        ]
-      }
+    {
+     "date": "2026-08-12",
+     "media_type": "Carousel",
+     "intensity": 0.228
+    },
+    {
+     "date": "2026-08-20",
+     "media_type": "Photo",
+     "intensity": 0.127
+    },
+    {
+     "date": "2026-08-28",
+     "media_type": "Photo",
+     "intensity": 0.177
+    },
+    {
+     "date": "2026-09-05",
+     "media_type": "Video",
+     "intensity": 0.456
+    },
+    {
+     "date": "2026-09-07",
+     "media_type": "Video",
+     "intensity": 0.634
+    },
+    {
+     "date": "2026-09-12",
+     "media_type": "Video",
+     "intensity": 1.0
+    },
+    {
+     "date": "2026-09-18",
+     "media_type": "Carousel",
+     "intensity": 0.305
+    },
+    {
+     "date": "2026-09-22",
+     "media_type": "Video",
+     "intensity": 0.713
+    },
+    {
+     "date": "2026-09-25",
+     "media_type": "Photo",
+     "intensity": 0.533
     }
+   ],
+   "media_types": [
+    "Carousel",
+    "Photo",
+    "Video"
+   ],
+   "best": {
+    "platform": "Instagram",
+    "media_type": "Video",
+    "date": "2026-09-12",
+    "likes": 72000,
+    "comments": 2100,
+    "views": 505000,
+    "caption": "Q&A with the team."
+   },
+   "typical": {
+    "likes": 44500,
+    "comments": 970,
+    "value_text": "44,500 likes"
+   },
+   "note": "Each cell is one day with a post on file, coloured by how that post's engagement compares with this fighter's own others -- darker is stronger for them, not a comparison with anyone else."
+  },
+  "wikipedia": {
+   "views_per_day": 615,
+   "window_days": 28,
+   "languages": [
+    {
+     "market": "English",
+     "share": 0.58,
+     "views": 342000
+    },
+    {
+     "market": "Romanian",
+     "share": 0.22,
+     "views": 129800
+    },
+    {
+     "market": "Portuguese",
+     "share": 0.09,
+     "views": 53100
+    },
+    {
+     "market": "Spanish",
+     "share": 0.06,
+     "views": 35400
+    }
+   ],
+   "note": "A typical day's Wikipedia page views for this fighter, across every language edition, over the trailing window.",
+   "provenance": "Wikipedia page views, all language editions, trailing 28 days."
+  },
+  "market_concentration": {
+   "countries": [
+    {
+     "country": "Romania",
+     "search_volume_index": 100.0,
+     "market_value_index": 18.0
+    },
+    {
+     "country": "United States",
+     "search_volume_index": 71.0,
+     "market_value_index": 100.0
+    },
+    {
+     "country": "Brazil",
+     "search_volume_index": 44.0,
+     "market_value_index": 22.0
+    },
+    {
+     "country": "United Kingdom",
+     "search_volume_index": 31.0,
+     "market_value_index": 46.0
+    },
+    {
+     "country": "Germany",
+     "search_volume_index": 19.0,
+     "market_value_index": 39.0
+    }
+   ],
+   "basis": "Google search interest",
+   "search_index_note": "How much of this fighter's Google search interest comes from this country, relative to the top country at 100 -- a share of SEARCH, never a headcount or a share of audience.",
+   "market_index_note": "That country's advertising market size per internet user, relative with the top market at 100 -- a measure of the market's SIZE, not of how much of this fighter's own audience sits there."
+  },
+  "fight_week": {
+   "fight_date": "2026-08-15",
+   "opponent": "Yusuf Demir",
+   "lift_ratio": 138.1,
+   "peak_views_per_day": 58000.0,
+   "baseline": 420.0,
+   "note": "How much Wikipedia attention spiked in fight week, against this fighter's own typical (non-fight-week) day."
+  },
+  "broadcast": {
+   "note": "Every scored card appearance we have matched to this fighter -- not guaranteed to be their complete broadcast history, since matching depends on what Wikipedia's own card pages recorded.",
+   "rows": [
+    {
+     "date": "2026-08-15",
+     "event": "UFC 308",
+     "promotion": "UFC",
+     "card_section": "Main card",
+     "event_tier": "Numbered event",
+     "result": "Win"
+    },
+    {
+     "date": "2026-03-07",
+     "event": "UFC 300",
+     "promotion": "UFC",
+     "card_section": "Main card",
+     "event_tier": "Numbered event",
+     "result": "Win"
+    },
+    {
+     "date": "2025-10-11",
+     "event": "UFC Fight Night 250",
+     "promotion": "UFC",
+     "card_section": "Early prelims",
+     "event_tier": "Fight Night",
+     "result": "Win"
+    }
+   ]
+  },
+  "off_cycle": {
+   "note": "Weeks when something other than a fight -- an interview, a press day, a clip going round -- moved this fighter's attention. \"Lift\" is how many times higher that week ran than their usual level.",
+   "rows": [
+    {
+     "week_start": "2026-06-01",
+     "ratio": 23.9,
+     "baseline": 410.0,
+     "nearest_bout_date": "2026-08-15",
+     "days_from_bout": -73
+    },
+    {
+     "week_start": "2026-02-16",
+     "ratio": 5.38,
+     "baseline": 390.0,
+     "nearest_bout_date": "2026-03-07",
+     "days_from_bout": -17
+    }
+   ]
+  },
+  "compounding": {
+   "n": 2,
+   "span_text": "over about 5 months",
+   "mean_step_text": "+41% on average",
+   "first_level_text": "100",
+   "latest_level_text": "200",
+   "compounding": true,
+   "sentence": "After each of this fighter's last 2 fights, their day-to-day audience settled higher than before it -- about 41% higher on average.",
+   "chart": {
+    "width": 320,
+    "height": 90,
+    "points": "8.0,80.0 96.1,53.6 312.0,14.0",
+    "extra_points": null,
+    "labels": [
+     {
+      "x": 96.1,
+      "y": 14,
+      "text": "Lior Ben-David"
+     },
+     {
+      "x": 312.0,
+      "y": 14,
+      "text": "Chase Whitfield"
+     }
+    ],
+    "label": "Day-to-day audience level (settled, 30-90 days after each fight)",
+    "extra_label": null,
+    "x_start": "2025-08-12",
+    "x_end": "2026-03-07",
+    "start_day": null,
+    "end_day": null
+   },
+   "steps": [
+    {
+     "fight_date": "2025-10-11",
+     "opponent": "Lior Ben-David",
+     "step": 0.4,
+     "step_text": "+40%",
+     "direction": "up",
+     "partial": false
+    },
+    {
+     "fight_date": "2026-03-07",
+     "opponent": "Chase Whitfield",
+     "step": 0.4286,
+     "step_text": "+43%",
+     "direction": "up",
+     "partial": false
+    }
+   ],
+   "note": "Whether each fight leaves this fighter's day-to-day (non-fight-week) Wikipedia audience permanently higher, not just spiking it for a week. Measured pre-cycle (120-60 days before a fight) against settled (30-90 days after), a DIFFERENT, wider pair of windows than the afterglow figures on this page use, chosen to sit outside the fight's own promotional hype and past its own decay. No rate is projected forward: only what these specific fights showed."
+  },
+  "trajectory": {
+   "note": "Where this fighter's numbers have been moving, not just where they stand today -- follower growth, any confirmed shift in how much attention they hold, and rank movement.",
+   "follower_growth": {
+    "platform": "Instagram",
+    "value": 33000,
+    "value_text": "+33,000",
+    "growth_pct": 4.2,
+    "growth_pct_text": "+4.2%",
+    "per_month": 14142.9,
+    "per_month_text": "+14,143 / month",
+    "window_days": 70,
+    "direction": "up",
+    "note": "Follower change on this fighter's largest platform, over the window we have readings for, and that same change scaled to a typical month."
+   },
+   "attention_shift": {
+    "ratio": 3.2,
+    "since": "March",
+    "since_date": "2026-03-18",
+    "direction": "up",
+    "sentence": "views settled 3.2x higher since March",
+    "note": "A confirmed, lasting step up in this fighter's typical Wikipedia attention level -- not a fight-week spike, a new normal that has held."
+   },
+   "rank_movement": {
+    "division": "Lightweight",
+    "from_rank": 9,
+    "to_rank": 6,
+    "delta": 3,
+    "direction": "up",
+    "window_days": 38,
+    "note": "How this fighter's own rank has moved over the window -- a positive delta is an improvement (a lower rank number)."
+   }
+  },
+  "charts": {
+   "followers": {
+    "width": 200,
+    "height": 32,
+    "points": "0,60 20,55 40,50 60,44 80,30 100,20 120,10 140,4",
+    "extra_points": null,
+    "labels": [],
+    "label": "Instagram followers",
+    "extra_label": null,
+    "x_start": null,
+    "x_end": null,
+    "start_day": null,
+    "end_day": null
+   },
+   "pageviews": {
+    "width": 640,
+    "height": 200,
+    "points": "0,180 100,170 200,60 300,40 400,150 500,120 600,90",
+    "extra_points": "0,175 100,168 200,90 300,70 400,140 500,125 600,100",
+    "labels": [
+     {
+      "x": 300.0,
+      "y": 14,
+      "text": "vs. Yusuf Demir"
+     },
+     {
+      "x": 460.0,
+      "y": 14,
+      "text": "vs. Dario Kessel"
+     }
+    ],
+    "label": "Views per day",
+    "extra_label": "28-day level",
+    "x_start": "2025-08-01",
+    "x_end": "2026-09-27",
+    "start_day": null,
+    "end_day": null
+   },
+   "fight_week": {
+    "width": 320,
+    "height": 96,
+    "points": "10,80 40,70 70,20 100,15 130,60 160,75",
+    "extra_points": "28,82.0 312,82.0",
+    "labels": [
+     {
+      "x": 70.0,
+      "y": 10,
+      "text": "fight day"
+     }
+    ],
+    "label": "Search interest",
+    "extra_label": "Baseline",
+    "x_start": "2026-08-08",
+    "x_end": "2026-09-14",
+    "start_day": -7,
+    "end_day": 30
+   }
   }
+ }
 }
