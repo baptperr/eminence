@@ -1,0 +1,138 @@
+/* Fighter publications: the media kit and internal-data pages (see scripts/build.mjs for the
+   unguessable-link route each one gets). Loaded instead of pages.css, not alongside it — these
+   pages have no nav, no logo and no site footer, so they don't
+   inherit the reading shell at all, only style.css's tokens (--night, --bone, --t1/--t2/--t3,
+   the two type families).
+
+   The reader of the media kit is a brand's marketing manager; the reader of the internal page
+   is the fighter's manager. Both are on a phone, forwarding a link they didn't write. So: the
+   fighter's name is the largest thing here, everything else is small and numeric, and nothing
+   is a card — hairline rules divide sections the same way the rest of the site does. Charts are
+   monochrome: the fighter's own series in --bone, a peer or reference series in --t3, drawn at
+   the same weight as the sparkline() lines on /index/. */
+
+:root {
+    --pub-pad: clamp(1.25rem, 6vw, 2.5rem);
+}
+
+.sr-only {
+    position: absolute; width: 1px; height: 1px; overflow: hidden;
+    clip-path: inset(50%); white-space: nowrap;
+}
+
+.pub { padding-bottom: 2rem; }
+.pub-inner { max-width: 640px; margin: 0 auto; padding-inline: var(--pub-pad); }
+
+/* ── HEADER: the fighter's name is the largest mark on the page ── */
+.pub-head { padding: clamp(3rem, 10vw, 5rem) 0 clamp(2rem, 5vw, 3rem); }
+.pub-name {
+    font-family: 'Red Hat Display', sans-serif; font-weight: 800;
+    font-size: clamp(2.25rem, 11vw, 4.25rem); line-height: 0.98; letter-spacing: -0.02em;
+    overflow-wrap: anywhere;
+}
+.pub-nick { margin-top: 0.6rem; font-size: 1.05rem; color: var(--t2); }
+.pub-meta { margin-top: 0.9rem; font-size: 0.88rem; color: var(--t2); }
+.pub-asof { margin-top: 1rem; font-size: 0.78rem; color: var(--t3); font-variant-numeric: tabular-nums; }
+
+/* ── SECTIONS ── */
+.pub-section { padding: clamp(2rem, 6vw, 3rem) 0; border-top: 1px solid var(--border-n); }
+.pub-h2 {
+    font-family: 'Red Hat Display', sans-serif; font-weight: 800;
+    font-size: clamp(1.25rem, 4vw, 1.6rem); letter-spacing: -0.01em; margin-bottom: 1.5rem;
+}
+.pub-h3 {
+    font-family: 'Red Hat Display', sans-serif; font-weight: 800;
+    font-size: 1.05rem; margin-bottom: 0.9rem;
+}
+.pub-platform + .pub-platform { margin-top: 2.25rem; padding-top: 2.25rem; border-top: 1px solid var(--border-n); }
+
+.pub-line { font-size: 1rem; color: var(--t2); margin-bottom: 1.25rem; }
+.pub-line strong { color: var(--bone); font-weight: 500; }
+.pub-note {
+    margin-top: 1.25rem; padding-left: 1rem; border-left: 2px solid var(--border-d);
+    font-size: 0.92rem; color: var(--t2); line-height: 1.7; max-width: 52ch;
+}
+.pub-fine { margin-top: 0.9rem; font-size: 0.82rem; color: var(--t2); line-height: 1.6; }
+.pub-fine--dim { color: var(--t3); }
+
+/* ── STATS: one big number, one small label — the same idiom as the FLI figure and the
+   winners/losers change on /index/, so a page of numbers still reads as this site's numbers. ── */
+.pub-stat-row { display: flex; flex-wrap: wrap; gap: 1.5rem 2.25rem; }
+.pub-stat { display: flex; flex-direction: column; gap: 0.15rem; min-width: 0; }
+.pub-stat-n {
+    font-family: 'Red Hat Display', sans-serif; font-weight: 800;
+    font-size: clamp(1.35rem, 5vw, 1.75rem); line-height: 1.1;
+    font-variant-numeric: tabular-nums; white-space: nowrap;
+}
+.pub-stat-label { font-size: 0.72rem; color: var(--t3); max-width: 16rem; text-wrap: balance; }
+
+/* ── ORDERED LISTS: market concentration and funnel stages both really are a sequence, so a
+   number is the right mark here — nowhere else on the page uses one. ── */
+.pub-order { list-style: decimal; padding-left: 1.4rem; color: var(--t1); }
+.pub-order li { padding: 0.15rem 0; }
+.pub-order li::marker { color: var(--t3); font-variant-numeric: tabular-nums; }
+
+/* ── ROW LISTS: top posts, broadcast history — one hairline-divided list, entry-style. ── */
+.pub-list { list-style: none; border-top: 1px solid var(--border-d); }
+.pub-list-row {
+    display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between;
+    gap: 0.3rem 1.5rem; padding: 1.1rem 0; border-bottom: 1px solid var(--border-n);
+}
+.pub-list-main { flex: 1 1 14rem; min-width: 0; }
+.pub-list-title { font-weight: 500; color: var(--bone); }
+.pub-list-date { display: block; margin-top: 0.15rem; font-size: 0.78rem; color: var(--t3); font-variant-numeric: tabular-nums; }
+.pub-caption {
+    margin-top: 0.4rem; font-size: 0.85rem; color: var(--t2); line-height: 1.5;
+    display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+}
+.pub-list-figures {
+    display: flex; flex-direction: column; align-items: flex-end; gap: 0.1rem;
+    font-size: 0.82rem; color: var(--t2); text-align: right; font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+}
+
+/* ── TABLES: geography, between-fights and card-position rows — plain, no zebra, no borderbox;
+   a hairline under the header is the only structure the data needs. Horizontal scroll only ever
+   engages on a very narrow phone; nothing here is wide enough to need it in the common case. ── */
+.pub-table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+.pub-table { width: 100%; border-collapse: collapse; font-size: 0.82rem; font-variant-numeric: tabular-nums; }
+.pub-table th, .pub-table td { padding: 0.6rem 0.9rem 0.6rem 0; text-align: left; white-space: nowrap; }
+.pub-table th { color: var(--t3); font-weight: 500; border-bottom: 1px solid var(--border-d); }
+.pub-table td { border-bottom: 1px solid var(--border-n); color: var(--t1); }
+.pub-table td:first-child, .pub-table th:first-child { white-space: normal; }
+
+/* ── CHARTS: geometry from the payload, drawn exactly as given. The fighter's own series is
+   the brightest line on the page short of their name; a peer/reference series stays quiet. ── */
+.pub-chart, .pub-dist { display: block; width: 100%; height: auto; margin-top: 1.25rem; overflow: visible; }
+.pub-chart-main { fill: none; stroke: var(--bone); stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; }
+.pub-chart-extra { fill: none; stroke: var(--t3); stroke-width: 1.5; stroke-linejoin: round; stroke-linecap: round; opacity: 0.85; }
+.pub-chart-label { font-family: 'DM Sans', sans-serif; font-size: 8px; fill: var(--t3); }
+.pub-dist-bar { fill: var(--t3); opacity: 0.7; }
+.pub-dist-marker { stroke: var(--bone); stroke-width: 1.5; }
+.pub-dist-marker-dot { fill: var(--bone); }
+
+.pub-bout + .pub-bout, .pub-diff + .pub-diff { margin-top: 2.25rem; padding-top: 2.25rem; border-top: 1px solid var(--border-n); }
+
+/* ── FOOTER: the one mark of ours on the page. ── */
+.pub-foot { padding: clamp(2.5rem, 6vw, 3.5rem) 0 clamp(2rem, 5vw, 3rem); }
+.pub-foot-line { font-size: 0.72rem; color: var(--t3); }
+.pub-foot-line a { color: var(--t3); text-decoration: none; border-bottom: 1px solid var(--border-d); }
+.pub-foot-line a:hover { color: var(--bone); border-color: var(--bone); }
+
+/* ── PRINT: decent, not the target. Charts and hairlines survive; the reveal/motion layer
+   (handled in JS via the .js class) never applies here since a printed page has no script. ── */
+@media print {
+    body { background: #fff; color: #000; }
+    .pub-name, .pub-h2, .pub-h3, .pub-stat-n, .pub-list-title { color: #000; }
+    .pub-nick, .pub-meta, .pub-line, .pub-fine, .pub-note, .pub-stat-label,
+    .pub-list-date, .pub-list-figures, .pub-table th { color: #333; }
+    .pub-chart-main { stroke: #000; }
+    .pub-chart-extra, .pub-dist-bar { stroke: #999; fill: #999; }
+    .pub-dist-marker, .pub-dist-marker-dot { stroke: #000; fill: #000; }
+    .pub-section, .pub-table th, .pub-table td, .pub-list-row { border-color: #ccc; }
+}
+
+@media (max-width: 480px) {
+    .pub-list-row { flex-direction: column; align-items: flex-start; }
+    .pub-list-figures { align-items: flex-start; text-align: left; flex-direction: row; flex-wrap: wrap; gap: 0 0.9rem; }
+}
