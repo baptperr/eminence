@@ -352,11 +352,15 @@ function checkInternalData(data, bad) {
         b.rows.forEach((row, i) => {
             const at = `data.billing.rows[${i}]`;
             if (!isDate(row?.date)) bad(`"${at}.date" must be a date`);
-            for (const k of ['event', 'card_section', 'event_tier', 'signal']) {
+            for (const k of ['event', 'card_section', 'event_tier']) {
                 if (!isStr(row?.[k])) bad(`"${at}.${k}" missing`);
             }
-            if (row?.actual != null && !isNum(row.actual)) bad(`"${at}.actual" must be a number or null`);
-            if (row?.expected != null && !isNum(row.expected)) bad(`"${at}.expected" must be a number or null`);
+            // actual/expected/signal are the billing model's own numbers (roughly 0..1,
+            // signal signed). Null together when one corner carried no rating at fit
+            // time — excluded from the model, never imputed.
+            for (const k of ['actual', 'expected', 'signal']) {
+                if (row?.[k] != null && !isNum(row[k])) bad(`"${at}.${k}" must be a number or null`);
+            }
         });
         checkSeries(b.chart, 'data.billing.chart', bad);
     }

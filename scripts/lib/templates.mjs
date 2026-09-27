@@ -686,7 +686,7 @@ function socialBlock(s) {
             <div class="pub-platform">
                 <h3 class="pub-h3">${esc(s.platform)}</h3>
                 ${rows}${mix}
-                <p class="pub-fine pub-fine--dim">Engagement is the median across ${esc(s.engagement_basis)} — not a 30-day window. Measured ${fmtDate(s.measured_on)}.</p>
+                <p class="pub-fine pub-fine--dim">Engagement is ${esc(s.engagement_basis)} — not a 30-day window. Measured ${fmtDate(s.measured_on)}.</p>
             </div>`;
 }
 
@@ -787,19 +787,33 @@ ${PUB_FOOTER}`;
 
 function firstLightBlock(fl) {
     if (!fl) return '';
+    // expected/actual are fame MAGNITUDES (a followers-equivalent), not scores like `score`
+    // and `gap` — so they are printed as whole counts and labelled for what they are. Two
+    // numbers on one row in different units with bare labels ("Expected", "Actual") read as
+    // the same kind of thing and are not.
     return `${statRow([
         [num(fl.score, 2), 'Score'],
-        [num(fl.rating), 'Rating'],
-        [num(fl.expected, 2), 'Expected'],
-        [num(fl.actual, 2), 'Actual'],
+        [num(fl.rating), 'Skill rating'],
+        [fl.expected != null ? num(fl.expected) : null, 'Audience its skill predicts'],
+        [fl.actual != null ? num(fl.actual) : null, 'Audience measured'],
         [signed(fl.gap, 2), 'Gap'],
     ])}<p class="pub-note">${esc(fl.reading)}</p>`;
 }
 
 function funnelBlock(fn) {
     if (!fn) return '';
+    // Each stage arrives display-ready from the assembler: `title` names it, `text` is the
+    // figure already in its own units ("590K views"), `peer_text` is the typical fighter at
+    // the same level and `pct_text` where this one sits among them. An unmeasured stage says
+    // so rather than printing a zero.
     const stages = (fn.stages ?? []).length
-        ? `<ol class="pub-order">${fn.stages.map((s) => `<li>${esc(s.label ?? s.name ?? '')}${s.value != null ? ` — ${esc(s.value)}` : ''}</li>`).join('')}</ol>` : '';
+        ? `<ol class="pub-stages">${fn.stages.map((s) => `
+                <li class="pub-stage${s.measured === false ? ' pub-stage--none' : ''}">
+                    <p class="pub-stage-name">${esc(s.title ?? '')}</p>
+                    <p class="pub-stage-figure">${s.measured === false ? 'not measured' : esc(s.text ?? '')}</p>
+                    ${s.what ? `<p class="pub-fine pub-fine--dim">${esc(s.what)}</p>` : ''}
+                    ${s.peer_text || s.pct_text ? `<p class="pub-fine">${[s.peer_text, s.pct_text].filter(Boolean).map(esc).join(' · ')}</p>` : ''}
+                </li>`).join('')}</ol>` : '';
     const g = fn.graphic;
     const graphic = g && typeof g.width === 'number' && typeof g.height === 'number' && typeof g.points === 'string' ? chart(g) : '';
     return `${stages}${graphic}${fn.leak?.sentence ? `<p class="pub-note">${esc(fn.leak.sentence)}</p>` : ''}`;
@@ -835,12 +849,15 @@ function retentionBlock(items) {
 }
 
 function offCycleTable(rows) {
-    return table(['Week', 'Ratio', 'Baseline', 'Nearest bout', 'Days from bout'], rows.map((o) => [
+    // days_from_bout is signed around the bout (negative = the spike came first), which is
+    // unreadable as a bare "-74". Say which side of the fight it fell on instead.
+    const whenVsBout = (d) => (d == null ? '—' : d === 0 ? 'fight day' : `${Math.abs(d)} days ${d < 0 ? 'before' : 'after'}`);
+    return table(['Week', 'Lift', 'Baseline', 'Nearest bout', ''], rows.map((o) => [
         esc(fmtDate(o.week_start)),
         `×${o.ratio.toFixed(2)}`,
         o.baseline != null ? num(o.baseline) : '—',
         o.nearest_bout_date ? esc(fmtDate(o.nearest_bout_date)) : '—',
-        o.days_from_bout != null ? String(o.days_from_bout) : '—',
+        whenVsBout(o.days_from_bout),
     ]));
 }
 
@@ -851,9 +868,12 @@ function billingBlock(b) {
         esc(r.event),
         esc(r.card_section),
         esc(r.event_tier),
-        r.actual != null ? num(r.actual) : '—',
-        r.expected != null ? num(r.expected) : '—',
-        esc(r.signal),
+        r.actual != null ? num(r.actual, 2) : '—',
+        r.expected != null ? num(r.expected, 2) : '—',
+        // Signed, because the sign IS the reading: billed above the slot this matchup
+        // predicted, or below it. Never a word — the assembler sends a number and the
+        // page does not editorialise it into "outperformed".
+        r.signal != null ? `${r.signal > 0 ? '+' : r.signal < 0 ? '−' : ''}${num(Math.abs(r.signal), 2)}` : '—',
     ]));
     return `${rows}${chart(b.chart)}`;
 }

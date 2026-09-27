@@ -1,0 +1,232 @@
+{
+ "token": "sample-media-kit-token-Ab12Cd34Ef56Gh78Ij90Kl",
+ "kind": "media_kit",
+ "slug": "marko-ivanescu",
+ "fighter_name": "Marko Ivanescu",
+ "generated_at": "2026-09-27T11:04:00Z",
+ "measured_on": "2026-09-27",
+ "data": {
+  "fighter": {
+   "name": "Marko Ivanescu",
+   "nickname": "The Wolf",
+   "division": "lightweight",
+   "nationality": "Romania",
+   "gym": "Titan Fight Team",
+   "organization": "UFC",
+   "record": {
+    "wins": 14,
+    "losses": 2,
+    "draws": 0,
+    "ncs": 0
+   },
+   "streak": {
+    "result": "win",
+    "n": 4
+   }
+  },
+  "rank": {
+   "source": "First Light Rankings",
+   "division": "Lightweight",
+   "rank": 6,
+   "is_champion": false
+  },
+  "next_fight": {
+   "date": "2027-01-24",
+   "event": "UFC 312",
+   "promotion": "UFC",
+   "opponent": "Dario Kessel"
+  },
+  "social": [
+   {
+    "platform": "instagram",
+    "followers": 812000,
+    "avg_likes": 46545,
+    "avg_comments": 993,
+    "avg_video_views": 396250,
+    "engagement_rate": 0.0566,
+    "engagement_basis": "median of 11 of 12 posts",
+    "posts_per_30d": 3.3,
+    "media_mix": [
+     {
+      "type": "photo",
+      "share": 50.0
+     },
+     {
+      "type": "video",
+      "share": 33.3
+     },
+     {
+      "type": "carousel",
+      "share": 16.7
+     }
+    ],
+    "measured_on": "2026-09-27"
+   }
+  ],
+  "top_posts": [
+   {
+    "platform": "instagram",
+    "media_type": "video",
+    "date": "2026-09-07",
+    "likes": 72000,
+    "comments": 2100,
+    "views": 505000,
+    "caption": "Q&A with the team."
+   },
+   {
+    "platform": "instagram",
+    "media_type": "video",
+    "date": "2026-09-22",
+    "likes": 61000,
+    "comments": 1500,
+    "views": 410000,
+    "caption": "Full training camp recap."
+   },
+   {
+    "platform": "instagram",
+    "media_type": "video",
+    "date": "2026-08-06",
+    "likes": 58000,
+    "comments": 1300,
+    "views": 380000,
+    "caption": "Fight week vlog, part 1."
+   },
+   {
+    "platform": "instagram",
+    "media_type": "photo",
+    "date": "2026-09-25",
+    "likes": 54000,
+    "comments": 1200,
+    "views": null,
+    "caption": "Fight week is here."
+   },
+   {
+    "platform": "instagram",
+    "media_type": "video",
+    "date": "2026-06-24",
+    "likes": 51000,
+    "comments": 1100,
+    "views": 290000,
+    "caption": "Highlight reel."
+   },
+   {
+    "platform": "instagram",
+    "media_type": "carousel",
+    "date": "2026-07-09",
+    "likes": 45000,
+    "comments": 990,
+    "views": null,
+    "caption": "Sponsor shoot."
+   }
+  ],
+  "wikipedia": {
+   "views_per_day": 615,
+   "window_days": 28,
+   "languages": [
+    {
+     "market": "English",
+     "share": 58.0,
+     "views": 342000
+    },
+    {
+     "market": "Romanian",
+     "share": 22.0,
+     "views": 129800
+    },
+    {
+     "market": "Portuguese",
+     "share": 9.0,
+     "views": 53100
+    },
+    {
+     "market": "Spanish",
+     "share": 6.0,
+     "views": 35400
+    }
+   ]
+  },
+  "market_concentration": {
+   "countries_ranked": [
+    "Romania",
+    "United States",
+    "Brazil",
+    "United Kingdom",
+    "Germany"
+   ],
+   "basis": "google search interest"
+  },
+  "fight_week": {
+   "fight_date": "2026-08-15",
+   "opponent": "Yusuf Demir",
+   "lift_ratio": 138.1,
+   "peak_views_per_day": 58000.0,
+   "baseline": 420.0
+  },
+  "broadcast": [
+   {
+    "date": "2026-08-15",
+    "event": "UFC 308",
+    "promotion": "UFC",
+    "card_section": "main_card",
+    "event_tier": "numbered",
+    "result": "win"
+   },
+   {
+    "date": "2026-03-07",
+    "event": "UFC 300",
+    "promotion": "UFC",
+    "card_section": "main_card",
+    "event_tier": "numbered",
+    "result": "win"
+   },
+   {
+    "date": "2025-10-11",
+    "event": "UFC Fight Night 250",
+    "promotion": "UFC",
+    "card_section": "main_card",
+    "event_tier": "fight_night",
+    "result": "win"
+   }
+  ],
+  "charts": {
+   "followers": {
+    "width": 200,
+    "height": 32,
+    "points": "0,60 20,55 40,50 60,44 80,30 100,20 120,10 140,4",
+    "extra_points": null,
+    "labels": []
+   },
+   "pageviews": {
+    "width": 640,
+    "height": 200,
+    "points": "0,180 100,170 200,60 300,40 400,150 500,120 600,90",
+    "extra_points": "0,175 100,168 200,90 300,70 400,140 500,125 600,100",
+    "labels": [
+     {
+      "x": 300.0,
+      "y": 14,
+      "text": "vs. Yusuf Demir"
+     },
+     {
+      "x": 460.0,
+      "y": 14,
+      "text": "vs. Dario Kessel"
+     }
+    ]
+   },
+   "fight_week": {
+    "width": 320,
+    "height": 96,
+    "points": "10,80 40,70 70,20 100,15 130,60 160,75",
+    "extra_points": "28,82.0 312,82.0",
+    "labels": [
+     {
+      "x": 70.0,
+      "y": 10,
+      "text": "fight day"
+     }
+    ]
+   }
+  }
+ }
+}

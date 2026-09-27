@@ -136,3 +136,13 @@
     .pub-list-row { flex-direction: column; align-items: flex-start; }
     .pub-list-figures { align-items: flex-start; text-align: left; flex-direction: row; flex-wrap: wrap; gap: 0 0.9rem; }
 }
+
+/* Funnel stages: one block per step, figure first, the peer reading under it. The stage
+   list is not a ranking, so no numerals -- the order is the funnel's own. */
+.pub-stages { list-style: none; display: grid; gap: 1rem; margin: 1.25rem 0; }
+.pub-stage { border-top: 1px solid var(--border-n); padding-top: 0.75rem; }
+.pub-stage--none { color: var(--t3); }
+.pub-stage-name { font-family: 'DM Sans', system-ui, sans-serif; font-size: 0.65rem;
+    font-weight: 500; letter-spacing: 0.22em; text-transform: uppercase; color: var(--t3); }
+.pub-stage-figure { font-family: 'Red Hat Display', sans-serif; font-weight: 800;
+    font-size: 1.35rem; line-height: 1.3; color: var(--bone); font-variant-numeric: tabular-nums; }
