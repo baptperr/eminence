@@ -4,4 +4,5 @@
 dist/
 dist-preview/
 data/private/
+data/publications/
 data/index.json

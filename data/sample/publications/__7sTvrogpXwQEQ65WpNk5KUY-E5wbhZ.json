@@ -1,0 +1,105 @@
+{
+  "token": "__7sTvrogpXwQEQ65WpNk5KUY-E5wbhZ",
+  "kind": "internal_data",
+  "slug": "sasha-okafor-lindqvist",
+  "fighter_name": "Sasha Okafor-Lindqvist",
+  "generated_at": "2026-09-24T11:04:00Z",
+  "measured_on": "2026-09-24",
+  "data": {
+    "first_light": {
+      "score": 0.34,
+      "rating": 1512,
+      "expected": 0.21,
+      "actual": 0.34,
+      "gap": 0.13,
+      "reading": "Attention is running ahead of what the rating alone would predict."
+    },
+    "funnel": {
+      "stages": [
+        { "label": "Search interest", "value": "1,840/day" },
+        { "label": "Wikipedia views", "value": "1,840/day" },
+        { "label": "Social engagement", "value": "4.6%" },
+        { "label": "Ticket-adjacent search", "value": "210/day" }
+      ],
+      "graphic": { "width": 300, "height": 60, "points": "0,10 100,20 200,35 300,50" },
+      "leak": {
+        "named": "Wikipedia to social",
+        "sentence": "Most of the drop between search interest and social engagement happens between Wikipedia and Instagram, not before it."
+      }
+    },
+    "geography": {
+      "countries": [
+        { "country": "Sweden", "search_volume_index": 100, "market_value_index": 62, "estimated": false },
+        { "country": "United States", "search_volume_index": 44, "market_value_index": 88, "estimated": true },
+        { "country": "Brazil", "search_volume_index": 31, "market_value_index": 19, "estimated": false }
+      ],
+      "languages": [
+        { "market": "English", "share": 0.52, "views": 957 },
+        { "market": "Swedish", "share": 0.28, "views": 515 }
+      ]
+    },
+    "retention": [
+      {
+        "fight_date": "2026-06-14",
+        "opponent": "Kenji Watanabe",
+        "search_afterglow": 2.3,
+        "wiki_afterglow": 1.8,
+        "growth_velocity": 0.14,
+        "peak": 11200,
+        "baseline": 1620,
+        "curve": { "width": 300, "height": 70, "points": "0,10 20,15 40,30 60,45 80,55 100,60 120,63 140,65" }
+      },
+      {
+        "fight_date": "2025-12-06",
+        "opponent": "Amaru Ibarra",
+        "search_afterglow": 1.6,
+        "wiki_afterglow": 1.2,
+        "growth_velocity": 0.08,
+        "peak": 6400,
+        "baseline": 1500,
+        "curve": { "width": 300, "height": 70, "points": "0,12 20,22 40,35 60,44 80,52 100,58 120,61 140,63" }
+      }
+    ],
+    "off_cycle": [
+      { "week_start": "2026-07-06", "ratio": 0.92, "baseline": 1620, "nearest_bout_date": "2026-06-14", "days_from_bout": 22 },
+      { "week_start": "2026-08-03", "ratio": 0.81, "baseline": 1620, "nearest_bout_date": "2026-06-14", "days_from_bout": 50 },
+      { "week_start": "2026-09-07", "ratio": 0.76, "baseline": 1620, "nearest_bout_date": "2026-11-14", "days_from_bout": -68 }
+    ],
+    "billing": {
+      "rows": [
+        { "date": "2026-06-14", "event": "UFC 328", "card_section": "main", "event_tier": "PPV", "actual": 1620, "expected": 1400, "signal": "outperformed" },
+        { "date": "2025-12-06", "event": "UFC Fight Night", "card_section": "co-main", "event_tier": "Fight Night", "actual": 980, "expected": 1050, "signal": "matched" }
+      ],
+      "chart": { "width": 300, "height": 60, "points": "0,45 100,30 200,35 300,15" }
+    },
+    "cohort": {
+      "target": {
+        "metric": "posts_30d_after_fight",
+        "label": "Posts in the 30 days after a fight",
+        "fighter_value": 9,
+        "peer_median": 6,
+        "basis": "Featherweight top 15",
+        "n": 14
+      },
+      "differentiators": [
+        {
+          "metric": "fight_week_retention",
+          "label": "Fight-week search retention",
+          "fighter_value": 2.3,
+          "better_median": 2.6,
+          "worse_median": 1.1,
+          "n_better": 7,
+          "n_worse": 7,
+          "distribution": {
+            "values": [0.8, 1.0, 1.2, 1.4, 1.6, 1.9, 2.1, 2.3, 2.6, 2.9, 3.2],
+            "marker": 2.3,
+            "width": 220,
+            "height": 60,
+            "bins": [1, 2, 2, 3, 4, 3, 2, 2, 1, 1, 1]
+          },
+          "sentence": "The fighters at this level who kept more of their fight-week attention posted a median of 9 times in the month after the fight."
+        }
+      ]
+    }
+  }
+}
