@@ -1,7 +1,8 @@
-// HTML for every generated route. Three templates, on purpose:
+// HTML for every generated route. Four templates, on purpose:
 //   • archive/article/index  — the standard reading shell (pages.css)
 //   • manifesto              — standalone full-bleed page (manifesto.css)
 //   • private                — the standard shell, minus everything that could leak the URL
+//   • publication kit        — no shell at all: no nav, no logo, no site footer (publication.css)
 
 import { esc, safeUrl, isExternal, fmtDate, renderMarkdown, slugify } from './util.mjs';
 
@@ -28,26 +29,42 @@ const FOOTER = `<footer>
     <p class="foot-copy">© ${YEAR} FIRST LIGHT</p>
 </footer>`;
 
-// Every page goes through here. `private` pages get no canonical URL, no Open Graph tags
-// (a link preview would leak the title into chat apps), noindex, and no referrer.
-function shell({ title, description, url, site, current, body, css = ['/pages.css'], bodyClass = '', priv = false, scripts = true }) {
-    const head = priv
-        ? `<meta name="robots" content="noindex, nofollow, noarchive, nosnippet">
-    <meta name="referrer" content="no-referrer">`
-        : `<meta name="description" content="${esc(description)}">
-    <link rel="canonical" href="${esc(site + url)}">
-    <meta property="og:site_name" content="FIRST LIGHT">
-    <meta property="og:type" content="website">
-    <meta property="og:title" content="${esc(title)}">
-    <meta property="og:description" content="${esc(description)}">
-    <meta property="og:url" content="${esc(site + url)}">`;
+// Every page goes through here. Three concerns that used to travel together as one `priv`
+// flag now vary independently, because the publication pages need a combination the site
+// never needed before (noindex, but still carrying Open Graph, and no nav at all):
+//   • `noindex`  — robots noindex/nofollow/noarchive/nosnippet + no-referrer, and no canonical
+//                  link or <meta name="description"> (both would be dead weight on a page
+//                  that's never indexed and is only ever reached by direct link).
+//   • `og`       — Open Graph tags, so a forwarded link unfurls with a title and description.
+//                  `og:url` is skipped when `noindex` is set: these pages have no canonical
+//                  address worth asserting.
+//   • `nav`      — the site nav (logo + dropdown). Off for the publication pages, which have
+//                  no nav, no logo and no links out at all.
+// Existing call sites are unaffected: `priv: true` (the old private-page behaviour) is exactly
+// `noindex: true, og: false`, and every other site still gets its nav.
+function shell({ title, description, url, site, current, body, css = ['/pages.css'], bodyClass = '', noindex = false, og = true, nav = true, scripts = true }) {
+    const head = [];
+    if (noindex) {
+        head.push('<meta name="robots" content="noindex, nofollow, noarchive, nosnippet">', '<meta name="referrer" content="no-referrer">');
+    } else {
+        head.push(`<meta name="description" content="${esc(description)}">`, `<link rel="canonical" href="${esc(site + url)}">`);
+    }
+    if (og) {
+        head.push(
+            '<meta property="og:site_name" content="FIRST LIGHT">',
+            '<meta property="og:type" content="website">',
+            `<meta property="og:title" content="${esc(title)}">`,
+            `<meta property="og:description" content="${esc(description)}">`,
+        );
+        if (!noindex) head.push(`<meta property="og:url" content="${esc(site + url)}">`);
+    }
     return `<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>${esc(title)}</title>
-    ${head}
+    ${head.join('\n    ')}
     <link rel="icon" type="image/png" href="/favicon.png">
     <link rel="apple-touch-icon" href="/favicon.png">
     <link rel="preload" href="/fonts/dm-sans-var-latin.woff2" as="font" type="font/woff2" crossorigin>
@@ -57,9 +74,7 @@ ${css.map((c) => `    <link rel="stylesheet" href="${c}">`).join('\n')}
 </head>
 <body class="${bodyClass}">
 
-${NAV(current)}
-
-${body}
+${nav ? `${NAV(current)}\n\n` : ''}${body}
 ${scripts ? `
 <script src="/menu.js"></script>
 <script src="/nav.js"></script>` : '<script src="/menu.js"></script>'}
@@ -527,7 +542,7 @@ ${f ? `
 ${FOOTER}`;
     return shell({
         title: `${page.title || 'Media kit'} — FIRST LIGHT`,
-        url: '', site, current: null, body, priv: true,
+        url: '', site, current: null, body, noindex: true, og: false,
     });
 }
 
@@ -543,5 +558,351 @@ export function notFoundPage({ site }) {
     </header>
 </main>
 ${FOOTER}`;
-    return shell({ title: 'Not found — FIRST LIGHT', url: '', site, current: null, body, priv: true });
+    return shell({ title: 'Not found — FIRST LIGHT', url: '', site, current: null, body, noindex: true, og: false });
+}
+
+// ── /publications/kit/[slug-token]/{media-kit,internal-data}/ ──
+//
+// Contract: observatory-publications/docs/publications-contract.md. These are the only two
+// templates in the file with no NAV, no logo and no site FOOTER — one footer line, a plain
+// mailto, nothing else — and the only two that never link anywhere, including to each other.
+// mediaKitPage() reads only media_kit.data; internalDataPage() reads only internal_data.data.
+// Neither imports the other's field names, so a template mistake can't leak one page's shape
+// into the other's.
+
+const PUB_FOOTER = `<footer class="pub-foot">
+    <div class="pub-inner"><p class="pub-foot-line">Data measured by the First Light Observatory · <a href="mailto:contact@firstlight.agency">contact@firstlight.agency</a></p></div>
+</footer>`;
+
+// The <series> geometry both repos share: {width, height, points, extra_points|null, labels}.
+// Computed in Python at generation time; this only draws it, following the sparkline() idiom
+// above — no client-side charting, nothing recomputed. `points` is always the fighter's own
+// series (bone/white); `extra_points`, when present, is the peer or reference series (mid-grey)
+// — the only two series either payload ever asks for.
+function chart(series) {
+    if (!series) return '';
+    const extra = series.extra_points ? `<polyline class="pub-chart-extra" points="${esc(series.extra_points)}"/>` : '';
+    const labels = (series.labels ?? [])
+        .map((l) => `<text x="${l.x}" y="${l.y}" class="pub-chart-label">${esc(l.text)}</text>`).join('');
+    return `<svg class="pub-chart" viewBox="0 0 ${series.width} ${series.height}" width="${series.width}" height="${series.height}" aria-hidden="true" focusable="false">${extra}<polyline class="pub-chart-main" points="${esc(series.points)}"/>${labels}</svg>`;
+}
+
+// A small histogram for cohort.differentiators[].distribution. The contract doesn't pin down
+// the exact shape of `bins`, beyond that it sits alongside pre-computed geometry (width, height)
+// the same way every other chart here does — so bar heights are read off `bins` (a plain number,
+// or an object carrying one under "count" or "height") and spaced evenly across the box; `marker`
+// is read as the fighter's own value, in the same units as `values`, and placed proportionally
+// across the range those values span. Peer bars in mid-grey, the fighter's own position in bone,
+// matching every other chart in the payload.
+function distributionChart(dist) {
+    const { values, marker, width, height, bins } = dist;
+    const heights = bins.map((b) => (typeof b === 'number' ? b : (b?.count ?? b?.height ?? 0)));
+    const n = heights.length || 1;
+    const gap = 2;
+    const barW = Math.max(1, (width - gap * (n - 1)) / n);
+    const maxBin = Math.max(...heights, 1);
+    const bars = heights.map((h, i) => {
+        const bh = (h / maxBin) * height;
+        const x = i * (barW + gap);
+        return `<rect class="pub-dist-bar" x="${x.toFixed(1)}" y="${(height - bh).toFixed(1)}" width="${barW.toFixed(1)}" height="${bh.toFixed(1)}"/>`;
+    }).join('');
+    let markerMark = '';
+    if (marker != null && values?.length) {
+        const lo = Math.min(...values), hi = Math.max(...values);
+        const mx = hi > lo ? ((marker - lo) / (hi - lo)) * width : width / 2;
+        markerMark = `<line class="pub-dist-marker" x1="${mx.toFixed(1)}" x2="${mx.toFixed(1)}" y1="0" y2="${height}"/><circle class="pub-dist-marker-dot" cx="${mx.toFixed(1)}" cy="0" r="3"/>`;
+    }
+    return `<svg class="pub-dist" viewBox="0 0 ${width} ${height}" width="${width}" height="${height}" aria-hidden="true" focusable="false">${bars}${markerMark}</svg>`;
+}
+
+const pct = (v, digits = 1) => `${(v * 100).toFixed(digits)}%`;
+
+function stat(value, label) {
+    if (value == null) return '';
+    return `<div class="pub-stat"><span class="pub-stat-n">${esc(value)}</span><span class="pub-stat-label">${esc(label)}</span></div>`;
+}
+function statRow(items) {
+    const parts = items.filter(([v]) => v != null).map(([v, l]) => stat(v, l));
+    return parts.length ? `<div class="pub-stat-row">${parts.join('')}</div>` : '';
+}
+
+// A plain table for internal-data's multi-column rows (geography, off-cycle, billing). Cells
+// arrive pre-escaped/pre-formatted by the caller, the same convention privatePage's rows() uses.
+function table(headers, rows) {
+    if (!rows.length) return '';
+    return `<div class="pub-table-wrap"><table class="pub-table">
+                <thead><tr>${headers.map((h) => `<th scope="col">${esc(h)}</th>`).join('')}</tr></thead>
+                <tbody>${rows.map((r) => `<tr>${r.map((c) => `<td>${c}</td>`).join('')}</tr>`).join('')}</tbody>
+            </table></div>`;
+}
+
+function section(id, heading, inner) {
+    if (!inner) return '';
+    return `
+    <section class="pub-section" aria-labelledby="${id}">
+        <div class="pub-inner">
+            <h2 class="pub-h2" id="${id}">${esc(heading)}</h2>
+            ${inner}
+        </div>
+    </section>`;
+}
+
+// ── media kit ──
+
+function recordText(r) {
+    const base = `${r.wins}-${r.losses}-${r.draws}`;
+    return r.ncs > 0 ? `${base} (${r.ncs} NC)` : base;
+}
+
+function streakText(s) {
+    if (!s) return null;
+    const r = String(s.result).toLowerCase();
+    const word = r.startsWith('w') ? 'win' : r.startsWith('l') ? 'loss' : 'draw';
+    return `${s.n} ${word}${s.n === 1 ? '' : 's'} in a row`;
+}
+
+function rankText(r) {
+    if (!r) return null;
+    return r.is_champion ? `${r.source} ${r.division} champion` : `${r.source} ${r.division} — #${r.rank}`;
+}
+
+function nextFightBlock(n) {
+    if (!n) return '';
+    return `<p class="pub-line"><strong>${esc(n.opponent)}</strong> · ${esc(n.event)} (${esc(n.promotion)}) · ${fmtDate(n.date)}</p>`;
+}
+
+function socialBlock(s) {
+    const rows = statRow([
+        [s.followers != null ? num(s.followers) : null, 'Followers'],
+        [s.engagement_rate != null ? pct(s.engagement_rate, 2) : null, 'Engagement'],
+        [s.avg_likes != null ? num(s.avg_likes) : null, 'Avg. likes'],
+        [s.avg_comments != null ? num(s.avg_comments) : null, 'Avg. comments'],
+        [s.avg_video_views != null ? num(s.avg_video_views) : null, 'Avg. video views'],
+        [s.posts_per_30d != null ? num(s.posts_per_30d) : null, 'Posts / 30 days'],
+    ]);
+    const mix = (s.media_mix ?? []).length
+        ? `<p class="pub-fine">${s.media_mix.map((m) => `${esc(m.type)} ${pct(m.share, 0)}`).join(' · ')}</p>` : '';
+    return `
+            <div class="pub-platform">
+                <h3 class="pub-h3">${esc(s.platform)}</h3>
+                ${rows}${mix}
+                <p class="pub-fine pub-fine--dim">Engagement is the median across ${esc(s.engagement_basis)} — not a 30-day window. Measured ${fmtDate(s.measured_on)}.</p>
+            </div>`;
+}
+
+function topPostsList(posts) {
+    if (!posts.length) return '';
+    return `<ul class="pub-list">${posts.map((p) => `
+                <li class="pub-list-row">
+                    <div class="pub-list-main">
+                        <span class="pub-list-title">${esc(p.platform)} · ${esc(p.media_type)}</span>
+                        <time class="pub-list-date" datetime="${esc(p.date)}">${fmtDate(p.date)}</time>${p.caption ? `
+                        <p class="pub-caption">${esc(p.caption)}</p>` : ''}
+                    </div>
+                    <div class="pub-list-figures">${[
+                        p.likes != null ? `${num(p.likes)} likes` : null,
+                        p.comments != null ? `${num(p.comments)} comments` : null,
+                        p.views != null ? `${num(p.views)} views` : null,
+                    ].filter(Boolean).map((t) => `<span>${esc(t)}</span>`).join('')}</div>
+                </li>`).join('')}
+            </ul>`;
+}
+
+function wikipediaBlock(w) {
+    if (!w) return '';
+    const langs = (w.languages ?? []).length
+        ? `<p class="pub-fine">${w.languages.map((l) => `${esc(l.market)} ${pct(l.share, 0)}`).join(' · ')}</p>` : '';
+    return `${statRow([[num(w.views_per_day), `Pageviews / day (${w.window_days}d avg)`]])}${langs}`;
+}
+
+function marketConcentrationBlock(mc) {
+    if (!mc) return '';
+    return `<ol class="pub-order">${mc.countries_ranked.map((c) => `<li>${esc(c)}</li>`).join('')}</ol>
+            <p class="pub-fine pub-fine--dim">Order of ${esc(mc.basis)}.</p>`;
+}
+
+function fightWeekBlock(fw, series) {
+    if (!fw) return '';
+    return `<p class="pub-line"><strong>${esc(fw.opponent)}</strong> · ${fmtDate(fw.fight_date)}</p>
+            ${statRow([
+                [`×${fw.lift_ratio.toFixed(1)}`, 'Peak vs. baseline'],
+                [num(fw.peak_views_per_day), 'Peak pageviews / day'],
+                [num(fw.baseline), 'Baseline pageviews / day'],
+            ])}
+            ${chart(series)}`;
+}
+
+function broadcastList(rows) {
+    if (!rows.length) return '';
+    return `<ul class="pub-list">${rows.map((b) => `
+                <li class="pub-list-row">
+                    <div class="pub-list-main">
+                        <span class="pub-list-title">${esc(b.event)}</span>
+                        <time class="pub-list-date" datetime="${esc(b.date)}">${fmtDate(b.date)}</time>
+                        <p class="pub-fine pub-fine--dim">${esc(b.promotion)} · ${esc(b.card_section)} · ${esc(b.event_tier)}</p>
+                    </div>
+                    <div class="pub-list-figures"><span>${esc(b.result)}</span></div>
+                </li>`).join('')}
+            </ul>`;
+}
+
+export function mediaKitPage({ page, site }) {
+    const d = page.data;
+    const f = d.fighter;
+    const headerMeta = [f.division, f.organization, f.gym, f.nationality].filter(Boolean).join(' · ');
+
+    const body = `<main class="pub">
+    <header class="pub-head">
+        <div class="pub-inner">
+            <h1 class="pub-name">${esc(f.name)}</h1>${f.nickname ? `
+            <p class="pub-nick">“${esc(f.nickname)}”</p>` : ''}${headerMeta ? `
+            <p class="pub-meta">${esc(headerMeta)}</p>` : ''}
+            <p class="pub-asof">Measured ${fmtDate(page.measured_on)}</p>
+            ${statRow([
+                [recordText(f.record), 'Record'],
+                [streakText(f.streak), 'Streak'],
+                [rankText(d.rank), 'Ranking'],
+            ])}
+        </div>
+    </header>
+${section('pub-next', 'Next fight', nextFightBlock(d.next_fight))}
+${section('pub-social', 'Social', d.social.length ? `${d.social.map(socialBlock).join('')}${chart(d.charts.followers)}` : '')}
+${section('pub-posts', 'Top posts', topPostsList(d.top_posts))}
+${section('pub-wiki', 'Wikipedia attention', d.wikipedia ? `${wikipediaBlock(d.wikipedia)}${chart(d.charts.pageviews)}` : '')}
+${section('pub-geo', 'Where the attention is', marketConcentrationBlock(d.market_concentration))}
+${section('pub-fw', 'Fight week', fightWeekBlock(d.fight_week, d.charts.fight_week))}
+${section('pub-broadcast', 'Broadcast history', broadcastList(d.broadcast))}
+</main>
+${PUB_FOOTER}`;
+
+    return shell({
+        title: `${f.name} — Media kit — FIRST LIGHT`,
+        description: `Audience and performance measurement for ${f.name}, measured ${page.measured_on}.`,
+        url: '', site, current: null, body,
+        css: ['/publication.css'], noindex: true, og: true, nav: false,
+    });
+}
+
+// ── internal data ──
+
+function firstLightBlock(fl) {
+    if (!fl) return '';
+    return `${statRow([
+        [num(fl.score, 2), 'Score'],
+        [num(fl.rating), 'Rating'],
+        [num(fl.expected, 2), 'Expected'],
+        [num(fl.actual, 2), 'Actual'],
+        [signed(fl.gap, 2), 'Gap'],
+    ])}<p class="pub-note">${esc(fl.reading)}</p>`;
+}
+
+function funnelBlock(fn) {
+    if (!fn) return '';
+    const stages = (fn.stages ?? []).length
+        ? `<ol class="pub-order">${fn.stages.map((s) => `<li>${esc(s.label ?? s.name ?? '')}${s.value != null ? ` — ${esc(s.value)}` : ''}</li>`).join('')}</ol>` : '';
+    const g = fn.graphic;
+    const graphic = g && typeof g.width === 'number' && typeof g.height === 'number' && typeof g.points === 'string' ? chart(g) : '';
+    return `${stages}${graphic}${fn.leak?.sentence ? `<p class="pub-note">${esc(fn.leak.sentence)}</p>` : ''}`;
+}
+
+function geographyBlock(g) {
+    if (!g) return '';
+    const rows = table(['Country', 'Search index', 'Market value index'], g.countries.map((c) => [
+        `${esc(c.country)}${c.estimated ? ' *' : ''}`,
+        c.search_volume_index != null ? num(c.search_volume_index) : '—',
+        c.market_value_index != null ? num(c.market_value_index) : '—',
+    ]));
+    const hasEstimate = g.countries.some((c) => c.estimated);
+    const langs = (g.languages ?? []).length
+        ? `<p class="pub-fine">${g.languages.map((l) => `${esc(l.market)} ${pct(l.share, 0)}`).join(' · ')}</p>` : '';
+    return `${rows}${hasEstimate ? '<p class="pub-fine pub-fine--dim">* modelled estimate.</p>' : ''}${langs}`;
+}
+
+function retentionBlock(items) {
+    if (!items.length) return '';
+    return items.map((r) => `
+            <div class="pub-bout">
+                <p class="pub-line"><strong>${esc(r.opponent)}</strong> · ${fmtDate(r.fight_date)}</p>
+                ${statRow([
+                    [r.search_afterglow != null ? num(r.search_afterglow, 2) : null, 'Search afterglow'],
+                    [r.wiki_afterglow != null ? num(r.wiki_afterglow, 2) : null, 'Wiki afterglow'],
+                    [r.growth_velocity != null ? num(r.growth_velocity, 2) : null, 'Growth velocity'],
+                    [r.peak != null ? num(r.peak) : null, 'Peak'],
+                    [r.baseline != null ? num(r.baseline) : null, 'Baseline'],
+                ])}
+                ${chart(r.curve)}
+            </div>`).join('');
+}
+
+function offCycleTable(rows) {
+    return table(['Week', 'Ratio', 'Baseline', 'Nearest bout', 'Days from bout'], rows.map((o) => [
+        esc(fmtDate(o.week_start)),
+        `×${o.ratio.toFixed(2)}`,
+        o.baseline != null ? num(o.baseline) : '—',
+        o.nearest_bout_date ? esc(fmtDate(o.nearest_bout_date)) : '—',
+        o.days_from_bout != null ? String(o.days_from_bout) : '—',
+    ]));
+}
+
+function billingBlock(b) {
+    if (!b) return '';
+    const rows = table(['Date', 'Event', 'Card section', 'Tier', 'Actual', 'Expected', 'Signal'], b.rows.map((r) => [
+        esc(fmtDate(r.date)),
+        esc(r.event),
+        esc(r.card_section),
+        esc(r.event_tier),
+        r.actual != null ? num(r.actual) : '—',
+        r.expected != null ? num(r.expected) : '—',
+        esc(r.signal),
+    ]));
+    return `${rows}${chart(b.chart)}`;
+}
+
+function cohortBlock(c) {
+    if (!c) return '';
+    const t = c.target;
+    const target = statRow([
+        [num(t.fighter_value, 2), t.label],
+        [num(t.peer_median, 2), `Peer median (${t.basis}, n=${t.n})`],
+    ]);
+    const diffs = c.differentiators.map((d) => `
+            <div class="pub-diff">
+                <p class="pub-line"><strong>${esc(d.label)}</strong></p>
+                ${statRow([
+                    [num(d.fighter_value, 2), 'This fighter'],
+                    [num(d.better_median, 2), `Better cohort (n=${d.n_better})`],
+                    [num(d.worse_median, 2), `Worse cohort (n=${d.n_worse})`],
+                ])}
+                ${distributionChart(d.distribution)}
+                <p class="pub-note">${esc(d.sentence)}</p>
+            </div>`).join('');
+    return `${target}${diffs}`;
+}
+
+export function internalDataPage({ page, site }) {
+    const d = page.data;
+
+    const body = `<main class="pub">
+    <header class="pub-head">
+        <div class="pub-inner">
+            <h1 class="pub-name">${esc(page.fighter_name)}</h1>
+            <p class="pub-asof">Measured ${fmtDate(page.measured_on)}</p>
+        </div>
+    </header>
+${section('pub-fl', 'First Light read', firstLightBlock(d.first_light))}
+${section('pub-funnel', 'Attention funnel', funnelBlock(d.funnel))}
+${section('pub-geo', 'Geography', geographyBlock(d.geography))}
+${section('pub-retention', 'Fight-week retention', retentionBlock(d.retention))}
+${section('pub-off', 'Between fights', offCycleTable(d.off_cycle))}
+${section('pub-billing', 'Card position', billingBlock(d.billing))}
+${section('pub-cohort', 'Compared to peers', cohortBlock(d.cohort))}
+</main>
+${PUB_FOOTER}`;
+
+    return shell({
+        title: `${page.fighter_name} — Internal data — FIRST LIGHT`,
+        description: `Internal measurement for ${page.fighter_name}'s management team, measured ${page.measured_on}.`,
+        url: '', site, current: null, body,
+        css: ['/publication.css'], noindex: true, og: true, nav: false,
+    });
 }
