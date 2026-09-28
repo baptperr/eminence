@@ -207,9 +207,15 @@ export function manifestoPage({ site }) {
 
 // ── /observatory/ ── one viewport, text over a darkened loop of the Observatory itself.
 // The video has no src in the HTML: observatory.js attaches it only when motion is allowed,
-// so reduced-motion and no-JS visitors get the poster and nothing else. The status line
+// picking the portrait cut on portrait screens, so reduced-motion and no-JS visitors get the
+// still (a CSS background, portrait or landscape) and nothing else. The status line
 // starts hidden and is only revealed once /observatory-status.json parses to a real date.
-const OBSERVATORY_TEXT = 'The Observatory follows every professional fighter across all major promotions, from their first bout to their latest post. It measures what a name is worth inside and outside the cage, and what moves it. Its readings feed the First Light Index.';
+// The paragraph, in two parts: on the page the last sentence is set apart as a closing line.
+const OBSERVATORY_TEXT_LINES = [
+    'The Observatory follows every professional fighter across all major promotions, from their first bout to their latest post. It measures what a name is worth inside and outside the cage, and what moves it. Its readings drive First Light\'s investment decisions.',
+    'The First Light Index is that valuation, made public.',
+];
+const OBSERVATORY_TEXT = OBSERVATORY_TEXT_LINES.join(' ');
 const OBSERVATORY_DESC = 'The Observatory follows every professional fighter across all major promotions, from their first bout to their latest post, and measures what a name is worth.';
 
 export function observatoryPage({ site }) {
@@ -220,11 +226,11 @@ export function observatoryPage({ site }) {
     };
     const body = `<main class="ob">
     <div class="ob-bg" aria-hidden="true">
-        <video class="ob-video" data-src="/observatory.mp4" poster="/observatory-poster.jpg" muted autoplay loop playsinline disablepictureinpicture preload="none"></video>
+        <video class="ob-video" data-src="/observatory.mp4" data-src-portrait="/observatory-mobile.mp4" muted autoplay loop playsinline disablepictureinpicture preload="none"></video>
     </div>
     <h1 class="ob-title" id="ob-title">The First Light Observatory</h1>
     <p class="ob-sub">The deepest record of commercial value in professional fighting.</p>
-    <p class="ob-text">${esc(OBSERVATORY_TEXT)}</p>
+    <p class="ob-text">${esc(OBSERVATORY_TEXT_LINES[0])} <span class="ob-close">${esc(OBSERVATORY_TEXT_LINES[1])}</span></p>
     <p class="ob-status" id="obStatus" hidden><span class="ob-dot" aria-hidden="true"></span>Last reading: <time id="obStatusTime"></time></p>
     <p class="ob-link"><a href="/index/">First Light Index <span aria-hidden="true">&rarr;</span></a></p>
     <p class="ob-credit"><span>Journalists may publish Observatory data.</span><span>Credit: First Light Observatory.</span><span><a href="mailto:contact@firstlight.agency">contact@firstlight.agency</a></span></p>
@@ -1768,7 +1774,7 @@ const relabelTier = (t) => TIER_RELABEL[t] ?? t;
 // always runs oldest-to-newest left-to-right, independent of how the table is sorted.
 function billingBlock(b) {
     if (!b) return '';
-    const rows = table(['Date', 'Event', 'Card section', 'Tier', 'Card-position score'], b.rows.map((r) => [
+    const rows = table(['Date', 'Event', 'Card section', 'Card', 'Card-position score'], b.rows.map((r) => [
         esc(fmtDate(r.date)),
         esc(r.event),
         esc(r.card_section),
@@ -1862,7 +1868,7 @@ ${(() => {
 })()}
 ${section('pub-off', 'Between fights', offCycleTable(offCycleRows(d.off_cycle)), offCycleNote(d.off_cycle) ?? 'Weeks where attention spiked with no fight nearby (a sponsor push, a media hit, a story) shown against how far that week sat from the nearest bout.')}
 ${section('pub-billing', 'Card position', billingBlock(d.billing), d.billing ? 'The card-position score is how high this fighter is billed relative to what their level alone predicts for that matchup: above zero means billed higher than expected, below means lower. A promotion’s own championship weighting (PFL, for one) can push the score above 1.0.' : null)}
-${section('pub-cohort', 'Compared to peers', cohortBlock(d.cohort))}
+${section('pub-cohort', 'Compared with fighters at the same level', cohortBlock(d.cohort))}
 </main>
 ${PUB_FOOTER}`;
 
