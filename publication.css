@@ -306,7 +306,11 @@
        so the two readings read as one; this is the Observatory's own cool blue, a real hue
        step away from the mint while still inside that palette. Both sit around the same
        lightness on the dark ground, so neither reads as the "important" one. */
-    --p-accent-2: #3D87C9;
+    /* Chosen for a brightness gap as well as a hue gap: in greyscale (or to a colour-blind
+       reader) mint sits at 0.54 relative luminance and this at 0.15, a 3:1 separation, so the
+       two series stay tellable apart with no colour at all. Still 3.6:1 against the panel, so
+       neither bar sinks into the ground it is drawn on. */
+    --p-accent-2: #2F6FA8;
     margin: 1.5rem 0 0;
     padding: 1rem 1rem 0.85rem;
     background: var(--p-surface);
