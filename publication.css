@@ -78,8 +78,11 @@
     font-size: 0.92rem; color: var(--t2); line-height: 1.7; max-width: 52ch;
 }
 /* A section's note leads: it reads before the numbers it explains, so it sits directly under
-   the heading with no top margin of its own — a plain paragraph, not an aside. */
+   the heading with no top margin of its own, a plain paragraph rather than an aside. */
 .pub-note--lead { margin-top: 0; margin-bottom: 1.5rem; padding-left: 1rem; }
+/* A verdict that FOLLOWS a stat row needs air above it: pressed up against the figures it
+   reads as their caption rather than as the sentence that interprets them. */
+.pub-stat-row + .pub-note, .pub-stat-row + .pub-note--lead { margin-top: 1.75rem; }
 .pub-fine { margin-top: 0.9rem; font-size: 0.82rem; color: var(--t2); line-height: 1.6; }
 .pub-fine--dim { color: var(--t3); }
 /* A caveat, not a headline — engagement_basis and similar small print. */
