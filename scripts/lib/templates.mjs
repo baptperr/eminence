@@ -695,6 +695,21 @@ function autoTicks(lo, hi, n = 4) {
     });
 }
 
+// Two adjacent x-axis tick labels ("15 Aug", "fight day") collide once their pixel gap runs
+// narrower than roughly the wider label's own width — rather than measure real text width,
+// every other tight pair simply drops a line, the same alternating trick this file already
+// uses for point/opponent labels (see panel()'s `marks`). CHAR_W is a deliberately generous
+// per-glyph estimate for the 9-10px axis-label type, so it errs toward wrapping a label that
+// would have just barely fit rather than letting two overlap.
+const TICK_CHAR_W = 5.4;
+function tickCollides(a, b, gap) {
+    return gap < Math.max(String(a).length, String(b).length) * TICK_CHAR_W;
+}
+function tickDy(labels, positions, i) {
+    if (i === 0) return 0;
+    return tickCollides(labels[i], labels[i - 1], Math.abs(positions[i] - positions[i - 1])) && i % 2 === 1 ? 11 : 0;
+}
+
 // The shared plot frame every axis chart draws inside: a fixed-width left column for y-tick
 // text (so panels line up with each other whatever their numbers look like), gridlines at
 // every y-tick, and the two axis rules. Time always runs left-to-right, oldest-to-newest —
@@ -716,7 +731,8 @@ function buildAxisFrame(series, { W = 600, H = 220 } = {}) {
 
     const gridY = yTicks.map((t) => `<line class="pub-grid-line" x1="${plotX0}" x2="${plotX1}" y1="${yScale(t.value).toFixed(1)}" y2="${yScale(t.value).toFixed(1)}"/>`).join('');
     const yLabels = yTicks.map((t) => `<text class="pub-axis-label" x="${(plotX0 - 7).toFixed(1)}" y="${(yScale(t.value) + 3).toFixed(1)}" text-anchor="end">${esc(t.label)}</text>`).join('');
-    const xLabels = xTicks.map((t) => `<text class="pub-axis-label" x="${xScale(t.value).toFixed(1)}" y="${(plotY1 + 18).toFixed(1)}" text-anchor="middle">${esc(t.label)}</text>`).join('');
+    const xPositions = xTicks.map((t) => xScale(t.value));
+    const xLabels = xTicks.map((t, i) => `<text class="pub-axis-label" x="${xPositions[i].toFixed(1)}" y="${(plotY1 + 18 + tickDy(xTicks.map((tt) => tt.label), xPositions, i)).toFixed(1)}" text-anchor="middle">${esc(t.label)}</text>`).join('');
     const axisLines = `<line class="pub-axis-line" x1="${plotX0}" x2="${plotX1}" y1="${plotY1.toFixed(1)}" y2="${plotY1.toFixed(1)}"/><line class="pub-axis-line" x1="${plotX0}" x2="${plotX0}" y1="${plotY0}" y2="${plotY1.toFixed(1)}"/>`;
 
     return { pts, W, H, plotX0, plotX1, plotY0, plotY1, xScale, yScale, toPoly, gridY, yLabels, xLabels, axisLines };
@@ -804,7 +820,9 @@ const num0 = (v, fallback) => (isNum(v) ? v : fallback);
 function distributionChart(dist, opts = {}) {
     if (!dist) return '';
     const axis = dist.x;
-    const W = 300, H = 92, axisW = 30, padTop = 8, padBottom = 20;
+    // padBottom leaves room for a tick label that drops to a second line (see tickDy) — a
+    // dense bin axis would otherwise print its lower row past the figure's own bottom edge.
+    const W = 300, H = 92, axisW = 30, padTop = 8, padBottom = 26;
     const width = axis ? W : dist.width, height = axis ? H : dist.height;
     if (!isNum(width) || !isNum(height)) return '';
     const plotW = width - axisW, plotH = height - padTop - padBottom;
@@ -839,12 +857,15 @@ function distributionChart(dist, opts = {}) {
     }
 
     const fmt = (v) => (Math.abs(v) > 0 && Math.abs(v) < 1 ? v.toFixed(2) : num(Math.round(v)));
-    const ticks = (axis?.ticks?.length ? axis.ticks : [{ value: lo, label: fmt(lo) + unit }, { value: hi, label: fmt(hi) + unit }])
+    const tickList = axis?.ticks?.length ? axis.ticks : [{ value: lo, label: fmt(lo) + unit }, { value: hi, label: fmt(hi) + unit }];
+    const tickX = tickList.map((t) => vx(t.value));
+    const ticks = tickList
         .map((t, i, all) => {
-            const x = vx(t.value);
+            const x = tickX[i];
             const anchor = i === 0 ? 'start' : i === all.length - 1 ? 'end' : 'middle';
+            const dy = tickDy(tickList.map((tt) => tt.label), tickX, i);
             return `<line class="pub-axis-tick" x1="${x.toFixed(1)}" x2="${x.toFixed(1)}" y1="${(padTop + plotH).toFixed(1)}" y2="${(padTop + plotH + 3).toFixed(1)}"/>`
-                + `<text class="pub-axis-label" x="${x.toFixed(1)}" y="${(height - 6).toFixed(1)}" text-anchor="${anchor}">${esc(t.label)}</text>`;
+                + `<text class="pub-axis-label" x="${x.toFixed(1)}" y="${(height - 6 + dy).toFixed(1)}" text-anchor="${anchor}">${esc(t.label)}</text>`;
         }).join('');
 
     const axisLines = `<line class="pub-axis-line" x1="${axisW}" x2="${width}" y1="${(padTop + plotH).toFixed(1)}" y2="${(padTop + plotH).toFixed(1)}"/>`
@@ -864,22 +885,36 @@ function distributionChart(dist, opts = {}) {
     </figure>`;
 }
 
-// A horizontal bar panel for relative indices (Markets' two measures): one hue, top item = 100.
-function barsChart(items, opts = {}) {
-    if (!items?.length) return '';
-    const { unit } = opts;
-    const W = 300, rowH = 22, gapY = 8, labelW = 100;
-    const H = items.length * (rowH + gapY) - gapY;
-    const maxV = Math.max(...items.map((i) => i.value), 1);
-    const barsW = W - labelW - 34;
-    const rows = items.map((it, i) => {
-        const y = i * (rowH + gapY);
-        const w = Math.max(2, (it.value / maxV) * barsW);
-        return `<text class="pub-bar-label" x="0" y="${(y + rowH / 2 + 4).toFixed(1)}">${esc(it.label)}</text><rect class="pub-bar" x="${labelW}" y="${y.toFixed(1)}" width="${w.toFixed(1)}" height="${rowH - 5}" rx="2"/><text class="pub-bar-value" x="${(labelW + w + 7).toFixed(1)}" y="${(y + rowH / 2 + 4).toFixed(1)}">${Math.round(it.value)}</text>`;
+// Markets: one chart, two readings. The owner's complaint was that search-volume and
+// market-value used to draw as two disconnected bar charts; this draws one pair of bars per
+// country instead (search above, market below), sharing a label column and a 0-100 scale, so
+// it reads as the same countries measured twice rather than two unrelated lists. Colour reuses
+// the chart palette's own main/reference convention (accent = the fighter's own read, ink =
+// the reference figure) rather than a third hue.
+function marketsPairedChart(countries, { searchCaption, marketCaption } = {}) {
+    if (!countries?.length) return '';
+    const W = 300, barH = 9, barGap = 3, pairH = barH * 2 + barGap, rowGap = 11, labelW = 92;
+    const H = countries.length * (pairH + rowGap) - rowGap;
+    const barsW = W - labelW - 30;
+    const maxV = Math.max(...countries.flatMap((c) => [c.search_volume_index, c.market_value_index]).filter(isNum), 1);
+    const bar = (cls, y, v) => {
+        if (!isNum(v)) return '';
+        const w = Math.max(2, (v / maxV) * barsW);
+        return `<rect class="pub-bar ${cls}" x="${labelW}" y="${y.toFixed(1)}" width="${w.toFixed(1)}" height="${barH}" rx="2"/><text class="pub-bar-value" x="${(labelW + w + 6).toFixed(1)}" y="${(y + barH - 1.5).toFixed(1)}">${Math.round(v)}</text>`;
+    };
+    const rows = countries.map((c, i) => {
+        const y0 = i * (pairH + rowGap);
+        return `<text class="pub-bar-label" x="0" y="${(y0 + pairH / 2 + 3).toFixed(1)}">${esc(c.country)}</text>`
+            + bar('pub-bar--search', y0, c.search_volume_index)
+            + bar('pub-bar--market', y0 + barH + barGap, c.market_value_index);
     }).join('');
     return `<figure class="pub-panel pub-panel--bars">
-        <svg class="pub-panel-svg" viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(unit || 'index by market')}">${rows}</svg>
-        ${unit ? `<p class="pub-panel-unit">${esc(unit)}</p>` : ''}
+        <svg class="pub-panel-svg" viewBox="0 0 ${W} ${H}" role="img" aria-label="Search interest and market value index by country, both relative to the top country at 100">${rows}</svg>
+        <div class="pub-legend">
+            <span class="pub-legend-item"><i class="pub-legend-swatch pub-legend-swatch--main"></i>${esc(searchCaption)}</span>
+            <span class="pub-legend-item"><i class="pub-legend-swatch pub-legend-swatch--ref"></i>${esc(marketCaption)}</span>
+        </div>
+        <p class="pub-panel-unit">Index, relative to the top country at 100 (0 to 100)</p>
     </figure>`;
 }
 
@@ -973,6 +1008,31 @@ function table(headers, rows, { freeze = false, bodyClass = '' } = {}) {
                 <thead><tr>${headers.map((h) => `<th scope="col">${esc(h)}</th>`).join('')}</tr></thead>
                 <tbody>${rows.map((r) => `<tr>${r.map((c) => `<td>${c}</td>`).join('')}</tr>`).join('')}</tbody>
             </table></div>`;
+}
+
+// A horizontal, snap-scrolling strip of cards: fight week (media kit) and fight-by-fight
+// retention (internal data) both have the same shape, one card per fight, and both used to be
+// one vertical section per fight before the owner's own review flagged it. The base CSS stacks
+// `.pub-carousel-card` in normal document flow — a plain, always-correct list — and only the
+// `@supports (scroll-snap-type: x mandatory)` block in publication.css turns that sideways,
+// so a browser (or a screen reader) with no scroll-snap support gets the vertical stack with
+// no extra branch here. Touch and trackpad scroll it natively; pub-carousel.js only adds
+// ArrowLeft/ArrowRight on the strip itself, which is also how a keyboard reaches it — it is
+// the one thing in the tab order these cards need, not a stop per card.
+function carousel(id, cards, ariaLabel) {
+    if (!cards.length) return '';
+    return `<div class="pub-carousel" id="${id}" tabindex="0" role="group" aria-roledescription="carousel" aria-label="${esc(ariaLabel)}">${cards.map((c) => `
+                <div class="pub-carousel-card">${c}</div>`).join('')}
+            </div>`;
+}
+
+// A note whose sibling `<field>_style` reads "small_print" renders in the page's faintest,
+// smallest style (pub-fine--tiny — the same treatment engagement_basis already had); every
+// other note gets the ordinary faded fine print. Interpretation never goes through here: it
+// stays at full weight in pub-note / pub-note--lead, wherever it already renders.
+function fineNote(text, style) {
+    if (!text) return '';
+    return `<p class="pub-fine${style === 'small_print' ? ' pub-fine--tiny' : ' pub-fine--dim'}">${esc(text)}</p>`;
 }
 
 // A section always shows its explanation before its numbers. `note` is the payload's own
@@ -1078,7 +1138,7 @@ function socialBlock(s) {
             <div class="pub-platform">
                 <h3 class="pub-h3">${esc(s.platform)}</h3>
                 ${rows}${mix}
-                <p class="pub-fine pub-fine--tiny">Engagement is ${esc(s.engagement_basis)} — not a 30-day window. Measured ${fmtDate(s.measured_on)}.</p>
+                <p class="pub-fine pub-fine--tiny">Engagement is ${esc(s.engagement_basis)}, not a 30-day window. Measured ${fmtDate(s.measured_on)}.</p>
             </div>`;
 }
 
@@ -1147,33 +1207,43 @@ function attentionBlock(w, series, bouts, fw) {
     return `${statRow([[num(w.views_per_day), `Pageviews / day (${w.window_days}d avg)`]])}
             ${chart(series, { unit: 'Wikipedia pageviews per day', yRefs: refs, bouts, tone: 'accent' })}
             ${langs}
-            <p class="pub-fine pub-fine--dim">Source: Wikipedia pageviews, all languages, ${w.window_days}-day average.</p>`;
+            <p class="pub-fine pub-fine--tiny">Source: ${esc(w.provenance ?? `Wikipedia pageviews, all languages, ${w.window_days}-day average.`)}</p>`;
 }
 
-// Bars when the payload gives relative indices per market (`data.market_concentration.countries`,
-// mirroring internal_data.geography's own field names — not yet in the contract for the media
-// kit, so this is a defensive read: it renders once that field lands, and falls back to today's
-// ordered list until then). Order only, no dollar figures, exactly as the contract requires.
+// Markets: one chart, two readings, not two unrelated ones (see marketsPairedChart). The exact
+// caption text is the contract's own wording; a payload that later names its own captions
+// (search_caption/market_caption) overrides it, read defensively since neither field exists
+// yet. `countries_ranked` is the older order-only shape, still accepted so a publication
+// generated before the indices landed keeps rendering — order only, no dollar figures, exactly
+// as the contract requires.
 function marketsBlock(mc) {
     if (!mc) return '';
     if (Array.isArray(mc.countries) && mc.countries.length) {
-        const search = mc.countries.filter((c) => c.search_volume_index != null).map((c) => ({ label: c.country, value: c.search_volume_index }));
-        const market = mc.countries.filter((c) => c.market_value_index != null).map((c) => ({ label: c.country, value: c.market_value_index }));
-        return `
-            <h3 class="pub-h3">Search interest</h3>
-            <p class="pub-fine">How much people search for this fighter, by country — relative only; the top market is 100.</p>
-            ${barsChart(search, { unit: 'Search-volume index (top market = 100)' })}
-            <h3 class="pub-h3">Market size</h3>
-            <p class="pub-fine">Ad spend per internet user, by country — relative only; the top market is 100.</p>
-            ${barsChart(market, { unit: 'Market-size index (top market = 100)' })}
-            <p class="pub-fine pub-fine--dim">Basis: ${esc(mc.basis)}. Relative indices only — no dollar figures.</p>`;
+        return `${marketsPairedChart(mc.countries, {
+            searchCaption: mc.search_caption ?? 'Relative search interest by country',
+            marketCaption: mc.market_caption ?? 'Adjusted by relative ad spend per internet user, by country',
+        })}
+            <p class="pub-fine pub-fine--tiny">Basis: ${esc(mc.basis)}. Relative indices only, no dollar figures.</p>`;
     }
     return `<ol class="pub-order">${mc.countries_ranked.map((c) => `<li>${esc(c)}</li>`).join('')}</ol>
-            <p class="pub-fine pub-fine--dim">Order of ${esc(mc.basis)}.</p>`;
+            <p class="pub-fine pub-fine--tiny">Order of ${esc(mc.basis)}.</p>`;
 }
 
-function fightWeekBlock(fw, series) {
-    if (!fw) return '';
+// data.fight_week is moving from one object (the most recent scored fight only) to a list of
+// recent fights — read all three shapes a payload might send: the legacy bare object, a bare
+// array, or {rows, note} (the same convention broadcast/retention/off_cycle already use).
+function fightWeekRows(fw) {
+    if (!fw) return [];
+    if (Array.isArray(fw)) return fw;
+    if (Array.isArray(fw.rows)) return fw.rows;
+    return [fw];
+}
+
+// One fight's own card: opponent, date, the peak/baseline figures, and its own curve. A
+// per-fight curve travels on the row itself (`curve`/`chart`) once the payload sends one there
+// — the same place internal_data.retention.rows already keeps its curve; the single legacy
+// fight_week object instead shares the one series still sitting at data.charts.fight_week.
+function fightWeekCard(fw, series) {
     const refs = extremeRefs(series, {
         hi: `${num(fw.peak_views_per_day)}/day peak`,
         lo: `${num(fw.baseline)}/day baseline`,
@@ -1187,39 +1257,58 @@ function fightWeekBlock(fw, series) {
             ${chart(series, { unit: 'Wikipedia pageviews per day', yRefs: refs, bouts: [{ opponent: fw.opponent, date: fw.fight_date }], tone: 'accent' })}`;
 }
 
-function broadcastList(rows) {
+// One section, many fights, a horizontal carousel rather than one vertical block per fight
+// (see carousel() above).
+function fightWeekBlock(rows, legacySeries) {
+    if (!rows.length) return '';
+    const cards = rows.map((r) => fightWeekCard(r, r.curve ?? r.chart ?? (rows.length === 1 ? legacySeries : null)));
+    return carousel('pub-fw-carousel', cards, 'Fight week, by fight');
+}
+
+// Opponent named on every row (a card appearance without one is half a fact); the matching
+// caveat drops to the smallest, faintest style on the page rather than sitting as the
+// section's own lead note.
+function broadcastList(rows, note) {
     if (!rows.length) return '';
     return `<ul class="pub-list">${rows.map((b) => `
                 <li class="pub-list-row">
                     <div class="pub-list-main">
-                        <span class="pub-list-title">${esc(b.event)}</span>
+                        <span class="pub-list-title">${esc(b.event)}</span>${b.opponent ? `
+                        <span class="pub-list-vs">vs ${esc(b.opponent)}</span>` : ''}
                         <time class="pub-list-date" datetime="${esc(b.date)}">${fmtDate(b.date)}</time>
                         <p class="pub-fine pub-fine--dim">${esc(b.promotion)} · ${esc(b.card_section)} · ${esc(b.event_tier)}</p>
                     </div>
                     <div class="pub-list-figures"><span class="pub-tone-text-${resultTone(b.result)}">${esc(b.result)}</span></div>
                 </li>`).join('')}
-            </ul>`;
+            </ul>${note ? `<p class="pub-fine pub-fine--tiny">${esc(note)}</p>` : ''}`;
 }
 
 // Where the manager and the brand cannot get a read anywhere else: not where a fighter is, but
-// where they're headed. Every field here is payload-pending (contract v2, `data.trajectory`) —
-// rendered defensively, so the section simply doesn't appear until it lands (see build report).
+// where they're headed — follower growth, a confirmed step up in typical attention, and rank
+// movement (`data.trajectory.follower_growth` / `.attention_shift` / `.rank_movement`).
+// `t.note` is passed to section()'s own note slot by the caller, not baked in here: that way
+// section()'s empty-inner guard still suppresses the whole thing when none of the three actually
+// landed, instead of the heading and an explanatory note showing over nothing — the empty
+// section the owner hit here.
 function trajectoryBlock(t) {
     if (!t) return '';
+    const fg = t.follower_growth, rm = t.rank_movement, as = t.attention_shift;
     const rows = statRow([
-        [t.followers_growth_text ?? null, 'Follower growth'],
-        [t.rank_movement_text ?? null, 'Rank movement'],
+        [fg?.value_text ?? null, fg ? `${fg.platform} followers, last ${fg.window_days}d` : null],
+        [fg?.per_month_text ?? null, 'Follower growth, per month'],
+        [rm ? (rm.delta > 0 ? `+${rm.delta}` : String(rm.delta)) : null, rm ? `${rm.division} rank movement, last ${rm.window_days}d` : null],
     ]);
-    const shift = t.fame_shift?.sentence
-        ? `<p class="pub-note pub-tone-text-${t.fame_shift.direction === 'down' ? 'bad' : 'good'}">${esc(t.fame_shift.sentence)}</p>` : '';
-    return `${rows}${shift}${t.note ? `<p class="pub-note">${esc(t.note)}</p>` : ''}`;
+    const shift = as?.sentence
+        ? `<p class="pub-note pub-tone-text-${as.direction === 'down' ? 'bad' : 'good'}">Wikipedia ${esc(as.sentence)}.</p>` : '';
+    return `${rows}${shift}`;
 }
 
 export function mediaKitPage({ page, site }) {
     const d = page.data;
     const f = d.fighter;
     const headerMeta = [f.division, f.organization, f.gym, f.nationality].filter(Boolean).join(' · ');
-    const bouts = [d.fight_week, d.next_fight].filter(Boolean).map((x) => ({ opponent: x.opponent, date: x.date ?? x.fight_date }));
+    const fwRows = fightWeekRows(d.fight_week);
+    const bouts = [...fwRows, d.next_fight].filter(Boolean).map((x) => ({ opponent: x.opponent, date: x.date ?? x.fight_date }));
 
     const body = `<main class="pub">
     <header class="pub-head">
@@ -1238,26 +1327,25 @@ export function mediaKitPage({ page, site }) {
 ${section('pub-next', 'Next fight', nextFightBlock(d.next_fight))}
 ${section('pub-social', 'Social', d.social.length ? `${d.social.map(socialBlock).join('')}${chart(d.charts.followers, { unit: 'Followers', yRefs: extremeRefs(d.charts.followers, { hi: d.social[0]?.followers != null ? `${num(d.social[0].followers)} today` : null }), tone: 'accent' })}` : '')}
 ${section('pub-posts', 'Posting activity', postingCalendarBlock(d), 'One cell per day the window covers; colour shows how that post did against this fighter’s own average, not against anyone else’s.')}
-${section('pub-wiki', 'Attention', attentionBlock(d.wikipedia, d.charts.pageviews, bouts))}
+${section('pub-wiki', 'Attention', attentionBlock(d.wikipedia, d.charts.pageviews, bouts, fwRows[0]))}
 ${section('pub-geo', 'Markets', marketsBlock(d.market_concentration))}
-${section('pub-fw', 'Fight week', fightWeekBlock(d.fight_week, d.charts.fight_week))}
-${section('pub-off', 'Between fights', offCycleTable(offCycleRows(d.off_cycle)), offCycleNote(d.off_cycle) ?? (offCycleRows(d.off_cycle).length ? 'Weeks with a real jump in attention even though no fight was near — he draws attention outside fight weeks too.' : null))}
+${section('pub-fw', 'Fight week', fightWeekBlock(fwRows, d.charts.fight_week))}
+${section('pub-off', 'Between fights', offCycleTable(offCycleRows(d.off_cycle)), offCycleNote(d.off_cycle) ?? (offCycleRows(d.off_cycle).length ? 'Weeks with a real jump in attention even though no fight was near: he draws attention outside fight weeks too.' : null))}
 ${(() => {
     // Bare array, or {rows, note} once the assembler carries its own explanation.
     const rows = Array.isArray(d.broadcast) ? d.broadcast : (d.broadcast?.rows ?? []);
-    const note = (!Array.isArray(d.broadcast) && d.broadcast?.note)
-        || (rows.length ? 'Recent results on file — not a complete record.' : null);
-    return section('pub-broadcast', 'Recent broadcast history', broadcastList(rows), note);
+    const note = (!Array.isArray(d.broadcast) && d.broadcast?.note) || (rows.length ? 'Not a complete record.' : null);
+    return section('pub-broadcast', 'Recent broadcast history', broadcastList(rows, note));
 })()}
-${section('pub-trajectory', 'Trajectory', trajectoryBlock(d.trajectory))}
+${section('pub-trajectory', 'Trajectory', trajectoryBlock(d.trajectory), d.trajectory?.note)}
 </main>
 ${PUB_FOOTER}`;
 
     return shell({
-        title: `${f.name} — Media kit — FIRST LIGHT`,
+        title: `${f.name} · Media kit · FIRST LIGHT`,
         description: `Audience and performance measurement for ${f.name}, measured ${page.measured_on}.`,
         url: '', site, current: null, body,
-        css: ['/publication.css'], noindex: true, og: true, nav: false, js: ['/pub-fit.js'],
+        css: ['/publication.css'], noindex: true, og: true, nav: false, js: ['/pub-fit.js', '/pub-carousel.js'],
     });
 }
 
@@ -1271,11 +1359,17 @@ ${PUB_FOOTER}`;
 // number is BUILT, not what it means — small print, not the lead.
 function overviewBlock(fl) {
     if (!fl) return '';
+    // v3 replaced `gap` (the index's own magnitude delta, formatted to 2 decimals) with
+    // `audience_gap` (measured minus predicted, a real count in the audience's own units) —
+    // the loader accepts either (see data.mjs), so the renderer has to as well, and the two
+    // are NOT interchangeable: a count formatted like an index reads as "+172000.00".
+    const gapText = fl.audience_gap_text ?? (fl.audience_gap != null ? signed(fl.audience_gap, 0)
+        : (fl.gap != null ? signed(fl.gap, 2) : null));
     const rows = statRow([
         [fl.rating != null ? num(fl.rating) : null, { html: flrHint() }],
         [fl.expected_text ?? (fl.expected != null ? num(fl.expected) : null), 'Audience its level predicts'],
         [fl.actual_text ?? (fl.actual != null ? num(fl.actual) : null), 'Audience measured'],
-        [fl.gap != null ? signed(fl.gap, 2) : null, 'Audience gap'],
+        [gapText, 'Audience gap'],
     ]);
     const reading = fl.reading_sentence ?? fl.reading;
     const readingHtml = reading ? `<p class="pub-note pub-note--lead">${esc(reading)}</p>` : '';
@@ -1284,12 +1378,16 @@ function overviewBlock(fl) {
             <p class="pub-fli-label">${fliHint()} <span class="pub-fli-n pub-tone-text-${fl.score < -0.04 ? 'bad' : fl.score > 0.04 ? 'good' : 'neutral'}">${signed(fl.score, 2)}</span></p>
             ${fliRangeBar(fl.score)}
         </div>` : '';
+    // note_gap was the field name before audience_gap replaced gap; note_audience_gap is its
+    // replacement, kept alongside the old name so a publication built before the rename still
+    // renders. A note's own `<field>_style` sibling ("small_print") picks the faintest,
+    // smallest treatment — see fineNote.
     const smallPrint = [
-        fl.note_audience ?? 'Audience is a calibrated followers-equivalent across the platforms we track — not a number you can reproduce by adding up follower counts.',
-        fl.note_gap,
-        fl.trend?.delta != null ? `FLI moved ${signed(fl.trend.delta, 2)} over the last ${fl.trend.days} days.` : null,
-    ].filter(Boolean);
-    return `${rows}${readingHtml}${fliBlock}${smallPrint.map((t) => `<p class="pub-fine pub-fine--dim">${esc(t)}</p>`).join('')}`;
+        { text: fl.note_audience ?? 'Audience is a calibrated followers-equivalent across the platforms we track, not a number you can reproduce by adding up follower counts.', style: fl.note_audience_style },
+        { text: fl.note_audience_gap ?? fl.note_gap, style: fl.note_audience_gap_style },
+        { text: fl.trend?.delta != null ? `FLI moved ${signed(fl.trend.delta, 2)} over the last ${fl.trend.days} days.` : null, style: null },
+    ].filter((s) => s.text);
+    return `${rows}${readingHtml}${fliBlock}${smallPrint.map((s) => fineNote(s.text, s.style)).join('')}`;
 }
 
 function funnelBlock(fn) {
@@ -1311,25 +1409,21 @@ function funnelBlock(fn) {
     return `${stages}${graphic}${fn.leak?.sentence ? `<p class="pub-note${fn.leak.named ? ' pub-tone-text-bad' : ''}">${esc(fn.leak.sentence)}</p>` : ''}`;
 }
 
-// v3: two columns of numbers become two bar charts — the same treatment the media kit's
-// markets block already has (barsChart), reused rather than a second implementation. The
-// trailing language list is dropped: a row of percentages with no stated meaning was the
+// v4: the same paired chart the media kit's Markets section uses (marketsPairedChart) rather
+// than two disconnected bar charts — the same countries measured twice, side by side. The
+// trailing language list stays dropped: a row of percentages with no stated meaning was the
 // review's own description of it, and the payload carries no sentence yet that would make
 // sense of it (see the build report).
 function geographyBlock(g) {
     if (!g) return '';
     const label = (c) => `${c.country}${c.estimated ? ' *' : ''}`;
-    const search = g.countries.filter((c) => c.search_volume_index != null).map((c) => ({ label: label(c), value: c.search_volume_index }));
-    const market = g.countries.filter((c) => c.market_value_index != null).map((c) => ({ label: label(c), value: c.market_value_index }));
+    const countries = g.countries.map((c) => ({ country: label(c), search_volume_index: c.search_volume_index, market_value_index: c.market_value_index }));
     const hasEstimate = g.countries.some((c) => c.estimated);
-    return `
-        <h3 class="pub-h3">Search interest</h3>
-        <p class="pub-fine">How much people search for this fighter, by country — relative only, the top market always reads 100.</p>
-        ${barsChart(search, { unit: 'Search-volume index (top market = 100)' })}
-        <h3 class="pub-h3">Market size</h3>
-        <p class="pub-fine">${esc(g.market_index_note ?? 'That country’s advertising market size per internet user, relative to the top market — a measure of the market’s size, not of this fighter’s own audience there.')}</p>
-        ${barsChart(market, { unit: 'Market-size index (top market = 100)' })}
-        ${hasEstimate ? '<p class="pub-fine pub-fine--dim">* modelled estimate.</p>' : ''}`;
+    return `${marketsPairedChart(countries, {
+        searchCaption: g.search_caption ?? 'Relative search interest by country',
+        marketCaption: g.market_caption ?? 'Adjusted by relative ad spend per internet user, by country',
+    })}
+        ${hasEstimate ? '<p class="pub-fine pub-fine--tiny">* modelled estimate.</p>' : ''}`;
 }
 
 // Retention only matters if it COMPOUNDS: a fight that spikes attention 30× for a week and
@@ -1389,7 +1483,7 @@ function compoundingChart(comp) {
                 <g class="pub-marks">${markerLines}${markerLabels}</g>
                 <g class="pub-axis-labels">${f.yLabels}${f.xLabels}</g>
             </svg>
-            <p class="pub-panel-unit">${esc(series.y?.label ?? 'Audience level (relative)')} — a step up holds, a spike falls back</p>
+            <p class="pub-panel-unit">${esc(series.y?.label ?? 'Audience level (relative)')}. A step up holds, a spike falls back.</p>
         </figure>`;
     }
     if (!Array.isArray(series.labels) || !series.labels.length) return '';
@@ -1418,7 +1512,7 @@ function compoundingChart(comp) {
             ${lines}
             <g class="pub-marks">${marksHtml}</g>
         </svg>
-        <p class="pub-panel-unit">Audience level (relative) — a step up holds, a spike falls back</p>
+        <p class="pub-panel-unit">Audience level (relative). A step up holds, a spike falls back.</p>
     </figure>`;
 }
 function compoundingBlock(comp) {
@@ -1445,8 +1539,7 @@ function compoundingBlock(comp) {
 function retentionBlock(items, comp) {
     const compHtml = compoundingBlock(comp);
     if (!items.length && !compHtml) return '';
-    const perFight = items.length ? `${compHtml ? '<h3 class="pub-h3">Fight by fight</h3>' : ''}${items.map((r) => `
-            <div class="pub-bout">
+    const cards = items.map((r) => `
                 <p class="pub-line"><strong>vs ${esc(r.opponent)}</strong> · ${fmtDate(r.fight_date)}</p>
                 ${statRow([
                     // Rounded and grouped like every other count on the page: a raw
@@ -1461,8 +1554,10 @@ function retentionBlock(items, comp) {
                     [r.wiki_afterglow != null ? pct(r.wiki_afterglow) : null, 'Wikipedia attention kept, 30 days out'],
                     [r.growth_velocity != null ? `×${num(r.growth_velocity, 2)}` : null, 'Follower growth velocity'],
                 ])}
-                ${chart(r.curve, { unit: 'Wikipedia views per day', bouts: [{ opponent: r.opponent, date: r.fight_date }], tone: 'accent' })}
-            </div>`).join('')}` : '';
+                ${chart(r.curve, { unit: 'Wikipedia views per day', bouts: [{ opponent: r.opponent, date: r.fight_date }], tone: 'accent' })}`);
+    // A horizontal carousel, same shape and same fix as the media kit's fight week (see
+    // carousel()) — this used to be one vertical, divider-separated block per fight.
+    const perFight = items.length ? `${compHtml ? '<h3 class="pub-h3">Fight by fight</h3>' : ''}${carousel('pub-retention-carousel', cards, 'Fight-by-fight retention, one card per fight')}` : '';
     return `${compHtml}${perFight}`;
 }
 
@@ -1476,12 +1571,12 @@ function offCycleTable(rows) {
     if (!rows.length) return '';
     // days_from_bout is signed around the bout (negative = the spike came first), which is
     // unreadable as a bare "-74". Say which side of the fight it fell on instead.
-    const whenVsBout = (d) => (d == null ? '—' : d === 0 ? 'fight day' : `${Math.abs(d)} days ${d < 0 ? 'before' : 'after'}`);
+    const whenVsBout = (d) => (d == null ? '–' : d === 0 ? 'fight day' : `${Math.abs(d)} days ${d < 0 ? 'before' : 'after'}`);
     return table(['Week', 'Lift', 'Baseline', 'Nearest bout', ''], rows.map((o) => [
         esc(fmtDate(o.week_start)),
         `×${o.ratio.toFixed(2)}`,
-        o.baseline != null ? num(o.baseline) : '—',
-        o.nearest_bout_date ? esc(fmtDate(o.nearest_bout_date)) : '—',
+        o.baseline != null ? num(o.baseline) : '–',
+        o.nearest_bout_date ? esc(fmtDate(o.nearest_bout_date)) : '–',
         whenVsBout(o.days_from_bout),
     ]));
 }
@@ -1507,7 +1602,7 @@ function billingBlock(b) {
         esc(relabelTier(r.event_tier)),
         r.actual != null
             ? `${num(r.actual, 2)}${r.signal != null ? ` <span class="pub-table-delta pub-tone-text-${r.signal > 0 ? 'good' : r.signal < 0 ? 'bad' : 'neutral'}">(${r.signal > 0 ? '+' : r.signal < 0 ? '−' : ''}${num(Math.abs(r.signal), 2)})</span>` : ''}`
-            : '—',
+            : '–',
     ]), { freeze: true, bodyClass: 'pub-table--card' });
     const series = b.chart;
     // Old pixel format carries no per-point date, only the two ends (x_start/x_end) — the one
@@ -1537,11 +1632,11 @@ function cohortBlock(c) {
     // a count as "11 posts", a multiplier as "×2.4". The raw `value` beside it is for the
     // chart's geometry only. Formatting the raw number here instead is what once put
     // "0.06" in this block next to a sentence saying "5.6%" about the same quantity.
-    const shown = (text, raw) => (text != null ? esc(text) : raw != null ? num(raw, 2) : '—');
+    const shown = (text, raw) => (text != null ? esc(text) : raw != null ? num(raw, 2) : '–');
     const target = `${statRow([
         [shown(t.fighter_value_text, t.fighter_value), t.label],
         [shown(t.peer_median_text, t.peer_median), `Peer median (${t.basis}, n=${t.n})`],
-    ])}${t.note ? `<p class="pub-fine pub-fine--dim">${esc(t.note)}</p>` : ''}`;
+    ])}${fineNote(t.note, t.note_style)}`;
     const diffs = c.differentiators.map((d) => `
             <div class="pub-diff">
                 <p class="pub-note pub-note--lead">${esc(d.sentence)}</p>
@@ -1575,20 +1670,20 @@ ${(() => {
     const rows = Array.isArray(d.retention) ? d.retention : (d.retention?.rows ?? []);
     const comp = d.compounding ?? d.retention?.compounding ?? null;
     const note = (!Array.isArray(d.retention) && d.retention?.note) || (comp
-        ? 'Each fight either lifts the baseline permanently — a step up the audience keeps — or attention fades back to where it started. The pattern across fights is what decides whether this audience compounds.'
+        ? 'Each fight either lifts the baseline permanently (a step up the audience keeps) or attention fades back to where it started. The pattern across fights is what decides whether this audience compounds.'
         : 'Afterglow: how much of the search and Wikipedia attention a fight brought is still there 30 days later, against this fighter’s own pre-fight baseline.');
     return section('pub-retention', 'Fight-week retention', retentionBlock(rows, comp), note);
 })()}
-${section('pub-off', 'Between fights', offCycleTable(offCycleRows(d.off_cycle)), offCycleNote(d.off_cycle) ?? 'Weeks where attention spiked with no fight nearby — a sponsor push, a media hit, a story — shown against how far that week sat from the nearest bout.')}
-${section('pub-billing', 'Card position', billingBlock(d.billing), d.billing ? 'The card-position score is how high this fighter is billed relative to what their level alone predicts for that matchup — above zero means billed higher than expected, below means lower. A promotion’s own championship weighting (PFL, for one) can push the score above 1.0.' : null)}
+${section('pub-off', 'Between fights', offCycleTable(offCycleRows(d.off_cycle)), offCycleNote(d.off_cycle) ?? 'Weeks where attention spiked with no fight nearby (a sponsor push, a media hit, a story) shown against how far that week sat from the nearest bout.')}
+${section('pub-billing', 'Card position', billingBlock(d.billing), d.billing ? 'The card-position score is how high this fighter is billed relative to what their level alone predicts for that matchup: above zero means billed higher than expected, below means lower. A promotion’s own championship weighting (PFL, for one) can push the score above 1.0.' : null)}
 ${section('pub-cohort', 'Compared to peers', cohortBlock(d.cohort))}
 </main>
 ${PUB_FOOTER}`;
 
     return shell({
-        title: `${page.fighter_name} — Internal data — FIRST LIGHT`,
+        title: `${page.fighter_name} · Internal data · FIRST LIGHT`,
         description: `Internal measurement for ${page.fighter_name}'s management team, measured ${page.measured_on}.`,
         url: '', site, current: null, body,
-        css: ['/publication.css'], noindex: true, og: true, nav: false, js: ['/pub-fit.js'],
+        css: ['/publication.css'], noindex: true, og: true, nav: false, js: ['/pub-fit.js', '/pub-carousel.js'],
     });
 }
