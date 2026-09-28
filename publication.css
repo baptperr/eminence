@@ -179,6 +179,29 @@
 .pub-table td { border-bottom: 1px solid var(--border-n); color: var(--t1); }
 .pub-table td:first-child, .pub-table th:first-child { white-space: normal; }
 
+/* Card position: the date column freezes as the table scrolls sideways (it's the shortest
+   column, so it makes a sane anchor), and event names wrap instead of forcing a scroll that a
+   phone screen may not make visibly possible. Five columns of unwrapped content ("UFC Fight
+   Night 250", "Numbered event"...) run wider than the page's own 640px measure, which is what
+   forced a desktop into the same sideways scroll a phone needs — table-layout: fixed plus a
+   percentage width per column makes every column wrap instead of pushing the table wider than
+   its container, so the table fits the page at a desktop width and only a phone need scroll it. */
+.pub-table--freeze th:first-child, .pub-table--freeze td:first-child {
+    position: sticky; left: 0; z-index: 2; background: var(--night);
+}
+/* 24rem is a floor for legibility, not a target -- at this site's 20px root (1rem=20px) that's
+   480px, under the ~540px the page's own 640px measure leaves a table on desktop, so it never
+   triggers a scroll there; a phone's much narrower column falls under it and scrolls, with the
+   date column frozen as the anchor. */
+.pub-table--card { table-layout: fixed; width: 100%; min-width: 24rem; }
+.pub-table--card th, .pub-table--card td { white-space: normal; word-break: break-word; padding-inline: 0.6rem; }
+.pub-table--card th:nth-child(1), .pub-table--card td:nth-child(1) { width: 15%; }
+.pub-table--card th:nth-child(2), .pub-table--card td:nth-child(2) { width: 29%; }
+.pub-table--card th:nth-child(3), .pub-table--card td:nth-child(3) { width: 20%; }
+.pub-table--card th:nth-child(4), .pub-table--card td:nth-child(4) { width: 18%; }
+.pub-table--card th:nth-child(5), .pub-table--card td:nth-child(5) { width: 18%; }
+.pub-table-delta { display: block; font-size: 0.85em; opacity: 0.85; }
+
 .pub-bout + .pub-bout, .pub-diff + .pub-diff { margin-top: 2.25rem; padding-top: 2.25rem; border-top: 1px solid var(--border-n); }
 
 /* ── FOOTER: the one mark of ours on the page. ── */
@@ -197,10 +220,10 @@
     .pub-list-date, .pub-list-figures, .pub-table th { color: #333; }
     .pub-section, .pub-table th, .pub-table td, .pub-list-row { border-color: #ccc; }
     .pub-panel { background: #f4f4f4; border-color: #ccc; }
-    .pub-grid-line, .pub-ref-line { stroke: #ccc; }
-    .pub-series--main, .pub-bar, .pub-funnel-tube, .pub-mark-dot { stroke: #000; fill: #000; }
+    .pub-grid-line, .pub-ref-line, .pub-axis-line { stroke: #ccc; }
+    .pub-series--main, .pub-bar, .pub-funnel-tube, .pub-mark-dot, .pub-point-dot { stroke: #000; fill: #000; }
     .pub-series--ref, .pub-dist-bar { stroke: #999; fill: #999; }
-    .pub-ref-label, .pub-mark-label, .pub-bar-label, .pub-bar-value, .pub-funnel-idx { fill: #000; }
+    .pub-ref-label, .pub-mark-label, .pub-bar-label, .pub-bar-value, .pub-funnel-idx, .pub-axis-label { fill: #000; }
 }
 
 @media (max-width: 480px) {
@@ -258,7 +281,17 @@
 .pub-mark-line { stroke: var(--p-ink); stroke-width: 1; stroke-dasharray: 2 3; opacity: 0.45; }
 .pub-mark-dot { fill: var(--p-accent); stroke: var(--p-surface); stroke-width: 2; }
 .pub-mark-label { fill: var(--p-ink); font-size: 9px; opacity: 0.8; }
+.pub-mark-label--top { opacity: 0.9; }
 .pub-panel-unit { margin: 0.6rem 0 0; font-size: 0.68rem; color: var(--p-ink); opacity: 0.65; }
+
+/* Real axes (v3): a value axis needs a rule and tick text, not just a gridline — every chart
+   on this page now draws both. */
+.pub-axis-line { stroke: var(--p-ink); stroke-width: 1; opacity: 0.5; }
+.pub-axis-label { fill: var(--p-ink); font-size: 9px; opacity: 0.7; }
+/* Dense daily series (retention curves) draw every point, not a smoothed curve, so a one-day
+   spike stays visible as a spike -- a small dot per point makes an isolated spike legible on
+   its own rather than reading as a stray kink in the line. */
+.pub-point-dot { fill: var(--p-accent); opacity: 0.9; }
 
 .pub-legend { display: flex; flex-wrap: wrap; gap: 0.35rem 1.1rem; margin-top: 0.65rem; font-size: 0.68rem; color: var(--p-ink); opacity: 0.85; }
 .pub-legend-item { display: inline-flex; align-items: center; gap: 0.4rem; }
@@ -320,5 +353,5 @@
 
 @media (max-width: 480px) {
     .pub-panel { padding: 0.85rem 0.75rem 0.7rem; }
-    .pub-ref-label, .pub-mark-label, .pub-bar-label, .pub-bar-value { font-size: 10px; }
+    .pub-ref-label, .pub-mark-label, .pub-bar-label, .pub-bar-value, .pub-axis-label { font-size: 10px; }
 }

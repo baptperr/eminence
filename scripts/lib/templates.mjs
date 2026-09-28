@@ -673,29 +673,149 @@ function panel(series, opts = {}) {
     </figure>`;
 }
 
+// ── internal-data charts: series that carry their own domain (contract v3) ──
+//
+// v1/v2's <series> was pre-scaled pixel geometry with no domain attached — no axis could ever
+// be drawn from it, which is why a five-point weekly curve read as a slope and a score ended up
+// printed among the x-axis date labels. v3's <series> carries real x/y values plus their own
+// domain (min/max/ticks), so the page scales the data itself and draws a real, labelled axis.
+// isAxisSeries() tells the two shapes apart; panel() above keeps rendering the old one (still
+// what the media kit, and any publication generated before the payload rewrite, carries).
+function isAxisSeries(series) {
+    return !!series && typeof series === 'object' && !!series.x && !!series.y && Array.isArray(series.points);
+}
+
+// A tick's label is written by the payload ("56k", "1 Aug") — the one place a number here is
+// ever formatted is the fallback below, for a domain the payload hasn't ticked itself yet.
+function autoTicks(lo, hi, n = 4) {
+    if (!(hi > lo)) return [{ value: lo, label: num(lo) }];
+    return Array.from({ length: n + 1 }, (_, i) => {
+        const v = lo + ((hi - lo) * i) / n;
+        return { value: v, label: num(v, Number.isInteger(v) ? 0 : 1) };
+    });
+}
+
+// The shared plot frame every axis chart draws inside: a fixed-width left column for y-tick
+// text (so panels line up with each other whatever their numbers look like), gridlines at
+// every y-tick, and the two axis rules. Time always runs left-to-right, oldest-to-newest —
+// points are sorted by x before anything is drawn, never trusted to already arrive in order.
+function buildAxisFrame(series, { W = 600, H = 220 } = {}) {
+    const pts = [...(series.points ?? [])].sort((a, b) => a.x - b.x);
+    const xs = pts.map((p) => p.x), ys = pts.map((p) => p.y);
+    const xDesc = series.x ?? {}, yDesc = series.y ?? {};
+    const xMin = xDesc.min ?? Math.min(...xs), xMax = xDesc.max ?? Math.max(...xs);
+    const yMin = yDesc.min ?? Math.min(0, ...ys), yMax = yDesc.max ?? Math.max(...ys);
+    const xTicks = xDesc.ticks?.length ? xDesc.ticks : autoTicks(xMin, xMax, Math.min(4, xs.length - 1 || 1));
+    const yTicks = yDesc.ticks?.length ? yDesc.ticks : autoTicks(yMin, yMax, 4);
+
+    const padTop = 16, padBottom = 30, padRight = 10, axisW = 40;
+    const plotX0 = axisW, plotX1 = W - padRight, plotY0 = padTop, plotY1 = H - padBottom;
+    const xScale = (v) => plotX0 + (xMax > xMin ? (v - xMin) / (xMax - xMin) : 0.5) * (plotX1 - plotX0);
+    const yScale = (v) => plotY1 - (yMax > yMin ? (v - yMin) / (yMax - yMin) : 0.5) * (plotY1 - plotY0);
+    const toPoly = (arr) => [...arr].sort((a, b) => a.x - b.x).map((p) => `${xScale(p.x).toFixed(1)},${yScale(p.y).toFixed(1)}`).join(' ');
+
+    const gridY = yTicks.map((t) => `<line class="pub-grid-line" x1="${plotX0}" x2="${plotX1}" y1="${yScale(t.value).toFixed(1)}" y2="${yScale(t.value).toFixed(1)}"/>`).join('');
+    const yLabels = yTicks.map((t) => `<text class="pub-axis-label" x="${(plotX0 - 7).toFixed(1)}" y="${(yScale(t.value) + 3).toFixed(1)}" text-anchor="end">${esc(t.label)}</text>`).join('');
+    const xLabels = xTicks.map((t) => `<text class="pub-axis-label" x="${xScale(t.value).toFixed(1)}" y="${(plotY1 + 18).toFixed(1)}" text-anchor="middle">${esc(t.label)}</text>`).join('');
+    const axisLines = `<line class="pub-axis-line" x1="${plotX0}" x2="${plotX1}" y1="${plotY1.toFixed(1)}" y2="${plotY1.toFixed(1)}"/><line class="pub-axis-line" x1="${plotX0}" x2="${plotX0}" y1="${plotY0}" y2="${plotY1.toFixed(1)}"/>`;
+
+    return { pts, W, H, plotX0, plotX1, plotY0, plotY1, xScale, yScale, toPoly, gridY, yLabels, xLabels, axisLines };
+}
+
+// The line/spike chart for the new series shape: retention curves, the compounding level,
+// card-position over time. Every point is drawn — no curve smoothing — so a dense daily
+// series (~40 points) reads as spikes rather than a slope, and a single isolated spike stays
+// visible with a dot at each point once there are few enough of them to tell apart.
+function axisChart(series, opts = {}) {
+    if (!series || !series.points?.length) return '';
+    const { tone: seriesTone = 'accent', size } = opts;
+    const f = buildAxisFrame(series, size);
+    // A ref line near the very bottom of the range (a baseline dwarfed by a fight-week peak,
+    // say) would otherwise print its label right on top of the x-axis tick row below it — the
+    // label never sits lower than a few px clear of the axis, whatever height the line itself
+    // is drawn at.
+    const refLines = (series.ref_lines ?? []).map((r) => {
+        const y = f.yScale(r.y);
+        const ly = Math.min(y - 4, f.plotY1 - 8);
+        return `<g class="pub-ref"><line class="pub-ref-line" x1="${f.plotX0}" x2="${f.plotX1}" y1="${y.toFixed(1)}" y2="${y.toFixed(1)}"/><text class="pub-ref-label" x="${f.plotX1}" y="${ly.toFixed(1)}" text-anchor="end">${esc(r.label)}</text></g>`;
+    }).join('');
+    const extra = series.extra?.points?.length
+        ? `<polyline class="pub-series pub-series--ref" points="${f.toPoly(series.extra.points)}"/>` : '';
+    const main = `<polyline class="pub-series pub-series--main pub-tone-line-${TONE_LINE[seriesTone] ?? 'accent'}" points="${f.toPoly(f.pts)}"/>`;
+    const dots = f.pts.length <= 60
+        ? f.pts.map((p) => `<circle class="pub-point-dot" cx="${f.xScale(p.x).toFixed(1)}" cy="${f.yScale(p.y).toFixed(1)}" r="1.6"/>`).join('') : '';
+    const markerLines = (series.markers ?? []).map((m) => `<line class="pub-mark-line" x1="${f.xScale(m.x).toFixed(1)}" x2="${f.xScale(m.x).toFixed(1)}" y1="${f.plotY0}" y2="${f.plotY1.toFixed(1)}"/>`).join('');
+    const markerLabels = (series.markers ?? []).map((m) => {
+        const x = f.xScale(m.x);
+        const anchor = x < f.plotX0 + 30 ? 'start' : x > f.plotX1 - 30 ? 'end' : 'middle';
+        return `<text class="pub-mark-label pub-mark-label--top" x="${x.toFixed(1)}" y="${(f.plotY0 - 5).toFixed(1)}" text-anchor="${anchor}">${esc(m.label)}</text>`;
+    }).join('');
+    const legend = series.extra?.label
+        ? `<div class="pub-legend"><span class="pub-legend-item"><i class="pub-legend-swatch pub-legend-swatch--main"></i>${esc(series.y?.label ?? 'This fighter')}</span><span class="pub-legend-item"><i class="pub-legend-swatch pub-legend-swatch--ref"></i>${esc(series.extra.label)}</span></div>`
+        : '';
+    const unitLine = [series.y?.label, series.y?.unit].filter(Boolean).join(', ');
+    return `<figure class="pub-panel">
+        <svg class="pub-panel-svg" viewBox="0 0 ${f.W} ${f.H}" role="img" aria-label="${esc(unitLine || 'chart')}">
+            <g class="pub-grid">${f.gridY}</g>
+            ${f.axisLines}
+            ${refLines}
+            ${extra}
+            ${main}
+            ${dots}
+            <g class="pub-marks">${markerLines}${markerLabels}</g>
+            <g class="pub-axis-labels">${f.yLabels}${f.xLabels}</g>
+        </svg>
+        ${legend}${unitLine ? `<p class="pub-panel-unit">${esc(unitLine)}</p>` : ''}
+    </figure>`;
+}
+
+// Renders whichever <series> generation the payload actually sent — the new axis shape once
+// it lands for a given field, the old pixel panel() until then. Never invents a domain the old
+// shape doesn't carry: a series with no axis stays exactly what it was rather than guessing.
+function chart(series, opts = {}) {
+    if (!series) return '';
+    return isAxisSeries(series) ? axisChart(series, opts) : panel(series, opts);
+}
+
 // A histogram for cohort.differentiators[].distribution, on the same Observatory ground: peer
 // bars quiet, this fighter's own position the one bright mark, exactly the funnel's convention.
-function distributionChart(dist) {
-    const { values, marker, width, height, bins } = dist;
+// `marker` arrives already placed on the same 0..width pixel line the bars are drawn on (the
+// assembler's own geometry, not a raw value to re-derive) — a bin's x0/x1 stay in the metric's
+// real units and give the two axis labels, since the assembler doesn't yet send tick text of
+// its own for this chart (see the build report).
+function distributionChart(dist, opts = {}) {
+    const { xLabel } = opts;
+    const { marker, width, height, bins } = dist;
     const heights = bins.map((b) => (typeof b === 'number' ? b : (b?.count ?? b?.height ?? 0)));
     const n = heights.length || 1;
     const gap = 2;
-    const barW = Math.max(1, (width - gap * (n - 1)) / n);
+    const axisW = 26, padBottom = 16, padTop = 6;
+    const plotW = width - axisW, plotH = height - padTop - padBottom;
+    const barW = Math.max(1, (plotW - gap * (n - 1)) / n);
     const maxBin = Math.max(...heights, 1);
     const bars = heights.map((h, i) => {
-        const bh = (h / maxBin) * height;
-        const x = i * (barW + gap);
-        return `<rect class="pub-dist-bar" x="${x.toFixed(1)}" y="${(height - bh).toFixed(1)}" width="${barW.toFixed(1)}" height="${bh.toFixed(1)}"/>`;
+        const bh = (h / maxBin) * plotH;
+        const x = axisW + i * (barW + gap);
+        return `<rect class="pub-dist-bar" x="${x.toFixed(1)}" y="${(padTop + plotH - bh).toFixed(1)}" width="${barW.toFixed(1)}" height="${bh.toFixed(1)}"/>`;
     }).join('');
     let markerMark = '';
-    if (marker != null && values?.length) {
-        const lo = Math.min(...values), hi = Math.max(...values);
-        const mx = hi > lo ? ((marker - lo) / (hi - lo)) * width : width / 2;
-        markerMark = `<line class="pub-dist-marker" x1="${mx.toFixed(1)}" x2="${mx.toFixed(1)}" y1="0" y2="${height}"/><circle class="pub-dist-marker-dot" cx="${mx.toFixed(1)}" cy="0" r="3.5"/>`;
+    if (marker != null) {
+        const mx = axisW + (width > 0 ? (marker / width) * plotW : plotW / 2);
+        markerMark = `<line class="pub-dist-marker" x1="${mx.toFixed(1)}" x2="${mx.toFixed(1)}" y1="${padTop}" y2="${(padTop + plotH).toFixed(1)}"/><circle class="pub-dist-marker-dot" cx="${mx.toFixed(1)}" cy="${padTop}" r="3.5"/>`;
     }
+    const fmtBin = (v) => (Math.abs(v) > 0 && Math.abs(v) < 1 ? v.toFixed(2) : num(Math.round(v)));
+    const lo = bins[0]?.x0, hi = bins[bins.length - 1]?.x1;
+    const xAxis = lo != null && hi != null ? `
+            <text class="pub-axis-label" x="${axisW}" y="${(height - 2).toFixed(1)}" text-anchor="start">${esc(fmtBin(lo))}</text>
+            <text class="pub-axis-label" x="${width}" y="${(height - 2).toFixed(1)}" text-anchor="end">${esc(fmtBin(hi))}</text>` : '';
+    const axisLines = `<line class="pub-axis-line" x1="${axisW}" x2="${width}" y1="${(padTop + plotH).toFixed(1)}" y2="${(padTop + plotH).toFixed(1)}"/><line class="pub-axis-line" x1="${axisW}" x2="${axisW}" y1="${padTop}" y2="${(padTop + plotH).toFixed(1)}"/>`;
+    const yLabel = `<text class="pub-axis-label" x="2" y="${(padTop + 8).toFixed(1)}" text-anchor="start">Fighters</text>`;
     return `<figure class="pub-panel pub-panel--dist">
-        <svg class="pub-panel-svg" viewBox="0 0 ${width} ${height}" role="img" aria-label="Distribution across similar fighters, with this fighter's own value marked">${bars}${markerMark}</svg>
+        <svg class="pub-panel-svg" viewBox="0 0 ${width} ${height}" role="img" aria-label="Distribution of ${esc(xLabel || 'this metric')} across similar fighters, with this fighter's own value marked">
+            ${axisLines}${bars}${markerMark}${xAxis}${yLabel}
+        </svg>
         <div class="pub-legend"><span class="pub-legend-item"><i class="pub-legend-swatch pub-legend-swatch--main"></i>This fighter</span><span class="pub-legend-item"><i class="pub-legend-swatch pub-legend-swatch--ref"></i>Similar fighters</span></div>
+        ${xLabel ? `<p class="pub-panel-unit">${esc(xLabel)}</p>` : ''}
     </figure>`;
 }
 
@@ -798,9 +918,13 @@ function statRow(items) {
 // arrive pre-escaped/pre-formatted by the caller, the same convention privatePage's rows() uses.
 // Wrapped so a table wider than the phone it's read on visibly continues past the edge, rather
 // than looking like the row simply ends (see .pub-table-wrap in publication.css).
-function table(headers, rows) {
+// `freeze` pins the first column in place as the table scrolls sideways (card position: the
+// date is the one column short enough to make a good anchor while the rest scroll under it).
+// `bodyClass` adds a table-specific class for a column that needs its own rules (event names
+// wrapping instead of the default single-line cell).
+function table(headers, rows, { freeze = false, bodyClass = '' } = {}) {
     if (!rows.length) return '';
-    return `<div class="pub-table-wrap"><table class="pub-table">
+    return `<div class="pub-table-wrap"><table class="pub-table${freeze ? ' pub-table--freeze' : ''}${bodyClass ? ` ${bodyClass}` : ''}">
                 <thead><tr>${headers.map((h) => `<th scope="col">${esc(h)}</th>`).join('')}</tr></thead>
                 <tbody>${rows.map((r) => `<tr>${r.map((c) => `<td>${c}</td>`).join('')}</tr>`).join('')}</tbody>
             </table></div>`;
@@ -1091,24 +1215,33 @@ ${PUB_FOOTER}`;
 
 // ── internal data ──
 
+// v3 owner review: lead with the LEVEL, so "the audience it predicts" has something to refer
+// back to, then the predicted audience, the measured audience and the gap between them, named
+// as such. The reading is the assembler's own one-or-two-sentence prose (`reading_sentence`) —
+// not the lowercase fragment ("more fame than their level alone predicts") that used to sit
+// under the FLI number by itself. The calibration caveat is real, but it explains how the
+// number is BUILT, not what it means — small print, not the lead.
 function overviewBlock(fl) {
     if (!fl) return '';
-    // Audience the fighter's level predicts, then what's actually measured, then the gap
-    // between them — leading with the audience, not the rating (FLR is context, per the spec).
     const rows = statRow([
-        [fl.expected != null ? num(fl.expected) : null, 'Audience its level predicts'],
-        [fl.actual != null ? num(fl.actual) : null, 'Audience measured'],
-        [fl.gap != null ? signed(fl.gap, 2) : null, 'Gap'],
         [fl.rating != null ? num(fl.rating) : null, { html: flrHint() }],
+        [fl.expected_text ?? (fl.expected != null ? num(fl.expected) : null), 'Audience its level predicts'],
+        [fl.actual_text ?? (fl.actual != null ? num(fl.actual) : null), 'Audience measured'],
+        [fl.gap != null ? signed(fl.gap, 2) : null, 'Audience gap'],
     ]);
+    const reading = fl.reading_sentence ?? fl.reading;
+    const readingHtml = reading ? `<p class="pub-note pub-note--lead">${esc(reading)}</p>` : '';
     const fliBlock = fl.score != null ? `
         <div class="pub-fli-block">
             <p class="pub-fli-label">${fliHint()} <span class="pub-fli-n pub-tone-text-${fl.score < -0.04 ? 'bad' : fl.score > 0.04 ? 'good' : 'neutral'}">${signed(fl.score, 2)}</span></p>
             ${fliRangeBar(fl.score)}
         </div>` : '';
-    return `${rows}${fliBlock}
-        <p class="pub-note pub-note--lead">Audience is a calibrated followers-equivalent across the platforms we track — not a number you can reproduce by adding up follower counts.</p>
-        ${fl.reading ? `<p class="pub-note">${esc(fl.reading)}</p>` : ''}`;
+    const smallPrint = [
+        fl.note_audience ?? 'Audience is a calibrated followers-equivalent across the platforms we track — not a number you can reproduce by adding up follower counts.',
+        fl.note_gap,
+        fl.trend?.delta != null ? `FLI moved ${signed(fl.trend.delta, 2)} over the last ${fl.trend.days} days.` : null,
+    ].filter(Boolean);
+    return `${rows}${readingHtml}${fliBlock}${smallPrint.map((t) => `<p class="pub-fine pub-fine--dim">${esc(t)}</p>`).join('')}`;
 }
 
 function funnelBlock(fn) {
@@ -1130,17 +1263,25 @@ function funnelBlock(fn) {
     return `${stages}${graphic}${fn.leak?.sentence ? `<p class="pub-note${fn.leak.named ? ' pub-tone-text-bad' : ''}">${esc(fn.leak.sentence)}</p>` : ''}`;
 }
 
+// v3: two columns of numbers become two bar charts — the same treatment the media kit's
+// markets block already has (barsChart), reused rather than a second implementation. The
+// trailing language list is dropped: a row of percentages with no stated meaning was the
+// review's own description of it, and the payload carries no sentence yet that would make
+// sense of it (see the build report).
 function geographyBlock(g) {
     if (!g) return '';
-    const rows = table(['Country', 'Search index', 'Market value index'], g.countries.map((c) => [
-        `${esc(c.country)}${c.estimated ? ' *' : ''}`,
-        c.search_volume_index != null ? num(c.search_volume_index) : '—',
-        c.market_value_index != null ? num(c.market_value_index) : '—',
-    ]));
+    const label = (c) => `${c.country}${c.estimated ? ' *' : ''}`;
+    const search = g.countries.filter((c) => c.search_volume_index != null).map((c) => ({ label: label(c), value: c.search_volume_index }));
+    const market = g.countries.filter((c) => c.market_value_index != null).map((c) => ({ label: label(c), value: c.market_value_index }));
     const hasEstimate = g.countries.some((c) => c.estimated);
-    const langs = (g.languages ?? []).length
-        ? `<p class="pub-fine">${g.languages.map((l) => `${esc(l.market)} ${pct(l.share, 0)}`).join(' · ')}</p>` : '';
-    return `${rows}${hasEstimate ? '<p class="pub-fine pub-fine--dim">* modelled estimate.</p>' : ''}${langs}`;
+    return `
+        <h3 class="pub-h3">Search interest</h3>
+        <p class="pub-fine">How much people search for this fighter, by country — relative only, the top market always reads 100.</p>
+        ${barsChart(search, { unit: 'Search-volume index (top market = 100)' })}
+        <h3 class="pub-h3">Market size</h3>
+        <p class="pub-fine">${esc(g.market_index_note ?? 'That country’s advertising market size per internet user, relative to the top market — a measure of the market’s size, not of this fighter’s own audience there.')}</p>
+        ${barsChart(market, { unit: 'Market-size index (top market = 100)' })}
+        ${hasEstimate ? '<p class="pub-fine pub-fine--dim">* modelled estimate.</p>' : ''}`;
 }
 
 // Retention only matters if it COMPOUNDS: a fight that spikes attention 30× for a week and
@@ -1166,13 +1307,47 @@ function stepTone(direction) {
 // One line, coloured green where the level holds higher after a fight and red where it falls
 // back — the segment between two fight markers takes its colour from the step INTO the next
 // marker, so the staircase (or the flat line with spikes on it) is unmistakable at a glance.
+// Handles both series generations: the new axis shape draws a real, labelled axis around the
+// same coloured-segment idiom; the old pixel shape (still what a publication generated before
+// the payload rewrite carries) keeps its previous axis-less rendering.
 function compoundingChart(comp) {
     const series = comp?.chart;
-    if (!series || !Array.isArray(series.labels) || !series.labels.length) return '';
+    const steps = comp?.steps ?? [];
+    if (!series) return '';
+    if (isAxisSeries(series)) {
+        const marks = series.markers ?? [];
+        if (!marks.length) return axisChart(series, { tone: 'accent' });
+        const f = buildAxisFrame(series);
+        const bounds = [f.pts[0]?.x, ...marks.map((m) => m.x), f.pts[f.pts.length - 1]?.x];
+        const segs = [];
+        for (let i = 0; i < bounds.length - 1; i++) {
+            const x0 = bounds[i], x1 = bounds[i + 1];
+            segs.push({ pts: f.pts.filter((p) => p.x >= x0 - 0.001 && p.x <= x1 + 0.001), dir: steps[i]?.direction });
+        }
+        const lines = segs.filter((s) => s.pts.length > 1)
+            .map((s) => `<polyline class="pub-series pub-series--main pub-tone-line-${TONE_LINE[stepTone(s.dir)]}" points="${f.toPoly(s.pts)}"/>`).join('');
+        const markerLines = marks.map((m) => `<line class="pub-mark-line" x1="${f.xScale(m.x).toFixed(1)}" x2="${f.xScale(m.x).toFixed(1)}" y1="${f.plotY0}" y2="${f.plotY1.toFixed(1)}"/>`).join('');
+        const markerLabels = marks.map((m, i) => {
+            const x = f.xScale(m.x);
+            const anchor = x < f.plotX0 + 30 ? 'start' : x > f.plotX1 - 30 ? 'end' : 'middle';
+            const y = f.plotY0 - 5 - (marks.length > 1 && i % 2 === 1 ? 11 : 0);
+            return `<text class="pub-mark-label pub-mark-label--top" x="${x.toFixed(1)}" y="${y.toFixed(1)}" text-anchor="${anchor}">${esc(m.label)}</text>`;
+        }).join('');
+        return `<figure class="pub-panel">
+            <svg class="pub-panel-svg" viewBox="0 0 ${f.W} ${f.H}" role="img" aria-label="Audience level over time, one marker per fight, green where the level holds higher afterward and red where it falls back">
+                <g class="pub-grid">${f.gridY}</g>
+                ${f.axisLines}
+                ${lines}
+                <g class="pub-marks">${markerLines}${markerLabels}</g>
+                <g class="pub-axis-labels">${f.yLabels}${f.xLabels}</g>
+            </svg>
+            <p class="pub-panel-unit">${esc(series.y?.label ?? 'Audience level (relative)')} — a step up holds, a spike falls back</p>
+        </figure>`;
+    }
+    if (!Array.isArray(series.labels) || !series.labels.length) return '';
     const W = series.width, H = series.height, padTop = 16, padBottom = 34;
     const pts = parsePts(series.points);
     const marks = series.labels;
-    const steps = comp.steps ?? [];
     const bounds = [pts[0][0], ...marks.map((m) => m.x), pts[pts.length - 1][0]];
     const segs = [];
     for (let i = 0; i < bounds.length - 1; i++) {
@@ -1212,29 +1387,31 @@ function compoundingBlock(comp) {
     return `${verdict}${rows}${chart}${meta ? `<p class="pub-fine pub-fine--dim">${esc(meta)}</p>` : ''}`;
 }
 
+// v3: every level gets a noun instead of a bare figure — "862 level before / 2,984 level ~30
+// days after / 1,634 baseline / 56,296 peak" was four numbers with nothing said about what was
+// being compared. The payload doesn't carry these labels as fields yet (see the build report),
+// so the exact wording the owner's review itself specifies is used here rather than inventing
+// different words for the same thing. The missing-search paragraph is gone outright — the v3
+// review's own instruction ("say nothing instead") — a fight too old for a search reading
+// simply shows the Wikipedia figures with no explanatory aside.
 function retentionBlock(items, comp) {
     const compHtml = compoundingBlock(comp);
     if (!items.length && !compHtml) return '';
-    const perFight = items.length ? `${compHtml ? '<h3 class="pub-h3">Fight by fight</h3>' : ''}${items.map((r) => {
-        const missingSearch = r.search_afterglow == null && r.wiki_afterglow != null
-            ? `<p class="pub-fine pub-fine--dim">No search reading: Google Trends only returns daily data for about three months, so a fight this old can never have one. Wikipedia has no such limit.</p>` : '';
-        return `
+    const perFight = items.length ? `${compHtml ? '<h3 class="pub-h3">Fight by fight</h3>' : ''}${items.map((r) => `
             <div class="pub-bout">
                 <p class="pub-line"><strong>vs ${esc(r.opponent)}</strong> · ${fmtDate(r.fight_date)}</p>
                 ${statRow([
-                    [r.level_before ?? null, 'Level before'],
-                    [r.level_after ?? null, 'Level ~30 days after'],
-                    [r.step_text ?? null, 'Step'],
+                    [r.level_before ?? null, 'Everyday audience before the fight'],
+                    [r.level_after ?? null, 'Everyday audience a month later'],
+                    [r.step_text ?? null, 'Change in everyday audience'],
+                    [r.peak != null ? num(r.peak) : null, 'Peak on the biggest day'],
+                    [r.baseline != null ? num(r.baseline) : null, 'Typical day, this fight week'],
                     [r.search_afterglow != null ? pct(r.search_afterglow) : null, 'Search attention kept, 30 days out'],
                     [r.wiki_afterglow != null ? pct(r.wiki_afterglow) : null, 'Wikipedia attention kept, 30 days out'],
                     [r.growth_velocity != null ? `×${num(r.growth_velocity, 2)}` : null, 'Follower growth velocity'],
-                    [r.peak != null ? num(r.peak) : null, 'Peak'],
-                    [r.baseline != null ? num(r.baseline) : null, 'Baseline'],
                 ])}
-                ${missingSearch}
-                ${panel(r.curve, { unit: 'Attention, relative to baseline', bouts: [{ opponent: r.opponent, date: r.fight_date }], tone: 'accent' })}
-            </div>`;
-    }).join('')}` : '';
+                ${chart(r.curve, { unit: 'Wikipedia views per day', bouts: [{ opponent: r.opponent, date: r.fight_date }], tone: 'accent' })}
+            </div>`).join('')}` : '';
     return `${compHtml}${perFight}`;
 }
 
@@ -1258,35 +1435,50 @@ function offCycleTable(rows) {
     ]));
 }
 
-// Zips the chart's own pixel points against the table's own rows (oldest first, matching the
-// rows sorted newest-first in reverse) when the two are the same length — which they always are,
-// since the assembler draws one point per billed fight — so every tick is a real date and a real
-// score already printed a few lines above, never a value read off the curve's geometry.
+// "Regular season" is a raw event-tier label reading as a league fixture, not a fight
+// promotion's own term for it — the v3 review's own fix, applied here as a stopgap until the
+// assembler's own label filter carries it (every OTHER enum already arrives display-ready per
+// the contract; this is the one that slipped through).
+const TIER_RELABEL = { 'Regular season': 'Regular bout' };
+const relabelTier = (t) => TIER_RELABEL[t] ?? t;
+
+// v3: actual/expected/signal as three separate columns were "meaningless as named". One
+// column now carries the card-position score with its delta from what the matchup predicted
+// beside it, in the same cell — condensed, not three numbers a reader has to do the subtraction
+// on themselves. Newest fight first (the payload's own row order); the chart underneath still
+// always runs oldest-to-newest left-to-right, independent of how the table is sorted.
 function billingBlock(b) {
     if (!b) return '';
-    const rows = table(['Date', 'Event', 'Card section', 'Tier', 'Actual', 'Expected', 'Signal'], b.rows.map((r) => [
+    const rows = table(['Date', 'Event', 'Card section', 'Tier', 'Card-position score'], b.rows.map((r) => [
         esc(fmtDate(r.date)),
         esc(r.event),
         esc(r.card_section),
-        esc(r.event_tier),
-        r.actual != null ? num(r.actual, 2) : '—',
-        r.expected != null ? num(r.expected, 2) : '—',
-        // Signed, because the sign IS the reading: billed above the slot this matchup
-        // predicted, or below it. Never a word — the assembler sends a number and the
-        // page does not editorialise it into "outperformed".
-        r.signal != null ? `${r.signal > 0 ? '+' : r.signal < 0 ? '−' : ''}${num(Math.abs(r.signal), 2)}` : '—',
-    ]));
-    const pts = b.chart ? parsePts(b.chart.points) : [];
-    let chartSeries = b.chart;
-    if (b.chart && pts.length === b.rows.length) {
-        const chron = [...b.rows].reverse();
-        chartSeries = { ...b.chart, labels: chron.map((r, i) => ({ x: pts[i][0], y: pts[i][1], text: `${fmtDate(r.date)} · ${r.actual != null ? num(r.actual, 2) : '—'}` })) };
-    }
-    return `${rows}
-        ${panel(chartSeries, { unit: 'Card-slot score', mainLabel: 'Actual', refLabel: 'Expected for this slot', tone: 'accent' })}
-        <p class="pub-fine pub-fine--dim">The score is usually between 0 and 1; a promotion's championship weighting (PFL, for one) can push it above 1.0.</p>`;
+        esc(relabelTier(r.event_tier)),
+        r.actual != null
+            ? `${num(r.actual, 2)}${r.signal != null ? ` <span class="pub-table-delta pub-tone-text-${r.signal > 0 ? 'good' : r.signal < 0 ? 'bad' : 'neutral'}">(${r.signal > 0 ? '+' : r.signal < 0 ? '−' : ''}${num(Math.abs(r.signal), 2)})</span>` : ''}`
+            : '—',
+    ]), { freeze: true, bodyClass: 'pub-table--card' });
+    const series = b.chart;
+    // Old pixel format carries no per-point date, only the two ends (x_start/x_end) — the one
+    // fix possible without that is dropping the score that used to ride along inside the
+    // x-axis label text ("27 Sep · 0.91"), which is the exact bug the v3 review calls out.
+    const chartHtml = isAxisSeries(series) ? axisChart(series, { tone: 'accent' }) : (() => {
+        if (!series) return '';
+        const pts = parsePts(series.points);
+        let labelled = series;
+        if (pts.length === b.rows.length) {
+            const chron = [...b.rows].reverse();
+            labelled = { ...series, labels: chron.map((r, i) => ({ x: pts[i][0], y: pts[i][1], text: fmtDate(r.date) })) };
+        }
+        return panel(labelled, { unit: 'Card-position score', mainLabel: 'Actual', refLabel: 'Expected for this slot', tone: 'accent' });
+    })();
+    return `${rows}${chartHtml}`;
 }
 
+// v3: interpretation first. Every differentiator already carries a plain sentence written by
+// the assembler ("posted a median of 11 times in the month after the fight") — that leads now,
+// the raw fighter/better/worse figures follow as supporting detail, and the distribution gets
+// an axis and a unit like every other chart on the page (see distributionChart).
 function cohortBlock(c) {
     if (!c) return '';
     const t = c.target;
@@ -1295,20 +1487,19 @@ function cohortBlock(c) {
     // chart's geometry only. Formatting the raw number here instead is what once put
     // "0.06" in this block next to a sentence saying "5.6%" about the same quantity.
     const shown = (text, raw) => (text != null ? esc(text) : raw != null ? num(raw, 2) : '—');
-    const target = statRow([
+    const target = `${statRow([
         [shown(t.fighter_value_text, t.fighter_value), t.label],
         [shown(t.peer_median_text, t.peer_median), `Peer median (${t.basis}, n=${t.n})`],
-    ]);
+    ])}${t.note ? `<p class="pub-fine pub-fine--dim">${esc(t.note)}</p>` : ''}`;
     const diffs = c.differentiators.map((d) => `
             <div class="pub-diff">
-                <p class="pub-line"><strong>${esc(d.label)}</strong></p>
+                <p class="pub-note pub-note--lead">${esc(d.sentence)}</p>
+                ${distributionChart(d.distribution, { xLabel: d.label })}
                 ${statRow([
                     [shown(d.fighter_value_text, d.fighter_value), 'This fighter'],
                     [shown(d.better_median_text, d.better_median), `Kept more (n=${d.n_better})`],
                     [shown(d.worse_median_text, d.worse_median), `Kept less (n=${d.n_worse})`],
                 ])}
-                ${distributionChart(d.distribution)}
-                <p class="pub-note">${esc(d.sentence)}</p>
             </div>`).join('');
     return `${target}${diffs}`;
 }
@@ -1325,7 +1516,7 @@ export function internalDataPage({ page, site }) {
     </header>
 ${section('pub-fl', 'Overview', overviewBlock(d.first_light))}
 ${section('pub-funnel', 'Attention funnel', funnelBlock(d.funnel), 'Width at each stage shows how much of this fighter’s audience is still there, compared with a typical fighter at the same level (dashed = typical). Narrower than the tube means they lose more people than usual at that step; wider means they keep more.')}
-${section('pub-geo', 'Geography', geographyBlock(d.geography), 'Search-volume and market-size indices by country, each relative to its own top market (100). No dollar figures.')}
+${section('pub-geo', 'Audience geography', geographyBlock(d.geography))}
 ${(() => {
     // retention arrives either as a bare array or as {note, rows, compounding}; compounding
     // may also sit at the top level. Read both, so the section does not silently lose its
@@ -1338,7 +1529,7 @@ ${(() => {
     return section('pub-retention', 'Fight-week retention', retentionBlock(rows, comp), note);
 })()}
 ${section('pub-off', 'Between fights', offCycleTable(offCycleRows(d.off_cycle)), offCycleNote(d.off_cycle) ?? 'Weeks where attention spiked with no fight nearby — a sponsor push, a media hit, a story — shown against how far that week sat from the nearest bout.')}
-${section('pub-billing', 'Card position', billingBlock(d.billing))}
+${section('pub-billing', 'Card position', billingBlock(d.billing), d.billing ? 'The card-position score is how high this fighter is billed relative to what their level alone predicts for that matchup — above zero means billed higher than expected, below means lower. A promotion’s own championship weighting (PFL, for one) can push the score above 1.0.' : null)}
 ${section('pub-cohort', 'Compared to peers', cohortBlock(d.cohort))}
 </main>
 ${PUB_FOOTER}`;
