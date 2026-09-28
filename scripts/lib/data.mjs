@@ -329,12 +329,24 @@ function checkMediaKit(data, bad) {
         }
     }
 
+    // Moving from one object (the most recent scored fight only) to a list of recent fights —
+    // accept the legacy bare object, a bare array, or {rows, note} (the same convention
+    // broadcast/off_cycle already use), so a build never breaks on whichever shape lands first.
     if (data.fight_week != null) {
-        const fw = data.fight_week;
-        if (!isObj(fw) || !isDate(fw.fight_date) || !isStr(fw.opponent) || !isNum(fw.lift_ratio)
-            || !isNum(fw.peak_views_per_day) || !isNum(fw.baseline)) {
-            bad('"data.fight_week" must be {fight_date, opponent, lift_ratio, peak_views_per_day, baseline} or null');
-        }
+        const raw = data.fight_week;
+        const rows = isArr(raw) ? raw : (isArr(raw?.rows) ? raw.rows : [raw]);
+        rows.forEach((fw, i) => {
+            const at = `data.fight_week[${i}]`;
+            if (!isObj(fw) || !isDate(fw.fight_date) || !isStr(fw.opponent) || !isNum(fw.lift_ratio)
+                || !isNum(fw.peak_views_per_day) || !isNum(fw.baseline)) {
+                bad(`"${at}" must be {fight_date, opponent, lift_ratio, peak_views_per_day, baseline}`);
+            }
+            // A per-fight curve travels on the row itself once the payload sends one there
+            // (the same place internal_data.retention.rows keeps its curve) — optional, since
+            // the single legacy fight_week object still gets its chart from data.charts.fight_week.
+            if (fw?.curve != null) checkSeries(fw.curve, `${at}.curve`, bad);
+            if (fw?.chart != null) checkSeries(fw.chart, `${at}.chart`, bad);
+        });
     }
 
     const broadcast = rowsOf(data.broadcast);
@@ -345,6 +357,9 @@ function checkMediaKit(data, bad) {
         for (const k of ['event', 'promotion', 'card_section', 'event_tier', 'result']) {
             if (!isStr(b?.[k])) bad(`"${at}.${k}" missing`);
         }
+        // Not required yet (contract update in flight): the payload is adding the opponent's
+        // name to each row, but an older publication generated before it lands must still pass.
+        if (b?.opponent != null && !isStr(b.opponent)) bad(`"${at}.opponent" must be a string`);
     });
 
     if (!isObj(data.charts)) bad('"data.charts" must be an object');
