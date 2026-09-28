@@ -1167,6 +1167,14 @@ const hintLink = (label, name, desc) =>
 const fliHint = () => hintLink('FLI', 'First Light Index', 'audience compared with level');
 const flrHint = () => hintLink('FLR', 'First Light Rating', 'a fighter\'s level, from results');
 
+// A hover explainer with no link behind it: "122 fighters compared" reads as 122 random
+// fighters unless the page can say, in a breath, who they actually are. Same dotted-underline
+// affordance as the FLR/FLI hints, but the text comes from the payload rather than a fixed
+// definition, because who is in the comparison depends on the fighter.
+const hintText = (label, desc) => (desc
+    ? `<span class="hint pub-hint">${esc(label)}<span class="hint-tip"><span class="hint-desc">${esc(desc)}</span></span></span>`
+    : esc(label));
+
 // Win green, loss red, a draw stays neutral — reusing tone()'s own two colours rather than a
 // second palette, the same rule the spec asks the charts to follow.
 function resultTone(result) {
@@ -1785,10 +1793,15 @@ function cohortBlock(c) {
     // chart's geometry only. Formatting the raw number here instead is what once put
     // "0.06" in this block next to a sentence saying "5.6%" about the same quantity.
     const shown = (text, raw) => (text != null ? esc(text) : raw != null ? num(raw, 2) : '–');
+    // The second figure's label is the payload's own words for who was compared, with the
+    // explainer on hover; the pre-v5 payloads fall back to naming the sample plainly rather
+    // than to "Peer median (similar, n=122)", which was the statistics-speak the review hit.
+    const basisLabel = t.basis_label ?? (t.n != null ? `${num(t.n)} fighters compared` : 'Fighters compared');
+    const peerLabel = t.peer_label ?? basisLabel;
     const target = `${statRow([
         [shown(t.fighter_value_text, t.fighter_value), t.label],
-        [shown(t.peer_median_text, t.peer_median), `Peer median (${t.basis}, n=${t.n})`],
-    ])}${fineNote(t.note, t.note_style)}`;
+        [shown(t.peer_median_text, t.peer_median), { html: hintText(peerLabel, t.basis_explainer) }],
+    ])}${t.sentence ? `<p class="pub-note pub-note--lead">${esc(t.sentence)}</p>` : ''}${fineNote(t.note, t.note_style)}`;
     const diffs = c.differentiators.map((d) => `
             <div class="pub-diff">
                 <p class="pub-note pub-note--lead">${esc(d.sentence)}</p>
