@@ -24,13 +24,14 @@ OBSERVATORY_DIR="${OBSERVATORY_DIR:-$(cd .. && pwd)/observatory}"
 OUT="$PWD/data/index.json"
 log() { printf '%s %s\n' "$(date '+%Y-%m-%d %H:%M:%S')" "$*"; }
 
-before="$(shasum "$OUT" 2>/dev/null || true)"
+STATUS="$PWD/data/observatory-status.json"   # written by the Observatory pipeline, not by this script
+before="$(shasum "$OUT" "$STATUS" 2>/dev/null || true)"
 log "exporting from $OBSERVATORY_DIR"
 ( cd "$OBSERVATORY_DIR" && ./.venv/bin/python -m observatory.site_export --out "$OUT" )
-after="$(shasum "$OUT")"
+after="$(shasum "$OUT" "$STATUS" 2>/dev/null || true)"
 
 if [ "$before" = "$after" ] && [ -z "${FORCE:-}" ]; then
-    log "rankings unchanged, nothing to deploy"
+    log "rankings and observatory status unchanged, nothing to deploy"
     exit 0
 fi
 [ -n "${DRY_RUN:-}" ] && { log "dry run: would deploy now"; exit 0; }

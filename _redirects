@@ -7,3 +7,7 @@
 /production       /  301
 /commercial.html  /  301
 /commercial       /  301
+
+# The manifesto moved out of /publications/
+/publications/manifesto   /manifesto/  301
+/publications/manifesto/  /manifesto/  301

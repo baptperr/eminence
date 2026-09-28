@@ -25,7 +25,8 @@ list. Everything else, including `data/`, `scripts/` and `apps-script/`, is not 
 | `/index/winners-losers/` | Same file, `winners_losers` key. Not built if the key is absent |
 | `/publications/` | generated from `content/publications/*.md`, with the manifesto pinned first |
 | `/publications/<slug>/` | one per article; slug is the filename (`manifesto` and `private` are reserved) |
-| `/publications/manifesto/` | `templates.mjs` → `manifestoPage`, styled by `manifesto.css`. Placeholder copy for now |
+| `/manifesto/` | `templates.mjs` → `manifestoPage`, styled by `manifesto.css`. Placeholder copy for now. `/publications/manifesto/` 301s here |
+| `/observatory/` | `templates.mjs` → `observatoryPage`, styled by `observatory.css`. Status line from `data/observatory-status.json` |
 | `/publications/private/<token>/` | `data/private/<token>.json`, one page per file |
 
 Articles: front matter `title`, `date`, `summary`, optional `type` (`article` or `case-study`) and
@@ -57,7 +58,12 @@ once:
 The laptop has to be awake at the scheduled time (launchd runs a missed job on wake). If it is off, the site
 just keeps its last data.
 
-`data/index.json` is generated, so it is git-ignored. It is rewritten only when the content changes.
+`data/index.json` is generated, so it is git-ignored.
+
+`data/observatory-status.json` (`{"last_reading": "<ISO 8601>"}`) is written by the Observatory pipeline and
+published as `/observatory-status.json`, which the `/observatory/` page reads for its "Last reading" line. It is
+git-ignored too. If it is missing or not a valid timestamp, the build leaves it out and the page hides the line.
+`npm run refresh` deploys when either file changed. It is rewritten only when the content changes.
 
 ### `data/index.json`
 

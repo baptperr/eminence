@@ -11,7 +11,7 @@ import { cp, mkdir, readdir, readFile, rm, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { loadArticles, loadIndex, loadPrivate, loadPublications } from './lib/data.mjs';
-import { archivePage, articlePage, indexPage, internalDataPage, manifestoPage, mediaKitPage, notFoundPage, privatePage, winnersLosersPage } from './lib/templates.mjs';
+import { archivePage, articlePage, indexPage, internalDataPage, manifestoPage, mediaKitPage, notFoundPage, observatoryPage, privatePage, winnersLosersPage } from './lib/templates.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const args = new Set(process.argv.slice(2));
@@ -23,11 +23,13 @@ const SITE = (process.env.SITE_URL || 'https://firstlight.agency').replace(/\/$/
 
 const STATIC = [
     'index.html', 'privacy.html', '_redirects',
-    'style.css', 'pages.css', 'manifesto.css', 'publication.css',
-    'nav.js', 'menu.js', 'manifesto.js', 'pub-fit.js', 'pub-carousel.js',
+    'style.css', 'pages.css', 'manifesto.css', 'publication.css', 'observatory.css',
+    'nav.js', 'menu.js', 'manifesto.js', 'pub-fit.js', 'pub-carousel.js', 'observatory.js',
     'favicon.png', 'logo.png', 'logo.svg',
     'fonts',
     'hero-pc.mp4', 'hero-mobile.mp4', 'brand-universal.mp4', 'promote.mp4', 'monetize.mp4',
+    'observatory.mp4', 'observatory-poster.jpg', 'observatory-og.jpg',
+    'observatory-mobile.mp4', 'observatory-poster-mobile.jpg',
 ];
 
 const write = async (rel, content) => {
@@ -70,12 +72,15 @@ async function main() {
     const routes = [
         { url: '/', lastmod: null },
         { url: '/publications/', lastmod: articles[0]?.date ?? null },
-        { url: '/publications/manifesto/', lastmod: null },
+        { url: '/manifesto/', lastmod: null },
+        { url: '/observatory/', lastmod: null },
         { url: '/index/', lastmod: indexData?.generated_at ?? null },
     ];
     await write('404.html', notFoundPage({ site: SITE }));
     await write('publications/index.html', archivePage({ articles, site: SITE }));
-    await write('publications/manifesto/index.html', manifestoPage({ site: SITE }));
+    await write('manifesto/index.html', manifestoPage({ site: SITE }));
+    await write('observatory/index.html', observatoryPage({ site: SITE }));
+    await copyObservatoryStatus();
     await write('index/index.html', indexPage({ data: indexData, articles, site: SITE }));
     if (indexData?.winners_losers) {
         await write('index/winners-losers/index.html', winnersLosersPage({ data: indexData, site: SITE }));
@@ -126,6 +131,9 @@ ${routes.map((r) => `  <url><loc>${SITE}${r.url}</loc>${r.lastmod ? `<lastmod>${
   Cache-Control: private, no-store
   X-Content-Type-Options: nosniff
 
+/observatory-status.json
+  Cache-Control: public, max-age=0, must-revalidate
+
 /publications/kit/*
   X-Robots-Tag: noindex, nofollow, noarchive, nosnippet
   Referrer-Policy: no-referrer
@@ -142,10 +150,27 @@ ${routes.map((r) => `  <url><loc>${SITE}${r.url}</loc>${r.lastmod ? `<lastmod>${
     if (SAMPLE) console.log('  Preview only: fictional data. Deploys come from dist/, not this folder.');
 }
 
+// data/observatory-status.json is written by the Observatory pipeline: {"last_reading": ISO 8601}.
+// It is published as /observatory-status.json only when that is a real timestamp. Missing or
+// malformed, the file is left out and the page hides its status line; it never shows a made-up date.
+async function copyObservatoryStatus() {
+    const src = path.join(DATA, 'observatory-status.json');
+    let raw;
+    try { raw = await readFile(src, 'utf8'); } catch (e) { if (e.code === 'ENOENT') return; throw e; }
+    let reading;
+    try { reading = JSON.parse(raw).last_reading; } catch { reading = null; }
+    const ISO = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(:\d{2}(\.\d+)?)?(Z|[+-]\d{2}:\d{2})$/;
+    if (typeof reading !== 'string' || !ISO.test(reading) || Number.isNaN(Date.parse(reading))) {
+        console.warn(`  ${path.relative(ROOT, src)}: no valid "last_reading", status line will be hidden`);
+        return;
+    }
+    await write('observatory-status.json', JSON.stringify({ last_reading: reading }) + '\n');
+}
+
 // Cloudflare lets browsers keep a stylesheet or script for four hours, and a page is fetched fresh, so
 // a returning visitor could pair a new page with an old stylesheet (an unstyled dropdown, for one).
 // Every local css/js reference gets ?v=<hash of that file's content>, so a changed file is a new URL.
-const VERSIONED = ['style.css', 'pages.css', 'manifesto.css', 'publication.css', 'nav.js', 'menu.js', 'manifesto.js', 'pub-fit.js', 'pub-carousel.js'];
+const VERSIONED = ['style.css', 'pages.css', 'manifesto.css', 'publication.css', 'observatory.css', 'nav.js', 'menu.js', 'manifesto.js', 'pub-fit.js', 'pub-carousel.js', 'observatory.js'];
 async function versionAssets() {
     const hashes = {};
     for (const f of VERSIONED) {

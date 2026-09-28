@@ -1,0 +1,174 @@
+/* The Observatory page. One viewport, never scrolls: a shaded loop of the Observatory itself
+   behind a short statement. Loaded after style.css for fonts, tokens and the nav.
+
+   The composition works off three vertical axes:
+     left edge    — the title, its subline stepped in just off it, and at the foot the
+                    live status
+     centre line  — the paragraph, then the Index link, centred under the title
+     right side   — the press credit, a colophon set a little in from the edge
+   The left-set title against a centred body keeps it from reading as one centred funnel,
+   and the status and credit close the page as a pair. Below 900px wide it all
+   collapses into one left-aligned column.
+
+   The video and poster carry their own light blur (baked into the files), so there is no CSS
+   filter here. The shade brings them to about 70% of their brightness. */
+
+html:has(body.page-observatory), body.page-observatory { height: 100%; overflow: hidden; }
+body.page-observatory { background: #000; color: var(--t1); }
+
+.ob {
+    --amber: #C79238;   /* the Observatory's own amber (its --warn) */
+    --mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    --pad: clamp(1.25rem, 3.4vw, 3rem);
+    position: relative; isolation: isolate;
+    height: 100vh; height: 100dvh;
+    padding: 68px var(--pad) clamp(1.5rem, 5vh, 3rem);
+    font-family: 'Red Hat Display', sans-serif;
+    display: flex; flex-direction: column; align-items: flex-start;
+}
+
+/* ── background ── */
+.ob-bg {
+    position: absolute; inset: 0; z-index: -1; overflow: hidden;
+    background: #000 url('/observatory-poster.jpg') center / cover no-repeat;
+}
+/* Portrait screens get their own recording and still, framed for a phone. */
+@media (orientation: portrait) {
+    .ob-bg { background-image: url('/observatory-poster-mobile.jpg'); }
+}
+.ob-video { width: 100%; height: 100%; object-fit: cover; display: block; }
+.ob-bg::after { content: ''; position: absolute; inset: 0; background: rgba(0,0,0,0.3); }
+@media (prefers-reduced-motion: reduce) {
+    .ob-video { display: none; }
+}
+
+/* A tight dark glow, sized in em so it follows each line's own scale, lifts the type off a
+   lighter patch of footage; the wide soft one keeps each block clean on it. Set per
+   element because an inherited text-shadow keeps the parent's em. */
+.ob > :not(.ob-bg) {
+    text-shadow: 0 0 0.12em rgba(0,0,0,0.85), 0 0 0.35em rgba(0,0,0,0.55), 0 1px 18px rgba(0,0,0,0.6);
+}
+
+/* ── type ── */
+.ob-title {
+    margin: auto 0 0;
+    font-weight: 800; font-size: clamp(2.5rem, min(5.6vw, 11vh), 6.25rem);
+    line-height: 1; letter-spacing: -0.025em;
+    text-wrap: balance;
+}
+.ob-sub {
+    margin: clamp(0.75rem, 2.2vh, 1.4rem) 0 0;
+    font-style: italic; font-weight: 400;
+    font-size: clamp(1.2rem, min(2vw, 3.4vh), 1.75rem); line-height: 1.35;
+    color: var(--t2); max-width: 36ch; text-wrap: balance;
+}
+.ob-text {
+    margin: clamp(1.5rem, 5vh, 4.5rem) 0 0;
+    font-weight: 400; font-size: clamp(1.05rem, min(1.45vw, 2.5vh), 1.35rem); line-height: 1.6;
+    color: var(--t1); max-width: 46ch; text-wrap: pretty;
+}
+
+/* The closing sentence stands apart as its own line, balanced so it never leaves a word or
+   two dangling on a narrow screen. */
+.ob-close { display: block; margin-top: 0.55em; text-wrap: balance; }
+
+/* ── status ── */
+.ob-status {
+    display: inline-flex; align-items: center; gap: 0.75em; white-space: nowrap;
+    margin: calc(clamp(1.25rem, 3.5vh, 2.75rem) - 1.1em) 0 -1.1em -1.6em;
+    font-family: var(--mono); font-size: clamp(0.9rem, min(1.15vw, 2.1vh), 1.12rem); letter-spacing: 0.04em;
+    color: var(--t1);
+    /* A soft dark pool behind the readout, fading out on every side (no edges, no card), so
+       it never melts into a bright patch of footage. The padding gives the fade room. */
+    padding: 1.1em 1.6em;
+    background: radial-gradient(closest-side, rgba(0,0,0,0.7), rgba(0,0,0,0.45) 55%, transparent);
+}
+/* Heavier than the glow the other lines get; the selector has to outrank that rule. */
+.ob > .ob-status {
+    text-shadow: 0 0 0.15em rgba(0,0,0,0.95), 0 0 0.5em rgba(0,0,0,0.8), 0 0 1.2em rgba(0,0,0,0.6);
+}
+.ob-status[hidden] { display: none; }
+.ob-status time { color: var(--amber); }
+.ob-dot {
+    width: 0.8em; height: 0.8em; border-radius: 50%; flex: none;
+    background: var(--amber);
+    box-shadow: 0 0 0.3em rgba(0,0,0,0.9), 0 0 14px rgba(199,146,56,0.85);
+    animation: ob-pulse 2s ease-in-out infinite;
+}
+@keyframes ob-pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.2; } }
+@media (prefers-reduced-motion: reduce) { .ob-dot { animation: none; } }
+
+/* ── the way on, and the press credit ── */
+.ob-link { margin: clamp(1.25rem, 3.5vh, 2.5rem) 0 0; }
+.ob-link a, .ob-credit a {
+    color: var(--t1); text-decoration: none;
+    border-bottom: 1px solid rgba(255,255,255,0.35); padding-bottom: 0.15em;
+    transition: border-color 0.2s;
+}
+.ob-link a { font-weight: 500; font-size: clamp(1.05rem, min(1.35vw, 2.4vh), 1.25rem); }
+.ob-link a:hover, .ob-link a:focus-visible,
+.ob-credit a:hover, .ob-credit a:focus-visible { border-color: #fff; outline: none; }
+.ob-credit {
+    margin: auto 0 0; padding-top: clamp(1rem, 3vh, 2.5rem);
+    font-size: clamp(0.85rem, min(1vw, 1.9vh), 0.98rem); line-height: 1.7; color: var(--t2);
+}
+.ob-credit span { display: block; }
+
+/* Title on one line wherever the width allows it. After its `text-wrap`, a shorthand that
+   would switch wrapping back on. */
+@media (min-width: 760px) { .ob-title { white-space: nowrap; } }
+
+/* ── phones and narrow windows: a title card ──
+   Small type in the lower part of the screen, like a film title card, so the top is left to
+   the footage. The gaps grow with the screen's height (dvh), so a tall phone spreads the
+   block out and lifts the title rather than stacking everything at the foot. Sized in vw so a 390px phone and a 360px
+   one keep the same proportions; everything fits in a Safari viewport with its bars showing
+   (about 390×660 on an iPhone 12). */
+@media (max-width: 899px) {
+    .ob { padding-bottom: calc(1.25rem + env(safe-area-inset-bottom, 0px)); }
+    /* Plain wrapping: balance would split it "The First / Light Observatory". */
+    .ob-title { font-size: clamp(1.75rem, 8.2vw, 2.6rem); text-wrap: wrap; }
+    .ob-sub   { margin-top: clamp(0.5rem, 1.6dvh, 1rem); font-size: clamp(0.88rem, 3.9vw, 1.1rem); }
+    .ob-text  { margin-top: clamp(1.1rem, 5dvh, 2.75rem); font-size: clamp(0.8rem, 3.45vw, 0.98rem); line-height: 1.5; max-width: 42ch; }
+    .ob-status {
+        margin: calc(clamp(1rem, 3.5dvh, 2rem) - 1.1em) 0 -1.1em -1.6em;
+        font-size: clamp(0.62rem, 2.75vw, 0.78rem); letter-spacing: 0.02em;
+    }
+    .ob-link { margin-top: clamp(0.9rem, 3.5dvh, 2rem); }
+    .ob-link a { font-size: clamp(0.85rem, 3.7vw, 1rem); }
+    .ob-credit { margin-top: clamp(1.4rem, 9dvh, 4.5rem); padding-top: 0; font-size: clamp(0.64rem, 2.8vw, 0.78rem); line-height: 1.6; }
+}
+
+/* ── the composition, where there is room for it ── */
+@media (min-width: 900px) and (min-height: 560px) {
+    .ob {
+        display: grid;
+        grid-template-columns: repeat(12, minmax(0, 1fr));
+        column-gap: clamp(1rem, 2vw, 2rem);
+        /* spacer · title · subline · paragraph · link · spacer · foot (status | credit).
+           The top spacer is the smaller one, so the statement sits a little above the middle. */
+        grid-template-rows: 0.8fr auto auto auto auto 1fr auto;
+        align-items: start;
+        padding-bottom: clamp(2.5rem, 8vh, 5rem);
+    }
+    .ob-title  { grid-column: 1 / -1; grid-row: 2; margin: 0; }
+    .ob-sub    { grid-column: 1 / -1; grid-row: 3; white-space: nowrap; max-width: none; padding-left: 0.6em; }
+    .ob-text   {
+        grid-column: 1 / -1; grid-row: 4; justify-self: center; text-align: center;
+        margin-top: clamp(3rem, 9vh, 6rem); max-width: 48ch;
+    }
+    .ob-link   { grid-column: 1 / -1; grid-row: 5; justify-self: center; }
+    .ob-status { grid-column: 1 / span 6; grid-row: 7; align-self: center; justify-self: start; margin: -1.1em 0 -1.1em -1.6em; }
+    .ob-credit {
+        grid-column: 7 / span 5; grid-row: 7; justify-self: end; align-self: center;
+        margin: 0; padding: 0; text-align: right;
+    }
+}
+
+/* A phone on its side or a very short window cannot hold the page in one screen; scrolling
+   beats clipping the text. */
+@media (max-height: 520px) {
+    html:has(body.page-observatory), body.page-observatory { height: auto; overflow: auto; }
+    .ob { height: auto; min-height: 100dvh; }
+    .ob-bg { position: fixed; }
+}
