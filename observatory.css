@@ -119,24 +119,33 @@ body.page-observatory { background: #000; color: var(--t1); }
 @media (min-width: 760px) { .ob-title { white-space: nowrap; } }
 
 /* ── phones and narrow windows: a title card ──
-   Small type in the lower part of the screen, like a film title card, so the top is left to
-   the footage. The gaps grow with the screen's height (dvh), so a tall phone spreads the
-   block out and lifts the title rather than stacking everything at the foot. Sized in vw so a 390px phone and a 360px
+   Small type. The statement (title, subline, paragraph and its Index link) hangs from the
+   upper third; the status and the press credit sit together at the foot, as on desktop.
+   The gaps grow with the screen's height (dvh), so a tall phone spreads out and a short
+   one (Safari with its bars showing) still fits. Sized in vw so a 390px phone and a 360px
    one keep the same proportions; everything fits in a Safari viewport with its bars showing
    (about 390×660 on an iPhone 12). */
 @media (max-width: 899px) {
     .ob { padding-bottom: calc(1.25rem + env(safe-area-inset-bottom, 0px)); }
     /* Plain wrapping: balance would split it "The First / Light Observatory". */
-    .ob-title { font-size: clamp(1.75rem, 8.2vw, 2.6rem); text-wrap: wrap; }
-    .ob-sub   { margin-top: clamp(0.5rem, 1.6dvh, 1rem); font-size: clamp(0.88rem, 3.9vw, 1.1rem); }
-    .ob-text  { margin-top: clamp(1.1rem, 5dvh, 2.75rem); font-size: clamp(0.8rem, 3.45vw, 0.98rem); line-height: 1.5; max-width: 42ch; }
+    .ob-title { margin-top: clamp(1rem, 16dvh, 9rem); font-size: clamp(1.75rem, 8.2vw, 2.6rem); text-wrap: wrap; }
+    .ob-sub   { margin-top: clamp(0.7rem, 2.4dvh, 1.4rem); font-size: clamp(0.88rem, 3.9vw, 1.1rem); }
+    .ob-text  { margin-top: clamp(1.5rem, 6.5dvh, 3.5rem); font-size: clamp(0.8rem, 3.45vw, 0.98rem); line-height: 1.5; max-width: 42ch; }
     .ob-status {
-        margin: calc(clamp(1rem, 3.5dvh, 2rem) - 1.1em) 0 -1.1em -1.6em;
+        /* auto pushes status + credit to the foot; the halo's own padding is the gap. */
+        margin: auto 0 -1.1em -1.6em;
         font-size: clamp(0.62rem, 2.75vw, 0.78rem); letter-spacing: 0.02em;
     }
-    .ob-link { margin-top: clamp(0.9rem, 3.5dvh, 2rem); }
+    .ob-link { margin: clamp(0.9rem, 3dvh, 1.75rem) 0 clamp(1.25rem, 4dvh, 2.5rem); }
     .ob-link a { font-size: clamp(0.85rem, 3.7vw, 1rem); }
-    .ob-credit { margin-top: clamp(1.4rem, 9dvh, 4.5rem); padding-top: 0; font-size: clamp(0.64rem, 2.8vw, 0.78rem); line-height: 1.6; }
+    .ob-credit { margin-top: clamp(0.5rem, 1.4dvh, 0.9rem); padding-top: 0; font-size: clamp(0.64rem, 2.8vw, 0.78rem); line-height: 1.6; }
+}
+
+/* Very short phone screens (a small iPhone with Safari's bars showing, ~375×550): the
+   title comes up under the nav so the credit still fits. */
+@media (max-width: 899px) and (max-height: 600px) {
+    .ob-title { margin-top: 0.75rem; }
+    .ob-text  { margin-top: 1.25rem; }
 }
 
 /* ── the composition, where there is room for it ── */

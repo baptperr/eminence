@@ -231,8 +231,8 @@ export function observatoryPage({ site }) {
     <h1 class="ob-title" id="ob-title">The First Light Observatory</h1>
     <p class="ob-sub">The deepest record of commercial value in professional fighting.</p>
     <p class="ob-text">${esc(OBSERVATORY_TEXT_LINES[0])} <span class="ob-close">${esc(OBSERVATORY_TEXT_LINES[1])}</span></p>
-    <p class="ob-status" id="obStatus" hidden><span class="ob-dot" aria-hidden="true"></span>Last reading: <time id="obStatusTime"></time></p>
     <p class="ob-link"><a href="/index/">First Light Index <span aria-hidden="true">&rarr;</span></a></p>
+    <p class="ob-status" id="obStatus" hidden><span class="ob-dot" aria-hidden="true"></span>Last reading: <time id="obStatusTime"></time></p>
     <p class="ob-credit"><span>Journalists may publish Observatory data.</span><span>Credit: First Light Observatory.</span><span><a href="mailto:contact@firstlight.agency">contact@firstlight.agency</a></span></p>
 </main>`;
     return shell({
