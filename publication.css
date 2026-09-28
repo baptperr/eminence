@@ -346,17 +346,19 @@
 
 .pub-legend { display: flex; flex-wrap: wrap; gap: 0.35rem 1.1rem; margin-top: 0.65rem; font-size: 0.68rem; color: var(--p-ink); opacity: 0.85; }
 .pub-legend-item { display: inline-flex; align-items: center; gap: 0.4rem; }
-/* Big enough to read the colour: at 12x2 the swatch was a hairline and the two series were
-   indistinguishable in the legend even once the bars themselves were not. */
-.pub-legend-swatch { width: 22px; height: 5px; border-radius: 2px; display: inline-block; flex: 0 0 auto; }
+/* A small square, not a line: at 12x2 the swatch was a hairline and the two series were
+   indistinguishable in the legend even after the bars themselves were not. A square of the
+   same footprint carries several times the colour area, which is what the eye is matching. */
+.pub-legend-swatch { width: 12px; height: 12px; border-radius: 2px; display: inline-block; flex: 0 0 auto; }
 .pub-legend-swatch--main { background: var(--p-accent); }
 .pub-legend-swatch--ref { background: var(--p-accent-2); }
 /* The reference series draws dashed on the chart, so its swatch says so too. */
-.pub-legend-swatch--ref { background: repeating-linear-gradient(90deg, var(--p-accent-2) 0 6px, transparent 6px 9px); }
+/* The reference series draws dashed, so its square is striped rather than solid. */
+.pub-legend-swatch--ref { background: repeating-linear-gradient(135deg, var(--p-accent-2) 0 3px, transparent 3px 6px); }
 /* The paired-bar legend tracks the bars' own two hues, not the line charts' quiet
    reference ink: a swatch that does not match its bars is worse than none. */
 .pub-legend-swatch--market { background: var(--p-accent-2); }
-.pub-legend-swatch--tube { border-top: 2px dashed var(--p-ink); width: 22px; height: 0; background: none; opacity: 0.7; }
+.pub-legend-swatch--tube { border: 1px dashed var(--p-ink); width: 12px; height: 12px; background: none; opacity: 0.7; }
 .pub-legend-item--tube { opacity: 0.7; }
 
 /* Distribution histogram (cohort): peer bars quiet, this fighter's own value the bright mark. */
