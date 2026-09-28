@@ -1601,11 +1601,14 @@ function compoundingChart(comp) {
         const marks = series.markers ?? [];
         if (!marks.length) return axisChart(series, { tone: 'accent' });
         const f = buildAxisFrame(series);
-        const bounds = [f.pts[0]?.x, ...marks.map((m) => m.x), f.pts[f.pts.length - 1]?.x];
+        // Through xv(), because on a date axis x is an ISO string: `p.x >= x0 - 0.001`
+        // compares a string against NaN, every segment filtered to nothing, and the chart
+        // drew its axes, its gridlines and its fight markers over an empty plot.
+        const bounds = [f.pts[0]?.x, ...marks.map((m) => m.x), f.pts[f.pts.length - 1]?.x].map(xv);
         const segs = [];
         for (let i = 0; i < bounds.length - 1; i++) {
             const x0 = bounds[i], x1 = bounds[i + 1];
-            segs.push({ pts: f.pts.filter((p) => p.x >= x0 - 0.001 && p.x <= x1 + 0.001), dir: steps[i]?.direction });
+            segs.push({ pts: f.pts.filter((p) => xv(p.x) >= x0 - 0.001 && xv(p.x) <= x1 + 0.001), dir: steps[i]?.direction });
         }
         const lines = segs.filter((s) => s.pts.length > 1)
             .map((s) => `<polyline class="pub-series pub-series--main pub-tone-line-${TONE_LINE[stepTone(s.dir)]}" points="${f.toPoly(s.pts)}"/>`).join('');
@@ -1692,7 +1695,7 @@ function retentionBlock(items, comp) {
                     [r.peak != null ? num(r.peak) : null, 'Peak on the biggest day'],
                     [r.baseline != null ? num(r.baseline) : null, 'Typical day, this fight week'],
                     [r.search_afterglow != null ? pct(r.search_afterglow) : null, 'Search attention kept, 30 days out'],
-                    [r.wiki_afterglow != null ? pct(r.wiki_afterglow) : null, 'Wikipedia attention kept, 30 days out'],
+                    [r.wiki_afterglow != null ? pct(r.wiki_afterglow) : null, 'Attention kept, 30 days out'],
                     [r.growth_velocity != null ? `×${num(r.growth_velocity, 2)}` : null, 'Follower growth velocity'],
                 ])}
                 ${chart(r.curve, { unit: 'Wikipedia views per day', bouts: [{ opponent: r.opponent, date: r.fight_date }], tone: 'accent' })}`);
@@ -1741,9 +1744,17 @@ function billingBlock(b) {
         esc(r.event),
         esc(r.card_section),
         esc(relabelTier(r.event_tier)),
-        r.actual != null
-            ? `${num(r.actual, 2)}${r.signal != null ? ` <span class="pub-table-delta pub-tone-text-${r.signal > 0 ? 'good' : r.signal < 0 ? 'bad' : 'neutral'}">(${r.signal > 0 ? '+' : r.signal < 0 ? '−' : ''}${num(Math.abs(r.signal), 2)})</span>` : ''}`
-            : '–',
+        // v3 renamed actual/signal to card_position_score/delta, and sends both already
+        // formatted; the older names still render for publications made before that.
+        (() => {
+            const score = r.card_position_score_text
+                ?? (r.card_position_score ?? r.actual) != null ? (r.card_position_score_text ?? num(r.card_position_score ?? r.actual, 2)) : null;
+            const d = r.delta ?? r.signal;
+            const dText = r.delta_text ?? (d != null ? `${d > 0 ? '+' : d < 0 ? '−' : ''}${num(Math.abs(d), 2)}` : null);
+            if (score == null) return '–';
+            const tone = d == null ? 'neutral' : d > 0 ? 'good' : d < 0 ? 'bad' : 'neutral';
+            return `${esc(score)}${dText ? ` <span class="pub-table-delta pub-tone-text-${tone}">(${esc(dText)})</span>` : ''}`;
+        })(),
     ]), { freeze: true, bodyClass: 'pub-table--card' });
     const series = b.chart;
     // Old pixel format carries no per-point date, only the two ends (x_start/x_end) — the one

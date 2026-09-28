@@ -216,6 +216,8 @@
    measure rather than bleeding to the viewport edge, so the same rule works at phone and desktop
    width without a separate breakout layout. ── */
 .pub-carousel { display: block; }
+.pub-carousel { scrollbar-width: none; -ms-overflow-style: none; }
+.pub-carousel::-webkit-scrollbar { width: 0; height: 0; display: none; }
 .pub-carousel:focus-visible { outline: 2px solid var(--p-accent, #7FD4A8); outline-offset: 4px; border-radius: 4px; }
 .pub-carousel-card { padding: 1.5rem 0; border-top: 1px solid var(--border-n); }
 .pub-carousel-card:first-child { padding-top: 0; border-top: none; }
@@ -227,7 +229,11 @@
         padding-bottom: 0.6rem; -webkit-overflow-scrolling: touch;
     }
     .pub-carousel-card {
-        flex: 0 0 min(84%, 26rem); scroll-snap-align: start; padding: 0; border-top: none;
+        /* Centred, not start-aligned: aligning to the left edge shows the next card but
+           hides the previous one, so a middle card looks like the first one. Centring gives
+           a peek on both sides, and the first and last cards simply rest against their own
+           end of the scroller, which is the only place they can be. */
+        flex: 0 0 min(78%, 24rem); scroll-snap-align: center; padding: 0; border-top: none;
     }
 }
 @media (prefers-reduced-motion: reduce) {
@@ -417,11 +423,14 @@
 /* Carousel dots: how many cards, and which one is showing. */
 .pub-carousel-dots { display: flex; gap: 0.4rem; justify-content: center; margin-top: 0.75rem; }
 .pub-carousel-dot {
+    /* Literal values, not the page's ink tokens: a dot is 7px of flat colour with no text
+       in it, and it has to read against the page's own black on its own. */
     width: 7px; height: 7px; padding: 0; border: 0; border-radius: 50%;
-    background: var(--t3); opacity: 0.45; cursor: pointer;
-    transition: opacity 120ms ease, background-color 120ms ease, width 120ms ease;
+    background: rgba(255, 255, 255, 0.32); cursor: pointer;
+    transition: background-color 120ms ease, width 120ms ease;
 }
-.pub-carousel-dot.is-current { background: var(--p-accent); opacity: 1; width: 18px; border-radius: 4px; }
+.pub-carousel-dot:hover { background: rgba(255, 255, 255, 0.55); }
+.pub-carousel-dot.is-current { background: #fff; width: 18px; border-radius: 4px; }
 @media (prefers-reduced-motion: reduce) { .pub-carousel-dot { transition: none; } }
 /* With no scroll-snap the cards are a plain vertical stack, so there is nothing to page
    through and a position indicator would be lying. */
