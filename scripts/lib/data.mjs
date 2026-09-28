@@ -172,11 +172,42 @@ export async function loadPrivate(dir) {
 export const PUBLICATION_KINDS = ['media_kit', 'internal_data'];
 const SLUG_RE = /^[a-z0-9]+(-[a-z0-9]+)*$/;
 
-const isSeries = (v) => isObj(v) && isNum(v.width) && isNum(v.height) && isStr(v.points);
+// Two generations of <series>. v1/v2: pre-scaled pixel geometry, no domain attached (still
+// what the media kit and any publication generated before the payload rewrite carry). v3:
+// values plus their own domain -- x/y axis descriptors and {x,y} data points -- so the page
+// can draw real, labelled axes instead of a bare line shape. Both are accepted; the renderer
+// picks its rendering path per series (see templates.mjs's isAxisSeries).
+const isOldSeries = (v) => isObj(v) && isNum(v.width) && isNum(v.height) && isStr(v.points);
+const isPoint = (v) => isObj(v) && isNum(v.x) && isNum(v.y);
+const isAxisDesc = (v) => isObj(v) && isStr(v.label)
+    && (v.min == null || isNum(v.min)) && (v.max == null || isNum(v.max))
+    && (v.ticks == null || (isArr(v.ticks) && v.ticks.every((t) => isNum(t?.value) && isStr(t?.label))));
+const isNewSeries = (v) => isObj(v) && isAxisDesc(v.x) && isAxisDesc(v.y)
+    && isArr(v.points) && v.points.every(isPoint);
 
 function checkSeries(v, label, bad) {
     if (v == null) return;
-    if (!isSeries(v)) bad(`"${label}" must be a chart series ({width,height,points,...}) or null`);
+    if (isNewSeries(v)) {
+        if (v.extra != null) {
+            if (!isObj(v.extra) || !isStr(v.extra.label) || !isArr(v.extra.points) || !v.extra.points.every(isPoint)) {
+                bad(`"${label}.extra" must be {label, points} or null`);
+            }
+        }
+        if (v.markers != null) {
+            if (!isArr(v.markers)) bad(`"${label}.markers" must be an array`);
+            v.markers.forEach((m, i) => {
+                if (!isNum(m?.x) || !isStr(m?.label)) bad(`"${label}.markers[${i}]" needs numeric "x" and a "label" string`);
+            });
+        }
+        if (v.ref_lines != null) {
+            if (!isArr(v.ref_lines)) bad(`"${label}.ref_lines" must be an array`);
+            v.ref_lines.forEach((r, i) => {
+                if (!isNum(r?.y) || !isStr(r?.label)) bad(`"${label}.ref_lines[${i}]" needs numeric "y" and a "label" string`);
+            });
+        }
+        return;
+    }
+    if (!isOldSeries(v)) bad(`"${label}" must be a chart series ({x,y,points,...} or the older {width,height,points,...}) or null`);
     if (v.extra_points != null && !isStr(v.extra_points)) bad(`"${label}.extra_points" must be a string or null`);
     if (v.labels != null) {
         if (!isArr(v.labels)) bad(`"${label}.labels" must be an array`);
@@ -364,6 +395,10 @@ function checkInternalData(data, bad) {
         }
         checkSeries(r?.curve, `${at}.curve`, bad);
     });
+    // compounding sits beside the rows once the assembler groups them, never inside the
+    // array itself -- checked only when present, since it's still an optional block.
+    const compounding = isObj(data.retention) ? data.retention.compounding : null;
+    if (compounding != null) checkSeries(compounding.chart, 'data.retention.compounding.chart', bad);
 
     const offCycle = rowsOf(data.off_cycle);
     if (!isArr(offCycle)) bad('"data.off_cycle" must be an array, or {rows, note}');
