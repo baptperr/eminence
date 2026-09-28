@@ -450,3 +450,14 @@
 .pub-list-row--tight { padding-block: 0.6rem; }
 .pub-list-row--tight .pub-list-main { display: flex; flex-direction: column; gap: 0.15rem; }
 .pub-list-row--tight .pub-list-title { line-height: 1.25; }
+
+
+/* One comparison, not two measurements: the fighter's figure and the usual figure sit on
+   one line with "vs" between them. They stack only when the line genuinely cannot hold
+   them, and even then the join stays visible so the pairing survives. */
+.pub-versus { display: flex; align-items: flex-start; gap: 1.25rem; flex-wrap: wrap; }
+.pub-versus > .pub-stat-row { flex: 1 1 8rem; margin: 0; }
+.pub-versus-join {
+    font-family: 'DM Sans', system-ui, sans-serif; font-size: 0.7rem; letter-spacing: 0.18em;
+    text-transform: uppercase; color: var(--t3); padding-top: 0.75rem; flex: 0 0 auto;
+}

@@ -1825,10 +1825,13 @@ function cohortBlock(c) {
     // than to "Peer median (similar, n=122)", which was the statistics-speak the review hit.
     const basisLabel = t.basis_label ?? (t.n != null ? `${num(t.n)} fighters compared` : 'Fighters compared');
     const peerLabel = t.peer_label ?? basisLabel;
-    const target = `${statRow([
+    // Side by side and joined by "vs", because these two are ONE comparison: stacked, and
+    // with values as far apart as +182% and -3%, they read as two unrelated measurements.
+    const target = `<div class="pub-versus">${statRow([
         [shown(t.fighter_value_text, t.fighter_value), t.label],
+    ])}<span class="pub-versus-join" aria-hidden="true">vs</span>${statRow([
         [shown(t.peer_median_text, t.peer_median), { html: hintText(peerLabel, t.basis_explainer) }],
-    ])}${t.sentence ? `<p class="pub-note pub-note--lead">${esc(t.sentence)}</p>` : ''}${fineNote(t.note, t.note_style)}`;
+    ])}</div>${t.sentence ? `<p class="pub-note pub-note--lead">${esc(t.sentence)}</p>` : ''}${fineNote(t.note, t.note_style)}`;
     const diffs = c.differentiators.map((d) => `
             <div class="pub-diff">
                 <p class="pub-note pub-note--lead">${esc(d.sentence)}</p>
