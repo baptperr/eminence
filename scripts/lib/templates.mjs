@@ -963,6 +963,24 @@ function distributionChart(dist, opts = {}) {
 // it reads as the same countries measured twice rather than two unrelated lists. Colour reuses
 // the chart palette's own main/reference convention (accent = the fighter's own read, ink =
 // the reference figure) rather than a third hue.
+// A country name has to fit the chart's label column, which is a fixed width because the bars
+// beside it must line up. The long official forms are the only ones that overflow, and each has
+// a short form everyone already uses; anything else long enough to spill is cut with an ellipsis
+// and keeps its full name in a <title>, so nothing is silently lost.
+const COUNTRY_SHORT = {
+    'United States': 'USA', 'United Arab Emirates': 'UAE', 'United Kingdom': 'UK',
+    'Bosnia and Herzegovina': 'Bosnia', 'Democratic Republic of the Congo': 'DR Congo',
+    'Republic of Ireland': 'Ireland', 'Czech Republic': 'Czechia',
+    'Dominican Republic': 'Dominican Rep.', 'Trinidad and Tobago': 'Trinidad',
+    'South Korea': 'S. Korea', 'North Macedonia': 'N. Macedonia',
+    'New Zealand': 'New Zealand', 'Saudi Arabia': 'Saudi Arabia',
+};
+const LABEL_MAX_CHARS = 15;
+function shortCountry(name) {
+    const short = COUNTRY_SHORT[name] ?? name;
+    return short.length > LABEL_MAX_CHARS ? `${short.slice(0, LABEL_MAX_CHARS - 1)}…` : short;
+}
+
 function marketsPairedChart(countries, { searchCaption, marketCaption } = {}) {
     if (!countries?.length) return '';
     const W = 300, barH = 9, barGap = 3, pairH = barH * 2 + barGap, rowGap = 11, labelW = 92;
@@ -976,7 +994,9 @@ function marketsPairedChart(countries, { searchCaption, marketCaption } = {}) {
     };
     const rows = countries.map((c, i) => {
         const y0 = i * (pairH + rowGap);
-        return `<text class="pub-bar-label" x="0" y="${(y0 + pairH / 2 + 3).toFixed(1)}">${esc(c.country)}</text>`
+        const short = shortCountry(c.country);
+        const label = `<text class="pub-bar-label" x="0" y="${(y0 + pairH / 2 + 3).toFixed(1)}">${esc(short)}${short === c.country ? '' : `<title>${esc(c.country)}</title>`}</text>`;
+        return label
             + bar('pub-bar--search', y0, c.search_volume_index)
             + bar('pub-bar--market', y0 + barH + barGap, c.market_value_index);
     }).join('');
