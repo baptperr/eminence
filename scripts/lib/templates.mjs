@@ -951,8 +951,11 @@ function section(id, heading, inner, note) {
 const KEY_HREF = '/index/#key';
 const hintLink = (label, name, desc) =>
     `<a class="hint pub-hint" href="${KEY_HREF}">${label}<span class="hint-tip"><strong>${esc(name)}</strong><span class="hint-desc">${esc(desc)}</span></span></a>`;
-const fliHint = () => hintLink('FLI', 'First Light Index', 'fame compared to skill');
-const flrHint = () => hintLink('FLR', 'First Light Rating', 'measure of true skill');
+// The wording differs from /index/'s own hints by one word on purpose: these pages say
+// "level", never "skill", because skill reads as an opinion about a fighter and level
+// reads as a position among fighters. Same metric, same definition, same link.
+const fliHint = () => hintLink('FLI', 'First Light Index', 'audience compared with level');
+const flrHint = () => hintLink('FLR', 'First Light Rating', 'a fighter\'s level, from results');
 
 // Win green, loss red, a draw stays neutral — reusing tone()'s own two colours rather than a
 // second palette, the same rule the spec asks the charts to follow.
