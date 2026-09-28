@@ -1301,17 +1301,22 @@ function socialBlock(s) {
 // falls back to the days we can already place from `top_posts` alone, labelled honestly as the
 // posts on file so a sparse grid reads as a thin sample, never as "this fighter doesn't post".
 const TYPE_SYMBOL = { Photo: 'P', Video: 'V', Carousel: 'C', Reel: 'R', Story: 'S', Text: 'T' };
+// The grid runs one column per week, seven rows Monday to Sunday, like a commit calendar:
+// the EMPTY days carry as much as the filled ones, since they are what show whether someone
+// posts steadily, in bursts or barely at all. The assembler sends every day in the window
+// already week-aligned, so nothing is padded here except an older, unaligned payload.
 function calendarCells(cells) {
     if (!cells.length) return '';
-    const first = new Date(`${cells[0].date}T00:00:00Z`);
-    const pad = first.getUTCDay();
-    const padded = [...Array(pad).fill(null), ...cells];
+    const firstDow = (new Date(`${cells[0].date}T00:00:00Z`).getUTCDay() + 6) % 7;  // Monday = 0
+    const padded = [...Array(firstDow).fill(null), ...cells];
     return padded.map((c) => {
         if (!c) return '<span class="pub-cal-cell pub-cal-cell--pad" aria-hidden="true"></span>';
-        if (!c.type) return `<span class="pub-cal-cell" title="${esc(fmtDate(c.date))}: no post on file"></span>`;
+        if (c.future) return '<span class="pub-cal-cell pub-cal-cell--future" aria-hidden="true"></span>';
+        if (!c.type) return `<span class="pub-cal-cell" title="${esc(fmtDate(c.date))}: no post"></span>`;
         const sym = TYPE_SYMBOL[c.type] ?? c.type.slice(0, 1).toUpperCase();
         const rel = c.rel != null ? Math.max(0.18, Math.min(1, c.rel)) : 0.55;
-        return `<span class="pub-cal-cell pub-cal-cell--post" style="--rel:${rel.toFixed(2)}" title="${esc(fmtDate(c.date))} · ${esc(c.type)}">${esc(sym)}</span>`;
+        const count = c.posts > 1 ? `, ${c.posts} posts` : '';
+        return `<span class="pub-cal-cell pub-cal-cell--post" style="--rel:${rel.toFixed(2)}" title="${esc(fmtDate(c.date))} · ${esc(c.type)}${count}">${esc(sym)}</span>`;
     }).join('');
 }
 function calendarLegend(types) {
@@ -1319,13 +1324,23 @@ function calendarLegend(types) {
     return `<div class="pub-cal-legend">${items}<span class="pub-cal-legend-item pub-cal-legend-item--scale"><i class="pub-cal-scale"></i>Less <span class="pub-cal-scale-arrow">→</span> more engagement</span></div>`;
 }
 function postingCalendarBlock(d) {
-    const cal = d.posting_calendar; // future field: {window_days, cells, media_types, best, typical}
-    if (cal?.cells?.length) {
-        const grid = calendarCells(cal.cells);
-        const types = cal.media_types ?? [...new Set(cal.cells.map((c) => c.type).filter(Boolean))];
-        return `<div class="pub-cal-wrap"><div class="pub-cal">${grid}</div></div>${calendarLegend(types)}
-            <p class="pub-fine pub-fine--dim">Posts on file over the last ${cal.window_days} days.</p>
-            ${statRow([[cal.best?.text ?? null, 'Best post'], [cal.typical?.text ?? null, 'Typical post']])}`;
+    // The assembler sends `days` ({date, media_type, intensity}), a `window` with its two
+    // ends and a `basis` line saying these are the posts ON FILE. This block used to read
+    // `cells`/`window_days`/`best.text`, none of which it ever sent, so it fell through to a
+    // top-posts fallback that v4 had already removed and the whole section disappeared.
+    const cal = d.posting_calendar;
+    const days = cal?.days ?? cal?.cells;
+    if (days?.length) {
+        const cells = days.map((c) => ({ date: c.date, type: c.media_type ?? c.type,
+            rel: c.intensity ?? c.rel, posts: c.posts, future: c.future }));
+        const types = cal.media_types ?? [...new Set(cells.map((c) => c.type).filter(Boolean))];
+        const bestText = cal.best?.value_text ?? cal.best?.text
+            ?? (cal.best?.likes != null ? `${num(cal.best.likes)} likes` : null);
+        const typicalText = cal.typical?.value_text ?? cal.typical?.text
+            ?? (cal.typical?.likes != null ? `${num(cal.typical.likes)} likes` : null);
+        return `<div class="pub-cal-wrap"><div class="pub-cal">${calendarCells(cells)}</div></div>${calendarLegend(types)}
+            ${cal.basis ? `<p class="pub-fine pub-fine--tiny">${esc(cal.basis)}</p>` : ''}
+            ${statRow([[bestText, 'Best post'], [typicalText, 'Typical post']])}`;
     }
     const posts = d.top_posts ?? [];
     if (!posts.length) return '';
@@ -1429,7 +1444,8 @@ function broadcastList(rows, note) {
     // lines each holding one short fact turned eight fights into a page of scrolling.
     return `<ul class="pub-list">${rows.map((b) => {
         const meta = [b.opponent ? `vs ${b.opponent}` : null, fmtDate(b.date), b.promotion,
-                      b.card_section, b.event_tier].filter(Boolean).map(esc).join(' · ');
+                      b.card_section, b.event_tier].filter(Boolean).map(esc).join(' · ')
+            + (b.is_title ? ' <span class="pub-tag">Title fight</span>' : '');
         return `
                 <li class="pub-list-row pub-list-row--tight">
                     <div class="pub-list-main">
@@ -1793,7 +1809,9 @@ function billingBlock(b) {
         esc(fmtDate(r.date)),
         esc(r.event),
         esc(r.card_section),
-        esc(relabelTier(r.event_tier)),
+        // A title fight is the most sponsor-legible fact in this table and was carried in
+        // the payload but never shown.
+        `${esc(relabelTier(r.event_tier))}${r.is_title ? ' <span class="pub-tag">Title fight</span>' : ''}`,
         // v3 renamed actual/signal to card_position_score/delta, and sends both already
         // formatted; the older names still render for publications made before that.
         (() => {

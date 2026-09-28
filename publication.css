@@ -412,6 +412,9 @@
     color: #D3E4DA;
 }
 .pub-cal-cell--pad { background: transparent; }
+/* Days after today: the week is drawn whole so the grid stays rectangular, but a day that
+   has not happened must not read as a day with no post. */
+.pub-cal-cell--future { background: transparent; border: 1px dashed var(--p-line, rgba(127,212,168,.16)); }
 .pub-cal-legend { display: flex; flex-wrap: wrap; align-items: center; gap: 0.3rem 1rem; margin-top: 0.65rem; font-size: 0.7rem; color: var(--t3); }
 .pub-cal-legend-item { display: inline-flex; align-items: center; gap: 0.35rem; }
 .pub-cal-sym {
@@ -460,4 +463,11 @@
 .pub-versus-join {
     font-family: 'DM Sans', system-ui, sans-serif; font-size: 0.7rem; letter-spacing: 0.18em;
     text-transform: uppercase; color: var(--t3); padding-top: 0.75rem; flex: 0 0 auto;
+}
+
+/* A title fight, marked where it happens rather than left to the event name to imply. */
+.pub-tag {
+    display: inline-block; font-size: 0.62rem; letter-spacing: 0.1em; text-transform: uppercase;
+    padding: 0.12rem 0.4rem; border: 1px solid var(--border-d); border-radius: 2px;
+    color: var(--t2); white-space: nowrap;
 }
