@@ -332,11 +332,11 @@ function checkMediaKit(data, bad) {
     // Moving from one object (the most recent scored fight only) to a list of recent fights —
     // accept the legacy bare object, a bare array, or {rows, note} (the same convention
     // broadcast/off_cycle already use), so a build never breaks on whichever shape lands first.
-    if (data.fight_week != null) {
-        const raw = data.fight_week;
+    if ((data.fight_weeks ?? data.fight_week) != null) {
+        const raw = data.fight_weeks ?? data.fight_week;
         const rows = isArr(raw) ? raw : (isArr(raw?.rows) ? raw.rows : [raw]);
         rows.forEach((fw, i) => {
-            const at = `data.fight_week[${i}]`;
+            const at = `${data.fight_weeks ? 'data.fight_weeks' : 'data.fight_week'}.rows[${i}]`;
             if (!isObj(fw) || !isDate(fw.fight_date) || !isStr(fw.opponent) || !isNum(fw.lift_ratio)
                 || !isNum(fw.peak_views_per_day) || !isNum(fw.baseline)) {
                 bad(`"${at}" must be {fight_date, opponent, lift_ratio, peak_views_per_day, baseline}`);
@@ -424,8 +424,11 @@ function checkInternalData(data, bad) {
     const compounding = isObj(data.retention) ? data.retention.compounding : null;
     if (compounding != null) checkSeries(compounding.chart, 'data.retention.compounding.chart', bad);
 
-    const offCycle = rowsOf(data.off_cycle);
-    if (!isArr(offCycle)) bad('"data.off_cycle" must be an array, or {rows, note}');
+    // Absent entirely when a fighter has no off-cycle events, which is the rule that no
+    // section renders a heading over nothing: a null here is the correct shape, not a
+    // malformed payload. Same for every other optional section below.
+    const offCycle = data.off_cycle == null ? [] : rowsOf(data.off_cycle);
+    if (!isArr(offCycle)) bad('"data.off_cycle" must be an array, {rows, note}, or absent');
     offCycle.forEach((o, i) => {
         const at = `data.off_cycle[${i}]`;
         if (!isDate(o?.week_start)) bad(`"${at}.week_start" must be a date`);

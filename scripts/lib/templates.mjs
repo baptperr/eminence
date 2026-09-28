@@ -1220,8 +1220,8 @@ function marketsBlock(mc) {
     if (!mc) return '';
     if (Array.isArray(mc.countries) && mc.countries.length) {
         return `${marketsPairedChart(mc.countries, {
-            searchCaption: mc.search_caption ?? 'Relative search interest by country',
-            marketCaption: mc.market_caption ?? 'Adjusted by relative ad spend per internet user, by country',
+            searchCaption: mc.search_volume_caption ?? mc.search_caption ?? 'Relative search interest by country',
+            marketCaption: mc.market_value_caption ?? mc.market_caption ?? 'Adjusted by relative ad spend per internet user, by country',
         })}
             <p class="pub-fine pub-fine--tiny">Basis: ${esc(mc.basis)}. Relative indices only, no dollar figures.</p>`;
     }
@@ -1307,7 +1307,9 @@ export function mediaKitPage({ page, site }) {
     const d = page.data;
     const f = d.fighter;
     const headerMeta = [f.division, f.organization, f.gym, f.nationality].filter(Boolean).join(' · ');
-    const fwRows = fightWeekRows(d.fight_week);
+    // `fight_weeks` since it became a list of recent fights; `fight_week` is the
+    // single-fight key publications generated before that carried.
+    const fwRows = fightWeekRows(d.fight_weeks ?? d.fight_week);
     const bouts = [...fwRows, d.next_fight].filter(Boolean).map((x) => ({ opponent: x.opponent, date: x.date ?? x.fight_date }));
 
     const body = `<main class="pub">
@@ -1420,8 +1422,8 @@ function geographyBlock(g) {
     const countries = g.countries.map((c) => ({ country: label(c), search_volume_index: c.search_volume_index, market_value_index: c.market_value_index }));
     const hasEstimate = g.countries.some((c) => c.estimated);
     return `${marketsPairedChart(countries, {
-        searchCaption: g.search_caption ?? 'Relative search interest by country',
-        marketCaption: g.market_caption ?? 'Adjusted by relative ad spend per internet user, by country',
+        searchCaption: g.search_volume_caption ?? g.search_caption ?? 'Relative search interest by country',
+        marketCaption: g.market_value_caption ?? g.market_caption ?? 'Adjusted by relative ad spend per internet user, by country',
     })}
         ${hasEstimate ? '<p class="pub-fine pub-fine--tiny">* modelled estimate.</p>' : ''}`;
 }

@@ -22,10 +22,10 @@
    },
    "reading": "more fame than their level alone predicts",
    "reading_sentence": "This fighter is pulling a bigger audience than a fighter at their level usually draws. First Light expects roughly 640k for this level; this fighter measures 812k.",
-   "note_score": "The First Light Index (FLI) compares this fighter's measured audience against what their First Light Rankings level alone would predict, on a -1 to +1 scale -- positive means more famous than their level predicts, negative means their level hasn't been discovered by an audience yet.",
+   "note_score": "The First Light Index (FLI) compares this fighter's measured audience against what their First Light Rankings level alone would predict, on a -1 to +1 scale. Positive means more famous than their level predicts, negative means their level hasn't been discovered by an audience yet.",
    "note_audience": "Audience is a calibrated followers-equivalent across the platforms we track.",
    "note_audience_style": "small_print",
-   "note_audience_gap": "How far this fighter's measured audience sits from what their level alone would predict, in the audience's own units -- positive means more audience than expected, negative means less.",
+   "note_audience_gap": "How far this fighter's measured audience sits from what their level alone would predict, in the audience's own units. Positive means more audience than expected, negative means less.",
    "trend": {
     "delta": 0.05,
     "direction": "up",
@@ -200,7 +200,7 @@
     "named": true,
     "sentence": "The following is high (top 22% of similar-level fighters) but it is quiet: its engagement rate is in the better than 8% of fighters at this level."
    },
-   "note": "How much of this fighter's audience is left at each step -- Wikipedia lookups, day-to-day interest, followers, then engagement -- measured against a typical fighter of the same level, 100 being typical. The shape narrows where attention drops off; `graphic` is the exact geometry the Observatory's own funnel panel draws, not a second computation."
+   "note": "How much of this fighter's audience is left at each step: Wikipedia lookups, day-to-day interest, followers, then engagement, measured against a typical fighter of the same level, 100 being typical. The shape narrows where attention drops off."
   },
   "geography": {
    "note": "Where this fighter's search interest and Wikipedia readers sit, by country and by language edition.",
@@ -258,18 +258,20 @@
      "views": 35400
     }
    ],
-   "languages_note": "The language edition of Wikipedia each reading comes from -- the closest free read on audience geography where a country isn't known directly, though one language can span many countries (English, Spanish, Portuguese) so this is a rougher cut than the countries above.",
-   "search_index_note": "How much of this fighter's search interest comes from that country, relative to the top country at 100 -- never a headcount.",
-   "market_index_note": "How big that country's advertising market is per internet user, relative to the top market at 100 -- a property of the country, not of this fighter's own audience."
+   "languages_note": "The language edition of Wikipedia each reading comes from, the closest free read on audience geography where a country isn't known directly. One language can span many countries (English, Spanish, Portuguese), so this is a rougher cut than the countries above.",
+   "search_index_note": "How much of this fighter's search interest comes from that country, relative to the top country at 100, never a headcount.",
+   "market_index_note": "How big that country's advertising market is per internet user, relative to the top market at 100: a property of the country, not of this fighter's own audience.",
+   "search_volume_caption": "Relative search interest by country",
+   "market_value_caption": "Adjusted by relative ad spend per internet user, by country."
   },
   "retention": {
-   "note": "How much of a fight week's attention spike was still there a month later, read two ways -- Google search interest and Wikipedia page views -- against how much this fighter's audience grew in that same stretch.",
-   "curve_note": "The peak often lands the day AFTER the fight, not on it -- fights run late and Wikipedia's own day boundary is UTC.",
+   "note": "How much of a fight week's attention spike was still there a month later, read two ways (Google search interest and Wikipedia page views), against how much this fighter's audience grew in that same stretch.",
+   "curve_note": "The peak often lands the day after the fight, not on it, because fights run late and Wikipedia's own day boundary is UTC.",
    "rows": [
     {
      "fight_date": "2026-08-15",
      "opponent": "Yusuf Demir",
-     "lift_sentence": "Fight week pushed Wikipedia traffic to 58k views a day -- 138.1x this fighter's everyday level of 420 right before the fight.",
+     "lift_sentence": "Fight week pushed Wikipedia traffic to 58k views a day, 138.1 times this fighter's everyday level of 420 right before the fight.",
      "step_sentence": null,
      "curve": {
       "x": {
@@ -499,7 +501,7 @@
        }
       ],
       "extra": {
-       "label": "Search interest (where Trends still has daily data)",
+       "label": "Search interest (relative, 0 to 100)",
        "points": [
         {
          "x": -7,
@@ -544,7 +546,7 @@
      "level_after": null,
      "step": null,
      "step_text": null,
-     "step_reason": "not enough Wikipedia history on file yet after this fight to find a settled level -- check back once more time has passed.",
+     "step_reason": "not enough Wikipedia history on file yet after this fight to find a settled level, check back once more time has passed.",
      "settled_partial": true,
      "baseline": 420.0,
      "peak": 58000.0,
@@ -564,12 +566,12 @@
       "wiki_afterglow": "the share of the fight week's Wikipedia page-view spike still measurable 30 days out (0 = back to normal, 1 = never faded).",
       "growth_velocity": "how much this fighter's following grew in the weeks around this fight, as a multiple of their usual pace (1.0 = no change)."
      },
-     "note": "How much of a fight week's attention spike was still there a month later, read two ways -- Google search interest and Wikipedia page views -- against how much this fighter's audience grew in that same stretch."
+     "note": "How much of a fight week's attention spike was still there a month later, read two ways (Google search interest and Wikipedia page views), against how much this fighter's audience grew in that same stretch."
     },
     {
      "fight_date": "2026-03-07",
      "opponent": "Chase Whitfield",
-     "lift_sentence": "Fight week pushed Wikipedia traffic to 41k views a day -- 107.9x this fighter's everyday level of 380 right before the fight.",
+     "lift_sentence": "Fight week pushed Wikipedia traffic to 41k views a day, 107.9 times this fighter's everyday level of 380 right before the fight.",
      "step_sentence": "Before this fight's promotional run-up, day-to-day Wikipedia interest ran 140 a day; about a month after the fight it climbed to 200 a day (+43%).",
      "curve": {
       "x": {
@@ -836,12 +838,12 @@
       "wiki_afterglow": "the share of the fight week's Wikipedia page-view spike still measurable 30 days out (0 = back to normal, 1 = never faded).",
       "growth_velocity": "how much this fighter's following grew in the weeks around this fight, as a multiple of their usual pace (1.0 = no change)."
      },
-     "note": "How much of a fight week's attention spike was still there a month later, read two ways -- Google search interest and Wikipedia page views -- against how much this fighter's audience grew in that same stretch."
+     "note": "How much of a fight week's attention spike was still there a month later, read two ways (Google search interest and Wikipedia page views), against how much this fighter's audience grew in that same stretch."
     },
     {
      "fight_date": "2025-10-11",
      "opponent": "Lior Ben-David",
-     "lift_sentence": "Fight week pushed Wikipedia traffic to 26k views a day -- 86.7x this fighter's everyday level of 300 right before the fight.",
+     "lift_sentence": "Fight week pushed Wikipedia traffic to 26k views a day, 86.7 times this fighter's everyday level of 300 right before the fight.",
      "step_sentence": "Before this fight's promotional run-up, day-to-day Wikipedia interest ran 100 a day; about a month after the fight it climbed to 140 a day (+40%).",
      "curve": {
       "x": {
@@ -1108,7 +1110,7 @@
       "wiki_afterglow": "the share of the fight week's Wikipedia page-view spike still measurable 30 days out (0 = back to normal, 1 = never faded).",
       "growth_velocity": "how much this fighter's following grew in the weeks around this fight, as a multiple of their usual pace (1.0 = no change)."
      },
-     "note": "How much of a fight week's attention spike was still there a month later, read two ways -- Google search interest and Wikipedia page views -- against how much this fighter's audience grew in that same stretch."
+     "note": "How much of a fight week's attention spike was still there a month later, read two ways (Google search interest and Wikipedia page views), against how much this fighter's audience grew in that same stretch."
     }
    ],
    "compounding": {
@@ -1118,7 +1120,7 @@
     "first_level_text": "100",
     "latest_level_text": "200",
     "compounding": true,
-    "sentence": "After each of this fighter's last 2 fights, their day-to-day audience settled higher than before it -- about 41% higher on average.",
+    "sentence": "After each of this fighter's last 2 fights, their day-to-day audience settled higher than before it, about 41% higher on average.",
     "chart": {
      "x": {
       "kind": "date",
@@ -1225,7 +1227,7 @@
    }
   },
   "off_cycle": {
-   "note": "Weeks when something other than a fight -- an interview, a press day, a clip going round -- moved this fighter's attention. \"Lift\" is how many times higher that week ran than their usual level.",
+   "note": "Weeks when something other than a fight (an interview, a press day, a clip going round) moved this fighter's attention. \"Lift\" is how many times higher that week ran than their usual level.",
    "rows": [
     {
      "week_start": "2026-06-01",
@@ -1365,7 +1367,7 @@
     "markers": [],
     "ref_lines": []
    },
-   "note": "A card-position score of 1.0 is where a typical main event for that kind of card lands; a promotion's own championship weighting can push a title fight above it (PFL does). The delta beside the expected score is how this fighter's own billing compares with what their level alone would predict for that matchup -- positive means billed higher than expected."
+   "note": "A card-position score of 1.0 is where a typical main event for that kind of card lands; a promotion's own championship weighting can push a title fight above it (PFL does). The delta beside the expected score is how this fighter's own billing compares with what their level alone would predict for that matchup. Positive means billed higher than expected."
   },
   "cohort": {
    "target": {
@@ -1378,7 +1380,7 @@
     "basis": "overall",
     "n": 70,
     "sentence": "This fighter measures +30% here, against a median of +30% among 70 peers (the whole rated population).",
-    "note": "how much this fighter's settled day-to-day Wikipedia level (30-90 days after a fight) differs from their pre-cycle level (120-60 days before it) -- whether the fight left a durably bigger floor, not just a bigger spike. Compared against 70 peers (the whole rated population)."
+    "note": "how much this fighter's settled day-to-day Wikipedia level (30-90 days after a fight) differs from their pre-cycle level (120-60 days before it): whether the fight left a durably bigger floor, not just a bigger spike. Compared against 70 peers (the whole rated population)."
    },
    "secondary": null,
    "differentiators": [

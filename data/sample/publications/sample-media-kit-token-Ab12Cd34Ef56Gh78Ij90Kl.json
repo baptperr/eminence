@@ -61,7 +61,7 @@
      }
     ],
     "measured_on": "2026-09-27",
-    "note": "Followers is the latest count on file; the averages and engagement rate beside it are read from this fighter's own most recent posts, not a fixed calendar window -- see the caveat below for exactly how many."
+    "note": "Followers is the latest count on file; the averages and engagement rate beside it are read from this fighter's own most recent posts, not a fixed calendar window (see the caveat below for exactly how many)."
    }
   ],
   "posting_calendar": {
@@ -69,7 +69,7 @@
     "first_day": "2026-07-09",
     "last_day": "2026-09-25"
    },
-   "basis": "the 12 posts on file, 2026-07-09 to 2026-09-25 (2.6 months) -- these are the posts we have collected, not a claim about everything this fighter has posted.",
+   "basis": "the 12 posts on file, 2026-07-09 to 2026-09-25 (2.6 months). These are the posts we have collected, not a claim about everything this fighter has posted.",
    "days": [
     {
      "date": "2026-07-09",
@@ -151,7 +151,7 @@
     "comments": 970,
     "value_text": "44,500 likes"
    },
-   "note": "Each cell is one day with a post on file, coloured by how that post's engagement compares with this fighter's own others -- darker is stronger for them, not a comparison with anyone else."
+   "note": "Each cell is one day with a post on file, coloured by how that post's engagement compares with this fighter's own others. Darker is stronger for them, not a comparison with anyone else."
   },
   "wikipedia": {
    "views_per_day": 615,
@@ -179,7 +179,8 @@
     }
    ],
    "note": "A typical day's Wikipedia page views for this fighter, across every language edition, over the trailing window.",
-   "provenance": "Wikipedia page views, all language editions, trailing 28 days."
+   "provenance": "Wikipedia pageviews, all languages, 28-day average.",
+   "provenance_style": "small_print"
   },
   "market_concentration": {
    "countries": [
@@ -210,29 +211,812 @@
     }
    ],
    "basis": "Google search interest",
-   "search_index_note": "How much of this fighter's search interest comes from that country, relative to the top country at 100 -- never a headcount.",
-   "market_index_note": "How big that country's advertising market is per internet user, relative to the top market at 100 -- a property of the country, not of this fighter's own audience."
+   "search_index_note": "How much of this fighter's search interest comes from that country, relative to the top country at 100, never a headcount.",
+   "market_index_note": "How big that country's advertising market is per internet user, relative to the top market at 100: a property of the country, not of this fighter's own audience.",
+   "search_volume_caption": "Relative search interest by country",
+   "market_value_caption": "Adjusted by relative ad spend per internet user, by country."
   },
-  "fight_week": {
-   "fight_date": "2026-08-15",
-   "opponent": "Yusuf Demir",
-   "lift_ratio": 138.1,
-   "peak_views_per_day": 58000.0,
-   "peak_views_per_day_text": "58k",
-   "peak_label": "peak on the biggest day",
-   "baseline": 420.0,
-   "baseline_text": "420",
-   "baseline_label": "everyday audience before the fight",
-   "sentence": "Fight week pushed Wikipedia traffic to 58k views a day -- 138.1x this fighter's everyday level of 420.",
-   "note": "How much Wikipedia attention spiked in fight week, against this fighter's own typical (non-fight-week) day."
+  "fight_weeks": {
+   "note": "How Wikipedia attention spiked in each of this fighter's most recent fight weeks, against their own typical day.",
+   "rows": [
+    {
+     "fight_date": "2026-08-15",
+     "opponent": "Yusuf Demir",
+     "lift_ratio": 138.1,
+     "peak_views_per_day": 58000.0,
+     "peak_views_per_day_text": "58k",
+     "peak_label": "peak on the biggest day",
+     "baseline": 420.0,
+     "baseline_text": "420",
+     "baseline_label": "everyday audience before the fight",
+     "sentence": "Fight week pushed Wikipedia traffic to 58k views a day, 138.1 times this fighter's everyday level of 420.",
+     "curve": {
+      "x": {
+       "kind": "day_offset",
+       "label": "Days from fight",
+       "min": -7,
+       "max": 33,
+       "ticks": [
+        {
+         "value": -7,
+         "label": "-7d"
+        },
+        {
+         "value": 0,
+         "label": "fight day"
+        },
+        {
+         "value": 3,
+         "label": "+3d"
+        },
+        {
+         "value": 13,
+         "label": "+13d"
+        },
+        {
+         "value": 23,
+         "label": "+23d"
+        },
+        {
+         "value": 33,
+         "label": "+33d"
+        }
+       ]
+      },
+      "y": {
+       "label": "Wikipedia views per day",
+       "unit": "/day",
+       "min": 0.0,
+       "max": 230,
+       "ticks": [
+        {
+         "value": 0.0,
+         "label": "0"
+        },
+        {
+         "value": 57.5,
+         "label": "58"
+        },
+        {
+         "value": 115.0,
+         "label": "115"
+        },
+        {
+         "value": 172.5,
+         "label": "172"
+        },
+        {
+         "value": 230.0,
+         "label": "230"
+        }
+       ]
+      },
+      "points": [
+       {
+        "x": -7,
+        "y": 200
+       },
+       {
+        "x": -6,
+        "y": 200
+       },
+       {
+        "x": -5,
+        "y": 200
+       },
+       {
+        "x": -4,
+        "y": 200
+       },
+       {
+        "x": -3,
+        "y": 200
+       },
+       {
+        "x": -2,
+        "y": 200
+       },
+       {
+        "x": -1,
+        "y": 200
+       },
+       {
+        "x": 0,
+        "y": 200
+       },
+       {
+        "x": 1,
+        "y": 200
+       },
+       {
+        "x": 2,
+        "y": 200
+       },
+       {
+        "x": 3,
+        "y": 200
+       },
+       {
+        "x": 4,
+        "y": 200
+       },
+       {
+        "x": 5,
+        "y": 200
+       },
+       {
+        "x": 6,
+        "y": 200
+       },
+       {
+        "x": 7,
+        "y": 200
+       },
+       {
+        "x": 8,
+        "y": 200
+       },
+       {
+        "x": 9,
+        "y": 200
+       },
+       {
+        "x": 10,
+        "y": 200
+       },
+       {
+        "x": 11,
+        "y": 200
+       },
+       {
+        "x": 12,
+        "y": 200
+       },
+       {
+        "x": 13,
+        "y": 200
+       },
+       {
+        "x": 14,
+        "y": 200
+       },
+       {
+        "x": 15,
+        "y": 200
+       },
+       {
+        "x": 16,
+        "y": 200
+       },
+       {
+        "x": 17,
+        "y": 200
+       },
+       {
+        "x": 18,
+        "y": 200
+       },
+       {
+        "x": 19,
+        "y": 200
+       },
+       {
+        "x": 20,
+        "y": 200
+       },
+       {
+        "x": 21,
+        "y": 200
+       },
+       {
+        "x": 22,
+        "y": 200
+       },
+       {
+        "x": 23,
+        "y": 200
+       },
+       {
+        "x": 24,
+        "y": 200
+       },
+       {
+        "x": 25,
+        "y": 200
+       },
+       {
+        "x": 26,
+        "y": 200
+       },
+       {
+        "x": 27,
+        "y": 200
+       },
+       {
+        "x": 28,
+        "y": 200
+       },
+       {
+        "x": 29,
+        "y": 200
+       },
+       {
+        "x": 30,
+        "y": 230
+       },
+       {
+        "x": 31,
+        "y": 230
+       },
+       {
+        "x": 32,
+        "y": 230
+       },
+       {
+        "x": 33,
+        "y": 230
+       }
+      ],
+      "extra": {
+       "label": "Search interest (relative, 0 to 100)",
+       "points": [
+        {
+         "x": -7,
+         "y": 80.0
+        },
+        {
+         "x": 0,
+         "y": 70.0
+        },
+        {
+         "x": 3,
+         "y": 20.0
+        },
+        {
+         "x": 10,
+         "y": 15.0
+        },
+        {
+         "x": 21,
+         "y": 60.0
+        },
+        {
+         "x": 30,
+         "y": 75.0
+        }
+       ]
+      },
+      "markers": [
+       {
+        "x": 0,
+        "label": "fight day"
+       }
+      ],
+      "ref_lines": [
+       {
+        "y": 420.0,
+        "label": "everyday audience before the fight"
+       }
+      ]
+     }
+    },
+    {
+     "fight_date": "2026-03-07",
+     "opponent": "Chase Whitfield",
+     "lift_ratio": 107.89,
+     "peak_views_per_day": 41000.0,
+     "peak_views_per_day_text": "41k",
+     "peak_label": "peak on the biggest day",
+     "baseline": 380.0,
+     "baseline_text": "380",
+     "baseline_label": "everyday audience before the fight",
+     "sentence": "Fight week pushed Wikipedia traffic to 41k views a day, 107.9 times this fighter's everyday level of 380.",
+     "curve": {
+      "x": {
+       "kind": "day_offset",
+       "label": "Days from fight",
+       "min": -7,
+       "max": 33,
+       "ticks": [
+        {
+         "value": -7,
+         "label": "-7d"
+        },
+        {
+         "value": 0,
+         "label": "fight day"
+        },
+        {
+         "value": 3,
+         "label": "+3d"
+        },
+        {
+         "value": 13,
+         "label": "+13d"
+        },
+        {
+         "value": 23,
+         "label": "+23d"
+        },
+        {
+         "value": 33,
+         "label": "+33d"
+        }
+       ]
+      },
+      "y": {
+       "label": "Wikipedia views per day",
+       "unit": "/day",
+       "min": 0.0,
+       "max": 200,
+       "ticks": [
+        {
+         "value": 0.0,
+         "label": "0"
+        },
+        {
+         "value": 50.0,
+         "label": "50"
+        },
+        {
+         "value": 100.0,
+         "label": "100"
+        },
+        {
+         "value": 150.0,
+         "label": "150"
+        },
+        {
+         "value": 200.0,
+         "label": "200"
+        }
+       ]
+      },
+      "points": [
+       {
+        "x": -7,
+        "y": 140
+       },
+       {
+        "x": -6,
+        "y": 140
+       },
+       {
+        "x": -5,
+        "y": 140
+       },
+       {
+        "x": -4,
+        "y": 140
+       },
+       {
+        "x": -3,
+        "y": 140
+       },
+       {
+        "x": -2,
+        "y": 140
+       },
+       {
+        "x": -1,
+        "y": 140
+       },
+       {
+        "x": 0,
+        "y": 140
+       },
+       {
+        "x": 1,
+        "y": 140
+       },
+       {
+        "x": 2,
+        "y": 140
+       },
+       {
+        "x": 3,
+        "y": 140
+       },
+       {
+        "x": 4,
+        "y": 140
+       },
+       {
+        "x": 5,
+        "y": 140
+       },
+       {
+        "x": 6,
+        "y": 140
+       },
+       {
+        "x": 7,
+        "y": 140
+       },
+       {
+        "x": 8,
+        "y": 140
+       },
+       {
+        "x": 9,
+        "y": 140
+       },
+       {
+        "x": 10,
+        "y": 140
+       },
+       {
+        "x": 11,
+        "y": 140
+       },
+       {
+        "x": 12,
+        "y": 140
+       },
+       {
+        "x": 13,
+        "y": 140
+       },
+       {
+        "x": 14,
+        "y": 140
+       },
+       {
+        "x": 15,
+        "y": 140
+       },
+       {
+        "x": 16,
+        "y": 140
+       },
+       {
+        "x": 17,
+        "y": 140
+       },
+       {
+        "x": 18,
+        "y": 140
+       },
+       {
+        "x": 19,
+        "y": 140
+       },
+       {
+        "x": 20,
+        "y": 140
+       },
+       {
+        "x": 21,
+        "y": 140
+       },
+       {
+        "x": 22,
+        "y": 140
+       },
+       {
+        "x": 23,
+        "y": 140
+       },
+       {
+        "x": 24,
+        "y": 140
+       },
+       {
+        "x": 25,
+        "y": 140
+       },
+       {
+        "x": 26,
+        "y": 140
+       },
+       {
+        "x": 27,
+        "y": 140
+       },
+       {
+        "x": 28,
+        "y": 140
+       },
+       {
+        "x": 29,
+        "y": 140
+       },
+       {
+        "x": 30,
+        "y": 200
+       },
+       {
+        "x": 31,
+        "y": 200
+       },
+       {
+        "x": 32,
+        "y": 200
+       },
+       {
+        "x": 33,
+        "y": 200
+       }
+      ],
+      "extra": null,
+      "markers": [
+       {
+        "x": 0,
+        "label": "fight day"
+       }
+      ],
+      "ref_lines": [
+       {
+        "y": 380.0,
+        "label": "everyday audience before the fight"
+       }
+      ]
+     }
+    },
+    {
+     "fight_date": "2025-10-11",
+     "opponent": "Lior Ben-David",
+     "lift_ratio": 86.67,
+     "peak_views_per_day": 26000.0,
+     "peak_views_per_day_text": "26k",
+     "peak_label": "peak on the biggest day",
+     "baseline": 300.0,
+     "baseline_text": "300",
+     "baseline_label": "everyday audience before the fight",
+     "sentence": "Fight week pushed Wikipedia traffic to 26k views a day, 86.7 times this fighter's everyday level of 300.",
+     "curve": {
+      "x": {
+       "kind": "day_offset",
+       "label": "Days from fight",
+       "min": -7,
+       "max": 33,
+       "ticks": [
+        {
+         "value": -7,
+         "label": "-7d"
+        },
+        {
+         "value": 0,
+         "label": "fight day"
+        },
+        {
+         "value": 3,
+         "label": "+3d"
+        },
+        {
+         "value": 13,
+         "label": "+13d"
+        },
+        {
+         "value": 23,
+         "label": "+23d"
+        },
+        {
+         "value": 33,
+         "label": "+33d"
+        }
+       ]
+      },
+      "y": {
+       "label": "Wikipedia views per day",
+       "unit": "/day",
+       "min": 0.0,
+       "max": 140,
+       "ticks": [
+        {
+         "value": 0.0,
+         "label": "0"
+        },
+        {
+         "value": 35.0,
+         "label": "35"
+        },
+        {
+         "value": 70.0,
+         "label": "70"
+        },
+        {
+         "value": 105.0,
+         "label": "105"
+        },
+        {
+         "value": 140.0,
+         "label": "140"
+        }
+       ]
+      },
+      "points": [
+       {
+        "x": -7,
+        "y": 100
+       },
+       {
+        "x": -6,
+        "y": 100
+       },
+       {
+        "x": -5,
+        "y": 100
+       },
+       {
+        "x": -4,
+        "y": 100
+       },
+       {
+        "x": -3,
+        "y": 100
+       },
+       {
+        "x": -2,
+        "y": 100
+       },
+       {
+        "x": -1,
+        "y": 100
+       },
+       {
+        "x": 0,
+        "y": 100
+       },
+       {
+        "x": 1,
+        "y": 100
+       },
+       {
+        "x": 2,
+        "y": 100
+       },
+       {
+        "x": 3,
+        "y": 100
+       },
+       {
+        "x": 4,
+        "y": 100
+       },
+       {
+        "x": 5,
+        "y": 100
+       },
+       {
+        "x": 6,
+        "y": 100
+       },
+       {
+        "x": 7,
+        "y": 100
+       },
+       {
+        "x": 8,
+        "y": 100
+       },
+       {
+        "x": 9,
+        "y": 100
+       },
+       {
+        "x": 10,
+        "y": 100
+       },
+       {
+        "x": 11,
+        "y": 100
+       },
+       {
+        "x": 12,
+        "y": 100
+       },
+       {
+        "x": 13,
+        "y": 100
+       },
+       {
+        "x": 14,
+        "y": 100
+       },
+       {
+        "x": 15,
+        "y": 100
+       },
+       {
+        "x": 16,
+        "y": 100
+       },
+       {
+        "x": 17,
+        "y": 100
+       },
+       {
+        "x": 18,
+        "y": 100
+       },
+       {
+        "x": 19,
+        "y": 100
+       },
+       {
+        "x": 20,
+        "y": 100
+       },
+       {
+        "x": 21,
+        "y": 100
+       },
+       {
+        "x": 22,
+        "y": 100
+       },
+       {
+        "x": 23,
+        "y": 100
+       },
+       {
+        "x": 24,
+        "y": 100
+       },
+       {
+        "x": 25,
+        "y": 100
+       },
+       {
+        "x": 26,
+        "y": 100
+       },
+       {
+        "x": 27,
+        "y": 100
+       },
+       {
+        "x": 28,
+        "y": 100
+       },
+       {
+        "x": 29,
+        "y": 100
+       },
+       {
+        "x": 30,
+        "y": 140
+       },
+       {
+        "x": 31,
+        "y": 140
+       },
+       {
+        "x": 32,
+        "y": 140
+       },
+       {
+        "x": 33,
+        "y": 140
+       }
+      ],
+      "extra": null,
+      "markers": [
+       {
+        "x": 0,
+        "label": "fight day"
+       }
+      ],
+      "ref_lines": [
+       {
+        "y": 300.0,
+        "label": "everyday audience before the fight"
+       }
+      ]
+     }
+    }
+   ]
   },
   "broadcast": {
-   "note": "Every scored card appearance we have matched to this fighter -- not guaranteed to be their complete broadcast history, since matching depends on what Wikipedia's own card pages recorded.",
+   "note": "Matched to Wikipedia's own card pages, so it may be incomplete.",
+   "note_style": "small_print",
    "rows": [
     {
      "date": "2026-08-15",
      "event": "UFC 308",
      "promotion": "UFC",
+     "opponent": "Yusuf Demir",
      "card_section": "Main card",
      "event_tier": "Numbered event",
      "result": "Win"
@@ -241,6 +1025,7 @@
      "date": "2026-03-07",
      "event": "UFC 300",
      "promotion": "UFC",
+     "opponent": "Chase Whitfield",
      "card_section": "Main card",
      "event_tier": "Numbered event",
      "result": "Win"
@@ -249,6 +1034,7 @@
      "date": "2025-10-11",
      "event": "UFC Fight Night 250",
      "promotion": "UFC",
+     "opponent": "Lior Ben-David",
      "card_section": "Early prelims",
      "event_tier": "Fight Night",
      "result": "Win"
@@ -256,7 +1042,7 @@
    ]
   },
   "off_cycle": {
-   "note": "Weeks when something other than a fight -- an interview, a press day, a clip going round -- moved this fighter's attention. \"Lift\" is how many times higher that week ran than their usual level.",
+   "note": "Weeks when something other than a fight (an interview, a press day, a clip going round) moved this fighter's attention. \"Lift\" is how many times higher that week ran than their usual level.",
    "rows": [
     {
      "week_start": "2026-06-01",
@@ -281,7 +1067,7 @@
    "first_level_text": "100",
    "latest_level_text": "200",
    "compounding": true,
-   "sentence": "After each of this fighter's last 2 fights, their day-to-day audience settled higher than before it -- about 41% higher on average.",
+   "sentence": "After each of this fighter's last 2 fights, their day-to-day audience settled higher than before it, about 41% higher on average.",
    "chart": {
     "x": {
      "kind": "date",
@@ -387,7 +1173,8 @@
    "note": "Whether each fight leaves this fighter's day-to-day (non-fight-week) Wikipedia audience permanently higher, not just spiking it for a week. Measured pre-cycle (120-60 days before a fight) against settled (30-90 days after), a DIFFERENT, wider pair of windows than the afterglow figures on this page use, chosen to sit outside the fight's own promotional hype and past its own decay. No rate is projected forward: only what these specific fights showed."
   },
   "trajectory": {
-   "note": "Where this fighter's numbers have been moving, not just where they stand today -- follower growth, any confirmed shift in how much attention they hold, and rank movement.",
+   "note": "Recent movement in this fighter's own numbers, not a forecast.",
+   "note_style": "small_print",
    "follower_growth": {
     "platform": "Instagram",
     "value": 33000,
@@ -406,7 +1193,7 @@
     "since_date": "2026-03-18",
     "direction": "up",
     "sentence": "views settled 3.2x higher since March",
-    "note": "A confirmed, lasting step up in this fighter's typical Wikipedia attention level -- not a fight-week spike, a new normal that has held."
+    "note": "A confirmed, lasting step up in this fighter's typical Wikipedia attention level, not a fight-week spike: a new normal that has held."
    },
    "rank_movement": {
     "division": "Lightweight",
@@ -415,7 +1202,7 @@
     "delta": 3,
     "direction": "up",
     "window_days": 38,
-    "note": "How this fighter's own rank has moved over the window -- a positive delta is an improvement (a lower rank number)."
+    "note": "How this fighter's own rank has moved over the window. A positive delta is an improvement (a lower rank number)."
    }
   },
   "charts": {
@@ -450,7 +1237,7 @@
     },
     "y": {
      "label": "Instagram followers",
-     "unit": "",
+     "unit": "followers",
      "min": 0.0,
      "max": 812000.0,
      "ticks": [
@@ -4265,275 +5052,6 @@
      }
     ],
     "ref_lines": []
-   },
-   "fight_week": {
-    "x": {
-     "kind": "day_offset",
-     "label": "Days from fight",
-     "min": -7,
-     "max": 33,
-     "ticks": [
-      {
-       "value": -7,
-       "label": "-7d"
-      },
-      {
-       "value": 0,
-       "label": "fight day"
-      },
-      {
-       "value": 3,
-       "label": "+3d"
-      },
-      {
-       "value": 13,
-       "label": "+13d"
-      },
-      {
-       "value": 23,
-       "label": "+23d"
-      },
-      {
-       "value": 33,
-       "label": "+33d"
-      }
-     ]
-    },
-    "y": {
-     "label": "Wikipedia views per day",
-     "unit": "/day",
-     "min": 0.0,
-     "max": 230,
-     "ticks": [
-      {
-       "value": 0.0,
-       "label": "0"
-      },
-      {
-       "value": 57.5,
-       "label": "58"
-      },
-      {
-       "value": 115.0,
-       "label": "115"
-      },
-      {
-       "value": 172.5,
-       "label": "172"
-      },
-      {
-       "value": 230.0,
-       "label": "230"
-      }
-     ]
-    },
-    "points": [
-     {
-      "x": -7,
-      "y": 200
-     },
-     {
-      "x": -6,
-      "y": 200
-     },
-     {
-      "x": -5,
-      "y": 200
-     },
-     {
-      "x": -4,
-      "y": 200
-     },
-     {
-      "x": -3,
-      "y": 200
-     },
-     {
-      "x": -2,
-      "y": 200
-     },
-     {
-      "x": -1,
-      "y": 200
-     },
-     {
-      "x": 0,
-      "y": 200
-     },
-     {
-      "x": 1,
-      "y": 200
-     },
-     {
-      "x": 2,
-      "y": 200
-     },
-     {
-      "x": 3,
-      "y": 200
-     },
-     {
-      "x": 4,
-      "y": 200
-     },
-     {
-      "x": 5,
-      "y": 200
-     },
-     {
-      "x": 6,
-      "y": 200
-     },
-     {
-      "x": 7,
-      "y": 200
-     },
-     {
-      "x": 8,
-      "y": 200
-     },
-     {
-      "x": 9,
-      "y": 200
-     },
-     {
-      "x": 10,
-      "y": 200
-     },
-     {
-      "x": 11,
-      "y": 200
-     },
-     {
-      "x": 12,
-      "y": 200
-     },
-     {
-      "x": 13,
-      "y": 200
-     },
-     {
-      "x": 14,
-      "y": 200
-     },
-     {
-      "x": 15,
-      "y": 200
-     },
-     {
-      "x": 16,
-      "y": 200
-     },
-     {
-      "x": 17,
-      "y": 200
-     },
-     {
-      "x": 18,
-      "y": 200
-     },
-     {
-      "x": 19,
-      "y": 200
-     },
-     {
-      "x": 20,
-      "y": 200
-     },
-     {
-      "x": 21,
-      "y": 200
-     },
-     {
-      "x": 22,
-      "y": 200
-     },
-     {
-      "x": 23,
-      "y": 200
-     },
-     {
-      "x": 24,
-      "y": 200
-     },
-     {
-      "x": 25,
-      "y": 200
-     },
-     {
-      "x": 26,
-      "y": 200
-     },
-     {
-      "x": 27,
-      "y": 200
-     },
-     {
-      "x": 28,
-      "y": 200
-     },
-     {
-      "x": 29,
-      "y": 200
-     },
-     {
-      "x": 30,
-      "y": 230
-     },
-     {
-      "x": 31,
-      "y": 230
-     },
-     {
-      "x": 32,
-      "y": 230
-     },
-     {
-      "x": 33,
-      "y": 230
-     }
-    ],
-    "extra": {
-     "label": "Search interest (where Trends still has daily data)",
-     "points": [
-      {
-       "x": -7,
-       "y": 80.0
-      },
-      {
-       "x": 0,
-       "y": 70.0
-      },
-      {
-       "x": 3,
-       "y": 20.0
-      },
-      {
-       "x": 10,
-       "y": 15.0
-      },
-      {
-       "x": 21,
-       "y": 60.0
-      },
-      {
-       "x": 30,
-       "y": 75.0
-      }
-     ]
-    },
-    "markers": [
-     {
-      "x": 0,
-      "label": "fight day"
-     }
-    ],
-    "ref_lines": [
-     {
-      "y": 420.0,
-      "label": "everyday audience before the fight"
-     }
-    ]
    }
   }
  }
