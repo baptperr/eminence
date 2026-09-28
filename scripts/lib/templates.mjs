@@ -1008,7 +1008,10 @@ function shortCountry(name) {
     return short.length > LABEL_MAX_CHARS ? `${short.slice(0, LABEL_MAX_CHARS - 1)}…` : short;
 }
 
-function marketsPairedChart(countries, { searchCaption, marketCaption } = {}) {
+// `marketTerm`/`marketExplainer`: the payload names the phrase inside the caption that
+// carries the method ("relative market value" -> "ad spend per internet user"), so the page
+// can underline that phrase alone and keep the recipe on hover instead of in the caption.
+function marketsPairedChart(countries, { searchCaption, marketCaption, marketTerm, marketExplainer } = {}) {
     if (!countries?.length) return '';
     const W = 300, barH = 9, barGap = 3, pairH = barH * 2 + barGap, rowGap = 11, labelW = 92;
     const H = countries.length * (pairH + rowGap) - rowGap;
@@ -1031,7 +1034,7 @@ function marketsPairedChart(countries, { searchCaption, marketCaption } = {}) {
         <svg class="pub-panel-svg" viewBox="0 0 ${W} ${H}" role="img" aria-label="Search interest and market value index by country, both relative to the top country at 100">${rows}</svg>
         <div class="pub-legend">
             <span class="pub-legend-item"><i class="pub-legend-swatch pub-legend-swatch--main"></i>${esc(searchCaption)}</span>
-            <span class="pub-legend-item"><i class="pub-legend-swatch pub-legend-swatch--market"></i>${esc(marketCaption)}</span>
+            <span class="pub-legend-item"><i class="pub-legend-swatch pub-legend-swatch--market"></i>${withTerm(marketCaption, marketTerm, marketExplainer)}</span>
         </div>
         <p class="pub-panel-unit">Index, relative to the top country at 100 (0 to 100)</p>
     </figure>`;
@@ -1193,6 +1196,16 @@ const hintLink = (label, name, desc) =>
 // reads as a position among fighters. Same metric, same definition, same link.
 const fliHint = () => hintLink('FLI', 'First Light Index', 'audience compared with level');
 const flrHint = () => hintLink('FLR', 'First Light Rating', 'a fighter\'s level, from results');
+
+// A caption with one phrase in it explained on hover: everything is escaped, and the phrase
+// has to appear verbatim in the caption or the caption renders untouched (never a silent
+// half-substitution).
+function withTerm(caption, term, explainer) {
+    if (!caption) return '';
+    if (!term || !explainer || !caption.includes(term)) return esc(caption);
+    const [before, ...rest] = caption.split(term);
+    return `${esc(before)}${hintText(term, explainer)}${esc(rest.join(term))}`;
+}
 
 // A hover explainer with no link behind it: "122 fighters compared" reads as 122 random
 // fighters unless the page can say, in a breath, who they actually are. Same dotted-underline
@@ -1362,6 +1375,7 @@ function marketsBlock(mc) {
         return `${marketsPairedChart(mc.countries, {
             searchCaption: mc.search_volume_caption ?? mc.search_caption ?? 'Relative search interest by country',
             marketCaption: mc.market_value_caption ?? mc.market_caption ?? 'Adjusted by relative ad spend per internet user, by country',
+            marketTerm: mc.market_value_term, marketExplainer: mc.market_value_explainer,
         })}
             <p class="pub-fine pub-fine--tiny">Basis: ${esc(mc.basis)}. Relative indices only, no dollar figures.</p>`;
     }
@@ -1598,6 +1612,7 @@ function geographyBlock(g) {
     return `${marketsPairedChart(countries, {
         searchCaption: g.search_volume_caption ?? g.search_caption ?? 'Relative search interest by country',
         marketCaption: g.market_value_caption ?? g.market_caption ?? 'Adjusted by relative ad spend per internet user, by country',
+        marketTerm: g.market_value_term, marketExplainer: g.market_value_explainer,
     })}
         ${hasEstimate ? '<p class="pub-fine pub-fine--tiny">* modelled estimate.</p>' : ''}`;
 }
