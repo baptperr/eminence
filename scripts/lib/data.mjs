@@ -178,10 +178,14 @@ const SLUG_RE = /^[a-z0-9]+(-[a-z0-9]+)*$/;
 // can draw real, labelled axes instead of a bare line shape. Both are accepted; the renderer
 // picks its rendering path per series (see templates.mjs's isAxisSeries).
 const isOldSeries = (v) => isObj(v) && isNum(v.width) && isNum(v.height) && isStr(v.points);
-const isPoint = (v) => isObj(v) && isNum(v.x) && isNum(v.y);
+// An x coordinate is a number on a day-offset or value axis and an ISO date on a date
+// axis -- the assembler sends dates as dates rather than as days-since-some-epoch the page
+// would have to be told how to decode. y is always a number.
+const isCoord = (v) => isNum(v) || isDate(v);
+const isPoint = (v) => isObj(v) && isCoord(v.x) && isNum(v.y);
 const isAxisDesc = (v) => isObj(v) && isStr(v.label)
-    && (v.min == null || isNum(v.min)) && (v.max == null || isNum(v.max))
-    && (v.ticks == null || (isArr(v.ticks) && v.ticks.every((t) => isNum(t?.value) && isStr(t?.label))));
+    && (v.min == null || isCoord(v.min)) && (v.max == null || isCoord(v.max))
+    && (v.ticks == null || (isArr(v.ticks) && v.ticks.every((t) => isCoord(t?.value) && isStr(t?.label))));
 const isNewSeries = (v) => isObj(v) && isAxisDesc(v.x) && isAxisDesc(v.y)
     && isArr(v.points) && v.points.every(isPoint);
 
@@ -196,7 +200,7 @@ function checkSeries(v, label, bad) {
         if (v.markers != null) {
             if (!isArr(v.markers)) bad(`"${label}.markers" must be an array`);
             v.markers.forEach((m, i) => {
-                if (!isNum(m?.x) || !isStr(m?.label)) bad(`"${label}.markers[${i}]" needs numeric "x" and a "label" string`);
+                if (!isCoord(m?.x) || !isStr(m?.label)) bad(`"${label}.markers[${i}]" needs "x" (number or date) and a "label" string`);
             });
         }
         if (v.ref_lines != null) {
@@ -351,9 +355,14 @@ function checkMediaKit(data, bad) {
 function checkInternalData(data, bad) {
     if (data.first_light != null) {
         const fl = data.first_light;
+        // `gap` was the index's own magnitude delta under a caption claiming audience
+        // units; v3 replaced it with `audience_gap` (measured minus predicted, a real
+        // count). Either is accepted so publications generated before the change keep
+        // rendering, but one of them must be there.
+        const gap = fl?.audience_gap ?? fl?.gap;
         if (!isObj(fl) || !isNum(fl.score) || !isNum(fl.rating) || !isNum(fl.expected) || !isNum(fl.actual)
-            || !isNum(fl.gap) || !isStr(fl.reading)) {
-            bad('"data.first_light" must be {score, rating, expected, actual, gap, reading} or null');
+            || !isNum(gap) || !isStr(fl.reading)) {
+            bad('"data.first_light" needs {score, rating, expected, actual, reading} and audience_gap (or the older gap)');
         }
     }
 
@@ -445,9 +454,15 @@ function checkInternalData(data, bad) {
             if (!isNum(d?.fighter_value)) bad(`"${at}.fighter_value" must be a number`);
             if (!isNum(d?.better_median) || !isNum(d?.worse_median)) bad(`"${at}" needs numeric "better_median" and "worse_median"`);
             if (!isInt(d?.n_better) || !isInt(d?.n_worse)) bad(`"${at}" needs integer "n_better" and "n_worse"`);
+            // v3 dropped the pixel width/height and added an `x` axis descriptor, with
+            // `marker`, `values` and `bins` all on the metric's own value scale (they used
+            // to disagree: marker was pixel-scaled while bins stayed raw). Either shape
+            // validates; the renderer draws the axis only when `x` is there.
             const dist = d?.distribution;
-            if (!isObj(dist) || !isArr(dist.values) || !isNum(dist.width) || !isNum(dist.height) || !isArr(dist.bins)) {
-                bad(`"${at}.distribution" must be {values, marker, width, height, bins}`);
+            const distOk = isObj(dist) && isArr(dist.values) && isArr(dist.bins)
+                && (isAxisDesc(dist.x) || (isNum(dist.width) && isNum(dist.height)));
+            if (!distOk) {
+                bad(`"${at}.distribution" must be {values, bins, marker} with an "x" axis (or the older width/height)`);
             }
             if (!isStr(d?.sentence)) bad(`"${at}.sentence" missing`);
             // A differentiator observes; it never instructs. This is a loud safety net, not a

@@ -753,7 +753,14 @@ function axisChart(series, opts = {}) {
     const legend = series.extra?.label
         ? `<div class="pub-legend"><span class="pub-legend-item"><i class="pub-legend-swatch pub-legend-swatch--main"></i>${esc(series.y?.label ?? 'This fighter')}</span><span class="pub-legend-item"><i class="pub-legend-swatch pub-legend-swatch--ref"></i>${esc(series.extra.label)}</span></div>`
         : '';
-    const unitLine = [series.y?.label, series.y?.unit].filter(Boolean).join(', ');
+    // The unit is only appended when the label has not already said it: "Wikipedia views
+    // per day" + "/day" printed as "Wikipedia views per day, /day". The y-axis ticks carry
+    // the unit anyway, so this line is a name, not a second statement of scale.
+    const yLabel = series.y?.label ?? '';
+    const yUnit = series.y?.unit ?? '';
+    const unitSaid = yUnit && (yLabel.toLowerCase().includes(yUnit.replace(/^\//, '').toLowerCase())
+        || /per (day|month|post)\b/i.test(yLabel));
+    const unitLine = [yLabel, unitSaid ? '' : yUnit].filter(Boolean).join(', ');
     return `<figure class="pub-panel">
         <svg class="pub-panel-svg" viewBox="0 0 ${f.W} ${f.H}" role="img" aria-label="${esc(unitLine || 'chart')}">
             <g class="pub-grid">${f.gridY}</g>
@@ -783,39 +790,77 @@ function chart(series, opts = {}) {
 // assembler's own geometry, not a raw value to re-derive) — a bin's x0/x1 stay in the metric's
 // real units and give the two axis labels, since the assembler doesn't yet send tick text of
 // its own for this chart (see the build report).
+// Local numeric helpers: templates.mjs does not import the loader's validators, and the
+// chart code needs both a type check and a defaulting read for an optional domain bound.
+const isNum = (v) => typeof v === 'number' && Number.isFinite(v);
+const num0 = (v, fallback) => (isNum(v) ? v : fallback);
+
+// The cohort distribution: where every comparable fighter landed on one measure, with this
+// fighter's own mark on it. v3 sends `bins` as {x0, x1, count} and `marker` on the metric's
+// OWN value scale, with an `x` axis descriptor (label/unit/min/max/ticks) — so the bars sit
+// at their real positions and the axis carries real numbers, rather than the bin index
+// standing in for a value. The older pixel shape (width/height, marker pre-scaled) still
+// renders, unchanged, for publications generated before the rewrite.
 function distributionChart(dist, opts = {}) {
-    const { xLabel } = opts;
-    const { marker, width, height, bins } = dist;
-    const heights = bins.map((b) => (typeof b === 'number' ? b : (b?.count ?? b?.height ?? 0)));
-    const n = heights.length || 1;
-    const gap = 2;
-    const axisW = 26, padBottom = 16, padTop = 6;
+    if (!dist) return '';
+    const axis = dist.x;
+    const W = 300, H = 92, axisW = 30, padTop = 8, padBottom = 20;
+    const width = axis ? W : dist.width, height = axis ? H : dist.height;
+    if (!isNum(width) || !isNum(height)) return '';
     const plotW = width - axisW, plotH = height - padTop - padBottom;
-    const barW = Math.max(1, (plotW - gap * (n - 1)) / n);
-    const maxBin = Math.max(...heights, 1);
-    const bars = heights.map((h, i) => {
-        const bh = (h / maxBin) * plotH;
-        const x = axisW + i * (barW + gap);
-        return `<rect class="pub-dist-bar" x="${x.toFixed(1)}" y="${(padTop + plotH - bh).toFixed(1)}" width="${barW.toFixed(1)}" height="${bh.toFixed(1)}"/>`;
+
+    const bins = dist.bins ?? [];
+    const counts = bins.map((b) => (typeof b === 'number' ? b : (b?.count ?? b?.height ?? 0)));
+    const maxCount = Math.max(...counts, 1);
+    const unit = axis?.unit ? ` ${axis.unit}` : '';
+
+    // Value → x. With an axis the domain is the metric's own range; without one, bins are
+    // evenly spaced because that is all the older shape ever said.
+    const lo = axis ? num0(axis.min, bins[0]?.x0 ?? 0) : 0;
+    const hi = axis ? num0(axis.max, bins[bins.length - 1]?.x1 ?? 1) : 1;
+    const span = hi - lo || 1;
+    const vx = (v) => axisW + ((v - lo) / span) * plotW;
+
+    const bars = counts.map((c, i) => {
+        const bh = (c / maxCount) * plotH;
+        const b = bins[i];
+        const x0 = axis && isNum(b?.x0) ? vx(b.x0) : axisW + (i / counts.length) * plotW;
+        const x1 = axis && isNum(b?.x1) ? vx(b.x1) : axisW + ((i + 1) / counts.length) * plotW;
+        const w = Math.max(1, x1 - x0 - 1);
+        return `<rect class="pub-dist-bar" x="${x0.toFixed(1)}" y="${(padTop + plotH - bh).toFixed(1)}" width="${w.toFixed(1)}" height="${bh.toFixed(1)}"><title>${esc(String(c))} fighter${c === 1 ? '' : 's'}</title></rect>`;
     }).join('');
+
     let markerMark = '';
-    if (marker != null) {
-        const mx = axisW + (width > 0 ? (marker / width) * plotW : plotW / 2);
+    if (dist.marker != null) {
+        // With an axis the marker is a VALUE; in the old shape it was already a pixel
+        // position across the full width.
+        const mx = axis ? vx(dist.marker) : axisW + (dist.marker / (dist.width || 1)) * plotW;
         markerMark = `<line class="pub-dist-marker" x1="${mx.toFixed(1)}" x2="${mx.toFixed(1)}" y1="${padTop}" y2="${(padTop + plotH).toFixed(1)}"/><circle class="pub-dist-marker-dot" cx="${mx.toFixed(1)}" cy="${padTop}" r="3.5"/>`;
     }
-    const fmtBin = (v) => (Math.abs(v) > 0 && Math.abs(v) < 1 ? v.toFixed(2) : num(Math.round(v)));
-    const lo = bins[0]?.x0, hi = bins[bins.length - 1]?.x1;
-    const xAxis = lo != null && hi != null ? `
-            <text class="pub-axis-label" x="${axisW}" y="${(height - 2).toFixed(1)}" text-anchor="start">${esc(fmtBin(lo))}</text>
-            <text class="pub-axis-label" x="${width}" y="${(height - 2).toFixed(1)}" text-anchor="end">${esc(fmtBin(hi))}</text>` : '';
-    const axisLines = `<line class="pub-axis-line" x1="${axisW}" x2="${width}" y1="${(padTop + plotH).toFixed(1)}" y2="${(padTop + plotH).toFixed(1)}"/><line class="pub-axis-line" x1="${axisW}" x2="${axisW}" y1="${padTop}" y2="${(padTop + plotH).toFixed(1)}"/>`;
-    const yLabel = `<text class="pub-axis-label" x="2" y="${(padTop + 8).toFixed(1)}" text-anchor="start">Fighters</text>`;
+
+    const fmt = (v) => (Math.abs(v) > 0 && Math.abs(v) < 1 ? v.toFixed(2) : num(Math.round(v)));
+    const ticks = (axis?.ticks?.length ? axis.ticks : [{ value: lo, label: fmt(lo) + unit }, { value: hi, label: fmt(hi) + unit }])
+        .map((t, i, all) => {
+            const x = vx(t.value);
+            const anchor = i === 0 ? 'start' : i === all.length - 1 ? 'end' : 'middle';
+            return `<line class="pub-axis-tick" x1="${x.toFixed(1)}" x2="${x.toFixed(1)}" y1="${(padTop + plotH).toFixed(1)}" y2="${(padTop + plotH + 3).toFixed(1)}"/>`
+                + `<text class="pub-axis-label" x="${x.toFixed(1)}" y="${(height - 6).toFixed(1)}" text-anchor="${anchor}">${esc(t.label)}</text>`;
+        }).join('');
+
+    const axisLines = `<line class="pub-axis-line" x1="${axisW}" x2="${width}" y1="${(padTop + plotH).toFixed(1)}" y2="${(padTop + plotH).toFixed(1)}"/>`
+        + `<line class="pub-axis-line" x1="${axisW}" x2="${axisW}" y1="${padTop}" y2="${(padTop + plotH).toFixed(1)}"/>`;
+    // The y axis counts fighters, so its top tick is the fullest bin -- a bare "Fighters"
+    // with no number told the reader nothing about how many that bar represents.
+    const yAxis = `<text class="pub-axis-label" x="${(axisW - 4).toFixed(1)}" y="${(padTop + 7).toFixed(1)}" text-anchor="end">${esc(String(maxCount))}</text>`
+        + `<text class="pub-axis-label" x="${(axisW - 4).toFixed(1)}" y="${(padTop + plotH).toFixed(1)}" text-anchor="end">0</text>`;
+
+    const caption = axis?.label ? `${axis.label}${unit ? ` (${axis.unit})` : ''}` : opts.xLabel;
     return `<figure class="pub-panel pub-panel--dist">
-        <svg class="pub-panel-svg" viewBox="0 0 ${width} ${height}" role="img" aria-label="Distribution of ${esc(xLabel || 'this metric')} across similar fighters, with this fighter's own value marked">
-            ${axisLines}${bars}${markerMark}${xAxis}${yLabel}
+        <svg class="pub-panel-svg" viewBox="0 0 ${width} ${height}" role="img" aria-label="How many comparable fighters landed at each ${esc(axis?.label || opts.xLabel || 'value')}, with this fighter's own value marked">
+            ${axisLines}${bars}${markerMark}${ticks}${yAxis}
         </svg>
-        <div class="pub-legend"><span class="pub-legend-item"><i class="pub-legend-swatch pub-legend-swatch--main"></i>This fighter</span><span class="pub-legend-item"><i class="pub-legend-swatch pub-legend-swatch--ref"></i>Similar fighters</span></div>
-        ${xLabel ? `<p class="pub-panel-unit">${esc(xLabel)}</p>` : ''}
+        <div class="pub-legend"><span class="pub-legend-item"><i class="pub-legend-swatch pub-legend-swatch--main"></i>This fighter</span><span class="pub-legend-item"><i class="pub-legend-swatch pub-legend-swatch--ref"></i>Fighters at this level</span><span class="pub-legend-item pub-legend-item--tube">Height = how many fighters</span></div>
+        ${caption ? `<p class="pub-panel-unit">${esc(caption)}</p>` : ''}
     </figure>`;
 }
 
@@ -1100,7 +1145,7 @@ function attentionBlock(w, series, bouts, fw) {
     // this curve's own extremes with real numbers rather than leaving the y-axis bare.
     const refs = fw ? extremeRefs(series, { hi: `${num(fw.peak_views_per_day)}/day peak`, lo: `${num(fw.baseline)}/day baseline` }) : [];
     return `${statRow([[num(w.views_per_day), `Pageviews / day (${w.window_days}d avg)`]])}
-            ${panel(series, { unit: 'Wikipedia pageviews per day', yRefs: refs, bouts, tone: 'accent' })}
+            ${chart(series, { unit: 'Wikipedia pageviews per day', yRefs: refs, bouts, tone: 'accent' })}
             ${langs}
             <p class="pub-fine pub-fine--dim">Source: Wikipedia pageviews, all languages, ${w.window_days}-day average.</p>`;
 }
@@ -1139,7 +1184,7 @@ function fightWeekBlock(fw, series) {
                 [num(fw.peak_views_per_day), 'Peak pageviews / day'],
                 [num(fw.baseline), 'Baseline pageviews / day'],
             ])}
-            ${panel(series, { unit: 'Wikipedia pageviews per day', yRefs: refs, bouts: [{ opponent: fw.opponent, date: fw.fight_date }], tone: 'accent' })}`;
+            ${chart(series, { unit: 'Wikipedia pageviews per day', yRefs: refs, bouts: [{ opponent: fw.opponent, date: fw.fight_date }], tone: 'accent' })}`;
 }
 
 function broadcastList(rows) {
@@ -1191,7 +1236,7 @@ export function mediaKitPage({ page, site }) {
         </div>
     </header>
 ${section('pub-next', 'Next fight', nextFightBlock(d.next_fight))}
-${section('pub-social', 'Social', d.social.length ? `${d.social.map(socialBlock).join('')}${panel(d.charts.followers, { unit: 'Followers', yRefs: extremeRefs(d.charts.followers, { hi: d.social[0]?.followers != null ? `${num(d.social[0].followers)} today` : null }), tone: 'accent' })}` : '')}
+${section('pub-social', 'Social', d.social.length ? `${d.social.map(socialBlock).join('')}${chart(d.charts.followers, { unit: 'Followers', yRefs: extremeRefs(d.charts.followers, { hi: d.social[0]?.followers != null ? `${num(d.social[0].followers)} today` : null }), tone: 'accent' })}` : '')}
 ${section('pub-posts', 'Posting activity', postingCalendarBlock(d), 'One cell per day the window covers; colour shows how that post did against this fighter’s own average, not against anyone else’s.')}
 ${section('pub-wiki', 'Attention', attentionBlock(d.wikipedia, d.charts.pageviews, bouts))}
 ${section('pub-geo', 'Markets', marketsBlock(d.market_concentration))}
@@ -1404,8 +1449,11 @@ function retentionBlock(items, comp) {
             <div class="pub-bout">
                 <p class="pub-line"><strong>vs ${esc(r.opponent)}</strong> · ${fmtDate(r.fight_date)}</p>
                 ${statRow([
-                    [r.level_before ?? null, 'Everyday audience before the fight'],
-                    [r.level_after ?? null, 'Everyday audience a month later'],
+                    // Rounded and grouped like every other count on the page: a raw
+                    // "2433.5" beside a formatted "56,296" reads as two different kinds
+                    // of number, and half a page view is not a thing.
+                    [r.level_before != null ? num(Math.round(r.level_before)) : null, 'Everyday audience before the fight'],
+                    [r.level_after != null ? num(Math.round(r.level_after)) : null, 'Everyday audience a month later'],
                     [r.step_text ?? null, 'Change in everyday audience'],
                     [r.peak != null ? num(r.peak) : null, 'Peak on the biggest day'],
                     [r.baseline != null ? num(r.baseline) : null, 'Typical day, this fight week'],
@@ -1473,7 +1521,7 @@ function billingBlock(b) {
             const chron = [...b.rows].reverse();
             labelled = { ...series, labels: chron.map((r, i) => ({ x: pts[i][0], y: pts[i][1], text: fmtDate(r.date) })) };
         }
-        return panel(labelled, { unit: 'Card-position score', mainLabel: 'Actual', refLabel: 'Expected for this slot', tone: 'accent' });
+        return chart(labelled, { unit: 'Card-position score', mainLabel: 'Actual', refLabel: 'Expected for this slot', tone: 'accent' });
     })();
     return `${rows}${chartHtml}`;
 }
