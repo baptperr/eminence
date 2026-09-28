@@ -1,6 +1,7 @@
 // HTML for every generated route. Four templates, on purpose:
 //   • archive/article/index  — the standard reading shell (pages.css)
 //   • manifesto              — standalone full-bleed page (manifesto.css)
+//   • observatory            — standalone single-viewport page over video (observatory.css)
 //   • private                — the standard shell, minus everything that could leak the URL
 //   • publication kit        — no shell at all: no nav, no logo, no site footer (publication.css)
 
@@ -15,6 +16,7 @@ const NAV = (current) => `<nav class="nav" id="mainNav" aria-label="Site">
             <ul>
                 <li><a href="/publications/"${current === 'publications' ? ' aria-current="page"' : ''}>Publications</a></li>
                 <li><a href="/index/"${current === 'index' ? ' aria-current="page"' : ''}>Index</a></li>
+                <li><a href="/observatory/"${current === 'observatory' ? ' aria-current="page"' : ''}>Observatory</a></li>
             </ul>
         </div>
     </div>
@@ -42,7 +44,9 @@ const FOOTER = `<footer>
 //                  no nav, no logo and no links out at all.
 // Existing call sites are unaffected: `priv: true` (the old private-page behaviour) is exactly
 // `noindex: true, og: false`, and every other site still gets its nav.
-function shell({ title, description, url, site, current, body, css = ['/pages.css'], bodyClass = '', noindex = false, og = true, nav = true, scripts = true, js = null }) {
+// `image` ({ src, width, height, alt }) adds og:image and a large Twitter card; `jsonld` is an
+// object (or array) written as one application/ld+json block.
+function shell({ title, description, url, site, current, body, css = ['/pages.css'], bodyClass = '', noindex = false, og = true, nav = true, scripts = true, js = null, image = null, jsonld = null }) {
     const head = [];
     if (noindex) {
         head.push('<meta name="robots" content="noindex, nofollow, noarchive, nosnippet">', '<meta name="referrer" content="no-referrer">');
@@ -57,7 +61,22 @@ function shell({ title, description, url, site, current, body, css = ['/pages.cs
             `<meta property="og:description" content="${esc(description)}">`,
         );
         if (!noindex) head.push(`<meta property="og:url" content="${esc(site + url)}">`);
+        if (image) {
+            head.push(
+                `<meta property="og:image" content="${esc(site + image.src)}">`,
+                `<meta property="og:image:width" content="${image.width}">`,
+                `<meta property="og:image:height" content="${image.height}">`,
+                `<meta property="og:image:alt" content="${esc(image.alt)}">`,
+                '<meta name="twitter:card" content="summary_large_image">',
+                `<meta name="twitter:title" content="${esc(title)}">`,
+                `<meta name="twitter:description" content="${esc(description)}">`,
+                `<meta name="twitter:image" content="${esc(site + image.src)}">`,
+                `<meta name="twitter:image:alt" content="${esc(image.alt)}">`,
+            );
+        }
     }
+    // `<` is escaped so no string inside the JSON can close the script element.
+    if (jsonld) head.push(`<script type="application/ld+json">${JSON.stringify(jsonld).replace(/</g, '\\u003c')}</script>`);
     return `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -114,7 +133,7 @@ export function archivePage({ articles, site }) {
         <div class="pg-inner">
             <ol class="entries">
                 <li>
-                    <a class="entry entry--pinned" href="/publications/manifesto/" data-r>
+                    <a class="entry entry--pinned" href="/manifesto/" data-r>
                         <span class="entry-date">Coming soon</span>
                         <span class="entry-main">
                             <span class="entry-title">Manifesto</span>
@@ -165,12 +184,12 @@ ${FOOTER}`;
     });
 }
 
-// ── /publications/manifesto/ ── standalone, full-bleed, inverted.
+// ── /manifesto/ ── standalone, full-bleed, inverted. (/publications/manifesto/ redirects here.)
 export function manifestoPage({ site }) {
     const body = `<main class="mf">
     <section class="mf-band mf-band--paper" aria-labelledby="mf-title">
         <h1 class="mf-word" id="mf-title"><span class="mf-clip"><span class="mf-slide">Manifesto</span></span></h1>
-        <p class="mf-note">The FIRST LIGHT manifesto is being written.</p>
+        <p class="mf-note">The First Light manifesto is being written.</p>
     </section>
     <section class="mf-band mf-band--ink">
         <p class="mf-word mf-word--soon"><span class="mf-clip"><span class="mf-slide mf-slide--late">Coming soon.</span></span></p>
@@ -181,8 +200,49 @@ export function manifestoPage({ site }) {
     return shell({
         title: 'Manifesto — FIRST LIGHT',
         description: 'The FIRST LIGHT manifesto. Coming soon.',
-        url: '/publications/manifesto/', site, current: 'publications', body,
+        url: '/manifesto/', site, current: 'publications', body,
         css: ['/manifesto.css'], bodyClass: 'page-manifesto', scripts: false,
+    });
+}
+
+// ── /observatory/ ── one viewport, text over a darkened loop of the Observatory itself.
+// The video has no src in the HTML: observatory.js attaches it only when motion is allowed,
+// so reduced-motion and no-JS visitors get the poster and nothing else. The status line
+// starts hidden and is only revealed once /observatory-status.json parses to a real date.
+const OBSERVATORY_TEXT = 'The Observatory follows every professional fighter across all major promotions, from their first bout to their latest post. It measures what a name is worth inside and outside the cage, and what moves it. Its readings feed the First Light Index.';
+const OBSERVATORY_DESC = 'The Observatory follows every professional fighter across all major promotions, from their first bout to their latest post, and measures what a name is worth.';
+
+export function observatoryPage({ site }) {
+    const url = '/observatory/';
+    const org = {
+        '@type': 'Organization', '@id': `${site}/#organization`,
+        name: 'First Light', url: `${site}/`, logo: `${site}/logo.png`, email: 'contact@firstlight.agency',
+    };
+    const body = `<main class="ob">
+    <div class="ob-bg" aria-hidden="true">
+        <video class="ob-video" data-src="/observatory.mp4" poster="/observatory-poster.jpg" muted autoplay loop playsinline disablepictureinpicture preload="none"></video>
+    </div>
+    <h1 class="ob-title" id="ob-title">The First Light Observatory</h1>
+    <p class="ob-sub">The deepest record of commercial value in professional fighting.</p>
+    <p class="ob-text">${esc(OBSERVATORY_TEXT)}</p>
+    <p class="ob-status" id="obStatus" hidden><span class="ob-dot" aria-hidden="true"></span>Last reading: <time id="obStatusTime"></time></p>
+    <p class="ob-link"><a href="/index/">First Light Index <span aria-hidden="true">&rarr;</span></a></p>
+    <p class="ob-credit"><span>Journalists may publish Observatory data.</span><span>Credit: First Light Observatory.</span><span><a href="mailto:contact@firstlight.agency">contact@firstlight.agency</a></span></p>
+</main>`;
+    return shell({
+        title: 'First Light Observatory',
+        description: OBSERVATORY_DESC,
+        url, site, current: 'observatory', body,
+        css: ['/observatory.css'], bodyClass: 'page-observatory', js: ['/menu.js', '/observatory.js'],
+        image: { src: '/observatory-og.jpg', width: 1200, height: 630, alt: 'The First Light Observatory' },
+        jsonld: {
+            '@context': 'https://schema.org',
+            '@graph': [org, {
+                '@type': 'Dataset', '@id': `${site}${url}#dataset`,
+                name: 'First Light Observatory', description: OBSERVATORY_TEXT,
+                url: `${site}${url}`, creator: { '@id': org['@id'] },
+            }],
+        },
     });
 }
 
@@ -714,20 +774,26 @@ function tickDy(labels, positions, i) {
 // text (so panels line up with each other whatever their numbers look like), gridlines at
 // every y-tick, and the two axis rules. Time always runs left-to-right, oldest-to-newest —
 // points are sorted by x before anything is drawn, never trusted to already arrive in order.
+// On a date axis every x is an ISO string, so arithmetic on it silently yields NaN: every
+// point, tick and marker collapsed onto the left edge and the line vanished entirely, which
+// is exactly how the Attention chart shipped. Coordinates are read through xv() from here
+// on, which turns a date into epoch milliseconds and leaves a number alone.
+const xv = (v) => (typeof v === 'string' ? Date.parse(v) : v);
+
 function buildAxisFrame(series, { W = 600, H = 220 } = {}) {
-    const pts = [...(series.points ?? [])].sort((a, b) => a.x - b.x);
-    const xs = pts.map((p) => p.x), ys = pts.map((p) => p.y);
+    const pts = [...(series.points ?? [])].sort((a, b) => xv(a.x) - xv(b.x));
+    const xs = pts.map((p) => xv(p.x)), ys = pts.map((p) => p.y);
     const xDesc = series.x ?? {}, yDesc = series.y ?? {};
-    const xMin = xDesc.min ?? Math.min(...xs), xMax = xDesc.max ?? Math.max(...xs);
+    const xMin = xv(xDesc.min) ?? Math.min(...xs), xMax = xv(xDesc.max) ?? Math.max(...xs);
     const yMin = yDesc.min ?? Math.min(0, ...ys), yMax = yDesc.max ?? Math.max(...ys);
     const xTicks = xDesc.ticks?.length ? xDesc.ticks : autoTicks(xMin, xMax, Math.min(4, xs.length - 1 || 1));
     const yTicks = yDesc.ticks?.length ? yDesc.ticks : autoTicks(yMin, yMax, 4);
 
     const padTop = 16, padBottom = 30, padRight = 10, axisW = 40;
     const plotX0 = axisW, plotX1 = W - padRight, plotY0 = padTop, plotY1 = H - padBottom;
-    const xScale = (v) => plotX0 + (xMax > xMin ? (v - xMin) / (xMax - xMin) : 0.5) * (plotX1 - plotX0);
+    const xScale = (raw) => { const v = xv(raw); return plotX0 + (xMax > xMin ? (v - xMin) / (xMax - xMin) : 0.5) * (plotX1 - plotX0); };
     const yScale = (v) => plotY1 - (yMax > yMin ? (v - yMin) / (yMax - yMin) : 0.5) * (plotY1 - plotY0);
-    const toPoly = (arr) => [...arr].sort((a, b) => a.x - b.x).map((p) => `${xScale(p.x).toFixed(1)},${yScale(p.y).toFixed(1)}`).join(' ');
+    const toPoly = (arr) => [...arr].sort((a, b) => xv(a.x) - xv(b.x)).map((p) => `${xScale(p.x).toFixed(1)},${yScale(p.y).toFixed(1)}`).join(' ');
 
     const gridY = yTicks.map((t) => `<line class="pub-grid-line" x1="${plotX0}" x2="${plotX1}" y1="${yScale(t.value).toFixed(1)}" y2="${yScale(t.value).toFixed(1)}"/>`).join('');
     const yLabels = yTicks.map((t) => `<text class="pub-axis-label" x="${(plotX0 - 7).toFixed(1)}" y="${(yScale(t.value) + 3).toFixed(1)}" text-anchor="end">${esc(t.label)}</text>`).join('');
@@ -761,10 +827,16 @@ function axisChart(series, opts = {}) {
     const dots = f.pts.length <= 60
         ? f.pts.map((p) => `<circle class="pub-point-dot" cx="${f.xScale(p.x).toFixed(1)}" cy="${f.yScale(p.y).toFixed(1)}" r="1.6"/>`).join('') : '';
     const markerLines = (series.markers ?? []).map((m) => `<line class="pub-mark-line" x1="${f.xScale(m.x).toFixed(1)}" x2="${f.xScale(m.x).toFixed(1)}" y1="${f.plotY0}" y2="${f.plotY1.toFixed(1)}"/>`).join('');
-    const markerLabels = (series.markers ?? []).map((m) => {
-        const x = f.xScale(m.x);
+    // Two fights a week apart put their labels on top of each other ("vs. Paul Hughes" over
+    // "vs. Alfie Davis", unreadable). Sorted by position, a colliding label steps up a line
+    // instead, the same alternating trick the x-axis ticks use.
+    const sortedMarkers = [...(series.markers ?? [])].sort((a, b) => f.xScale(a.x) - f.xScale(b.x));
+    const markerXs = sortedMarkers.map((m) => f.xScale(m.x));
+    const markerLabels = sortedMarkers.map((m, i) => {
+        const x = markerXs[i];
         const anchor = x < f.plotX0 + 30 ? 'start' : x > f.plotX1 - 30 ? 'end' : 'middle';
-        return `<text class="pub-mark-label pub-mark-label--top" x="${x.toFixed(1)}" y="${(f.plotY0 - 5).toFixed(1)}" text-anchor="${anchor}">${esc(m.label)}</text>`;
+        const dy = tickDy(sortedMarkers.map((mm) => mm.label), markerXs, i);
+        return `<text class="pub-mark-label pub-mark-label--top" x="${x.toFixed(1)}" y="${(f.plotY0 - 5 - dy).toFixed(1)}" text-anchor="${anchor}">${esc(m.label)}</text>`;
     }).join('');
     const legend = series.extra?.label
         ? `<div class="pub-legend"><span class="pub-legend-item"><i class="pub-legend-swatch pub-legend-swatch--main"></i>${esc(series.y?.label ?? 'This fighter')}</span><span class="pub-legend-item"><i class="pub-legend-swatch pub-legend-swatch--ref"></i>${esc(series.extra.label)}</span></div>`
@@ -912,7 +984,7 @@ function marketsPairedChart(countries, { searchCaption, marketCaption } = {}) {
         <svg class="pub-panel-svg" viewBox="0 0 ${W} ${H}" role="img" aria-label="Search interest and market value index by country, both relative to the top country at 100">${rows}</svg>
         <div class="pub-legend">
             <span class="pub-legend-item"><i class="pub-legend-swatch pub-legend-swatch--main"></i>${esc(searchCaption)}</span>
-            <span class="pub-legend-item"><i class="pub-legend-swatch pub-legend-swatch--ref"></i>${esc(marketCaption)}</span>
+            <span class="pub-legend-item"><i class="pub-legend-swatch pub-legend-swatch--market"></i>${esc(marketCaption)}</span>
         </div>
         <p class="pub-panel-unit">Index, relative to the top country at 100 (0 to 100)</p>
     </figure>`;
@@ -984,13 +1056,17 @@ const median = (nums) => {
 };
 
 // label may be a plain string, or {html} when it needs to carry markup (the FLI/FLR hover-link).
-function stat(value, label) {
+// `tone` colours the FIGURE only (green good, red bad), never the label or any prose around
+// it: colour on a whole sentence reads as a verdict, and spending it everywhere leaves it
+// meaning nothing where it matters.
+function stat(value, label, tone) {
     if (value == null) return '';
     const lbl = label && typeof label === 'object' ? label.html : esc(label);
-    return `<div class="pub-stat"><span class="pub-stat-n">${esc(value)}</span><span class="pub-stat-label">${lbl}</span></div>`;
+    const toneCls = tone ? ` pub-tone-text-${tone}` : '';
+    return `<div class="pub-stat"><span class="pub-stat-n${toneCls}">${esc(value)}</span><span class="pub-stat-label">${lbl}</span></div>`;
 }
-function statRow(items) {
-    const parts = items.filter(([v]) => v != null).map(([v, l]) => stat(v, l));
+function statRow(items, opts = {}) {
+    const parts = items.filter(([v]) => v != null).map(([v, l, t]) => stat(v, l, t ?? opts.tone));
     return parts.length ? `<div class="pub-stat-row">${parts.join('')}</div>` : '';
 }
 
@@ -1021,9 +1097,18 @@ function table(headers, rows, { freeze = false, bodyClass = '' } = {}) {
 // the one thing in the tab order these cards need, not a stop per card.
 function carousel(id, cards, ariaLabel) {
     if (!cards.length) return '';
+    // Dots below the strip, the way a phone carousel signals its own length: how many cards
+    // there are and which one you are on. Decorative for a screen reader (the cards
+    // themselves are all in the DOM and reachable), but clickable, because a dot that shows
+    // position and refuses to move there is a tease. pub-carousel.js keeps them in sync with
+    // whatever the strip is actually showing, from any scroll source.
+    const dots = cards.length > 1 ? `
+            <div class="pub-carousel-dots" data-dots-for="${id}" aria-hidden="true">${cards.map((_, i) => `
+                <button type="button" class="pub-carousel-dot${i === 0 ? ' is-current' : ''}" data-index="${i}" tabindex="-1"></button>`).join('')}
+            </div>` : '';
     return `<div class="pub-carousel" id="${id}" tabindex="0" role="group" aria-roledescription="carousel" aria-label="${esc(ariaLabel)}">${cards.map((c) => `
                 <div class="pub-carousel-card">${c}</div>`).join('')}
-            </div>`;
+            </div>${dots}`;
 }
 
 // A note whose sibling `<field>_style` reads "small_print" renders in the page's faintest,
@@ -1270,16 +1355,21 @@ function fightWeekBlock(rows, legacySeries) {
 // section's own lead note.
 function broadcastList(rows, note) {
     if (!rows.length) return '';
-    return `<ul class="pub-list">${rows.map((b) => `
-                <li class="pub-list-row">
+    // Two lines a fight, not four: the event and the result on one, everything that
+    // qualifies it (opponent, date, promotion, slot, tier) joined on the next. Four separate
+    // lines each holding one short fact turned eight fights into a page of scrolling.
+    return `<ul class="pub-list">${rows.map((b) => {
+        const meta = [b.opponent ? `vs ${b.opponent}` : null, fmtDate(b.date), b.promotion,
+                      b.card_section, b.event_tier].filter(Boolean).map(esc).join(' · ');
+        return `
+                <li class="pub-list-row pub-list-row--tight">
                     <div class="pub-list-main">
-                        <span class="pub-list-title">${esc(b.event)}</span>${b.opponent ? `
-                        <span class="pub-list-vs">vs ${esc(b.opponent)}</span>` : ''}
-                        <time class="pub-list-date" datetime="${esc(b.date)}">${fmtDate(b.date)}</time>
-                        <p class="pub-fine pub-fine--dim">${esc(b.promotion)} · ${esc(b.card_section)} · ${esc(b.event_tier)}</p>
+                        <span class="pub-list-title">${esc(b.event)}</span>
+                        <p class="pub-fine pub-fine--dim">${meta}</p>
                     </div>
                     <div class="pub-list-figures"><span class="pub-tone-text-${resultTone(b.result)}">${esc(b.result)}</span></div>
-                </li>`).join('')}
+                </li>`;
+    }).join('')}
             </ul>${note ? `<p class="pub-fine pub-fine--tiny">${esc(note)}</p>` : ''}`;
 }
 
@@ -1290,6 +1380,28 @@ function broadcastList(rows, note) {
 // section()'s empty-inner guard still suppresses the whole thing when none of the three actually
 // landed, instead of the heading and an explanatory note showing over nothing — the empty
 // section the owner hit here.
+// Before and after, as two bars on one scale: the step a fame shift is a RATIO of. Its own
+// small chart rather than the paired-country one, which carries two measures per row; here
+// there is one measure at two moments.
+function levelPairChart(levels, unit) {
+    const W = 300, rowH = 26, gap = 10, labelW = 96;
+    const H = levels.length * (rowH + gap) - gap;
+    const max = Math.max(...levels.map((l) => l.value), 1);
+    const barW = W - labelW - 46;
+    const rows = levels.map((l, i) => {
+        const y = i * (rowH + gap);
+        const w = Math.max(2, (l.value / max) * barW);
+        const cls = i === levels.length - 1 ? 'pub-bar--search' : 'pub-bar--market';
+        return `<text class="pub-bar-label" x="0" y="${(y + rowH / 2).toFixed(1)}">${esc(l.label)}</text>`
+            + `<rect class="pub-bar ${cls}" x="${labelW}" y="${y}" width="${w.toFixed(1)}" height="${rowH}" rx="2"/>`
+            + `<text class="pub-bar-value" x="${(labelW + w + 6).toFixed(1)}" y="${(y + rowH / 2).toFixed(1)}">${esc(num(l.value))}</text>`;
+    }).join('');
+    return `<figure class="pub-panel pub-panel--bars">
+        <svg class="pub-panel-svg" viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(unit)}, before and after the step up">${rows}</svg>
+        <p class="pub-panel-unit">${esc(unit)}</p>
+    </figure>`;
+}
+
 function trajectoryBlock(t) {
     if (!t) return '';
     const fg = t.follower_growth, rm = t.rank_movement, as = t.attention_shift;
@@ -1298,8 +1410,15 @@ function trajectoryBlock(t) {
         [fg?.per_month_text ?? null, 'Follower growth, per month'],
         [rm ? (rm.delta > 0 ? `+${rm.delta}` : String(rm.delta)) : null, rm ? `${rm.division} rank movement, last ${rm.window_days}d` : null],
     ]);
-    const shift = as?.sentence
-        ? `<p class="pub-note pub-tone-text-${as.direction === 'down' ? 'bad' : 'good'}">Wikipedia ${esc(as.sentence)}.</p>` : '';
+    // Colour marks the KEY NUMBER, never the prose: a whole green sentence reads as a
+    // verdict rather than a reading, and it stops the green meaning anything where it does
+    // appear. The step also gets shown, not just asserted: the two levels the ratio compares,
+    // side by side, when the payload carries them.
+    const shift = as ? `
+        ${as.ratio != null ? statRow([[`×${num(as.ratio, 1)}`, `Everyday attention since ${esc(as.since ?? 'the step up')}`]], { tone: as.direction === 'down' ? 'bad' : 'good' }) : ''}
+        ${as.levels?.length ? levelPairChart(as.levels, as.unit ?? 'Wikipedia views per day') : ''}
+        ${as.sentence ? `<p class="pub-note">${esc(as.sentence)}</p>` : ''}
+        ${fineNote(as.note, 'small_print')}` : '';
     return `${rows}${shift}`;
 }
 

@@ -260,7 +260,7 @@
     .pub-carousel { display: block !important; overflow: visible !important; }
     .pub-carousel-card { flex: none !important; padding: 1.5rem 0 !important; border-top: 1px solid #ccc !important; }
     .pub-carousel-card:first-child { padding-top: 0 !important; border-top: none !important; }
-    .pub-bar--market { opacity: 1; fill: #999; }
+    .pub-bar--market { opacity: 1; fill: #666; }   /* print: hue is gone, so separate by value */
 }
 
 @media (max-width: 480px) {
@@ -296,6 +296,11 @@
     --p-line: rgba(127, 212, 168, .16);
     --p-ink: #D3E4DA;
     --p-accent: #7FD4A8;
+    /* The second series on a paired chart. Mint against grey differed only in lightness,
+       so the two readings read as one; this is the Observatory's own cool blue, a real hue
+       step away from the mint while still inside that palette. Both sit around the same
+       lightness on the dark ground, so neither reads as the "important" one. */
+    --p-accent-2: #3D87C9;
     margin: 1.5rem 0 0;
     padding: 1rem 1rem 0.85rem;
     background: var(--p-surface);
@@ -314,7 +319,10 @@
 .pub-tone-line-good { stroke: var(--good); }
 .pub-tone-line-bad { stroke: var(--bad); }
 .pub-tone-line-neutral { stroke: var(--p-ink); }
-.pub-series--ref { stroke: var(--p-ink) !important; } /* the reference/peer series is always the quiet one, whatever tone the main series carries */
+.pub-series--ref { stroke: var(--p-accent-2) !important; stroke-dasharray: 5 3; }
+/* The second series is a different reading, not a quieter one: mint against grey differed
+   only in lightness and the two lines read as one. Hue AND a dash pattern, so it survives
+   both a colour-blind reader and a black-and-white print. */
 .pub-mark-line { stroke: var(--p-ink); stroke-width: 1; stroke-dasharray: 2 3; opacity: 0.45; }
 .pub-mark-dot { fill: var(--p-accent); stroke: var(--p-surface); stroke-width: 2; }
 .pub-mark-label { fill: var(--p-ink); font-size: 9px; opacity: 0.8; }
@@ -334,7 +342,10 @@
 .pub-legend-item { display: inline-flex; align-items: center; gap: 0.4rem; }
 .pub-legend-swatch { width: 12px; height: 2px; border-radius: 1px; display: inline-block; }
 .pub-legend-swatch--main { background: var(--p-accent); }
-.pub-legend-swatch--ref { background: var(--p-ink); opacity: 0.7; }
+.pub-legend-swatch--ref { background: var(--p-accent-2); }
+/* The paired-bar legend tracks the bars' own two hues, not the line charts' quiet
+   reference ink: a swatch that does not match its bars is worse than none. */
+.pub-legend-swatch--market { background: var(--p-accent-2); }
 .pub-legend-swatch--tube { border-top: 1px dashed var(--p-ink); width: 12px; height: 0; background: none; opacity: 0.7; }
 .pub-legend-item--tube { opacity: 0.7; }
 
@@ -349,7 +360,7 @@
    charts already use. */
 .pub-bar { fill: var(--p-accent); }
 .pub-bar--search { fill: var(--p-accent); }
-.pub-bar--market { fill: var(--p-ink); opacity: 0.6; }
+.pub-bar--market { fill: var(--p-accent-2); }
 .pub-bar-label { fill: var(--p-ink); font-size: 10px; dominant-baseline: middle; }
 .pub-bar-value { fill: var(--p-ink); font-size: 10px; opacity: 0.75; }
 
@@ -397,3 +408,23 @@
     .pub-panel { padding: 0.85rem 0.75rem 0.7rem; }
     .pub-ref-label, .pub-mark-label, .pub-bar-label, .pub-bar-value, .pub-axis-label { font-size: 10px; }
 }
+
+
+/* Carousel dots: how many cards, and which one is showing. */
+.pub-carousel-dots { display: flex; gap: 0.4rem; justify-content: center; margin-top: 0.75rem; }
+.pub-carousel-dot {
+    width: 7px; height: 7px; padding: 0; border: 0; border-radius: 50%;
+    background: var(--t3); opacity: 0.45; cursor: pointer;
+    transition: opacity 120ms ease, background-color 120ms ease, width 120ms ease;
+}
+.pub-carousel-dot.is-current { background: var(--p-accent); opacity: 1; width: 18px; border-radius: 4px; }
+@media (prefers-reduced-motion: reduce) { .pub-carousel-dot { transition: none; } }
+/* With no scroll-snap the cards are a plain vertical stack, so there is nothing to page
+   through and a position indicator would be lying. */
+@supports not (scroll-snap-type: x mandatory) { .pub-carousel-dots { display: none; } }
+@media print { .pub-carousel-dots { display: none; } }
+
+/* Two lines a fight in the broadcast list, so the rows read as a list rather than a page. */
+.pub-list-row--tight { padding-block: 0.6rem; }
+.pub-list-row--tight .pub-list-main { display: flex; flex-direction: column; gap: 0.15rem; }
+.pub-list-row--tight .pub-list-title { line-height: 1.25; }

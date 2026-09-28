@@ -33,5 +33,53 @@
         strip.style.scrollBehavior = 'auto';
         strip.scrollLeft += step;
         strip.style.scrollBehavior = prev;
+        syncDots(strip);
+    });
+    // Dots: which card is showing, kept in sync with any scroll source (touch, trackpad,
+    // arrow keys, a dot click), and clickable to jump. Position is read from scrollLeft
+    // rather than tracked in a variable, so a native scroll the script never saw still
+    // lands on the right dot.
+    function dotsFor(strip) {
+        return document.querySelector('.pub-carousel-dots[data-dots-for="' + strip.id + '"]');
+    }
+
+    function syncDots(strip) {
+        var wrap = dotsFor(strip);
+        if (!wrap) return;
+        var step = cardStep(strip) || 1;
+        var i = Math.round(strip.scrollLeft / step);
+        var dots = wrap.querySelectorAll('.pub-carousel-dot');
+        var max = dots.length - 1;
+        if (i < 0) i = 0; else if (i > max) i = max;
+        for (var d = 0; d <= max; d++) dots[d].classList.toggle('is-current', d === i);
+    }
+
+    function eachStrip(fn) {
+        var strips = document.querySelectorAll('.pub-carousel');
+        for (var i = 0; i < strips.length; i++) fn(strips[i]);
+    }
+
+    eachStrip(function (strip) {
+        strip.addEventListener('scroll', function () {
+            // Coalesce a scroll burst into one paint: a native flick fires this dozens of
+            // times and the dots only need the settled answer.
+            if (strip._dotFrame) return;
+            strip._dotFrame = requestAnimationFrame(function () {
+                strip._dotFrame = null;
+                syncDots(strip);
+            });
+        });
+        var wrap = dotsFor(strip);
+        if (!wrap) return;
+        wrap.addEventListener('click', function (e) {
+            var dot = e.target.closest ? e.target.closest('.pub-carousel-dot') : null;
+            if (!dot) return;
+            var prev = strip.style.scrollBehavior;
+            strip.style.scrollBehavior = 'auto';
+            strip.scrollLeft = cardStep(strip) * Number(dot.getAttribute('data-index'));
+            strip.style.scrollBehavior = prev;
+            syncDots(strip);
+        });
+        syncDots(strip);
     });
 })();
