@@ -821,8 +821,25 @@ function axisChart(series, opts = {}) {
         const ly = Math.min(y - 4, f.plotY1 - 8);
         return `<g class="pub-ref"><line class="pub-ref-line" x1="${f.plotX0}" x2="${f.plotX1}" y1="${y.toFixed(1)}" y2="${y.toFixed(1)}"/><text class="pub-ref-label" x="${f.plotX1}" y="${ly.toFixed(1)}" text-anchor="end">${esc(r.label)}</text></g>`;
     }).join('');
-    const extra = series.extra?.points?.length
-        ? `<polyline class="pub-series pub-series--ref" points="${f.toPoly(series.extra.points)}"/>` : '';
+    // A second series in DIFFERENT units cannot share the first one's axis: search interest
+    // runs 0 to 100 and Wikipedia views ran to 69,000, so the overlay was drawn flat along
+    // the bottom of the panel and read as missing data. It gets its own scale, and its own
+    // labelled axis on the right, so both lines are legible and neither implies the other's
+    // magnitude.
+    const ex = series.extra;
+    const exYs = ex?.points?.length ? ex.points.map((p) => p.y) : [];
+    const exMax = exYs.length ? Math.max(...exYs) : null;
+    const exScaled = exMax != null && exMax > 0 && exMax < (series.y?.max ?? 0) / 4;
+    const exScale = (v) => f.plotY1 - (v / exMax) * (f.plotY1 - f.plotY0);
+    const extra = ex?.points?.length
+        ? `<polyline class="pub-series pub-series--ref" points="${exScaled
+            ? [...ex.points].sort((a, b) => xv(a.x) - xv(b.x)).map((p) => `${f.xScale(p.x).toFixed(1)},${exScale(p.y).toFixed(1)}`).join(' ')
+            : f.toPoly(ex.points)}"/>` : '';
+    const exAxis = exScaled ? `
+            <g class="pub-axis-labels pub-axis-labels--right">
+                <text class="pub-axis-label" x="${(f.plotX1 + 4).toFixed(1)}" y="${(f.plotY0 + 4).toFixed(1)}" text-anchor="start">${esc(num(Math.round(exMax)))}</text>
+                <text class="pub-axis-label" x="${(f.plotX1 + 4).toFixed(1)}" y="${f.plotY1.toFixed(1)}" text-anchor="start">0</text>
+            </g>` : '';
     const main = `<polyline class="pub-series pub-series--main pub-tone-line-${TONE_LINE[seriesTone] ?? 'accent'}" points="${f.toPoly(f.pts)}"/>`;
     const dots = f.pts.length <= 60
         ? f.pts.map((p) => `<circle class="pub-point-dot" cx="${f.xScale(p.x).toFixed(1)}" cy="${f.yScale(p.y).toFixed(1)}" r="1.6"/>`).join('') : '';
@@ -848,7 +865,10 @@ function axisChart(series, opts = {}) {
     const yUnit = series.y?.unit ?? '';
     const unitSaid = yUnit && (yLabel.toLowerCase().includes(yUnit.replace(/^\//, '').toLowerCase())
         || /per (day|month|post)\b/i.test(yLabel));
-    const unitLine = [yLabel, unitSaid ? '' : yUnit].filter(Boolean).join(', ');
+    // The legend already names the main series, so repeating its label underneath is the
+    // same words twice, and on a two-series chart it reads as if it described both.
+    const namedInLegend = Boolean(series.extra?.label);
+    const unitLine = namedInLegend ? '' : [yLabel, unitSaid ? '' : yUnit].filter(Boolean).join(', ');
     return `<figure class="pub-panel">
         <svg class="pub-panel-svg" viewBox="0 0 ${f.W} ${f.H}" role="img" aria-label="${esc(unitLine || 'chart')}">
             <g class="pub-grid">${f.gridY}</g>
@@ -859,6 +879,7 @@ function axisChart(series, opts = {}) {
             ${dots}
             <g class="pub-marks">${markerLines}${markerLabels}</g>
             <g class="pub-axis-labels">${f.yLabels}${f.xLabels}</g>
+            ${exAxis}
         </svg>
         ${legend}${unitLine ? `<p class="pub-panel-unit">${esc(unitLine)}</p>` : ''}
     </figure>`;
