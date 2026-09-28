@@ -146,6 +146,9 @@
 }
 .pub-list-main { flex: 1 1 14rem; min-width: 0; }
 .pub-list-title { font-weight: 500; color: var(--bone); }
+/* The opponent is a fact, not a caveat -- full-weight body text under the event name, not
+   tucked into the faded promotion/section/tier line beneath it. */
+.pub-list-vs { display: block; margin-top: 0.15rem; font-size: 0.88rem; color: var(--t2); }
 .pub-list-date { display: block; margin-top: 0.15rem; font-size: 0.78rem; color: var(--t3); font-variant-numeric: tabular-nums; }
 .pub-caption {
     margin-top: 0.4rem; font-size: 0.85rem; color: var(--t2); line-height: 1.5;
@@ -202,7 +205,34 @@
 .pub-table--card th:nth-child(5), .pub-table--card td:nth-child(5) { width: 18%; }
 .pub-table-delta { display: block; font-size: 0.85em; opacity: 0.85; }
 
-.pub-bout + .pub-bout, .pub-diff + .pub-diff { margin-top: 2.25rem; padding-top: 2.25rem; border-top: 1px solid var(--border-n); }
+.pub-diff + .pub-diff { margin-top: 2.25rem; padding-top: 2.25rem; border-top: 1px solid var(--border-n); }
+
+/* ── CAROUSEL: fight week (media kit) and fight-by-fight retention (internal data) both scroll
+   horizontally, one card per fight, with a peek of the next card so it's obvious there's more.
+   The base rule stacks `.pub-carousel-card` in normal document flow -- a plain, always-correct
+   vertical list -- and the `@supports` gate below is the ONLY thing that turns that sideways,
+   so a browser (or an assistive technology) with no scroll-snap support gets the readable stack
+   with no extra branch anywhere. Card width stays a fraction of the (already 640px-max) .pub-inner
+   measure rather than bleeding to the viewport edge, so the same rule works at phone and desktop
+   width without a separate breakout layout. ── */
+.pub-carousel { display: block; }
+.pub-carousel:focus-visible { outline: 2px solid var(--p-accent, #7FD4A8); outline-offset: 4px; border-radius: 4px; }
+.pub-carousel-card { padding: 1.5rem 0; border-top: 1px solid var(--border-n); }
+.pub-carousel-card:first-child { padding-top: 0; border-top: none; }
+
+@supports (scroll-snap-type: x mandatory) {
+    .pub-carousel {
+        display: flex; gap: 1.1rem; overflow-x: auto; overscroll-behavior-x: contain;
+        scroll-snap-type: x proximity; scroll-behavior: smooth;
+        padding-bottom: 0.6rem; -webkit-overflow-scrolling: touch;
+    }
+    .pub-carousel-card {
+        flex: 0 0 min(84%, 26rem); scroll-snap-align: start; padding: 0; border-top: none;
+    }
+}
+@media (prefers-reduced-motion: reduce) {
+    .pub-carousel { scroll-behavior: auto; }
+}
 
 /* ── FOOTER: the one mark of ours on the page. ── */
 .pub-foot { padding: clamp(2.5rem, 6vw, 3.5rem) 0 clamp(2rem, 5vw, 3rem); }
@@ -224,6 +254,13 @@
     .pub-series--main, .pub-bar, .pub-funnel-tube, .pub-mark-dot, .pub-point-dot { stroke: #000; fill: #000; }
     .pub-series--ref, .pub-dist-bar { stroke: #999; fill: #999; }
     .pub-ref-label, .pub-mark-label, .pub-bar-label, .pub-bar-value, .pub-funnel-idx, .pub-axis-label { fill: #000; }
+    /* A printed page has no scroll: the carousel prints as the same vertical, divided stack
+       its own no-scroll-snap fallback already is, cards laid out in full rather than clipped
+       to whatever the on-screen scroller happened to show. */
+    .pub-carousel { display: block !important; overflow: visible !important; }
+    .pub-carousel-card { flex: none !important; padding: 1.5rem 0 !important; border-top: 1px solid #ccc !important; }
+    .pub-carousel-card:first-child { padding-top: 0 !important; border-top: none !important; }
+    .pub-bar--market { opacity: 1; fill: #999; }
 }
 
 @media (max-width: 480px) {
@@ -306,8 +343,13 @@
 .pub-dist-marker { stroke: var(--p-accent); stroke-width: 2; }
 .pub-dist-marker-dot { fill: var(--p-accent); }
 
-/* Horizontal index bars (Markets). */
+/* Horizontal index bars (Markets): one pair per country, so the two readings share a hue
+   family rather than reading as two unrelated charts -- search interest takes the main/accent
+   colour, market value the quieter reference ink, the same main/reference convention the line
+   charts already use. */
 .pub-bar { fill: var(--p-accent); }
+.pub-bar--search { fill: var(--p-accent); }
+.pub-bar--market { fill: var(--p-ink); opacity: 0.6; }
 .pub-bar-label { fill: var(--p-ink); font-size: 10px; dominant-baseline: middle; }
 .pub-bar-value { fill: var(--p-ink); font-size: 10px; opacity: 0.75; }
 
