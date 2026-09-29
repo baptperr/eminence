@@ -80,7 +80,7 @@ async function main() {
     await write('publications/index.html', archivePage({ articles, site: SITE }));
     await write('manifesto/index.html', manifestoPage({ site: SITE }));
     await write('observatory/index.html', observatoryPage({ site: SITE }));
-    await copyObservatoryStatus();
+    await writeObservatoryStatus(indexData);
     await write('index/index.html', indexPage({ data: indexData, articles, site: SITE }));
     if (indexData?.winners_losers) {
         await write('index/winners-losers/index.html', winnersLosersPage({ data: indexData, site: SITE }));
@@ -150,18 +150,26 @@ ${routes.map((r) => `  <url><loc>${SITE}${r.url}</loc>${r.lastmod ? `<lastmod>${
     if (SAMPLE) console.log('  Preview only: fictional data. Deploys come from dist/, not this folder.');
 }
 
-// data/observatory-status.json is written by the Observatory pipeline: {"last_reading": ISO 8601}.
-// It is published as /observatory-status.json only when that is a real timestamp. Missing or
-// malformed, the file is left out and the page hides its status line; it never shows a made-up date.
-async function copyObservatoryStatus() {
-    const src = path.join(DATA, 'observatory-status.json');
-    let raw;
-    try { raw = await readFile(src, 'utf8'); } catch (e) { if (e.code === 'ENOENT') return; throw e; }
-    let reading;
-    try { reading = JSON.parse(raw).last_reading; } catch { reading = null; }
+// /observatory-status.json ({"last_reading": ISO 8601}) feeds the Observatory page's "Last reading"
+// line. The time comes from data/observatory-status.json when the pipeline writes one, and
+// otherwise from the export's `generated_at`, which the exporter sets to the newest reading in
+// the Observatory, so the line is always a real reading time. With neither (or neither valid)
+// the file is left out and the page hides the line; it never shows a made-up date.
+async function writeObservatoryStatus(indexData) {
     const ISO = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(:\d{2}(\.\d+)?)?(Z|[+-]\d{2}:\d{2})$/;
-    if (typeof reading !== 'string' || !ISO.test(reading) || Number.isNaN(Date.parse(reading))) {
-        console.warn(`  ${path.relative(ROOT, src)}: no valid "last_reading", status line will be hidden`);
+    const valid = (t) => typeof t === 'string' && ISO.test(t) && !Number.isNaN(Date.parse(t));
+    const src = path.join(DATA, 'observatory-status.json');
+    let reading = null;
+    try {
+        const own = JSON.parse(await readFile(src, 'utf8')).last_reading;
+        if (valid(own)) reading = own;
+        else console.warn(`  ${path.relative(ROOT, src)}: no valid "last_reading", using the export's time`);
+    } catch (e) {
+        if (e.code !== 'ENOENT' && !(e instanceof SyntaxError)) throw e;
+    }
+    reading ??= valid(indexData?.generated_at) ? indexData.generated_at : null;
+    if (!reading) {
+        console.warn('  no reading time available: the Observatory status line will be hidden');
         return;
     }
     await write('observatory-status.json', JSON.stringify({ last_reading: reading }) + '\n');

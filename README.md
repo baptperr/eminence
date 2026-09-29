@@ -60,10 +60,11 @@ just keeps its last data.
 
 `data/index.json` is generated, so it is git-ignored.
 
-`data/observatory-status.json` (`{"last_reading": "<ISO 8601>"}`) is written by the Observatory pipeline and
-published as `/observatory-status.json`, which the `/observatory/` page reads for its "Last reading" line. It is
-git-ignored too. If it is missing or not a valid timestamp, the build leaves it out and the page hides the line.
-`npm run refresh` deploys when either file changed. It is rewritten only when the content changes.
+The `/observatory/` page's "Last reading" line reads `/observatory-status.json`, which the build writes from
+`generated_at` in `data/index.json` (the exporter sets that to the newest reading in the Observatory). A pipeline
+can override it by writing `data/observatory-status.json` (`{"last_reading": "<ISO 8601>"}`, git-ignored). With
+no valid time from either, the build leaves the file out and the page hides the line. `npm run refresh` deploys
+when either data file changed. It is rewritten only when the content changes.
 
 ### `data/index.json`
 
