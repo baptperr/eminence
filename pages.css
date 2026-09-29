@@ -280,7 +280,8 @@ button.rk-tick { cursor: default; border-bottom: 1px dotted var(--t3); }
 
 /* ── INDEX: WINNERS & LOSERS ── */
 .wl { display: grid; grid-template-columns: 1fr 1fr; gap: 4rem 5rem; align-items: start; }
-.wl-col .pg-h2 { margin-bottom: 1.5rem; }
+.wl-col .pg-h2 { margin-bottom: 0.6rem; }
+.wl-rule { font-size: 0.9rem; color: var(--t3); line-height: 1.5; max-width: 40ch; margin-bottom: 1.5rem; }
 .wl-list { list-style: none; border-top: 1px solid var(--border-d); }
 .wl-row {
     display: grid; grid-template-columns: 1fr auto; column-gap: 1.5rem; align-items: start;
@@ -304,6 +305,10 @@ button.rk-tick { cursor: default; border-bottom: 1px dotted var(--t3); }
 .wl-change--winners { color: var(--good); }
 .wl-change--losers { color: var(--bad); }
 .wl-glyph { font-size: 0.6em; vertical-align: 0.18em; }
+/* What similar-sized fighters gained, under the fighter's own change: the reference that makes a
+   loser's small gain (or a winner's loss) legible. */
+.wl-fig { display: flex; flex-direction: column; align-items: flex-end; gap: 0.2rem; }
+.wl-typical { font-size: 0.8rem; color: var(--t3); white-space: nowrap; font-variant-numeric: tabular-nums; }
 
 /* ── PRIVATE PAGES ── */
 .pv-flag {

@@ -501,6 +501,12 @@ ${FOOTER}`;
     return shell({ ...meta, body });
 }
 
+// Each side's rule, in a line under its heading: the figures only make sense against it.
+const WL_RULE = {
+    winners: 'Lost the fight, and still grew their audience far more than fighters of a similar size.',
+    losers: 'Won the fight, and grew their audience far less than fighters of a similar size.',
+};
+
 function wlList(kind, heading, items) {
     const rows = items.map((e) => {
         const won = e.outcome === 'win';
@@ -511,12 +517,14 @@ function wlList(kind, heading, items) {
                         <span class="wl-who"><span class="wl-name">${esc(e.name)}</span>
                             <span class="wl-line"><span class="wl-res wl-res--${won ? 'won' : 'lost'}">${won ? 'Won' : 'Lost'}</span>${versus}${e.method ? ` · ${esc(e.method)}` : ''}</span>${where ? `
                             <span class="wl-line wl-line--dim">${where}</span>` : ''}</span>
-                        <span class="wl-change wl-change--${kind}"><span class="wl-glyph" aria-hidden="true">${e.change < 0 ? '▼' : '▲'}</span> ${signed(e.change)}%</span>
+                        <span class="wl-fig"><span class="wl-change wl-change--${kind}"><span class="wl-glyph" aria-hidden="true">${e.change < 0 ? '▼' : '▲'}</span> ${signed(e.change)}%</span>${e.typical != null ? `
+                            <span class="wl-typical">typical ${signed(e.typical)}%</span>` : ''}</span>
                     </li>`;
     }).join('');
     return `
         <section class="wl-col wl-col--${kind}" aria-labelledby="wl-${kind}">
             <h2 class="pg-h2" id="wl-${kind}" data-r>${heading}</h2>
+            <p class="wl-rule" data-r>${WL_RULE[kind]}</p>
             <ol class="wl-list" data-r>${rows || '\n                    <li class="wl-row wl-row--none">None this period.</li>'}
             </ol>
         </section>`;
