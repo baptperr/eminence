@@ -26,7 +26,7 @@ list. Everything else, including `data/`, `scripts/` and `apps-script/`, is not 
 | `/publications/` | generated from `content/publications/*.md`, with the manifesto pinned first |
 | `/publications/<slug>/` | one per article; slug is the filename (`manifesto` and `private` are reserved) |
 | `/manifesto/` | `templates.mjs` → `manifestoPage`, styled by `manifesto.css`. Placeholder copy for now. `/publications/manifesto/` 301s here |
-| `/observatory/` | `templates.mjs` → `observatoryPage`, styled by `observatory.css`. Status line from `data/observatory-status.json` |
+| `/observatory/` | `templates.mjs` → `observatoryPage`, styled by `observatory.css`. The "Last reading" line is cosmetic, computed in `observatory.js` |
 | `/publications/private/<token>/` | `data/private/<token>.json`, one page per file |
 
 Articles: front matter `title`, `date`, `summary`, optional `type` (`article` or `case-study`) and
@@ -58,13 +58,7 @@ once:
 The laptop has to be awake at the scheduled time (launchd runs a missed job on wake). If it is off, the site
 just keeps its last data.
 
-`data/index.json` is generated, so it is git-ignored.
-
-The `/observatory/` page's "Last reading" line reads `/observatory-status.json`, which the build writes from
-`generated_at` in `data/index.json` (the exporter sets that to the newest reading in the Observatory). A pipeline
-can override it by writing `data/observatory-status.json` (`{"last_reading": "<ISO 8601>"}`, git-ignored). With
-no valid time from either, the build leaves the file out and the page hides the line. `npm run refresh` deploys
-when either data file changed. It is rewritten only when the content changes.
+`data/index.json` is generated, so it is git-ignored. It is rewritten only when the content changes.
 
 ### `data/index.json`
 

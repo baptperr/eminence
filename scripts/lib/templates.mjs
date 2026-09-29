@@ -209,7 +209,7 @@ export function manifestoPage({ site }) {
 // The video has no src in the HTML: observatory.js attaches it only when motion is allowed,
 // picking the portrait cut on portrait screens, so reduced-motion and no-JS visitors get the
 // still (a CSS background, portrait or landscape) and nothing else. The status line
-// starts hidden and is only revealed once /observatory-status.json parses to a real date.
+// starts hidden; observatory.js fills and reveals it (see there: it is cosmetic).
 // The paragraph, in two parts: on the page the last sentence is set apart as a closing line.
 const OBSERVATORY_TEXT_LINES = [
     'The Observatory follows every professional fighter across all major promotions, from their first bout to their latest post. It measures what a name is worth inside and outside the cage, and what moves it. Its readings drive First Light\'s investment decisions.',
