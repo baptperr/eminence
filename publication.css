@@ -262,6 +262,9 @@
     .pub-grid-line, .pub-ref-line, .pub-axis-line { stroke: #ccc; }
     .pub-series--main, .pub-bar, .pub-funnel-tube, .pub-mark-dot, .pub-point-dot { stroke: #000; fill: #000; }
     .pub-series--ref, .pub-dist-bar { stroke: #999; fill: #999; }
+    .pub-field-name, .pub-field-title, .pub-rung-name, .pub-rung-figure, .pub-rung-line, .pub-rung-read, .pub-rung-means, .pub-rung-chip { color: #000; fill: #000; stroke: none; }
+    .pub-field-peers, .pub-lad-sil, .pub-lad-tube { stroke: #666; }
+    .pub-field-dot, .pub-field-band { fill: #000; } .pub-field-ring, .pub-field-guide, .pub-field-fit { stroke: #000; }
     .pub-ref-label, .pub-mark-label, .pub-bar-label, .pub-bar-value, .pub-funnel-idx, .pub-axis-label { fill: #000; }
     /* A printed page has no scroll: the carousel prints as the same vertical, divided stack
        its own no-scroll-snap fallback already is, cards laid out in full rather than clipped
@@ -392,6 +395,70 @@
 .pub-funnel-div { stroke: var(--p-deep); stroke-width: 1.5; }
 .pub-funnel-tube { stroke: var(--p-ink); stroke-width: 1; stroke-dasharray: 3 3; opacity: 0.5; }
 .pub-funnel-idx { fill: var(--p-ink); font-size: 12px; font-weight: 700; }
+
+/* ── The field: the Observatory's skill-vs-fame scatter. One shared viewBox, so it is drawn in
+   the payload's own pixels; capped in width so it stays a squarer chart on a wide screen, and
+   its type steps up on a phone, where the same viewBox is scaled down to about two thirds. ── */
+.pub-panel--field .pub-panel-svg { max-width: 460px; margin: 0 auto; }
+.pub-panel--field .pub-axis-label { font-size: 12px; }
+.pub-field-title { fill: var(--p-ink); font-size: 12px; opacity: 0.75; letter-spacing: 0.02em; }
+.pub-field-band { fill: var(--p-accent); fill-opacity: 0.13; stroke: none; }
+.pub-field-peers { fill: none; stroke: var(--p-ink); stroke-opacity: 0.28; stroke-width: 3.4; stroke-linecap: round; }
+.pub-field-fit { stroke: var(--p-ink); stroke-width: 1.5; stroke-dasharray: 5 4; opacity: 0.85; }
+.pub-field-guide { stroke: var(--p-accent); stroke-width: 1; stroke-dasharray: 1.5 3; stroke-linecap: round; opacity: 0.9; }
+.pub-field-ring { fill: none; stroke: var(--p-accent); stroke-width: 2; }
+.pub-field-dot { fill: var(--p-accent); }
+.pub-field-name { fill: var(--p-ink); font-size: 13px; font-weight: 700; paint-order: stroke; stroke: var(--p-surface); stroke-width: 4px; stroke-linejoin: round; }
+.pub-legend-swatch--peer { width: 8px; height: 8px; border-radius: 50%; background: var(--p-ink); opacity: 0.5; margin: 0 2px; }
+.pub-legend-swatch--fit { height: 0; width: 14px; border-radius: 0; border-top: 2px dashed var(--p-ink); background: none; }
+.pub-legend-swatch--you { width: 12px; height: 12px; border-radius: 50%; background: radial-gradient(circle, var(--p-accent) 0 30%, transparent 33%); border: 2px solid var(--p-accent); box-sizing: border-box; }
+@media (max-width: 520px) {
+    .pub-panel--field .pub-axis-label, .pub-field-title { font-size: 14.5px; }
+    .pub-field-name { font-size: 15.5px; }
+    .pub-panel--field { padding-inline: 0.6rem; }
+}
+
+/* ── The attention ladder. Each rung is a row: its own slice of the one silhouette on the left
+   (stretched to the row, so the slices stack back into a single continuous shape), the rung's
+   name, meaning and figures on the right. Stacks on a phone the same way, just narrower. ── */
+.pub-panel--ladder { padding: 0.25rem 0.9rem 0.85rem; }
+.pub-rungs { list-style: none; margin: 0; padding: 0; }
+.pub-rung { display: grid; grid-template-columns: minmax(84px, 34%) 1fr; column-gap: 0.9rem; min-height: 6.5rem; border-top: 1px solid var(--p-line); }
+.pub-rung:first-child { border-top: 0; }
+.pub-rung-shape { position: relative; min-height: 5.5rem; }
+.pub-lad-svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: hidden; }
+.pub-lad-svg * { vector-effect: non-scaling-stroke; }
+.pub-lad-sil { fill: var(--p-accent); fill-opacity: 0.16; stroke: var(--p-accent); stroke-width: 1.5; stroke-linejoin: round; }
+.pub-lad-gapfill { fill: var(--p-surface); fill-opacity: 0.55; }
+.pub-lad-div { fill: none; stroke: var(--p-surface); stroke-width: 1.5; }
+.pub-lad-gap-erase { fill: none; stroke: var(--p-surface); stroke-width: 4; }
+.pub-lad-gap { fill: none; stroke: var(--p-accent); stroke-width: 1.5; stroke-dasharray: 3 4; opacity: 0.8; }
+.pub-lad-tube { fill: none; stroke: var(--p-ink); stroke-width: 1; stroke-dasharray: 3 3; opacity: 0.6; }
+.pub-lad-tail { fill: none; stroke: var(--p-ink); stroke-width: 1.5; stroke-dasharray: 2 4; opacity: 0.4; }
+.pub-lad-clip { fill: none; stroke: var(--p-ink); stroke-width: 1.5; opacity: 0.85; }
+.pub-lad-leak { fill: none; stroke: #E0A03A; stroke-width: 2.5; }
+.pub-rung-body { padding: 0.8rem 0 0.7rem; min-width: 0; }
+.pub-rung--none .pub-rung-body { opacity: 0.8; }
+.pub-rung-head { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; gap: 0.15rem 0.75rem; }
+.pub-rung-name { font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--p-ink); }
+.pub-rung-n { opacity: 0.55; margin-right: 0.25rem; }
+.pub-rung-chip { font-size: 0.72rem; font-weight: 700; font-variant-numeric: tabular-nums; }
+.pub-rung-chip--good { color: var(--good); }
+.pub-rung-chip--bad { color: var(--bad); }
+.pub-rung-chip--neutral { color: var(--p-ink); }
+.pub-rung-chip--dim { color: var(--p-ink); opacity: 0.6; font-weight: 400; }
+.pub-rung-means { margin: 0.3rem 0 0; font-size: 0.7rem; line-height: 1.5; color: var(--p-ink); opacity: 0.7; }
+.pub-rung-figure { margin: 0.45rem 0 0; font-size: 0.72rem; color: var(--p-ink); }
+.pub-rung-figure b { font-size: 1.15rem; letter-spacing: -0.01em; }
+.pub-rung-figure--none { font-size: 0.9rem; opacity: 0.7; }
+.pub-rung-line { margin: 0.2rem 0 0; font-size: 0.68rem; line-height: 1.45; color: var(--p-ink); opacity: 0.85; overflow-wrap: anywhere; }
+.pub-rung-line em { font-style: normal; font-weight: 700; }
+.pub-rung-line--dim { opacity: 0.55; }
+.pub-rung-read { margin: 0.3rem 0 0; font-size: 0.72rem; line-height: 1.45; color: var(--p-ink); }
+.pub-legend-swatch--gap { background: none; border: 1.5px dotted var(--p-accent); width: 12px; height: 12px; }
+@media (max-width: 520px) {
+    .pub-rung { grid-template-columns: minmax(72px, 32%) 1fr; column-gap: 0.7rem; }
+}
 
 /* Posting calendar: a GitHub-contribution-style grid, one cell per day, symbol = media type,
    colour intensity = that post's engagement relative to this fighter's own. */

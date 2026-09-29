@@ -381,6 +381,20 @@ function checkInternalData(data, bad) {
         }
     }
 
+    // The field: the Observatory's own scatter, geometry and words both from the payload.
+    // Optional (a publication generated before it existed has none), but never half-formed.
+    if (data.field != null) {
+        const f = data.field;
+        const pt = (p) => isArr(p) && p.length === 2 && isNum(p[0]) && isNum(p[1]);
+        if (!isObj(f) || !isStr(f.verdict) || !isNum(f.width) || !isNum(f.height) || !isObj(f.plot)
+            || !isObj(f.x) || !isStr(f.x.label) || !isArr(f.x.ticks)
+            || !isObj(f.y) || !isStr(f.y.label) || !isArr(f.y.ticks)
+            || !isArr(f.peers) || !f.peers.every(pt)
+            || !isObj(f.you) || !isNum(f.you.x) || !isNum(f.you.y) || !isStr(f.you.name)) {
+            bad('"data.field" must be {verdict, width, height, plot, x, y, peers: [[x, y]], fit, you: {x, y, name}} or null');
+        }
+    }
+
     if (data.funnel != null) {
         const fn = data.funnel;
         if (!isObj(fn) || !isArr(fn.stages) || !isObj(fn.graphic)) bad('"data.funnel" must be {stages, graphic, leak} or null');
