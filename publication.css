@@ -538,3 +538,14 @@
     padding: 0.12rem 0.4rem; border: 1px solid var(--border-d); border-radius: 2px;
     color: var(--t2); white-space: nowrap;
 }
+
+
+/* A tooltip anchored to the word it explains runs off the side of a phone when that word
+   sits near the right edge: at 390px it was the one thing making the page scroll sideways.
+   Narrow screens anchor it to the content column instead, so it spans the measure and can
+   never overhang, whatever word it belongs to. */
+@media (max-width: 560px) {
+    .pub-inner { position: relative; }
+    .pub .hint { position: static; }
+    .pub .hint-tip { left: var(--pub-pad); right: var(--pub-pad); width: auto; max-width: none; }
+}
