@@ -1099,18 +1099,24 @@ function legacyFunnelGraphic(fn) {
 //
 // The Observatory's own skill-vs-fame scatter, as a compact square that only shows where the
 // fighter sits: the dots, the fit line and its band, and this fighter ringed and named with
-// dotted guides down to both axes. No ticks, axis titles, legend or caption: the section's
+// dotted guides down to both axes. No ticks, legend or caption (just the two axis names): the section's
 // prose says what the axes are and where the fighter sits, so a picture that explained itself
 // again would only be a second, competing text. The payload owns the geometry (one shared
-// viewBox, in the Bridge's pixels); this crops that viewBox to the plot, padded to a square.
+// viewBox, in the Bridge's pixels); this crops that viewBox to the plot, padded for the two axis names.
 // Peers are drawn as one path of zero-length round-capped segments, so ~900 dots are one
 // element rather than ~900.
 function fieldChart(f) {
     if (!f || !f.you || !Array.isArray(f.peers) || !f.plot || !f.width || !f.height) return '';
     const p = f.plot, you = f.you;
-    const pad = 10;
-    const side = Math.max(p.right - p.left, p.bottom - p.top) + pad * 2;
-    const vx = (p.left + p.right) / 2 - side / 2, vy = (p.top + p.bottom) / 2 - side / 2;
+    // The frame keeps the payload's own proportions (wider than tall) so dots and type are
+    // never stretched, with a strip left of it for the rotated vertical name and one under it
+    // for the horizontal name.
+    const pad = 10, padL = 26, padB = 30;
+    const vx = p.left - padL, vy = p.top - pad;
+    const vw = p.right - p.left + padL + pad, vh = p.bottom - p.top + pad + padB;
+    const xName = f.x?.label ? `<text class="pub-axis-label" x="${((p.left + p.right) / 2).toFixed(1)}" y="${(p.bottom + 22).toFixed(1)}" text-anchor="middle">${esc(f.x.label)}</text>` : '';
+    const yCx = p.left - 14, yCy = (p.top + p.bottom) / 2;
+    const yName = f.y?.label ? `<text class="pub-axis-label" x="${yCx}" y="${yCy.toFixed(1)}" text-anchor="middle" transform="rotate(-90 ${yCx} ${yCy.toFixed(1)})">${esc(f.y.label)}</text>` : '';
     const axes = `<line class="pub-axis-line" x1="${p.left}" x2="${p.right}" y1="${p.bottom}" y2="${p.bottom}"/><line class="pub-axis-line" x1="${p.left}" x2="${p.left}" y1="${p.top}" y2="${p.bottom}"/>`;
     const band = f.fit?.band ? `<path class="pub-field-band" d="${esc(f.fit.band)}"/>` : '';
     // The fit CURVES against a linear level axis (it is a straight line only in log-log
@@ -1131,8 +1137,8 @@ function fieldChart(f) {
     const label = `<text class="pub-field-name" x="${right ? you.x - 20 : you.x + 20}" y="${ly}" text-anchor="${right ? 'end' : 'start'}">${esc(you.name ?? '')}</text>`;
     const summary = `${you.name ?? 'This fighter'} against every rated fighter: level across, audience up on a log scale.`;
     return `<figure class="pub-panel pub-field-mini">
-        <svg class="pub-panel-svg" viewBox="${vx.toFixed(0)} ${vy.toFixed(0)} ${side.toFixed(0)} ${side.toFixed(0)}" role="img" aria-label="${esc(summary)}">
-            ${axes}${band}${peers}${fit}${guides}
+        <svg class="pub-panel-svg" viewBox="${vx.toFixed(0)} ${vy.toFixed(0)} ${vw.toFixed(0)} ${vh.toFixed(0)}" role="img" aria-label="${esc(summary)}">
+            ${axes}${xName}${yName}${band}${peers}${fit}${guides}
             <circle class="pub-field-ring" cx="${you.x}" cy="${you.y}" r="12"/><circle class="pub-field-dot" cx="${you.x}" cy="${you.y}" r="5"/>
             ${label}
         </svg>
@@ -1283,7 +1289,7 @@ function statRow(items, opts = {}) {
 function table(headers, rows, { freeze = false, bodyClass = '' } = {}) {
     if (!rows.length) return '';
     return `<div class="pub-table-wrap"><table class="pub-table${freeze ? ' pub-table--freeze' : ''}${bodyClass ? ` ${bodyClass}` : ''}">
-                <thead><tr>${headers.map((h) => `<th scope="col">${esc(h)}</th>`).join('')}</tr></thead>
+                <thead><tr>${headers.map((h) => `<th scope="col">${h && typeof h === 'object' ? h.html : esc(h)}</th>`).join('')}</tr></thead>
                 <tbody>${rows.map((r) => `<tr>${r.map((c) => `<td>${c}</td>`).join('')}</tr>`).join('')}</tbody>
             </table></div>`;
 }
@@ -1373,20 +1379,24 @@ const flrHint = () => hintLink('FLR', 'First Light Rating', 'a fighter\'s level,
 // A caption with one phrase in it explained on hover: everything is escaped, and the phrase
 // has to appear verbatim in the caption or the caption renders untouched (never a silent
 // half-substitution).
-function withTerm(caption, term, explainer) {
+function withTerm(caption, term, explainer, opts) {
     if (!caption) return '';
     if (!term || !explainer || !caption.includes(term)) return esc(caption);
     const [before, ...rest] = caption.split(term);
-    return `${esc(before)}${hintText(term, explainer)}${esc(rest.join(term))}`;
+    return `${esc(before)}${hintText(term, explainer, opts)}${esc(rest.join(term))}`;
 }
 
 // A hover explainer with no link behind it: "122 fighters compared" reads as 122 random
 // fighters unless the page can say, in a breath, who they actually are. Same dotted-underline
 // affordance as the FLR/FLI hints, but the text comes from the payload rather than a fixed
 // definition, because who is in the comparison depends on the fighter.
-const hintText = (label, desc) => (desc
-    ? `<span class="hint pub-hint">${esc(label)}<span class="hint-tip"><span class="hint-desc">${esc(desc)}</span></span></span>`
+const hintText = (label, desc, { sentence = false } = {}) => (desc
+    ? `<span class="hint pub-hint">${esc(label)}<span class="hint-tip"><span class="hint-desc${sentence ? ' hint-desc--sentence' : ''}">${esc(desc)}</span></span></span>`
     : esc(label));
+
+// What the card-position score is, in plain words. The page's own sentences do the judging;
+// this only says what the number is, what 1.00 is, what the bracket is, and which way is better.
+const CARD_SCORE_HINT = 'How high the fight sits on the card. 1.00 is a normal main event. Lower numbers sit further down the card. A championship fight can go above 1.00. The number in brackets is how far that is from where fighters at this level usually sit: plus means higher than usual, minus means lower. Higher is better.';
 
 // Win green, loss red, a draw stays neutral — reusing tone()'s own two colours rather than a
 // second palette, the same rule the spec asks the charts to follow.
@@ -1780,7 +1790,7 @@ function overviewBlock(fl, field, hasStory = false) {
     const reading = fl.reading_sentence ?? fl.reading;
     const readingHtml = reading && !hasStory ? `<p class="pub-note pub-note--lead">${esc(reading)}</p>` : '';
     const fliBlock = fl.score != null ? `
-        <div class="pub-fli-block">
+        <div class="pub-panel pub-fli-block">
             <p class="pub-fli-label">${fliHint()} <span class="pub-fli-n pub-tone-text-${fl.score < -0.04 ? 'bad' : fl.score > 0.04 ? 'good' : 'neutral'}">${signed(fl.score, 2)}</span></p>
             ${fliRangeBar(fl.score)}
         </div>` : '';
@@ -1798,8 +1808,8 @@ function overviewBlock(fl, field, hasStory = false) {
     // its own. Its verdict sentence is only shown when no story carries it.
     const fieldHtml = fieldChart(field);
     const verdictHtml = !hasStory && fieldHtml && field.verdict ? `<p class="pub-note pub-note--lead pub-field-verdict">${esc(field.verdict)}</p>` : '';
-    return `<div class="pub-fl-figures${fieldHtml ? ' pub-fl-figures--field' : ''}">
-        <div class="pub-fl-nums">${rows}${fliBlock}</div>${fieldHtml}
+    return `<div class="pub-fl-figures${fieldHtml || fliBlock ? ' pub-fl-figures--field' : ''}">
+        <div class="pub-fl-nums">${rows}</div>${fieldHtml || fliBlock ? `<div class="pub-fl-side">${fieldHtml}${fliBlock}</div>` : ''}
     </div>${readingHtml}${verdictHtml}${smallPrint.map((s) => fineNote(s.text, s.style)).join('')}`;
 }
 
@@ -1877,17 +1887,19 @@ function compoundingChart(comp) {
         const marks = series.markers ?? [];
         if (!marks.length) return axisChart(series, { tone: 'accent' });
         const f = buildAxisFrame(series);
-        // Through xv(), because on a date axis x is an ISO string: `p.x >= x0 - 0.001`
-        // compares a string against NaN, every segment filtered to nothing, and the chart
-        // drew its axes, its gridlines and its fight markers over an empty plot.
-        const bounds = [f.pts[0]?.x, ...marks.map((m) => m.x), f.pts[f.pts.length - 1]?.x].map(xv);
-        const segs = [];
-        for (let i = 0; i < bounds.length - 1; i++) {
-            const x0 = bounds[i], x1 = bounds[i + 1];
-            segs.push({ pts: f.pts.filter((p) => xv(p.x) >= x0 - 0.001 && xv(p.x) <= x1 + 0.001), dir: steps[i]?.direction });
-        }
-        const lines = segs.filter((s) => s.pts.length > 1)
-            .map((s) => `<polyline class="pub-series pub-series--main pub-tone-line-${TONE_LINE[stepTone(s.dir)]}" points="${f.toPoly(s.pts)}"/>`).join('');
+        // A STEP line, not a ramp: each fight's point is the level the audience SETTLED at,
+        // measured outside that fight's own promotional window. Nothing was measured between
+        // the fights, so the line stays flat at the previous level until the fight and steps
+        // there. Joining the points diagonally read as a gradual climb and as if the spikes had
+        // been dropped. Each riser takes its fight's own direction colour (steps[i-1] belongs to
+        // pts[i]; pts[0] is the starting level).
+        const lines = f.pts.slice(1).map((p, i) => {
+            const q = f.pts[i];
+            const dir = steps[i]?.direction ?? (p.y > q.y ? 'up' : p.y < q.y ? 'down' : null);
+            const d = `M${f.xScale(q.x).toFixed(1)},${f.yScale(q.y).toFixed(1)}H${f.xScale(p.x).toFixed(1)}V${f.yScale(p.y).toFixed(1)}`;
+            return `<path class="pub-series pub-series--main pub-tone-line-${TONE_LINE[stepTone(dir)]}" d="${d}"/>`;
+        }).join('');
+        const dots = f.pts.map((p) => `<circle class="pub-mark-dot" cx="${f.xScale(p.x).toFixed(1)}" cy="${f.yScale(p.y).toFixed(1)}" r="2.5"/>`).join('');
         const markerLines = marks.map((m) => `<line class="pub-mark-line" x1="${f.xScale(m.x).toFixed(1)}" x2="${f.xScale(m.x).toFixed(1)}" y1="${f.plotY0}" y2="${f.plotY1.toFixed(1)}"/>`).join('');
         const markerLabels = marks.map((m, i) => {
             const x = f.xScale(m.x);
@@ -1899,11 +1911,11 @@ function compoundingChart(comp) {
             <svg class="pub-panel-svg" viewBox="0 0 ${f.W} ${f.H}" role="img" aria-label="Audience level over time, one marker per fight, green where the level holds higher afterward and red where it falls back">
                 <g class="pub-grid">${f.gridY}</g>
                 ${f.axisLines}
-                ${lines}
+                ${lines}${dots}
                 <g class="pub-marks">${markerLines}${markerLabels}</g>
                 <g class="pub-axis-labels">${f.yLabels}${f.xLabels}</g>
             </svg>
-            <p class="pub-panel-unit">${esc(series.y?.label ?? 'Audience level (relative)')}. A step up holds, a spike falls back.</p>
+            <p class="pub-panel-unit">${esc(series.y?.label ?? 'Audience level (relative)')}. Each step is the level it settled at after that fight. A step up holds, a step down falls back.</p>
         </figure>`;
     }
     if (!Array.isArray(series.labels) || !series.labels.length) return '';
@@ -2016,13 +2028,14 @@ const relabelTier = (t) => TIER_RELABEL[t] ?? t;
 // always runs oldest-to-newest left-to-right, independent of how the table is sorted.
 function billingBlock(b) {
     if (!b) return '';
-    const rows = table(['Date', 'Event', 'Card section', 'Card', 'Card-position score'], b.rows.map((r) => [
-        esc(fmtDate(r.date)),
+    // Four columns, one line per row: the card section and the card tier used to be two columns
+    // saying nearly the same thing ("Main event" on every row beside "Regular card"). One
+    // position column now, with the title-fight chip inline beside it; the tier stays available
+    // as the cell's own hover text.
+    const rows = table(['Date', 'Event', 'Slot', { html: hintText('Score', CARD_SCORE_HINT, { sentence: true }) }], b.rows.map((r) => [
+        `<span class="pub-nowrap">${esc(fmtDate(r.date))}</span>`,
         esc(r.event),
-        esc(r.card_section),
-        // A title fight is the most sponsor-legible fact in this table and was carried in
-        // the payload but never shown.
-        `${esc(relabelTier(r.event_tier))}${r.is_title ? ' <span class="pub-tag">Title fight</span>' : ''}`,
+        `<span class="pub-nowrap" title="${esc(relabelTier(r.event_tier))}">${esc(r.card_section)}${r.is_title ? ' <span class="pub-tag">Title fight</span>' : ''}</span>`,
         // v3 renamed actual/signal to card_position_score/delta, and sends both already
         // formatted; the older names still render for publications made before that.
         (() => {
@@ -2032,7 +2045,7 @@ function billingBlock(b) {
             const dText = r.delta_text ?? (d != null ? `${d > 0 ? '+' : d < 0 ? '−' : ''}${num(Math.abs(d), 2)}` : null);
             if (score == null) return '–';
             const tone = d == null ? 'neutral' : d > 0 ? 'good' : d < 0 ? 'bad' : 'neutral';
-            return `${esc(score)}${dText ? ` <span class="pub-table-delta pub-tone-text-${tone}">(${esc(dText)})</span>` : ''}`;
+            return `<span class="pub-nowrap">${esc(score)}${dText ? ` <span class="pub-table-delta pub-tone-text-${tone}">(${esc(dText)})</span>` : ''}</span>`;
         })(),
     ]), { freeze: true, bodyClass: 'pub-table--card' });
     const series = b.chart;

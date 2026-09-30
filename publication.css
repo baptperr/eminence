@@ -108,6 +108,7 @@
 }
 .hint-tip strong { display: block; color: var(--bone); font-weight: 700; }
 .hint-desc { display: block; margin-top: 0.25rem; font-size: 0.6rem; font-weight: 500; letter-spacing: 0.14em; text-transform: uppercase; color: var(--t3); }
+.hint-desc.hint-desc--sentence { margin-top: 0; text-transform: none; letter-spacing: 0; font-size: 0.72rem; font-weight: 400; line-height: 1.45; color: var(--t2); }
 .hint:hover .hint-tip, .hint:focus-visible .hint-tip { opacity: 1; visibility: visible; }
 @media (prefers-reduced-motion: reduce) { .hint-tip { transition: none; } }
 
@@ -185,28 +186,27 @@
 .pub-table td { border-bottom: 1px solid var(--border-n); color: var(--t1); }
 .pub-table td:first-child, .pub-table th:first-child { white-space: normal; }
 
-/* Card position: the date column freezes as the table scrolls sideways (it's the shortest
-   column, so it makes a sane anchor), and event names wrap instead of forcing a scroll that a
-   phone screen may not make visibly possible. Five columns of unwrapped content ("UFC Fight
-   Night 250", "Numbered event"...) run wider than the page's own 640px measure, which is what
-   forced a desktop into the same sideways scroll a phone needs — table-layout: fixed plus a
-   percentage width per column makes every column wrap instead of pushing the table wider than
-   its container, so the table fits the page at a desktop width and only a phone need scroll it. */
+/* Card position: four columns, one line per row. The date, the slot (with the title chip
+   inline) and the score never wrap and never break mid-word; only the event name wraps, and
+   only at spaces. The date column still freezes as the table scrolls sideways on a phone. */
 .pub-table--freeze th:first-child, .pub-table--freeze td:first-child {
     position: sticky; left: 0; z-index: 2; background: var(--night);
 }
-/* 24rem is a floor for legibility, not a target -- at this site's 20px root (1rem=20px) that's
-   480px, under the ~540px the page's own 640px measure leaves a table on desktop, so it never
-   triggers a scroll there; a phone's much narrower column falls under it and scrolls, with the
-   date column frozen as the anchor. */
-.pub-table--card { table-layout: fixed; width: 100%; min-width: 24rem; }
-.pub-table--card th, .pub-table--card td { white-space: normal; word-break: break-word; padding-inline: 0.6rem; }
-.pub-table--card th:nth-child(1), .pub-table--card td:nth-child(1) { width: 15%; }
-.pub-table--card th:nth-child(2), .pub-table--card td:nth-child(2) { width: 29%; }
-.pub-table--card th:nth-child(3), .pub-table--card td:nth-child(3) { width: 20%; }
-.pub-table--card th:nth-child(4), .pub-table--card td:nth-child(4) { width: 18%; }
-.pub-table--card th:nth-child(5), .pub-table--card td:nth-child(5) { width: 18%; }
-.pub-table-delta { display: block; font-size: 0.85em; opacity: 0.85; }
+.pub-nowrap { white-space: nowrap; }
+.pub-table--card { min-width: 27rem; font-size: 0.74rem; }
+.pub-table--card th, .pub-table--card td {
+    white-space: nowrap; word-break: normal; overflow-wrap: normal; hyphens: none; padding: 0.5rem 0.6rem;
+}
+.pub-table--card th:nth-child(2), .pub-table--card td:nth-child(2) { white-space: normal; width: 100%; min-width: 11rem; }
+.pub-table--card .pub-tag { margin-left: 0.3rem; vertical-align: 1px; }
+.pub-table--card .hint-tip { white-space: normal; width: 15rem; left: auto; right: 0; }
+.pub-table-delta { font-size: 0.9em; opacity: 0.85; }
+@media (min-width: 561px) {
+    /* The table fits the measure here, so nothing scrolls and a hover tip can rise out of it. */
+    .pub-table-wrap:has(.pub-table--card) { overflow: visible; }
+    .pub-table--card th:first-child, .pub-table--card td:first-child { position: static; background: none; }
+    .pub-table-wrap:has(.pub-table--card)::before, .pub-table-wrap:has(.pub-table--card)::after { display: none; }
+}
 
 .pub-diff + .pub-diff { margin-top: 2.25rem; padding-top: 2.25rem; border-top: 1px solid var(--border-n); }
 
@@ -399,8 +399,9 @@
 /* ── The field: the Observatory's skill-vs-fame scatter. One shared viewBox, so it is drawn in
    the payload's own pixels; capped in width so it stays a squarer chart on a wide screen, and
    its type steps up on a phone, where the same viewBox is scaled down to about two thirds. ── */
-.pub-field-mini { margin: 0; padding: 0.4rem; box-sizing: border-box; width: 100%; max-width: 15rem; aspect-ratio: 1; justify-self: center; }
-.pub-field-mini .pub-panel-svg { width: 100%; height: 100%; display: block; }
+.pub-field-mini { margin: 0; padding: 0.4rem; box-sizing: border-box; width: 100%; }
+.pub-field-mini .pub-panel-svg { width: 100%; height: auto; display: block; }
+.pub-field-mini .pub-axis-label { font-size: 15px; }
 .pub-field-band { fill: var(--p-accent); fill-opacity: 0.13; stroke: none; }
 .pub-field-peers { fill: none; stroke: var(--p-ink); stroke-opacity: 0.28; stroke-width: 6; stroke-linecap: round; }
 .pub-field-fit { stroke: var(--p-ink); stroke-width: 2.5; stroke-dasharray: 9 7; opacity: 0.85; }
@@ -410,15 +411,19 @@
 .pub-field-mini .pub-axis-line { stroke-width: 2; }
 .pub-field-name { fill: var(--p-ink); font-size: 24px; font-weight: 700; paint-order: stroke; stroke: var(--p-surface); stroke-width: 7px; stroke-linejoin: round; }
 
-/* The Overview's figures: the four numbers and the FLI on the left, the compact field square
-   on the right. On a phone the square falls below the figures instead of squeezing them. */
+/* The Overview: the four figures stacked on the left, each a big number over its small label
+   between hairlines; on the right the field graph and, in its own panel beneath it, the FLI
+   with its range bar. On a phone the right column drops below the figures. */
 .pub-fl-figures { display: grid; gap: 1.75rem; }
-.pub-fl-figures--field { grid-template-columns: minmax(0, 1fr) 12.5rem; align-items: start; }
-.pub-fl-nums .pub-stat-row { gap: 1.25rem 2rem; }
-.pub-fl-figures--field .pub-fli-block { margin-top: 1.25rem; }
+.pub-fl-figures--field { grid-template-columns: 10.5rem minmax(0, 1fr); align-items: start; gap: 1.75rem 2rem; }
+.pub-fl-nums .pub-stat-row { flex-direction: column; flex-wrap: nowrap; gap: 0; }
+.pub-fl-nums .pub-stat { padding: 0.85rem 0; border-top: 1px solid var(--border-n); }
+.pub-fl-nums .pub-stat:first-child { border-top: 0; padding-top: 0; }
+.pub-fl-side { display: flex; flex-direction: column; gap: 0.75rem; min-width: 0; }
+.pub-fl-side .pub-panel { margin: 0; }
+.pub-fli-block.pub-panel { max-width: none; margin-top: 0; padding: 0.8rem 1rem 0.9rem; font-family: inherit; }
 @media (max-width: 560px) {
     .pub-fl-figures--field { grid-template-columns: 1fr; }
-    .pub-field-mini { max-width: 14rem; justify-self: start; }
 }
 
 /* v8: a section's story is its spine. Body size and a readable measure, above every figure and
