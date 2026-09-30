@@ -1113,8 +1113,15 @@ function fieldChart(f) {
     const vx = (p.left + p.right) / 2 - side / 2, vy = (p.top + p.bottom) / 2 - side / 2;
     const axes = `<line class="pub-axis-line" x1="${p.left}" x2="${p.right}" y1="${p.bottom}" y2="${p.bottom}"/><line class="pub-axis-line" x1="${p.left}" x2="${p.left}" y1="${p.top}" y2="${p.bottom}"/>`;
     const band = f.fit?.band ? `<path class="pub-field-band" d="${esc(f.fit.band)}"/>` : '';
+    // The fit CURVES against a linear level axis (it is a straight line only in log-log
+    // space): flat across the low ratings, steepening at the top. Drawing the payload's two
+    // endpoints as one segment cut a chord through the middle of the field and misread the
+    // whole shape. Prefer the sampled path; the endpoints remain the fallback for a payload
+    // generated before it was carried.
     const fl = f.fit?.line;
-    const fit = fl ? `<line class="pub-field-fit" x1="${fl.x1}" y1="${fl.y1}" x2="${fl.x2}" y2="${fl.y2}"/>` : '';
+    const fit = f.fit?.path
+        ? `<path class="pub-field-fit" d="${esc(f.fit.path)}" fill="none"/>`
+        : fl ? `<line class="pub-field-fit" x1="${fl.x1}" y1="${fl.y1}" x2="${fl.x2}" y2="${fl.y2}"/>` : '';
     const peers = f.peers.length ? `<path class="pub-field-peers" d="${f.peers.map(([x, y]) => `M${x} ${y}h0`).join('')}"/>` : '';
     const guides = `<line class="pub-field-guide" x1="${you.x}" x2="${you.x}" y1="${you.y}" y2="${p.bottom}"/><line class="pub-field-guide" x1="${p.left}" x2="${you.x}" y1="${you.y}" y2="${you.y}"/>`;
     // The name sits inward of the point, so it never runs off the square: to the left of a
@@ -1472,11 +1479,36 @@ const TYPE_SYMBOL = { Photo: 'P', Video: 'V', Carousel: 'C', Reel: 'R', Story: '
 // the EMPTY days carry as much as the filled ones, since they are what show whether someone
 // posts steadily, in bursts or barely at all. The assembler sends every day in the window
 // already week-aligned, so nothing is padded here except an older, unaligned payload.
-function calendarCells(cells) {
+// Month blocks, weeks running left to right, seven columns: an ordinary calendar rather
+// than the commit-calendar's vertical weeks, which reads as a data tool rather than as a
+// month someone can scan. Each month starts on the right weekday and only the days it
+// actually has.
+const MONTH_NAMES = ['January', 'February', 'March', 'April', 'May', 'June',
+                     'July', 'August', 'September', 'October', 'November', 'December'];
+function calendarMonths(cells) {
     if (!cells.length) return '';
-    const firstDow = (new Date(`${cells[0].date}T00:00:00Z`).getUTCDay() + 6) % 7;  // Monday = 0
-    const padded = [...Array(firstDow).fill(null), ...cells];
-    return padded.map((c) => {
+    const months = new Map();
+    for (const c of cells) {
+        const key = c.date.slice(0, 7);
+        if (!months.has(key)) months.set(key, []);
+        months.get(key).push(c);
+    }
+    return [...months.entries()].map(([key, days]) => {
+        const [y, m] = key.split('-').map(Number);
+        const firstDow = (new Date(Date.UTC(y, m - 1, Number(days[0].date.slice(8, 10)))).getUTCDay() + 6) % 7;
+        const pad = Array(firstDow).fill('<span class="pub-cal-cell pub-cal-cell--pad" aria-hidden="true"></span>').join('');
+        return `<div class="pub-cal-month">
+                <p class="pub-cal-month-name">${esc(MONTH_NAMES[m - 1])} ${y}</p>
+                <div class="pub-cal-grid">${pad}${calendarCells(days, { padded: true })}</div>
+            </div>`;
+    }).join('');
+}
+
+function calendarCells(cells, { padded = false } = {}) {
+    if (!cells.length) return '';
+    const firstDow = padded ? 0 : (new Date(`${cells[0].date}T00:00:00Z`).getUTCDay() + 6) % 7;  // Monday = 0
+    const withPad = [...Array(firstDow).fill(null), ...cells];
+    return withPad.map((c) => {
         if (!c) return '<span class="pub-cal-cell pub-cal-cell--pad" aria-hidden="true"></span>';
         if (c.future) return '<span class="pub-cal-cell pub-cal-cell--future" aria-hidden="true"></span>';
         if (!c.type) return `<span class="pub-cal-cell" title="${esc(fmtDate(c.date))}: no post"></span>`;
@@ -1488,7 +1520,7 @@ function calendarCells(cells) {
 }
 function calendarLegend(types) {
     const items = types.map((t) => `<span class="pub-cal-legend-item"><i class="pub-cal-sym">${esc(TYPE_SYMBOL[t] ?? t.slice(0, 1).toUpperCase())}</i>${esc(t)}</span>`).join('');
-    return `<div class="pub-cal-legend">${items}<span class="pub-cal-legend-item pub-cal-legend-item--scale"><i class="pub-cal-scale"></i>Less <span class="pub-cal-scale-arrow">→</span> more engagement</span></div>`;
+    return `<div class="pub-cal-legend">${items}<span class="pub-cal-legend-item pub-cal-legend-item--scale"><i class="pub-cal-scale"></i>engagement</span></div>`;
 }
 function postingCalendarBlock(d) {
     // The assembler sends `days` ({date, media_type, intensity}), a `window` with its two
@@ -1505,7 +1537,7 @@ function postingCalendarBlock(d) {
             ?? (cal.best?.likes != null ? `${num(cal.best.likes)} likes` : null);
         const typicalText = cal.typical?.value_text ?? cal.typical?.text
             ?? (cal.typical?.likes != null ? `${num(cal.typical.likes)} likes` : null);
-        return `<div class="pub-cal-wrap"><div class="pub-cal">${calendarCells(cells)}</div></div>${calendarLegend(types)}
+        return `<div class="pub-cal-wrap"><div class="pub-cal">${calendarMonths(cells)}</div></div>${calendarLegend(types)}
             ${cal.basis ? `<p class="pub-fine pub-fine--tiny">${esc(cal.basis)}</p>` : ''}
             ${statRow([[bestText, 'Best post'], [typicalText, 'Typical post']])}`;
     }

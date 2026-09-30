@@ -469,15 +469,23 @@
    colour intensity = that post's engagement relative to this fighter's own. */
 .pub-cal-wrap { overflow-x: auto; margin-top: 1.25rem; }
 .pub-cal {
-    display: grid; grid-auto-flow: column; grid-template-rows: repeat(7, 12px);
-    gap: 3px; width: max-content;
+    display: flex; flex-wrap: wrap; gap: 1.1rem 1.4rem;
     background: var(--p-surface, #0A0F13); border: 1px solid var(--p-line, rgba(127, 212, 168, .16));
     border-radius: 4px; padding: 0.85rem;
     font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
 }
+/* Bigger squares, and the type letter set in the display face: a single glyph in a
+   monospace face reads as a terminal, not as a label. */
+.pub-cal-month { display: flex; flex-direction: column; gap: 0.35rem; }
+.pub-cal-month-name {
+    font-family: 'DM Sans', system-ui, sans-serif; font-size: 0.66rem; letter-spacing: 0.12em;
+    text-transform: uppercase; color: var(--t3);
+}
+.pub-cal-grid { display: grid; grid-template-columns: repeat(7, 19px); gap: 4px; }
 .pub-cal-cell {
-    width: 12px; height: 12px; border-radius: 2px; background: rgba(127, 212, 168, .10);
-    font-size: 7px; line-height: 12px; text-align: center; color: transparent;
+    width: 19px; height: 19px; border-radius: 3px; background: rgba(127, 212, 168, .10);
+    font-family: 'Red Hat Display', sans-serif; font-weight: 800;
+    font-size: 11px; line-height: 19px; text-align: center; color: transparent;
 }
 .pub-cal-cell--post {
     background: color-mix(in oklch, #0A0F13, #7FD4A8 calc(var(--rel, .5) * 85%));
