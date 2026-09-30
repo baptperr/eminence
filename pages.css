@@ -196,10 +196,12 @@ tbody .rk-fli { padding-right: 0; }
     .fli-pos, .fli-neg { --fli-color: color-mix(in oklch, #fff, var(--tone) calc(var(--m) * 100%)); }
 }
 
-/* 30-day ticker beside the FLI, with the sparkline in a popover on hover or focus. */
+/* 30-day ticker beside the FLI, with the sparkline in a popover on hover or focus. Kept at about
+   two thirds of the FLI figure: both are signed and coloured by sign, and at similar sizes the
+   ticker read as a second FLI rather than a note on the first. */
 .rk-tickwrap { position: relative; display: inline-block; }
 .rk-tick {
-    font: inherit; font-size: 0.85rem; font-variant-numeric: tabular-nums; line-height: 1.4;
+    font: inherit; font-size: 0.68rem; font-variant-numeric: tabular-nums; line-height: 1.4;
     background: none; border: 0; padding: 0.1rem 0; color: var(--t2); white-space: nowrap;
 }
 button.rk-tick { cursor: default; border-bottom: 1px dotted var(--t3); }
@@ -400,7 +402,7 @@ button.rk-tick { cursor: default; border-bottom: 1px dotted var(--t3); }
     .rk-num { font-size: 0.74rem; }
     .rk-fli-top { gap: 0.3rem; }
     .rk-fli-n { font-size: 0.74rem; }
-    .rk-tick, button.rk-tick { font-size: 0.74rem; }
+    .rk-tick, button.rk-tick { font-size: 0.56rem; }
     /* The bar and the trend's numeric delta are the two things a full-width desktop cell had
        room for and a 4.5rem one does not; the FLI figure and the trend's direction (the glyph)
        still show, the size of the move is a tap/hover on the figure away via its sparkline. */
