@@ -31,7 +31,12 @@
         "direction": "up",
         "days": 30,
         "note": "How the FLI has moved over the last 30 days."
-      }
+      },
+      "story": [
+        "Marko Ivanescu is the sample fighter used to check the layout. This paragraph is the section's spine: it says what the section is about and what to take from it, so a reader who never looks at a figure still gets the point.",
+        "A second paragraph carries the comparison and the caveat in plain words. The figures and the chart below are there to illustrate and prove what these sentences already say, not to be decoded on their own.",
+        "A third paragraph closes the thought, long enough to show the measure and the spacing that a real story will have when it lands."
+      ]
     },
     "field": {
       "verdict": "Marko Ivanescu sits above the line that fighters at this level usually sit on, with a bigger audience than 68% of the 60 fighters rated closest to them.",
@@ -615,7 +620,7 @@
           "key": "retained",
           "n": 2,
           "title": "Retained interest",
-          "what": "typical month \u00d7 12 (too few clean days)",
+          "what": "typical month × 12 (too few clean days)",
           "metric": "sustained_year",
           "measured": true,
           "value": 600000,
@@ -696,7 +701,7 @@
               "text": "2.79%",
               "pct_text": "top 1% of fighters at this level",
               "basis": "similar",
-              "vs_typical": "1.4\u00d7 typical"
+              "vs_typical": "1.4× typical"
             },
             {
               "label": "posts in the last 90 days",
@@ -725,9 +730,9 @@
             "num": "895,000",
             "unit": "views a year",
             "what": "all languages, last 90d, annualised",
-            "typ_line": "typical 205k \u00b7 4.4\u00d7 size",
+            "typ_line": "typical 205k · 4.4× size",
             "typ_base": "typical 205k",
-            "vs_typ": "4.4\u00d7 size",
+            "vs_typ": "4.4× size",
             "value": "895,000 views a year",
             "peer": 205000.0,
             "peer_text": "typical: 205k views",
@@ -739,7 +744,7 @@
             "known": true,
             "base": true,
             "index": 100.0,
-            "index_text": "1.0\u00d7",
+            "index_text": "1.0×",
             "capped": false,
             "arrow": "",
             "index_word": null,
@@ -758,12 +763,12 @@
             "top_pct": 11.432926829268293,
             "half": 85.0,
             "intake_headline": {
-              "text": "4.4\u00d7",
+              "text": "4.4×",
               "mult": true,
               "warn": false,
               "up": true,
               "label": "intake vs a typical fighter at this level",
-              "sub": "typical baseline = 1.0\u00d7 for the rungs below",
+              "sub": "typical baseline = 1.0× for the rungs below",
               "word": "size"
             },
             "context_value": null,
@@ -785,10 +790,10 @@
             "measured": true,
             "num": "600,000",
             "unit": "views a year",
-            "what": "typical month \u00d7 12 (too few clean days)",
-            "typ_line": "typical 123k \u00b7 4.9\u00d7 size",
+            "what": "typical month × 12 (too few clean days)",
+            "typ_line": "typical 123k · 4.9× size",
             "typ_base": "typical 123k",
-            "vs_typ": "4.9\u00d7 size",
+            "vs_typ": "4.9× size",
             "value": "600,000 views a year",
             "peer": 123000.0,
             "peer_text": "typical: 10k views / month",
@@ -800,7 +805,7 @@
             "known": true,
             "base": false,
             "index": 111.73184357541899,
-            "index_text": "1.1\u00d7",
+            "index_text": "1.1×",
             "capped": false,
             "arrow": "",
             "index_word": "conversion",
@@ -877,10 +882,10 @@
             "measured": true,
             "num": "5,887",
             "unit": "engaged per post",
-            "what": "Instagram followers \u00d7 post engagement",
-            "typ_line": "typical 2k per post \u00b7 2.9\u00d7 size",
+            "what": "Instagram followers × post engagement",
+            "typ_line": "typical 2k per post · 2.9× size",
             "typ_base": "typical 2k per post",
-            "vs_typ": "2.9\u00d7 size",
+            "vs_typ": "2.9× size",
             "value": "5,887 engaged per post",
             "peer": 2050.0,
             "peer_text": "typical: 2k engaged per post",
@@ -892,7 +897,7 @@
             "known": true,
             "base": false,
             "index": 65.77541899441341,
-            "index_text": "0.66\u00d7",
+            "index_text": "0.66×",
             "capped": false,
             "arrow": "down",
             "index_word": "conversion",
@@ -900,8 +905,8 @@
             "reading_short": "losing some",
             "vs_base_text": "cumulative vs curiosity",
             "share_detail": null,
-            "step_text": "this step keeps 0.59\u00d7 what a typical fighter keeps",
-            "step_text_short": "step: 0.59\u00d7 typical",
+            "step_text": "this step keeps 0.59× what a typical fighter keeps",
+            "step_text_short": "step: 0.59× typical",
             "ret_text": "retention vs curiosity: keeps 0.658% (typical similar fighter 1%); index 66",
             "typical_retention": 0.01,
             "ratio": 0.006577541899441341,
@@ -922,10 +927,10 @@
             "key": "curiosity_retained",
             "text": "non-fight-week days carry 67% of the 90-day average day",
             "peer_text": "typical 60%",
-            "label": "Curiosity \u2192 Retained interest",
+            "label": "Curiosity → Retained interest",
             "leak": false,
             "measured": true,
-            "full": "non-fight-week days carry 67% of the 90-day average day \u00b7 typical 60%",
+            "full": "non-fight-week days carry 67% of the 90-day average day · typical 60%",
             "to_text": null,
             "drop": null
           },
@@ -933,7 +938,7 @@
             "key": "curiosity_commitment",
             "text": null,
             "peer_text": null,
-            "label": "Retained interest \u2192 Commitment",
+            "label": "Retained interest → Commitment",
             "leak": false,
             "measured": false,
             "full": "",
@@ -944,10 +949,10 @@
             "key": "commitment_activity",
             "text": "2.79% engage per post",
             "peer_text": "typical 2.00%",
-            "label": "Commitment \u2192 Activity",
+            "label": "Commitment → Activity",
             "leak": true,
             "measured": true,
-            "full": "2.79% engage per post \u00b7 typical 2.00%",
+            "full": "2.79% engage per post · typical 2.00%",
             "to_text": "top 1% of fighters at this level",
             "drop": null
           }
@@ -986,7 +991,7 @@
           "top_pct": 57.16463414634146,
           "x": 255.44058659217876,
           "leader": "M263.4 375.0H360",
-          "text": "2.79% engage per post \u00b7 typical 2.00%"
+          "text": "2.79% engage per post · typical 2.00%"
         },
         "ghost_top": {
           "h": 85.0,
@@ -1030,7 +1035,7 @@
           "floored": false,
           "unknown": false,
           "ratio": 4.365853658536586,
-          "title": "Typical curiosity at this level: 205k (this fighter: 895k, 4.4\u00d7 typical)"
+          "title": "Typical curiosity at this level: 205k (this fighter: 895k, 4.4× typical)"
         },
         "future_bands": [
           {
@@ -1052,17 +1057,17 @@
           "merged": null
         },
         "worked": {
-          "size": "Ivanescu gets 895k views a year; a typical fighter at this level gets 205k \u2192 4.4\u00d7 size.",
-          "conversion": "For every 100 lookups, about 67 keep showing up as ordinary-day lookups (outside a fight week); a typical fighter at this level keeps 60 \u2192 1.1\u00d7 conversion."
+          "size": "Ivanescu gets 895k views a year; a typical fighter at this level gets 205k → 4.4× size.",
+          "conversion": "For every 100 lookups, about 67 keep showing up as ordinary-day lookups (outside a fight week); a typical fighter at this level keeps 60 → 1.1× conversion."
         },
         "has_typical": true,
         "any_unmeasured": true,
-        "aria": "Attention ladder: the width at each rung shows how deep this fighter's audience is there compared with a typical similar fighter, 100 being typical. Curiosity 1.0\u00d7 (typical baseline, 895,000 views a year); Retained interest 1.1\u00d7 (about as steady between fights as typical, 600,000 views a year); Commitment not measured; Activity 0.66\u00d7 (losing some people overall, 5,887 engaged per post). Weak rung: curiosity to commitment, 2.79% engage per post \u00b7 typical 2.00%.",
+        "aria": "Attention ladder: the width at each rung shows how deep this fighter's audience is there compared with a typical similar fighter, 100 being typical. Curiosity 1.0× (typical baseline, 895,000 views a year); Retained interest 1.1× (about as steady between fights as typical, 600,000 views a year); Commitment not measured; Activity 0.66× (losing some people overall, 5,887 engaged per post). Weak rung: curiosity to commitment, 2.79% engage per post · typical 2.00%.",
         "any": true
       },
       "leak": {
         "named": true,
-        "sentence": "211,000 followers, but engagement per follower (likes+comments per post \u00f7 current followers) is only 0.59\u00d7 typical; top 1% of fighters at this level on that rate.",
+        "sentence": "211,000 followers, but engagement per follower (likes+comments per post ÷ current followers) is only 0.59× typical; top 1% of fighters at this level on that rate.",
         "tag": "Weak rung"
       },
       "exposure": {
@@ -1084,7 +1089,12 @@
         "commitment": "How many people decide to follow this fighter, counted as followers gained per year.",
         "activity": "How many of this fighter's followers react to a single post."
       },
-      "note": "Attention as a ladder: how many people are curious about this fighter, how much of that interest stays between fights, how many people commit by following, and how many of those act on what the fighter posts. Each rung is a different audience, not the same people moving down, and each is set against a typical fighter at the same level."
+      "note": "Attention as a ladder: how many people are curious about this fighter, how much of that interest stays between fights, how many people commit by following, and how many of those act on what the fighter posts. Each rung is a different audience, not the same people moving down, and each is set against a typical fighter at the same level.",
+      "story": [
+        "Marko Ivanescu is the sample fighter used to check the layout. This paragraph is the section's spine: it says what the section is about and what to take from it, so a reader who never looks at a figure still gets the point.",
+        "A second paragraph carries the comparison and the caveat in plain words. The figures and the chart below are there to illustrate and prove what these sentences already say, not to be decoded on their own.",
+        "A third paragraph closes the thought, long enough to show the measure and the spacing that a real story will have when it lands."
+      ]
     },
     "geography": {
       "note": "Where this fighter's search attention and everyday audience sit, by country and by language.",
@@ -1152,7 +1162,12 @@
       "search_volume_caption": "Search attention by country",
       "market_value_caption": "Adjusted by relative market value",
       "market_value_term": "relative market value",
-      "market_value_explainer": "ad spend per internet user"
+      "market_value_explainer": "ad spend per internet user",
+      "story": [
+        "Marko Ivanescu is the sample fighter used to check the layout. This paragraph is the section's spine: it says what the section is about and what to take from it, so a reader who never looks at a figure still gets the point.",
+        "A second paragraph carries the comparison and the caveat in plain words. The figures and the chart below are there to illustrate and prove what these sentences already say, not to be decoded on their own.",
+        "A third paragraph closes the thought, long enough to show the measure and the spacing that a real story will have when it lands."
+      ]
     },
     "retention": {
       "note": "The share of a fight week's attention spike still there a month later, set beside the audience growth over that same stretch.",
@@ -2126,7 +2141,12 @@
         "source_style": "small_print"
       },
       "source": "Wikipedia pageviews; search reading from Google Trends where shown",
-      "source_style": "small_print"
+      "source_style": "small_print",
+      "story": [
+        "Marko Ivanescu is the sample fighter used to check the layout. This paragraph is the section's spine: it says what the section is about and what to take from it, so a reader who never looks at a figure still gets the point.",
+        "A second paragraph carries the comparison and the caveat in plain words. The figures and the chart below are there to illustrate and prove what these sentences already say, not to be decoded on their own.",
+        "A third paragraph closes the thought, long enough to show the measure and the spacing that a real story will have when it lands."
+      ]
     },
     "off_cycle": {
       "note": "Weeks when something other than a fight (an interview, a press day, a clip going round) moved this fighter's attention. \"Lift\" is how many times higher that week ran than their usual level.",
@@ -2147,6 +2167,11 @@
           "nearest_bout_date": "2026-03-07",
           "days_from_bout": -17
         }
+      ],
+      "story": [
+        "Marko Ivanescu is the sample fighter used to check the layout. This paragraph is the section's spine: it says what the section is about and what to take from it, so a reader who never looks at a figure still gets the point.",
+        "A second paragraph carries the comparison and the caveat in plain words. The figures and the chart below are there to illustrate and prove what these sentences already say, not to be decoded on their own.",
+        "A third paragraph closes the thought, long enough to show the measure and the spacing that a real story will have when it lands."
       ]
     },
     "billing": {
@@ -2279,7 +2304,12 @@
       },
       "sentence": "Most recently at UFC 308, Marko Ivanescu was billed higher than a fighter at this level usually gets for that matchup, by +0.21.",
       "note": "A card-position score of 1.0 is where a typical main event lands: a main event scores 1.00 by construction, then that is multiplied by the event's own tier weight, so two main events on different kinds of card can read differently.",
-      "note_style": "small_print"
+      "note_style": "small_print",
+      "story": [
+        "Marko Ivanescu is the sample fighter used to check the layout. This paragraph is the section's spine: it says what the section is about and what to take from it, so a reader who never looks at a figure still gets the point.",
+        "A second paragraph carries the comparison and the caveat in plain words. The figures and the chart below are there to illustrate and prove what these sentences already say, not to be decoded on their own.",
+        "A third paragraph closes the thought, long enough to show the measure and the spacing that a real story will have when it lands."
+      ]
     },
     "cohort": {
       "target": {

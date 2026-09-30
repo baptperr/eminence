@@ -34,7 +34,12 @@
    "date": "2027-01-24",
    "event": "UFC 312",
    "promotion": "UFC",
-   "opponent": "Dario Kessel"
+   "opponent": "Dario Kessel",
+   "story": [
+    "Marko Ivanescu is the sample fighter used to check the layout. This paragraph is the section's spine: it says what the section is about and what to take from it, so a reader who never looks at a figure still gets the point.",
+    "A second paragraph carries the comparison and the caveat in plain words. The figures and the chart below are there to illustrate and prove what these sentences already say, not to be decoded on their own.",
+    "A third paragraph closes the thought, long enough to show the measure and the spacing that a real story will have when it lands."
+   ]
   },
   "social": [
    {
@@ -61,7 +66,11 @@
      }
     ],
     "measured_on": "2026-09-27",
-    "note": "Followers is the latest count on file; the averages and engagement rate beside it are read from this fighter's own most recent posts, not a fixed calendar window (see the caveat below for exactly how many)."
+    "note": "Followers is the latest count on file; the averages and engagement rate beside it are read from this fighter's own most recent posts, not a fixed calendar window (see the caveat below for exactly how many).",
+    "story": [
+     "Marko Ivanescu is the sample fighter used to check the layout. This paragraph is the section's spine: it says what the section is about and what to take from it, so a reader who never looks at a figure still gets the point.",
+     "A second paragraph carries the comparison and the caveat in plain words. The figures and the chart below are there to illustrate and prove what these sentences already say, not to be decoded on their own."
+    ]
    }
   ],
   "posting_calendar": {
@@ -151,7 +160,12 @@
     "comments": 970,
     "value_text": "44,500 likes"
    },
-   "note": "Each cell is one day with a post on file, coloured by how that post's engagement compares with this fighter's own others. Darker is stronger for them, not a comparison with anyone else."
+   "note": "Each cell is one day with a post on file, coloured by how that post's engagement compares with this fighter's own others. Darker is stronger for them, not a comparison with anyone else.",
+   "story": [
+    "Marko Ivanescu is the sample fighter used to check the layout. This paragraph is the section's spine: it says what the section is about and what to take from it, so a reader who never looks at a figure still gets the point.",
+    "A second paragraph carries the comparison and the caveat in plain words. The figures and the chart below are there to illustrate and prove what these sentences already say, not to be decoded on their own.",
+    "A third paragraph closes the thought, long enough to show the measure and the spacing that a real story will have when it lands."
+   ]
   },
   "wikipedia": {
    "views_per_day": 615,
@@ -180,7 +194,12 @@
    ],
    "note": "A typical day's Wikipedia page views for this fighter, across every language edition, over the trailing window.",
    "provenance": "Wikipedia pageviews, all languages, 28-day average.",
-   "provenance_style": "small_print"
+   "provenance_style": "small_print",
+   "story": [
+    "Marko Ivanescu is the sample fighter used to check the layout. This paragraph is the section's spine: it says what the section is about and what to take from it, so a reader who never looks at a figure still gets the point.",
+    "A second paragraph carries the comparison and the caveat in plain words. The figures and the chart below are there to illustrate and prove what these sentences already say, not to be decoded on their own.",
+    "A third paragraph closes the thought, long enough to show the measure and the spacing that a real story will have when it lands."
+   ]
   },
   "market_concentration": {
    "countries": [
@@ -214,7 +233,12 @@
    "search_index_note": "How much of this fighter's search interest comes from that country, relative to the top country at 100, never a headcount.",
    "market_index_note": "How big that country's advertising market is per internet user, relative to the top market at 100: a property of the country, not of this fighter's own audience.",
    "search_volume_caption": "Relative search interest by country",
-   "market_value_caption": "Adjusted by relative ad spend per internet user, by country."
+   "market_value_caption": "Adjusted by relative ad spend per internet user, by country.",
+   "story": [
+    "Marko Ivanescu is the sample fighter used to check the layout. This paragraph is the section's spine: it says what the section is about and what to take from it, so a reader who never looks at a figure still gets the point.",
+    "A second paragraph carries the comparison and the caveat in plain words. The figures and the chart below are there to illustrate and prove what these sentences already say, not to be decoded on their own.",
+    "A third paragraph closes the thought, long enough to show the measure and the spacing that a real story will have when it lands."
+   ]
   },
   "fight_weeks": {
    "note": "How Wikipedia attention spiked in each of this fighter's most recent fight weeks, against their own typical day.",
@@ -498,7 +522,10 @@
         "label": "everyday audience before the fight"
        }
       ]
-     }
+     },
+     "story": [
+      "Marko Ivanescu is the sample fighter used to check the layout. This paragraph is the section's spine: it says what the section is about and what to take from it, so a reader who never looks at a figure still gets the point."
+     ]
     },
     {
      "fight_date": "2026-03-07",
@@ -1006,6 +1033,11 @@
       ]
      }
     }
+   ],
+   "story": [
+    "Marko Ivanescu is the sample fighter used to check the layout. This paragraph is the section's spine: it says what the section is about and what to take from it, so a reader who never looks at a figure still gets the point.",
+    "A second paragraph carries the comparison and the caveat in plain words. The figures and the chart below are there to illustrate and prove what these sentences already say, not to be decoded on their own.",
+    "A third paragraph closes the thought, long enough to show the measure and the spacing that a real story will have when it lands."
    ]
   },
   "broadcast": {
@@ -1058,6 +1090,11 @@
      "nearest_bout_date": "2026-03-07",
      "days_from_bout": -17
     }
+   ],
+   "story": [
+    "Marko Ivanescu is the sample fighter used to check the layout. This paragraph is the section's spine: it says what the section is about and what to take from it, so a reader who never looks at a figure still gets the point.",
+    "A second paragraph carries the comparison and the caveat in plain words. The figures and the chart below are there to illustrate and prove what these sentences already say, not to be decoded on their own.",
+    "A third paragraph closes the thought, long enough to show the measure and the spacing that a real story will have when it lands."
    ]
   },
   "compounding": {
@@ -1203,7 +1240,12 @@
     "direction": "up",
     "window_days": 38,
     "note": "How this fighter's own rank has moved over the window. A positive delta is an improvement (a lower rank number)."
-   }
+   },
+   "story": [
+    "Marko Ivanescu is the sample fighter used to check the layout. This paragraph is the section's spine: it says what the section is about and what to take from it, so a reader who never looks at a figure still gets the point.",
+    "A second paragraph carries the comparison and the caveat in plain words. The figures and the chart below are there to illustrate and prove what these sentences already say, not to be decoded on their own.",
+    "A third paragraph closes the thought, long enough to show the measure and the spacing that a real story will have when it lands."
+   ]
   },
   "charts": {
    "followers": {

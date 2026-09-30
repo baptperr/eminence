@@ -1097,59 +1097,39 @@ function legacyFunnelGraphic(fn) {
 
 // ── the field: where this fighter sits among every rated fighter ──
 //
-// The Observatory's own skill-vs-fame scatter. The payload owns the geometry (the Bridge's
-// pixels, in one shared viewBox) and every word on it: level across, audience up on a log
-// scale, a dashed line where fighters at each level usually sit with a band around it, every
-// other rated fighter a faint dot, and this fighter ringed and named with dotted guides down
-// to both axes. Peers are drawn as one path of zero-length round-capped segments, so ~900
-// dots are one element rather than ~900.
+// The Observatory's own skill-vs-fame scatter, as a compact square that only shows where the
+// fighter sits: the dots, the fit line and its band, and this fighter ringed and named with
+// dotted guides down to both axes. No ticks, axis titles, legend or caption: the section's
+// prose says what the axes are and where the fighter sits, so a picture that explained itself
+// again would only be a second, competing text. The payload owns the geometry (one shared
+// viewBox, in the Bridge's pixels); this crops that viewBox to the plot, padded to a square.
+// Peers are drawn as one path of zero-length round-capped segments, so ~900 dots are one
+// element rather than ~900.
 function fieldChart(f) {
     if (!f || !f.you || !Array.isArray(f.peers) || !f.plot || !f.width || !f.height) return '';
-    const W = f.width, H = f.height, p = f.plot, you = f.you;
-    const yTicks = f.y?.ticks ?? [], xTicks = f.x?.ticks ?? [];
-    const grid = yTicks.map((t) => `<line class="pub-grid-line" x1="${p.left}" x2="${p.right}" y1="${t.at}" y2="${t.at}"/>`).join('');
-    const yLabels = yTicks.map((t) => `<text class="pub-axis-label" x="${p.left - 6}" y="${t.at + 4}" text-anchor="end">${esc(t.label)}</text>`).join('');
-    const xMarks = xTicks.map((t) => `<line class="pub-axis-line" x1="${t.at}" x2="${t.at}" y1="${p.bottom}" y2="${p.bottom + 4}"/>`).join('');
-    const xLabels = xTicks.map((t) => `<text class="pub-axis-label" x="${t.at}" y="${p.bottom + 17}" text-anchor="middle">${esc(t.label)}</text>`).join('');
+    const p = f.plot, you = f.you;
+    const pad = 10;
+    const side = Math.max(p.right - p.left, p.bottom - p.top) + pad * 2;
+    const vx = (p.left + p.right) / 2 - side / 2, vy = (p.top + p.bottom) / 2 - side / 2;
     const axes = `<line class="pub-axis-line" x1="${p.left}" x2="${p.right}" y1="${p.bottom}" y2="${p.bottom}"/><line class="pub-axis-line" x1="${p.left}" x2="${p.left}" y1="${p.top}" y2="${p.bottom}"/>`;
     const band = f.fit?.band ? `<path class="pub-field-band" d="${esc(f.fit.band)}"/>` : '';
     const fl = f.fit?.line;
     const fit = fl ? `<line class="pub-field-fit" x1="${fl.x1}" y1="${fl.y1}" x2="${fl.x2}" y2="${fl.y2}"/>` : '';
     const peers = f.peers.length ? `<path class="pub-field-peers" d="${f.peers.map(([x, y]) => `M${x} ${y}h0`).join('')}"/>` : '';
     const guides = `<line class="pub-field-guide" x1="${you.x}" x2="${you.x}" y1="${you.y}" y2="${p.bottom}"/><line class="pub-field-guide" x1="${p.left}" x2="${you.x}" y1="${you.y}" y2="${you.y}"/>`;
-    // The name sits inward of the point, so it never runs off the panel: to the left of a
-    // fighter in the right half, to the right of one in the left half, and never above the frame.
-    const right = you.x > p.left + (p.right - p.left) * 0.55;
-    const ly = Math.max(p.top + 14, you.y - 12);
-    const label = `<text class="pub-field-name" x="${right ? you.x - 13 : you.x + 13}" y="${ly}" text-anchor="${right ? 'end' : 'start'}">${esc(you.name ?? '')}</text>`;
-    const titles = `<text class="pub-field-title" x="${((p.left + p.right) / 2).toFixed(0)}" y="${H - 4}" text-anchor="middle">${esc(f.x?.label ?? '')}</text>`
-        + `<text class="pub-field-title" transform="translate(11 ${((p.top + p.bottom) / 2).toFixed(0)}) rotate(-90)" text-anchor="middle">${esc(f.y?.label ?? '')}</text>`;
+    // The name sits inward of the point, so it never runs off the square: to the left of a
+    // fighter in the right half, to the right of one in the left half, never above the frame.
+    const right = you.x > p.left + (p.right - p.left) * 0.5;
+    const ly = Math.max(p.top + 22, you.y - 16);
+    const label = `<text class="pub-field-name" x="${right ? you.x - 20 : you.x + 20}" y="${ly}" text-anchor="${right ? 'end' : 'start'}">${esc(you.name ?? '')}</text>`;
     const summary = `${you.name ?? 'This fighter'} against every rated fighter: level across, audience up on a log scale.`;
-    return `<figure class="pub-panel pub-panel--field">
-        <svg class="pub-panel-svg" viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(summary)}">
-            <g class="pub-grid">${grid}</g>
-            ${axes}${xMarks}${band}${peers}${fit}${guides}
-            <circle class="pub-field-ring" cx="${you.x}" cy="${you.y}" r="8"/><circle class="pub-field-dot" cx="${you.x}" cy="${you.y}" r="3.6"/>
+    return `<figure class="pub-panel pub-field-mini">
+        <svg class="pub-panel-svg" viewBox="${vx.toFixed(0)} ${vy.toFixed(0)} ${side.toFixed(0)} ${side.toFixed(0)}" role="img" aria-label="${esc(summary)}">
+            ${axes}${band}${peers}${fit}${guides}
+            <circle class="pub-field-ring" cx="${you.x}" cy="${you.y}" r="12"/><circle class="pub-field-dot" cx="${you.x}" cy="${you.y}" r="5"/>
             ${label}
-            <g class="pub-axis-labels">${yLabels}${xLabels}</g>${titles}
         </svg>
-        <div class="pub-legend">
-            <span class="pub-legend-item"><i class="pub-legend-swatch pub-legend-swatch--peer"></i>Rated fighters</span>
-            <span class="pub-legend-item"><i class="pub-legend-swatch pub-legend-swatch--fit"></i>Where fighters at each level usually sit</span>
-            <span class="pub-legend-item"><i class="pub-legend-swatch pub-legend-swatch--you"></i>${esc(you.name ?? 'This fighter')}</span>
-        </div>
-        ${f.note ? `<p class="pub-panel-unit">${esc(f.note)}</p>` : ''}
     </figure>`;
-}
-
-// The chart, then the assembler's own verdict about where the fighter sits (position, in their
-// name), then the small print. No verdict, no chart: a picture without its sentence leaves the
-// reader to do the reading the page exists to do for them.
-function fieldBlock(f) {
-    if (!f) return '';
-    const chartHtml = fieldChart(f);
-    if (!chartHtml) return '';
-    return `${chartHtml}${f.verdict ? `<p class="pub-note pub-note--lead pub-field-verdict">${esc(f.verdict)}</p>` : ''}`;
 }
 
 // ── the attention ladder ──
@@ -1193,7 +1173,9 @@ function ladderTone(index) {
     return t.cls === 'fli-pos' ? 'good' : t.cls === 'fli-neg' ? 'bad' : 'neutral';
 }
 
-function ladderRung(gs, top, meaning, g, ariaLabel) {
+// One line of figures per rung, and nothing else: the name, the figure and the multiplier.
+// What each rung means, how it compares and what it implies is the section's prose.
+function ladderRung(gs, top) {
     const unmeasured = gs.measured === false;
     const notComparable = gs.status === 'no_fight_window';
     const n = String(gs.n ?? '').padStart(2, '0');
@@ -1203,68 +1185,46 @@ function ladderRung(gs, top, meaning, g, ariaLabel) {
         : gs.status === 'base' ? 'the baseline' : null;
     const chipTone = unmeasured || notComparable || gs.status === 'base' ? 'dim' : ladderTone(gs.index);
     const figure = unmeasured
-        ? `<p class="pub-rung-figure pub-rung-figure--none">Not measured yet</p>`
+        ? ''
         : `<p class="pub-rung-figure"><b>${esc(gs.num ?? '')}</b>${gs.unit ? ` <span>${esc(gs.unit)}</span>` : ''}</p>`;
-    const why = unmeasured && gs.what ? `<p class="pub-rung-line">${esc(gs.what)}</p>` : '';
-    const typ = !unmeasured && gs.typ_base
-        ? `<p class="pub-rung-line">${esc(gs.typ_base)}${gs.vs_typ ? ` <em>${esc(gs.vs_typ)}</em>` : ''}</p>` : '';
-    const rank = !unmeasured && gs.pct_line ? `<p class="pub-rung-line">${esc(gs.pct_line)}</p>` : '';
-    // The reading is the payload's verdict on the multiplier; on an unmeasured rung it would only
-    // repeat "not measured".
-    const reading = !unmeasured && gs.reading && gs.status !== 'base' ? `<p class="pub-rung-read">${esc(gs.reading)}</p>` : '';
-    const basis = [gs.vs_base_text, gs.share_detail].filter(Boolean).map((t) => `<p class="pub-rung-line pub-rung-line--dim">${esc(t)}</p>`).join('');
-    const context = gs.context_text ? `<p class="pub-rung-line pub-rung-line--dim">${esc(gs.context_text)}</p>` : '';
-    const momentum = gs.momentum?.measured && gs.momentum.text ? `<p class="pub-rung-line pub-rung-line--dim">${esc(gs.momentum.text)}</p>` : '';
-    const mix = gs.platform_mix ? `<p class="pub-rung-line pub-rung-line--dim">${esc(typeof gs.platform_mix === 'string' ? gs.platform_mix
-        : `About ${Math.round(gs.platform_mix.share ?? 0)}% of the interest comes from ${gs.platform_mix.label ?? 'audiences'} that mostly follow on ${gs.platform_mix.platforms ?? 'other platforms'}, so this may be understated.`)}</p>` : '';
     return `<li class="pub-rung${unmeasured || notComparable ? ' pub-rung--none' : ''}">
         <div class="pub-rung-shape">${top}</div>
         <div class="pub-rung-body">
-            <div class="pub-rung-head"><span class="pub-rung-name"><span class="pub-rung-n">${n}</span> ${esc(gs.title ?? '')}</span>${chip ? `<span class="pub-rung-chip pub-rung-chip--${chipTone}">${esc(chip)}</span>` : ''}</div>
-            ${meaning ? `<p class="pub-rung-means">${esc(meaning)}</p>` : ''}
-            ${figure}${why}${typ}${rank}${reading}${basis}${momentum}${context}${mix}
+            <span class="pub-rung-name"><span class="pub-rung-n">${n}</span> ${esc(gs.title ?? '')}</span>
+            ${figure}${chip ? `<span class="pub-rung-chip pub-rung-chip--${chipTone}">${esc(chip)}</span>` : ''}
         </div>
     </li>`;
 }
 
-function ladderBlock(fn) {
+// `hasStory` is kept for symmetry with the other blocks: with a story the worked example and
+// the leak sentence (which the prose already says) are dropped; without one they stay above.
+function ladderBlock(fn, hasStory = false) {
     const g = fn.graphic ?? {};
     const gstages = g.stages ?? [];
-    const rungs = fn.rungs ?? {};
-    const worked = [g.worked?.size, g.worked?.conversion].filter(Boolean)
+    const worked = hasStory ? '' : [g.worked?.size, g.worked?.conversion].filter(Boolean)
         .map((t) => `<p class="pub-note pub-note--lead">${esc(t)}</p>`).join('');
-    const leak = fn.leak?.sentence ? `<p class="pub-note${fn.leak.named ? ' pub-tone-text-bad' : ''}">${esc(fn.leak.sentence)}</p>` : '';
+    const leak = !hasStory && fn.leak?.sentence ? `<p class="pub-note${fn.leak.named ? ' pub-tone-text-bad' : ''}">${esc(fn.leak.sentence)}</p>` : '';
     const exposure = fn.exposure ? `<li class="pub-rung pub-rung--none pub-rung--edge">
         <div class="pub-rung-shape"></div>
         <div class="pub-rung-body">
-            <div class="pub-rung-head"><span class="pub-rung-name"><span class="pub-rung-n">00</span> ${esc(fn.exposure.title ?? 'Exposure')}</span><span class="pub-rung-chip pub-rung-chip--dim">not comparable yet</span></div>
-            ${rungs.exposure ? `<p class="pub-rung-means">${esc(rungs.exposure)}</p>` : ''}
+            <span class="pub-rung-name"><span class="pub-rung-n">00</span> ${esc(fn.exposure.title ?? 'Exposure')}</span>
+            <span class="pub-rung-chip pub-rung-chip--dim">not comparable yet</span>
         </div>
     </li>` : '';
     const rows = gstages.map((gs, i) => {
         const slice = ladderSlice(g, gs.y0 ?? 0, gs.y1 ?? g.band_h ?? 150, i, { label: i === 0 ? g.aria : null });
-        return ladderRung(gs, slice, rungs[gs.key], g);
+        return ladderRung(gs, slice);
     }).join('');
     const future = (fn.future ?? []).map((x) => `<li class="pub-rung pub-rung--none pub-rung--edge">
         <div class="pub-rung-shape">${g.tail ? ladderSlice(g, g.tail.y0, g.tail.y1, 'tail', { tail: true }) : ''}</div>
         <div class="pub-rung-body">
-            <div class="pub-rung-head"><span class="pub-rung-name"><span class="pub-rung-n">${String(x.n ?? '').padStart(2, '0')}</span> ${esc(x.title ?? '')}</span><span class="pub-rung-chip pub-rung-chip--dim">not measured yet</span></div>
-            ${x.reason ? `<p class="pub-rung-line">${esc(x.reason)}</p>` : ''}
+            <span class="pub-rung-name"><span class="pub-rung-n">${String(x.n ?? '').padStart(2, '0')}</span> ${esc(x.title ?? '')}</span>
+            <span class="pub-rung-chip pub-rung-chip--dim">not measured yet</span>
         </div>
     </li>`).join('');
-    const tl = g.top_labels ?? {};
-    const mouth = tl.mouth?.text ? ` (${tl.mouth.text})` : '';
-    const tubeText = tl.tube?.text ? ` (${String(tl.tube.text).replace(/^typical\s*/i, '')})` : '';
-    const legend = `<div class="pub-legend">
-        <span class="pub-legend-item"><i class="pub-legend-swatch pub-legend-swatch--main"></i>This fighter${esc(tl.merged ? '' : mouth)}</span>
-        <span class="pub-legend-item"><i class="pub-legend-swatch pub-legend-swatch--tube"></i>A typical fighter at this level, at its real size${esc(tl.merged ? '' : tubeText)}</span>
-        ${g.any_unmeasured ? '<span class="pub-legend-item"><i class="pub-legend-swatch pub-legend-swatch--gap"></i>Not measured yet</span>' : ''}
-        ${tl.merged?.text ? `<span class="pub-legend-item">${esc(tl.merged.text)}</span>` : ''}
-    </div>`;
     return `${worked}${leak}<figure class="pub-panel pub-panel--ladder">
         <ol class="pub-rungs">${exposure}${rows}${future}</ol>
-        ${legend}
-        <p class="pub-panel-unit">Width is how much of this fighter's audience is still there at each rung, against a typical fighter at this level. Numbers on the right are multipliers: 1.0× is typical.</p>
+        <p class="pub-panel-unit">Width is the share of this fighter's audience still there at each rung. Dashed is a typical fighter at this level. 1.0× is typical.</p>
     </figure>
     ${fineNote('Source: Wikipedia page views for curiosity and retained interest, Instagram and YouTube followers and posts for commitment and activity.', 'small_print')}`;
 }
@@ -1359,13 +1319,34 @@ function fineNote(text, style) {
 // per-fighter sentence where the contract defines one (still landing — see the build report);
 // until then a fixed, evergreen line explains the section itself, exactly the pattern this file
 // already uses for engagement_basis: the page's own words, never invented data.
-function section(id, heading, inner, note) {
+//
+// v8: the text is the spine. A section's `story` (validated paragraphs, written once at
+// generation) leads the section at body size, above every figure and chart, and it IS the
+// explanation: where one exists the fixed or generic note is not rendered at all. A section
+// without a story keeps exactly what it had. `story` may arrive as an array of paragraphs, a
+// string (paragraphs split on blank lines) or {paragraphs}; the first candidate that yields
+// text wins, so callers can pass a block, then its container.
+function storyParas(...candidates) {
+    for (const c of candidates) {
+        const raw = c && typeof c === 'object' && !Array.isArray(c) && 'story' in c ? c.story : c;
+        const list = Array.isArray(raw) ? raw
+            : raw && typeof raw === 'object' && Array.isArray(raw.paragraphs) ? raw.paragraphs
+            : typeof raw === 'string' ? raw.split(/\n\s*\n/) : [];
+        const paras = list.filter((t) => typeof t === 'string' && t.trim()).map((t) => t.trim());
+        if (paras.length) return paras;
+    }
+    return null;
+}
+const storyHtml = (paras) => (paras ? `<div class="pub-story">${paras.map((t) => `<p>${esc(t)}</p>`).join('')}</div>` : '');
+
+function section(id, heading, inner, note, story = null) {
     if (!inner) return '';
+    const paras = Array.isArray(story) ? story : storyParas(story);
     return `
     <section class="pub-section" aria-labelledby="${id}">
         <div class="pub-inner">
             <h2 class="pub-h2" id="${id}">${esc(heading)}</h2>
-            ${note ? `<p class="pub-note pub-note--lead">${esc(note)}</p>` : ''}
+            ${paras ? storyHtml(paras) : note ? `<p class="pub-note pub-note--lead">${esc(note)}</p>` : ''}
             ${inner}
         </div>
     </section>`;
@@ -1475,6 +1456,7 @@ function socialBlock(s) {
     return `
             <div class="pub-platform">
                 <h3 class="pub-h3">${esc(s.platform)}</h3>
+                ${storyHtml(storyParas(s))}
                 ${rows}${mix}
                 <p class="pub-fine pub-fine--tiny">Engagement is ${esc(s.engagement_basis)}, not a 30-day window. Measured ${fmtDate(s.measured_on)}.</p>
             </div>`;
@@ -1603,6 +1585,7 @@ function fightWeekCard(fw, series) {
         lo: `${num(fw.baseline)}/day baseline`,
     });
     return `<p class="pub-line"><strong>vs ${esc(fw.opponent)}</strong> · ${fmtDate(fw.fight_date)}</p>
+            ${storyHtml(storyParas(fw))}
             ${statRow([
                 [`×${fw.lift_ratio.toFixed(1)}`, 'Peak vs. baseline'],
                 [num(fw.peak_views_per_day), 'Peak pageviews / day'],
@@ -1672,7 +1655,7 @@ function levelPairChart(levels, unit) {
     </figure>`;
 }
 
-function trajectoryBlock(t) {
+function trajectoryBlock(t, hasStory = false) {
     if (!t) return '';
     const fg = t.follower_growth, rm = t.rank_movement, as = t.attention_shift;
     const rows = statRow([
@@ -1687,7 +1670,7 @@ function trajectoryBlock(t) {
     const shift = as ? `
         ${as.ratio != null ? statRow([[`×${num(as.ratio, 1)}`, `Everyday attention since ${esc(as.since ?? 'the step up')}`]], { tone: as.direction === 'down' ? 'bad' : 'good' }) : ''}
         ${as.levels?.length ? levelPairChart(as.levels, as.unit ?? 'Wikipedia views per day') : ''}
-        ${as.sentence ? `<p class="pub-note">${esc(as.sentence)}</p>` : ''}
+        ${as.sentence && !hasStory ? `<p class="pub-note">${esc(as.sentence)}</p>` : ''}
         ${fineNote(as.note, 'small_print')}` : '';
     return `${rows}${shift}`;
 }
@@ -1715,20 +1698,20 @@ export function mediaKitPage({ page, site }) {
             ])}
         </div>
     </header>
-${section('pub-next', 'Next fight', nextFightBlock(d.next_fight))}
-${section('pub-social', 'Social', d.social.length ? `${d.social.map(socialBlock).join('')}${chart(d.charts.followers, { unit: 'Followers', yRefs: extremeRefs(d.charts.followers, { hi: d.social[0]?.followers != null ? `${num(d.social[0].followers)} today` : null }), tone: 'accent' })}` : '')}
-${section('pub-posts', 'Posting activity', postingCalendarBlock(d), 'One cell per day the window covers; colour shows how that post did against this fighter’s own average, not against anyone else’s.')}
-${section('pub-wiki', 'Attention', attentionBlock(d.wikipedia, d.charts.pageviews, bouts, fwRows[0]))}
-${section('pub-geo', 'Markets', marketsBlock(d.market_concentration))}
-${section('pub-fw', 'Fight week', fightWeekBlock(fwRows, d.charts.fight_week))}
-${section('pub-off', 'Between fights', offCycleTable(offCycleRows(d.off_cycle)), offCycleNote(d.off_cycle) ?? (offCycleRows(d.off_cycle).length ? 'Weeks with a real jump in attention even though no fight was near: he draws attention outside fight weeks too.' : null))}
+${section('pub-next', 'Next fight', nextFightBlock(d.next_fight), null, storyParas(d.next_fight))}
+${section('pub-social', 'Social', d.social.length ? `${d.social.map(socialBlock).join('')}${chart(d.charts.followers, { unit: 'Followers', yRefs: extremeRefs(d.charts.followers, { hi: d.social[0]?.followers != null ? `${num(d.social[0].followers)} today` : null }), tone: 'accent' })}` : '', null, storyParas(d.social_story))}
+${section('pub-posts', 'Posting activity', postingCalendarBlock(d), 'One cell per day the window covers; colour shows how that post did against this fighter’s own average, not against anyone else’s.', storyParas(d.posting_calendar))}
+${section('pub-wiki', 'Attention', attentionBlock(d.wikipedia, d.charts.pageviews, bouts, fwRows[0]), null, storyParas(d.wikipedia))}
+${section('pub-geo', 'Markets', marketsBlock(d.market_concentration), null, storyParas(d.market_concentration))}
+${section('pub-fw', 'Fight week', fightWeekBlock(fwRows, d.charts.fight_week), null, storyParas(d.fight_weeks, d.fight_week))}
+${section('pub-off', 'Between fights', offCycleTable(offCycleRows(d.off_cycle)), offCycleNote(d.off_cycle) ?? (offCycleRows(d.off_cycle).length ? 'Weeks with a real jump in attention even though no fight was near: he draws attention outside fight weeks too.' : null), storyParas(d.off_cycle))}
 ${(() => {
     // Bare array, or {rows, note} once the assembler carries its own explanation.
     const rows = Array.isArray(d.broadcast) ? d.broadcast : (d.broadcast?.rows ?? []);
     const note = (!Array.isArray(d.broadcast) && d.broadcast?.note) || (rows.length ? 'Not a complete record.' : null);
-    return section('pub-broadcast', 'Recent broadcast history', broadcastList(rows, note));
+    return section('pub-broadcast', 'Recent broadcast history', broadcastList(rows, note), null, storyParas(d.broadcast));
 })()}
-${section('pub-trajectory', 'Trajectory', trajectoryBlock(d.trajectory), d.trajectory?.note)}
+${section('pub-trajectory', 'Trajectory', trajectoryBlock(d.trajectory, !!storyParas(d.trajectory)), d.trajectory?.note, storyParas(d.trajectory))}
 </main>
 ${PUB_FOOTER}`;
 
@@ -1748,7 +1731,7 @@ ${PUB_FOOTER}`;
 // not the lowercase fragment ("more fame than their level alone predicts") that used to sit
 // under the FLI number by itself. The calibration caveat is real, but it explains how the
 // number is BUILT, not what it means — small print, not the lead.
-function overviewBlock(fl, field) {
+function overviewBlock(fl, field, hasStory = false) {
     if (!fl) return '';
     // v3 replaced `gap` (the index's own magnitude delta, formatted to 2 decimals) with
     // `audience_gap` (measured minus predicted, a real count in the audience's own units) —
@@ -1763,7 +1746,7 @@ function overviewBlock(fl, field) {
         [gapText, 'Audience gap'],
     ]);
     const reading = fl.reading_sentence ?? fl.reading;
-    const readingHtml = reading ? `<p class="pub-note pub-note--lead">${esc(reading)}</p>` : '';
+    const readingHtml = reading && !hasStory ? `<p class="pub-note pub-note--lead">${esc(reading)}</p>` : '';
     const fliBlock = fl.score != null ? `
         <div class="pub-fli-block">
             <p class="pub-fli-label">${fliHint()} <span class="pub-fli-n pub-tone-text-${fl.score < -0.04 ? 'bad' : fl.score > 0.04 ? 'good' : 'neutral'}">${signed(fl.score, 2)}</span></p>
@@ -1778,16 +1761,21 @@ function overviewBlock(fl, field) {
         { text: fl.note_audience_gap ?? fl.note_gap, style: fl.note_audience_gap_style },
         { text: fl.trend?.delta != null ? `FLI moved ${signed(fl.trend.delta, 2)} over the last ${fl.trend.days} days.` : null, style: null },
     ].filter((s) => s.text);
-    // The field sits directly under the stat numbers and above the reading: the picture first, then
-    // the sentence about it (its own verdict), then the Overview's reading of the numbers.
-    return `${rows}${fieldBlock(field)}${readingHtml}${fliBlock}${smallPrint.map((s) => fineNote(s.text, s.style)).join('')}`;
+    // 
+    // The field is a small square beside the figures (under them on a phone), never a panel of
+    // its own. Its verdict sentence is only shown when no story carries it.
+    const fieldHtml = fieldChart(field);
+    const verdictHtml = !hasStory && fieldHtml && field.verdict ? `<p class="pub-note pub-note--lead pub-field-verdict">${esc(field.verdict)}</p>` : '';
+    return `<div class="pub-fl-figures${fieldHtml ? ' pub-fl-figures--field' : ''}">
+        <div class="pub-fl-nums">${rows}${fliBlock}</div>${fieldHtml}
+    </div>${readingHtml}${verdictHtml}${smallPrint.map((s) => fineNote(s.text, s.style)).join('')}`;
 }
 
-function funnelBlock(fn) {
+function funnelBlock(fn, hasStory = false) {
     if (!fn) return '';
     // The reworked ladder carries per-rung geometry (graphic.stages); the pre-ladder funnel
     // carried graphic.segments and keeps its own rendering below.
-    if (Array.isArray(fn.graphic?.stages) && fn.graphic.stages.length) return ladderBlock(fn);
+    if (Array.isArray(fn.graphic?.stages) && fn.graphic.stages.length) return ladderBlock(fn, hasStory);
     // Each stage arrives display-ready from the assembler: `title` names it, `text` is the
     // figure already in its own units ("590K views"), `peer_text` is the typical fighter at
     // the same level and `pct_text` where this one sits among them ("better than X% of
@@ -1915,7 +1903,7 @@ function compoundingChart(comp) {
         <p class="pub-panel-unit">Audience level (relative). A step up holds, a spike falls back.</p>
     </figure>`;
 }
-function compoundingBlock(comp) {
+function compoundingBlock(comp, hasStory = false) {
     if (!comp) return '';
     const rows = statRow([
         [comp.first_level_text ?? null, 'Level at the first fight tracked'],
@@ -1923,7 +1911,7 @@ function compoundingBlock(comp) {
         [comp.mean_step_text ?? null, 'Average step per fight'],
     ]);
     const verdictTone = comp.compounding === true ? ' pub-tone-text-good' : comp.compounding === false ? ' pub-tone-text-bad' : '';
-    const verdict = comp.sentence ? `<p class="pub-note pub-note--lead${verdictTone}">${esc(comp.sentence)}</p>` : '';
+    const verdict = comp.sentence && !hasStory ? `<p class="pub-note pub-note--lead${verdictTone}">${esc(comp.sentence)}</p>` : '';
     const chart = compoundingChart(comp);
     const meta = [comp.span_text, comp.n != null ? `${comp.n} fights` : null].filter(Boolean).join(' · ');
     return `${verdict}${rows}${chart}${meta ? `<p class="pub-fine pub-fine--dim">${esc(meta)}</p>` : ''}`;
@@ -1936,11 +1924,12 @@ function compoundingBlock(comp) {
 // different words for the same thing. The missing-search paragraph is gone outright — the v3
 // review's own instruction ("say nothing instead") — a fight too old for a search reading
 // simply shows the Wikipedia figures with no explanatory aside.
-function retentionBlock(items, comp) {
-    const compHtml = compoundingBlock(comp);
+function retentionBlock(items, comp, hasStory = false) {
+    const compHtml = compoundingBlock(comp, hasStory);
     if (!items.length && !compHtml) return '';
     const cards = items.map((r) => `
                 <p class="pub-line"><strong>vs ${esc(r.opponent)}</strong> · ${fmtDate(r.fight_date)}</p>
+                ${storyHtml(storyParas(r))}
                 ${statRow([
                     // Rounded and grouped like every other count on the page: a raw
                     // "2433.5" beside a formatted "56,296" reads as two different kinds
@@ -2078,12 +2067,13 @@ export function internalDataPage({ page, site }) {
             <p class="pub-asof">Data measured on ${fmtDate(page.measured_on)}.</p>
         </div>
     </header>
-${section('pub-fl', 'Overview', overviewBlock(d.first_light, d.field))}
+${section('pub-fl', 'Overview', overviewBlock(d.first_light, d.field, !!storyParas(d.first_light, d.field)), null, storyParas(d.first_light, d.field))}
 ${(() => {
     const ladder = Array.isArray(d.funnel?.graphic?.stages);
-    return section('pub-funnel', ladder ? 'Attention ladder' : 'Attention funnel', funnelBlock(d.funnel), ladder ? d.funnel.note : 'Width at each stage shows how much of this fighter’s audience is still there, compared with a typical fighter at the same level (dashed = typical). Narrower than the tube means they lose more people than usual at that step; wider means they keep more.');
+    const story = storyParas(d.funnel);
+    return section('pub-funnel', ladder ? 'Attention ladder' : 'Attention funnel', funnelBlock(d.funnel, !!story), ladder ? d.funnel.note : 'Width at each stage shows how much of this fighter’s audience is still there, compared with a typical fighter at the same level (dashed = typical). Narrower than the tube means they lose more people than usual at that step; wider means they keep more.', story);
 })()}
-${section('pub-geo', 'Audience geography', geographyBlock(d.geography))}
+${section('pub-geo', 'Audience geography', geographyBlock(d.geography), null, storyParas(d.geography))}
 ${(() => {
     // retention arrives either as a bare array or as {note, rows, compounding}; compounding
     // may also sit at the top level. Read both, so the section does not silently lose its
@@ -2093,11 +2083,12 @@ ${(() => {
     const note = (!Array.isArray(d.retention) && d.retention?.note) || (comp
         ? 'Each fight either lifts the baseline permanently (a step up the audience keeps) or attention fades back to where it started. The pattern across fights is what decides whether this audience compounds.'
         : 'Afterglow: how much of the search and Wikipedia attention a fight brought is still there 30 days later, against this fighter’s own pre-fight baseline.');
-    return section('pub-retention', 'Fight-week retention', retentionBlock(rows, comp), note);
+    const story = storyParas(d.retention, comp);
+    return section('pub-retention', 'Fight-week retention', retentionBlock(rows, comp, !!story), note, story);
 })()}
-${section('pub-off', 'Between fights', offCycleTable(offCycleRows(d.off_cycle)), offCycleNote(d.off_cycle) ?? 'Weeks where attention spiked with no fight nearby (a sponsor push, a media hit, a story) shown against how far that week sat from the nearest bout.')}
-${section('pub-billing', 'Card position', billingBlock(d.billing), d.billing ? 'The card-position score is how high this fighter is billed relative to what their level alone predicts for that matchup: above zero means billed higher than expected, below means lower. A promotion’s own championship weighting (PFL, for one) can push the score above 1.0.' : null)}
-${section('pub-cohort', 'Compared with fighters at the same level', cohortBlock(d.cohort))}
+${section('pub-off', 'Between fights', offCycleTable(offCycleRows(d.off_cycle)), offCycleNote(d.off_cycle) ?? 'Weeks where attention spiked with no fight nearby (a sponsor push, a media hit, a story) shown against how far that week sat from the nearest bout.', storyParas(d.off_cycle))}
+${section('pub-billing', 'Card position', billingBlock(d.billing), d.billing ? 'The card-position score is how high this fighter is billed relative to what their level alone predicts for that matchup: above zero means billed higher than expected, below means lower. A promotion’s own championship weighting (PFL, for one) can push the score above 1.0.' : null, storyParas(d.billing))}
+${section('pub-cohort', 'Compared with fighters at the same level', cohortBlock(d.cohort), null, storyParas(d.cohort))}
 </main>
 ${PUB_FOOTER}`;
 
