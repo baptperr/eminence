@@ -193,12 +193,13 @@
     position: sticky; left: 0; z-index: 2; background: var(--night);
 }
 .pub-nowrap { white-space: nowrap; }
-.pub-table--card { min-width: 27rem; font-size: 0.74rem; }
+.pub-table--card { min-width: 27rem; font-size: 0.7rem; }
 .pub-table--card th, .pub-table--card td {
-    white-space: nowrap; word-break: normal; overflow-wrap: normal; hyphens: none; padding: 0.5rem 0.6rem;
+    white-space: nowrap; word-break: normal; overflow-wrap: normal; hyphens: none; padding: 0.5rem 0.3rem;
 }
-.pub-table--card th:nth-child(2), .pub-table--card td:nth-child(2) { white-space: normal; width: 100%; min-width: 11rem; }
-.pub-table--card .pub-tag { margin-left: 0.3rem; vertical-align: 1px; }
+.pub-table--card th:nth-child(2), .pub-table--card td:nth-child(2) { white-space: normal; width: 100%; min-width: 12rem; }
+@media (max-width: 560px) { .pub-table--card th:nth-child(2), .pub-table--card td:nth-child(2) { min-width: 18rem; } }
+.pub-table--card .pub-tag { margin-left: 0.25rem; vertical-align: 1px; font-size: 0.5rem; padding: 0.1rem 0.3rem; letter-spacing: 0.06em; }
 .pub-table--card .hint-tip { white-space: normal; width: 15rem; left: auto; right: 0; }
 .pub-table-delta { font-size: 0.9em; opacity: 0.85; }
 @media (min-width: 561px) {
@@ -472,30 +473,40 @@
 
 /* Posting calendar: a GitHub-contribution-style grid, one cell per day, symbol = media type,
    colour intensity = that post's engagement relative to this fighter's own. */
-.pub-cal-wrap { overflow-x: auto; margin-top: 1.25rem; }
+.pub-cal-wrap { overflow: hidden; margin-top: 1.25rem; container-type: inline-size; }
+/* Months sit side by side in ONE row, never a second: the newest 2, 3 or 4 that fit the width
+   are shown (older ones are hidden by the container queries below) and each month's cells
+   share its width. */
 .pub-cal {
-    display: flex; flex-wrap: wrap; gap: 1.1rem 1.4rem;
+    --cal-empty: #16231F;
+    display: flex; flex-wrap: nowrap; gap: 1.1rem 1.4rem;
     background: var(--p-surface, #0A0F13); border: 1px solid var(--p-line, rgba(127, 212, 168, .16));
     border-radius: 4px; padding: 0.85rem;
     font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
 }
 /* Bigger squares, and the type letter set in the display face: a single glyph in a
    monospace face reads as a terminal, not as a label. */
-.pub-cal-month { display: flex; flex-direction: column; gap: 0.35rem; }
+.pub-cal-month { display: flex; flex-direction: column; gap: 0.35rem; flex: 1 1 0; min-width: 0; }
+.pub-cal-month:nth-last-child(n+3) { display: none; }
+@container (min-width: 440px) { .pub-cal-month:nth-last-child(n+3) { display: flex; } .pub-cal-month:nth-last-child(n+4) { display: none; } }
+@container (min-width: 660px) { .pub-cal-month:nth-last-child(n+4) { display: flex; } .pub-cal-month:nth-last-child(n+5) { display: none; } }
 .pub-cal-month-name {
     font-family: 'DM Sans', system-ui, sans-serif; font-size: 0.66rem; letter-spacing: 0.12em;
-    text-transform: uppercase; color: var(--t3);
+    text-transform: uppercase; color: var(--t3); white-space: nowrap;
 }
-.pub-cal-grid { display: grid; grid-template-columns: repeat(7, 19px); gap: 4px; }
+.pub-cal-grid { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 4px; max-width: 200px; }
 .pub-cal-cell {
-    width: 19px; height: 19px; border-radius: 3px; background: rgba(127, 212, 168, .10);
+    aspect-ratio: 1; border-radius: 3px; background: var(--cal-empty);
     font-family: 'Red Hat Display', sans-serif; font-weight: 800;
-    font-size: 11px; line-height: 19px; text-align: center; color: transparent;
+    font-size: 12px; line-height: 1; display: flex; align-items: center; justify-content: center;
+    color: transparent;
 }
+/* The scale starts AT the empty colour: the lowest tier is that colour exactly. */
 .pub-cal-cell--post {
-    background: color-mix(in oklch, #0A0F13, #7FD4A8 calc(var(--rel, .5) * 85%));
-    color: #D3E4DA;
+    background: color-mix(in srgb, var(--cal-empty), #7FD4A8 calc(var(--rel, .5) * 100%));
+    color: #F2F8F4;
 }
+.pub-cal-cell--hi { color: #06100B; }
 .pub-cal-cell--pad { background: transparent; }
 /* Days after today: the week is drawn whole so the grid stays rectangular, but a day that
    has not happened must not read as a day with no post. */
@@ -508,7 +519,7 @@
     font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-style: normal;
 }
 .pub-cal-scale { display: inline-block; width: 40px; height: 8px; border-radius: 2px;
-    background: linear-gradient(to right, color-mix(in oklch, #0A0F13, #7FD4A8 15%), color-mix(in oklch, #0A0F13, #7FD4A8 90%)); }
+    background: linear-gradient(to right, #16231F, #7FD4A8); }
 .pub-cal-scale-arrow { opacity: 0.6; }
 
 @media (max-width: 480px) {

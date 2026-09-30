@@ -1523,9 +1523,11 @@ function calendarCells(cells, { padded = false } = {}) {
         if (c.future) return '<span class="pub-cal-cell pub-cal-cell--future" aria-hidden="true"></span>';
         if (!c.type) return `<span class="pub-cal-cell" title="${esc(fmtDate(c.date))}: no post"></span>`;
         const sym = TYPE_SYMBOL[c.type] ?? c.type.slice(0, 1).toUpperCase();
-        const rel = c.rel != null ? Math.max(0.18, Math.min(1, c.rel)) : 0.55;
+        // No floor: the lowest tier is exactly the empty-day colour (a post that did nothing has
+        // the impact of no post; the letter alone says a post happened).
+        const rel = c.rel != null ? Math.max(0, Math.min(1, c.rel)) : 0.55;
         const count = c.posts > 1 ? `, ${c.posts} posts` : '';
-        return `<span class="pub-cal-cell pub-cal-cell--post" style="--rel:${rel.toFixed(2)}" title="${esc(fmtDate(c.date))} · ${esc(c.type)}${count}">${esc(sym)}</span>`;
+        return `<span class="pub-cal-cell pub-cal-cell--post${rel >= 0.52 ? ' pub-cal-cell--hi' : ''}" style="--rel:${rel.toFixed(2)}" title="${esc(fmtDate(c.date))} · ${esc(c.type)}${count}">${esc(sym)}</span>`;
     }).join('');
 }
 function calendarLegend(types) {
@@ -2030,12 +2032,17 @@ function billingBlock(b) {
     if (!b) return '';
     // Four columns, one line per row: the card section and the card tier used to be two columns
     // saying nearly the same thing ("Main event" on every row beside "Regular card"). One
-    // position column now, with the title-fight chip inline beside it; the tier stays available
-    // as the cell's own hover text.
-    const rows = table(['Date', 'Event', 'Slot', { html: hintText('Score', CARD_SCORE_HINT, { sentence: true }) }], b.rows.map((r) => [
-        `<span class="pub-nowrap">${esc(fmtDate(r.date))}</span>`,
-        esc(r.event),
-        `<span class="pub-nowrap" title="${esc(relabelTier(r.event_tier))}">${esc(r.card_section)}${r.is_title ? ' <span class="pub-tag">Title fight</span>' : ''}</span>`,
+    // position column now, with the title-fight chip inline after the event name; the tier keeps its own
+    // narrow column because it is what explains the score.
+    const rows = table(['Date', 'Event', 'Slot', 'Card', { html: hintText('Score', CARD_SCORE_HINT, { sentence: true }) }], b.rows.map((r) => [
+        `<span class="pub-nowrap">${esc(fmtDate(r.date).replace(/ 20(\d\d)$/, ' ’$1'))}</span>`,
+        // The title chip rides inline after the event name (the one column that can wrap), so the
+        // fixed-width columns stay narrow.
+        `${esc(r.event)}${r.is_title ? ' <span class="pub-tag">Title fight</span>' : ''}`,
+        `<span class="pub-nowrap">${esc(r.card_section)}</span>`,
+        // The tier is what produces the score (a regular card and a championship card sit on
+        // different scales), so it stays a visible column, never a hover.
+        `<span class="pub-nowrap">${esc(relabelTier(r.event_tier))}</span>`,
         // v3 renamed actual/signal to card_position_score/delta, and sends both already
         // formatted; the older names still render for publications made before that.
         (() => {
