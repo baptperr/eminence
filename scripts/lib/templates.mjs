@@ -1227,8 +1227,17 @@ function ladderBlock(fn, hasStory = false) {
             <span class="pub-rung-chip pub-rung-chip--dim">not comparable yet</span>
         </div>
     </li>` : '';
+    // The silhouette is ONE continuous shape and each rung draws the band of it between its
+    // own y0 and y1. The payload drops the rungs it cannot measure but leaves the geometry
+    // describing the whole ladder, so a dropped rung's band was simply never drawn and the
+    // outline broke at that seam: rung 02 ended where the hidden rung began and rung 04
+    // resumed further down, with the stack closing the gap. Each visible rung now runs to
+    // where the NEXT visible one starts, so a hidden rung's band is absorbed by its
+    // neighbour and the shape stays whole.
     const rows = gstages.map((gs, i) => {
-        const slice = ladderSlice(g, gs.y0 ?? 0, gs.y1 ?? g.band_h ?? 150, i, { label: i === 0 ? g.aria : null });
+        const y0 = gs.y0 ?? 0;
+        const y1 = gstages[i + 1]?.y0 ?? gs.y1 ?? g.band_h ?? 150;
+        const slice = ladderSlice(g, y0, y1, i, { label: i === 0 ? g.aria : null });
         return ladderRung(gs, slice, i + 1);
     }).join('');
     const future = (fn.future ?? []).map((x) => `<li class="pub-rung pub-rung--none pub-rung--edge">
