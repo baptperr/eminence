@@ -1437,6 +1437,16 @@ function recordText(r) {
     return r.ncs > 0 ? `${base} (${r.ncs} NC)` : base;
 }
 
+// An unbeaten fighter's run is stated from the record, which needs no bout history:
+// `undefeated_in` is set exactly when the assembler can back it, and it replaces a streak
+// that partial history (or a no-contest mid-record) would understate. Usman Nurmagomedov
+// read "5 wins in a row" under a 22-0-0 record because a no-contest in 2023 broke the run.
+function runLabel(f) {
+    if (f.undefeated_in != null) return ['Undefeated', `in ${num(f.undefeated_in)} fights`];
+    const t = streakText(f.streak);
+    return t ? [t, 'Streak'] : [null, 'Streak'];
+}
+
 function streakText(s) {
     if (!s) return null;
     const r = String(s.result).toLowerCase();
@@ -1738,7 +1748,7 @@ export function mediaKitPage({ page, site }) {
             ${rankLine(d.rank)}
             ${statRow([
                 [recordText(f.record), 'Record'],
-                [streakText(f.streak), 'Streak'],
+                runLabel(f),
             ])}
         </div>
     </header>
