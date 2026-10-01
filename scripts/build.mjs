@@ -19,7 +19,7 @@ const SAMPLE = args.has('--sample');
 
 const OUT = path.join(ROOT, SAMPLE ? 'dist-preview' : 'dist');
 const DATA = path.join(ROOT, SAMPLE ? 'data/sample' : 'data');
-const SITE = (process.env.SITE_URL || 'https://firstlight.agency').replace(/\/$/, '');
+const SITE = (process.env.SITE_URL || 'https://firstlightequity.com').replace(/\/$/, '');
 
 const STATIC = [
     'index.html', 'privacy.html', '_redirects',

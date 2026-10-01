@@ -8,11 +8,11 @@ HTML at the repo root; everything under `/publications/` and `/index/` is genera
 npm run preview       # build with fictional fixtures + drafts and serve at localhost:8765 (never deployed)
 npm run build         # build for real into dist/
 npm run new-private   # create data/private/<random-token>.json for a one-off page
-npm run deploy        # build, then upload dist/ to the Cloudflare Pages project (firstlight.agency)
+npm run deploy        # build, then upload dist/ to the Cloudflare Pages project (firstlightequity.com)
 npm run refresh       # export from the Observatory, then deploy if the rankings changed
 ```
 
-The site is a Cloudflare **Pages** project named `eminence` (it serves firstlight.agency). `wrangler.toml`
+The site is a Cloudflare **Pages** project named `eminence` (it serves firstlightequity.com). `wrangler.toml`
 points at `dist/`, not the repo root, and deploys go up with `wrangler pages deploy`. Only the files listed in `STATIC` in
 `scripts/build.mjs` are copied there, so a new root-level asset (image, video) has to be added to that
 list. Everything else, including `data/`, `scripts/` and `apps-script/`, is not published.
@@ -117,4 +117,4 @@ previews, so keep names out of it.
 
 ## Site URL
 
-`sitemap.xml` and canonical tags use `https://firstlight.agency`. Override with `SITE_URL=… npm run build`.
+`sitemap.xml` and canonical tags use `https://firstlightequity.com`. Override with `SITE_URL=… npm run build`.

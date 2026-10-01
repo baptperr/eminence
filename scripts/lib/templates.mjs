@@ -25,7 +25,7 @@ const NAV = (current) => `<nav class="nav" id="mainNav" aria-label="Site">
 const FOOTER = `<footer>
     <a href="/" class="foot-logo"><img src="/logo.svg" alt="FIRST LIGHT" class="foot-logo-img"></a>
     <nav class="foot-links">
-        <a href="mailto:contact@firstlight.agency" class="foot-link">contact@firstlight.agency</a>
+        <a href="mailto:contact@firstlightequity.com" class="foot-link">contact@firstlightequity.com</a>
         <a href="/privacy.html" class="foot-link foot-link-legal">Privacy</a>
     </nav>
     <p class="foot-copy">© ${YEAR} FIRST LIGHT</p>
@@ -222,7 +222,7 @@ export function observatoryPage({ site }) {
     const url = '/observatory/';
     const org = {
         '@type': 'Organization', '@id': `${site}/#organization`,
-        name: 'First Light', url: `${site}/`, logo: `${site}/logo.png`, email: 'contact@firstlight.agency',
+        name: 'First Light', url: `${site}/`, logo: `${site}/logo.png`, email: 'contact@firstlightequity.com',
     };
     const body = `<main class="ob">
     <div class="ob-bg" aria-hidden="true">
@@ -233,7 +233,7 @@ export function observatoryPage({ site }) {
     <p class="ob-text">${esc(OBSERVATORY_TEXT_LINES[0])} <span class="ob-close">${esc(OBSERVATORY_TEXT_LINES[1])}</span></p>
     <p class="ob-link"><a href="/index/">First Light Index <span aria-hidden="true">&rarr;</span></a></p>
     <p class="ob-status" id="obStatus" hidden><span class="ob-dot" aria-hidden="true"></span>Last reading: <time id="obStatusTime"></time></p>
-    <p class="ob-credit"><span>Journalists may publish Observatory data.</span><span>Credit: First Light Observatory.</span><span><a href="mailto:contact@firstlight.agency">contact@firstlight.agency</a></span></p>
+    <p class="ob-credit"><span>Journalists may publish Observatory data.</span><span>Credit: First Light Observatory.</span><span><a href="mailto:contact@firstlightequity.com">contact@firstlightequity.com</a></span></p>
 </main>`;
     return shell({
         title: 'First Light Observatory',
@@ -650,7 +650,7 @@ ${FOOTER}`;
 // into the other's.
 
 const PUB_FOOTER = `<footer class="pub-foot">
-    <div class="pub-inner"><p class="pub-foot-line">Data measured by the First Light Observatory · <a href="mailto:contact@firstlight.agency">contact@firstlight.agency</a></p></div>
+    <div class="pub-inner"><p class="pub-foot-line">Data measured by the First Light Observatory · <a href="mailto:contact@firstlightequity.com">contact@firstlightequity.com</a></p></div>
 </footer>`;
 
 // ── the one chart component ──
