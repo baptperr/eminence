@@ -582,3 +582,9 @@
 }
 
 .pub-fl-figures + .pub-note, .pub-fl-figures + .pub-note--lead { margin-top: 1.75rem; }
+
+/* The fight-week card's figures are PAIRS (before and after, typical and peak, the change and
+   what was kept), so they sit two to a row. A wrapping flex row re-flows them three-and-three
+   or four-and-two with the width, which puts unrelated numbers side by side. */
+.pub-stat-row--pairs { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1.5rem 2.25rem; }
+@media (max-width: 460px) { .pub-stat-row--pairs { grid-template-columns: 1fr; } }

@@ -1288,9 +1288,19 @@ function stat(value, label, tone) {
     const toneCls = tone ? ` pub-tone-text-${tone}` : '';
     return `<div class="pub-stat"><span class="pub-stat-n${toneCls}">${esc(value)}</span><span class="pub-stat-label">${lbl}</span></div>`;
 }
+// The multiple between the two everyday-audience figures, taken from the rounded values the
+// card prints so the tile and the figures above it agree.
+function levelMultiple(r) {
+    const a = r.level_before != null ? Math.round(r.level_before) : null;
+    const b = r.level_after != null ? Math.round(r.level_after) : null;
+    if (!a || b == null) return null;
+    return `${(b / a).toFixed(1)}×`;
+}
+
 function statRow(items, opts = {}) {
     const parts = items.filter(([v]) => v != null).map(([v, l, t]) => stat(v, l, t ?? opts.tone));
-    return parts.length ? `<div class="pub-stat-row">${parts.join('')}</div>` : '';
+    const cls = `pub-stat-row${opts.cols === 2 ? ' pub-stat-row--pairs' : ''}`;
+    return parts.length ? `<div class="${cls}">${parts.join('')}</div>` : '';
 }
 
 // A plain table for internal-data's multi-column rows (geography, off-cycle, billing). Cells
@@ -2005,15 +2015,21 @@ function retentionBlock(items, comp, hasStory = false) {
                     // Rounded and grouped like every other count on the page: a raw
                     // "2433.5" beside a formatted "56,296" reads as two different kinds
                     // of number, and half a page view is not a thing.
+                    // Three rows of two, in reading order: where the audience was and where it
+                    // ended up, then what the fight week itself did, then the two summary
+                    // figures. The pairs are the comparisons, so they sit side by side.
                     [r.level_before != null ? num(Math.round(r.level_before)) : null, 'Everyday audience before the fight'],
                     [r.level_after != null ? num(Math.round(r.level_after)) : null, 'Everyday audience a month later'],
-                    [r.step_text ?? null, 'Change in everyday audience'],
-                    [r.peak != null ? num(r.peak) : null, 'Peak on the biggest day'],
                     [r.baseline != null ? num(r.baseline) : null, 'Typical day, this fight week'],
-                    [r.search_afterglow != null ? pct(r.search_afterglow) : null, 'Search attention kept, 30 days out'],
+                    [r.peak != null ? num(r.peak) : null, 'Peak on the biggest day'],
+                    // The multiple of the two figures printed above, not the payload's
+                    // sentence: a stat tile wants "2.5×", and computing it from the same
+                    // rounded numbers keeps it dividing correctly for anyone who checks.
+                    [levelMultiple(r) ?? r.step_text ?? null, 'Change in everyday audience'],
                     [r.wiki_afterglow != null ? pct(r.wiki_afterglow) : null, 'Attention kept, 30 days out'],
+                    [r.search_afterglow != null ? pct(r.search_afterglow) : null, 'Search attention kept, 30 days out'],
                     [r.growth_velocity != null ? `×${num(r.growth_velocity, 2)}` : null, 'Follower growth velocity'],
-                ])}
+                ], { cols: 2 })}
                 ${chart(r.curve, { unit: 'Wikipedia views per day', bouts: [{ opponent: r.opponent, date: r.fight_date }], tone: 'accent' })}`);
     // A horizontal carousel, same shape and same fix as the media kit's fight week (see
     // carousel()) — this used to be one vertical, divider-separated block per fight.
