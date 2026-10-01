@@ -1916,10 +1916,58 @@ function stepTone(direction) {
 // Handles both series generations: the new axis shape draws a real, labelled axis around the
 // same coloured-segment idiom; the old pixel shape (still what a publication generated before
 // the payload rewrite carries) keeps its previous axis-less rendering.
+// The measured curve. `series.daily` is the real day-by-day attention, so THAT is the line:
+// a spike at each fight, a fall back, and wherever the floor ends up. The settled level of each
+// fight (the median 30 to 90 days after) is only a reference laid over it: a flat bar across the
+// window it was measured in, green where it sits above the level the fighter started that cycle
+// from, red where it fell back. Nothing joins one fight's level to the next, because nothing
+// was measured that way. A day the payload does not carry was never tracked, so the line breaks
+// there rather than bridging it.
+function compoundingDailyChart(series, steps) {
+    const days = [...series.daily.points].sort((a, b) => xv(a.x) - xv(b.x));
+    const f = buildAxisFrame({ ...series, points: days });
+    const gaps = days.slice(1).map((p, i) => xv(p.x) - xv(days[i].x)).sort((a, b) => a - b);
+    const typical = gaps.length ? gaps[Math.floor(gaps.length / 2)] : 0;
+    const runs = [];
+    let run = [];
+    days.forEach((p, i) => {
+        if (i > 0 && xv(p.x) - xv(days[i - 1].x) > typical * 2) { runs.push(run); run = []; }
+        run.push(p);
+    });
+    runs.push(run);
+    const line = runs.map((r) => (r.length > 1
+        ? `<polyline class="pub-series pub-series--main pub-series--daily pub-tone-line-neutral" points="${f.toPoly(r)}"/>`
+        : `<circle class="pub-point-dot" cx="${f.xScale(r[0].x).toFixed(1)}" cy="${f.yScale(r[0].y).toFixed(1)}" r="1.2"/>`)).join('');
+    const stepByDate = new Map(steps.map((s) => [s.fight_date, s]));
+    const levels = (series.levels ?? []).map((l) => {
+        const dir = stepByDate.get(l.fight_date)?.direction;
+        const y = f.yScale(l.y).toFixed(1);
+        return `<line class="pub-series pub-series--level pub-tone-line-${TONE_LINE[stepTone(dir)]}"${l.partial ? ' stroke-dasharray="6 4"' : ''} x1="${f.xScale(l.x0).toFixed(1)}" x2="${f.xScale(l.x1).toFixed(1)}" y1="${y}" y2="${y}"/>`;
+    }).join('');
+    const marks = series.markers ?? [];
+    const markerLines = marks.map((m) => `<line class="pub-mark-line" x1="${f.xScale(m.x).toFixed(1)}" x2="${f.xScale(m.x).toFixed(1)}" y1="${f.plotY0}" y2="${f.plotY1.toFixed(1)}"/>`).join('');
+    const markerLabels = marks.map((m, i) => {
+        const x = f.xScale(m.x);
+        const anchor = x < f.plotX0 + 30 ? 'start' : x > f.plotX1 - 30 ? 'end' : 'middle';
+        const y = f.plotY0 - 5 - (marks.length > 1 && i % 2 === 1 ? 11 : 0);
+        return `<text class="pub-mark-label pub-mark-label--top" x="${x.toFixed(1)}" y="${y.toFixed(1)}" text-anchor="${anchor}">${esc(m.label)}</text>`;
+    }).join('');
+    return `<figure class="pub-panel">
+        <svg class="pub-panel-svg" viewBox="0 0 ${f.W} ${f.H}" role="img" aria-label="Views per day over time, with a spike at each fight and a fall back after it. A bar marks the level each fight settled at, green where it sits above where that cycle started and red where it fell back">
+            <g class="pub-grid">${f.gridY}</g>
+            ${f.axisLines}
+            ${line}${levels}
+            <g class="pub-marks">${markerLines}${markerLabels}</g>
+            <g class="pub-axis-labels">${f.yLabels}${f.xLabels}</g>
+        </svg>
+        <p class="pub-panel-unit">${esc(series.y?.label ?? 'Everyday audience')}, measured every day. The coloured bar is the level it settled at 30 to 90 days after each fight: green where that is above where it started, red where it fell back. A dashed bar is still settling.</p>
+    </figure>`;
+}
 function compoundingChart(comp) {
     const series = comp?.chart;
     const steps = comp?.steps ?? [];
     if (!series) return '';
+    if (isAxisSeries(series) && series.daily?.points?.length > 1) return compoundingDailyChart(series, steps);
     if (isAxisSeries(series)) {
         const marks = series.markers ?? [];
         if (!marks.length) return axisChart(series, { tone: 'accent' });
