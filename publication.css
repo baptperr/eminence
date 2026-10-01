@@ -494,7 +494,7 @@
     font-family: 'DM Sans', system-ui, sans-serif; font-size: 0.66rem; letter-spacing: 0.12em;
     text-transform: uppercase; color: var(--t3); white-space: nowrap;
 }
-.pub-cal-grid { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 4px; max-width: 200px; }
+.pub-cal-grid { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 3px; max-width: 200px; }
 .pub-cal-cell {
     aspect-ratio: 1; border-radius: 3px; background: var(--cal-empty);
     font-family: 'Red Hat Display', sans-serif; font-weight: 800;
@@ -515,8 +515,10 @@
 .pub-cal-legend-item { display: inline-flex; align-items: center; gap: 0.35rem; }
 .pub-cal-sym {
     display: inline-flex; align-items: center; justify-content: center; width: 12px; height: 12px;
-    border-radius: 2px; background: rgba(127, 212, 168, .18); color: #D3E4DA; font-size: 7px;
-    font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-style: normal;
+    border-radius: 2px; background: rgba(127, 212, 168, .18); color: #D3E4DA; font-size: 8px;
+    /* The same display face as the letters on the grid: the legend has to look like the
+       thing it explains, and a lone glyph in a monospace face reads as a terminal. */
+    font-family: 'Red Hat Display', sans-serif; font-weight: 800; font-style: normal;
 }
 .pub-cal-scale { display: inline-block; width: 40px; height: 8px; border-radius: 2px;
     background: linear-gradient(to right, #16231F, #7FD4A8); }
