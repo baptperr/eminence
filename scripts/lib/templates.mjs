@@ -1188,10 +1188,13 @@ function ladderTone(index) {
 
 // One line of figures per rung, and nothing else: the name, the figure and the multiplier.
 // What each rung means, how it compares and what it implies is the section's prose.
-function ladderRung(gs, top) {
+function ladderRung(gs, top, shown) {
     const unmeasured = gs.measured === false;
     const notComparable = gs.status === 'no_fight_window';
-    const n = String(gs.n ?? '').padStart(2, '0');
+    // Number by POSITION on the page, not by the rung's own id. The payload drops the rungs
+    // it cannot measure, so its ids run 01, 02, 04: printing the gap tells the reader a rung
+    // is missing, which is the thing dropping it was meant to avoid.
+    const n = String(shown ?? gs.n ?? '').padStart(2, '0');
     const chip = unmeasured ? 'not measured yet'
         : notComparable ? 'not comparable yet'
         : gs.index_text ? `${gs.index_text}${gs.index_word ? ` ${gs.index_word}` : ''}`
@@ -1226,7 +1229,7 @@ function ladderBlock(fn, hasStory = false) {
     </li>` : '';
     const rows = gstages.map((gs, i) => {
         const slice = ladderSlice(g, gs.y0 ?? 0, gs.y1 ?? g.band_h ?? 150, i, { label: i === 0 ? g.aria : null });
-        return ladderRung(gs, slice);
+        return ladderRung(gs, slice, i + 1);
     }).join('');
     const future = (fn.future ?? []).map((x) => `<li class="pub-rung pub-rung--none pub-rung--edge">
         <div class="pub-rung-shape">${g.tail ? ladderSlice(g, g.tail.y0, g.tail.y1, 'tail', { tail: true }) : ''}</div>
@@ -1239,7 +1242,10 @@ function ladderBlock(fn, hasStory = false) {
         <ol class="pub-rungs">${exposure}${rows}${future}</ol>
         <p class="pub-panel-unit">Width is the share of this fighter's audience still there at each rung. Dashed is a typical fighter at this level. 1.0× is typical.</p>
     </figure>
-    ${fineNote('Source: Wikipedia page views for curiosity and retained interest, Instagram and YouTube followers and posts for commitment and activity.', 'small_print')}`;
+    ${/* Name the sources, never what each one measures. Mapping "Wikipedia page views" to
+         curiosity and "Instagram followers" to commitment hands over the recipe; the step
+         from a raw count to the measure it stands for is the part that is ours. Contract v6. */ ''}
+    ${fineNote('Sources: Wikipedia page views, Instagram and YouTube followers and posts.', 'small_print')}`;
 }
 
 // A small centred bar for the FLI's own −1..+1 range, the rankings page's own rk-bar idiom
