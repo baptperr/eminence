@@ -1804,6 +1804,7 @@ ${section('pub-posts', 'Posting activity', postingCalendarBlock(d), 'One cell pe
 ${section('pub-wiki', 'Attention', attentionBlock(d.wikipedia, d.charts.pageviews, bouts, fwRows[0]), null, storyParas(d.wikipedia))}
 ${section('pub-geo', 'Markets', marketsBlock(d.market_concentration), null, storyParas(d.market_concentration))}
 ${section('pub-fw', 'Fight week', fightWeekBlock(fwRows, d.charts.fight_week), null, storyParas(d.fight_weeks, d.fight_week))}
+${section('pub-compound', 'Audience retention', compoundingBlock(d.compounding, !!storyParas(d.compounding)), null, storyParas(d.compounding))}
 ${section('pub-off', 'Between fights', offCycleTable(offCycleRows(d.off_cycle)), offCycleNote(d.off_cycle) ?? (offCycleRows(d.off_cycle).length ? 'Weeks with a real jump in attention even though no fight was near: he draws attention outside fight weeks too.' : null), storyParas(d.off_cycle))}
 ${(() => {
     // Bare array, or {rows, note} once the assembler carries its own explanation.
@@ -1979,7 +1980,6 @@ function compoundingDailyChart(series, steps) {
         ${key('neutral', false, 'Views per day, measured')}
         ${key('good', false, 'Settled higher than before that fight')}
         ${key('bad', false, 'Settled lower than before that fight')}
-        ${hasPartial ? key('good', true, 'Still settling, not final') : ''}
     </p>`;
     const marks = series.markers ?? [];
     const markerLines = marks.map((m) => `<line class="pub-mark-line" x1="${f.xScale(m.x).toFixed(1)}" x2="${f.xScale(m.x).toFixed(1)}" y1="${f.plotY0}" y2="${f.plotY1.toFixed(1)}"/>`).join('');
@@ -1998,7 +1998,7 @@ function compoundingDailyChart(series, steps) {
             <g class="pub-axis-labels">${f.yLabels}${f.xLabels}</g>
         </svg>
         ${legend}
-        <p class="pub-panel-unit">${esc(series.y?.label ?? 'Everyday audience')}, measured every day, on a folding scale so the everyday level stays readable next to a fight-week spike. Each coloured band covers the window the level after that fight was measured over, starting 30 days later so the fight's own spike is left out.</p>
+        <p class="pub-panel-unit">${esc(series.y?.label ?? 'Everyday audience')}, log scale. Each band starts 30 days after the fight.</p>
     </figure>`;
 }
 function compoundingChart(comp) {
