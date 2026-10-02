@@ -794,19 +794,40 @@ function tickDy(labels, positions, i) {
 // on, which turns a date into epoch milliseconds and leaves a number alone.
 const xv = (v) => (typeof v === 'string' ? Date.parse(v) : v);
 
-function buildAxisFrame(series, { W = 600, H = 220 } = {}) {
+// Ticks at 1, 2 and 5 per decade: on a log axis evenly spaced ticks would not be evenly
+// spaced on the page, and a reader needs the decades named to read one off at all.
+function logTicks(min, max) {
+    const out = [];
+    for (let e = Math.floor(Math.log10(min)); e <= Math.ceil(Math.log10(max)); e++) {
+        for (const m of [1, 2, 5]) {
+            const v = m * 10 ** e;
+            if (v >= min && v <= max) out.push({ value: v, label: num(v) });
+        }
+    }
+    return out.length > 1 ? out : [{ value: min, label: num(min) }, { value: max, label: num(max) }];
+}
+
+function buildAxisFrame(series, { W = 600, H = 220, logY = false } = {}) {
     const pts = [...(series.points ?? [])].sort((a, b) => xv(a.x) - xv(b.x));
     const xs = pts.map((p) => xv(p.x)), ys = pts.map((p) => p.y);
     const xDesc = series.x ?? {}, yDesc = series.y ?? {};
     const xMin = xv(xDesc.min) ?? Math.min(...xs), xMax = xv(xDesc.max) ?? Math.max(...xs);
-    const yMin = yDesc.min ?? Math.min(0, ...ys), yMax = yDesc.max ?? Math.max(...ys);
+    // A log axis cannot start at zero, and must not be handed the payload's linear ticks.
+    const posYs = ys.filter((v) => v > 0);
+    const yMin = logY ? Math.max(1, Math.min(...posYs) * 0.8) : (yDesc.min ?? Math.min(0, ...ys));
+    const yMax = logY ? Math.max(...posYs) * 1.15 : (yDesc.max ?? Math.max(...ys));
     const xTicks = xDesc.ticks?.length ? xDesc.ticks : autoTicks(xMin, xMax, Math.min(4, xs.length - 1 || 1));
-    const yTicks = yDesc.ticks?.length ? yDesc.ticks : autoTicks(yMin, yMax, 4);
+    const yTicks = logY ? logTicks(yMin, yMax)
+        : yDesc.ticks?.length ? yDesc.ticks : autoTicks(yMin, yMax, 4);
 
     const padTop = 16, padBottom = 30, padRight = 10, axisW = 40;
     const plotX0 = axisW, plotX1 = W - padRight, plotY0 = padTop, plotY1 = H - padBottom;
     const xScale = (raw) => { const v = xv(raw); return plotX0 + (xMax > xMin ? (v - xMin) / (xMax - xMin) : 0.5) * (plotX1 - plotX0); };
-    const yScale = (v) => plotY1 - (yMax > yMin ? (v - yMin) / (yMax - yMin) : 0.5) * (plotY1 - plotY0);
+    const lg = (v) => Math.log10(Math.max(v, 1e-6));
+    const yFrac = logY
+        ? (v) => (lg(yMax) > lg(yMin) ? (lg(Math.max(v, yMin)) - lg(yMin)) / (lg(yMax) - lg(yMin)) : 0.5)
+        : (v) => (yMax > yMin ? (v - yMin) / (yMax - yMin) : 0.5);
+    const yScale = (v) => plotY1 - yFrac(v) * (plotY1 - plotY0);
     const toPoly = (arr) => [...arr].sort((a, b) => xv(a.x) - xv(b.x)).map((p) => `${xScale(p.x).toFixed(1)},${yScale(p.y).toFixed(1)}`).join(' ');
 
     const gridY = yTicks.map((t) => `<line class="pub-grid-line" x1="${plotX0}" x2="${plotX1}" y1="${yScale(t.value).toFixed(1)}" y2="${yScale(t.value).toFixed(1)}"/>`).join('');
@@ -1925,7 +1946,10 @@ function stepTone(direction) {
 // there rather than bridging it.
 function compoundingDailyChart(series, steps) {
     const days = [...series.daily.points].sort((a, b) => xv(a.x) - xv(b.x));
-    const f = buildAxisFrame({ ...series, points: days });
+    // Log scale: three fight spikes reach 69k while the thing this chart is ABOUT, the level
+    // the audience settles back to, lives between 800 and 2,100. On a linear axis that is the
+    // bottom twentieth of the plot and the settled levels are unreadable.
+    const f = buildAxisFrame({ ...series, points: days }, { logY: true });
     const gaps = days.slice(1).map((p, i) => xv(p.x) - xv(days[i].x)).sort((a, b) => a - b);
     const typical = gaps.length ? gaps[Math.floor(gaps.length / 2)] : 0;
     const runs = [];
@@ -1939,11 +1963,24 @@ function compoundingDailyChart(series, steps) {
         ? `<polyline class="pub-series pub-series--main pub-series--daily pub-tone-line-neutral" points="${f.toPoly(r)}"/>`
         : `<circle class="pub-point-dot" cx="${f.xScale(r[0].x).toFixed(1)}" cy="${f.yScale(r[0].y).toFixed(1)}" r="1.2"/>`)).join('');
     const stepByDate = new Map(steps.map((s) => [s.fight_date, s]));
+    // A band from the settled level down to the floor of the plot, with the level itself as a
+    // thick rule on top of it. Drawn BEFORE the daily line and behind it, so making the levels
+    // readable never costs a spike: the line is the measurement, the band is the reading.
     const levels = (series.levels ?? []).map((l) => {
         const dir = stepByDate.get(l.fight_date)?.direction;
-        const y = f.yScale(l.y).toFixed(1);
-        return `<line class="pub-series pub-series--level pub-tone-line-${TONE_LINE[stepTone(dir)]}"${l.partial ? ' stroke-dasharray="6 4"' : ''} x1="${f.xScale(l.x0).toFixed(1)}" x2="${f.xScale(l.x1).toFixed(1)}" y1="${y}" y2="${y}"/>`;
+        const tone = TONE_LINE[stepTone(dir)];
+        const y = f.yScale(l.y), x0 = f.xScale(l.x0), x1 = f.xScale(l.x1);
+        return `<rect class="pub-level-band pub-tone-fill-${tone}" x="${x0.toFixed(1)}" y="${y.toFixed(1)}" width="${Math.max(x1 - x0, 1).toFixed(1)}" height="${Math.max(f.plotY1 - y, 0).toFixed(1)}"/>`
+            + `<line class="pub-series pub-series--level pub-tone-line-${tone}"${l.partial ? ' stroke-dasharray="7 5"' : ''} x1="${x0.toFixed(1)}" x2="${x1.toFixed(1)}" y1="${y.toFixed(1)}" y2="${y.toFixed(1)}"/>`;
     }).join('');
+    const hasPartial = (series.levels ?? []).some((l) => l.partial);
+    const key = (cls, dash, text) => `<span class="pub-key-item"><span class="pub-key-rule pub-key-rule--${cls}${dash ? ' pub-key-rule--dashed' : ''}"></span>${esc(text)}</span>`;
+    const legend = `<p class="pub-key">
+        ${key('neutral', false, 'Views per day, measured')}
+        ${key('good', false, 'Settled higher than before that fight')}
+        ${key('bad', false, 'Settled lower than before that fight')}
+        ${hasPartial ? key('good', true, 'Still settling, not final') : ''}
+    </p>`;
     const marks = series.markers ?? [];
     const markerLines = marks.map((m) => `<line class="pub-mark-line" x1="${f.xScale(m.x).toFixed(1)}" x2="${f.xScale(m.x).toFixed(1)}" y1="${f.plotY0}" y2="${f.plotY1.toFixed(1)}"/>`).join('');
     const markerLabels = marks.map((m, i) => {
@@ -1956,11 +1993,12 @@ function compoundingDailyChart(series, steps) {
         <svg class="pub-panel-svg" viewBox="0 0 ${f.W} ${f.H}" role="img" aria-label="Views per day over time, with a spike at each fight and a fall back after it. A bar marks the level each fight settled at, green where it sits above where that cycle started and red where it fell back">
             <g class="pub-grid">${f.gridY}</g>
             ${f.axisLines}
-            ${line}${levels}
+            ${levels}${line}
             <g class="pub-marks">${markerLines}${markerLabels}</g>
             <g class="pub-axis-labels">${f.yLabels}${f.xLabels}</g>
         </svg>
-        <p class="pub-panel-unit">${esc(series.y?.label ?? 'Everyday audience')}, measured every day. The coloured bar is the level it settled at 30 to 90 days after each fight: green where that is above where it started, red where it fell back. A dashed bar is still settling.</p>
+        ${legend}
+        <p class="pub-panel-unit">${esc(series.y?.label ?? 'Everyday audience')}, measured every day, on a folding scale so the everyday level stays readable next to a fight-week spike. Each coloured band covers the window the level after that fight was measured over, starting 30 days later so the fight's own spike is left out.</p>
     </figure>`;
 }
 function compoundingChart(comp) {

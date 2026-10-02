@@ -590,3 +590,22 @@
    or four-and-two with the width, which puts unrelated numbers side by side. */
 .pub-stat-row--pairs { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1.5rem 2.25rem; }
 @media (max-width: 460px) { .pub-stat-row--pairs { grid-template-columns: 1fr; } }
+
+/* The settled-level band: the level drawn down to the floor of the plot so it reads as a
+   region, not a hairline. It sits behind the daily line in document order, so making the
+   reading visible never hides the measurement it was read from. */
+.pub-level-band { opacity: 0.1; }
+.pub-tone-fill-good { fill: var(--good); }
+.pub-tone-fill-bad { fill: var(--bad); }
+.pub-tone-fill-neutral { fill: var(--t3); }
+.pub-series--level { stroke-width: 5; }
+
+/* The chart's own key. The colour coding carries the finding, so it has to be stated: a
+   reader should not have to infer that green means the audience stayed. */
+.pub-key { display: flex; flex-wrap: wrap; gap: 0.3rem 1.1rem; margin: 0.55rem 0 0; font-size: 0.7rem; color: var(--t3); }
+.pub-key-item { display: inline-flex; align-items: center; gap: 0.4rem; }
+.pub-key-rule { display: inline-block; width: 18px; height: 4px; border-radius: 2px; background: var(--t3); }
+.pub-key-rule--good { background: var(--good); }
+.pub-key-rule--bad { background: var(--bad); }
+.pub-key-rule--neutral { background: var(--t2); height: 2px; }
+.pub-key-rule--dashed { background: repeating-linear-gradient(to right, var(--good) 0 6px, transparent 6px 10px); }
