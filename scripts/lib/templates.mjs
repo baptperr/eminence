@@ -27,7 +27,6 @@ const FOOTER = `<footer>
     <a href="/" class="foot-logo"><img src="/logo.svg" alt="FIRST LIGHT" class="foot-logo-img"></a>
     <nav class="foot-links">
         <span class="foot-contact"><span class="foot-cta">Bring us a fighter:</span><a href="mailto:contact@firstlightequity.com" class="foot-link">contact@firstlightequity.com</a></span>
-        <a href="/privacy.html" class="foot-link foot-link-legal">Privacy</a>
     </nav>
     <p class="foot-copy">© ${YEAR} FIRST LIGHT</p>
 </footer>`;

@@ -22,7 +22,8 @@ const DATA = path.join(ROOT, SAMPLE ? 'data/sample' : 'data');
 const SITE = (process.env.SITE_URL || 'https://firstlightequity.com').replace(/\/$/, '');
 
 const STATIC = [
-    'index.html', 'privacy.html', '_redirects',
+    // privacy.html stays in the repo but is not published for now.
+    'index.html', '_redirects',
     'style.css', 'pages.css', 'manifesto.css', 'publication.css', 'observatory.css',
     'nav.js', 'menu.js', 'manifesto.js', 'pub-fit.js', 'pub-carousel.js', 'observatory.js',
     'favicon.png', 'logo.png', 'logo.svg',
