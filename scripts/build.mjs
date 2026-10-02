@@ -106,7 +106,7 @@ async function main() {
     // same fighter live under two different directories even though they share a slug.
     const PUB_KIND = {
         media_kit: { segment: 'media-kit', render: mediaKitPage },
-        internal_data: { segment: 'internal-data', render: internalDataPage },
+        internal_data: { segment: 'internal-data-kit', render: internalDataPage },
     };
     for (const page of publications) {
         const { segment, render } = PUB_KIND[page.kind];
@@ -176,7 +176,7 @@ async function verify(privatePages, publications) {
     // The one file each publication token is allowed to appear in: its own kind's page, under
     // its own slug-token directory. media-kit and internal-data never share a token, so this map
     // alone is what stops one page's build output from ever containing the other's address.
-    const PUB_SEGMENT = { media_kit: 'media-kit', internal_data: 'internal-data' };
+    const PUB_SEGMENT = { media_kit: 'media-kit', internal_data: 'internal-data-kit' };
     const kitExpected = new Map(publications.map((p) => [p.token, `${p.slug}-${p.token}/${PUB_SEGMENT[p.kind]}/index.html`]));
 
     for (const file of await walk(OUT)) {
@@ -199,7 +199,7 @@ async function verify(privatePages, publications) {
             const relInKit = path.relative(kitRoot, file).split(path.sep).join('/');
             const ownToken = kitTokens.find((t) => relInKit === kitExpected.get(t));
             if (!ownToken) {
-                // Exactly publications/kit/<slug>-<token>/{media-kit,internal-data}/index.html —
+                // Exactly publications/kit/<slug>-<token>/{media-kit,internal-data-kit}/index.html —
                 // nothing else, no listing page.
                 problems.push(`unexpected file in kit tree: ${rel}`);
                 continue;
