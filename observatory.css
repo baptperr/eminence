@@ -113,6 +113,15 @@ body.page-observatory { background: #000; color: var(--t1); }
     font-size: clamp(0.85rem, min(1vw, 1.9vh), 0.98rem); line-height: 1.7; color: var(--t2);
 }
 .ob-credit span { display: block; }
+/* The link and, under it, the holdings note. The note is sized off the link: width 0 keeps
+   it out of the box's intrinsic width, min-width 100% then stretches it to the link's. */
+.ob-link { display: flex; flex-direction: column; width: fit-content; }
+.ob-disclose {
+    display: block; width: 0; min-width: 100%;
+    margin-top: 0.7em;
+    font-size: clamp(0.56rem, min(0.62vw, 1.2vh), 0.66rem); font-weight: 300;
+    line-height: 1.45; letter-spacing: 0.01em; color: var(--t3);
+}
 
 /* Title on one line wherever the width allows it. After its `text-wrap`, a shorthand that
    would switch wrapping back on. */
@@ -138,6 +147,7 @@ body.page-observatory { background: #000; color: var(--t1); }
     }
     .ob-link { margin: clamp(0.9rem, 3dvh, 1.75rem) 0 clamp(1.25rem, 4dvh, 2.5rem); }
     .ob-link a { font-size: clamp(0.85rem, 3.7vw, 1rem); }
+    .ob-disclose { font-size: clamp(0.5rem, 2.2vw, 0.6rem); }
     .ob-credit { margin-top: clamp(0.5rem, 1.4dvh, 0.9rem); padding-top: 0; font-size: clamp(0.64rem, 2.8vw, 0.78rem); line-height: 1.6; }
 }
 
@@ -166,7 +176,7 @@ body.page-observatory { background: #000; color: var(--t1); }
         grid-column: 1 / -1; grid-row: 4; justify-self: center; text-align: center;
         margin-top: clamp(3rem, 9vh, 6rem); max-width: 48ch;
     }
-    .ob-link   { grid-column: 1 / -1; grid-row: 5; justify-self: center; }
+    .ob-link   { grid-column: 1 / -1; grid-row: 5; justify-self: center; text-align: center; }
     .ob-status { grid-column: 1 / span 6; grid-row: 7; align-self: center; justify-self: start; margin: -1.1em 0 -1.1em -1.6em; }
     .ob-credit {
         grid-column: 7 / span 5; grid-row: 7; justify-self: end; align-self: center;

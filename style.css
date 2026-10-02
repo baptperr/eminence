@@ -307,12 +307,28 @@ strong { font-weight: 500; }
 .nav-logo { display: inline-flex; text-decoration: none; overflow: hidden; height: 44px; align-items: center; }
 .nav-logo-img { height: 130px; width: auto; flex-shrink: 0; }
 
-/* Logo-triggered dropdown. The logo is the only thing visible at rest; the two links
-   appear on hover, on keyboard focus, or after a first tap on touch (menu.js). They stay
+/* Logo-triggered dropdown. The logo is the only thing visible at rest and always links
+   home; the links appear on hover, on keyboard focus, or on touch via the small toggle
+   beside the logo (menu.js), which only shows where there is no hover. They stay
    in the tab order and accessibility tree while closed — only opacity and pointer events
    change — so a keyboard or screen-reader user reaches them without a hover. The panel's
    padding-top bridges the gap under the logo so the pointer can travel into it. */
-.nav-menu { position: relative; }
+.nav-menu { position: relative; display: flex; align-items: center; }
+.nav-toggle {
+    display: none;
+    width: 2.25rem; height: 2.25rem; margin-left: 0.25rem;
+    background: none; border: 0; padding: 0; cursor: pointer; color: #fff;
+}
+/* A small chevron, drawn with borders so it needs no icon file */
+.nav-toggle::before {
+    content: ''; display: block; margin: 0 auto;
+    width: 0.45rem; height: 0.45rem;
+    border-right: 1.5px solid currentColor; border-bottom: 1.5px solid currentColor;
+    transform: translateY(-25%) rotate(45deg);
+    transition: transform 0.2s var(--ease);
+}
+.nav-menu.open .nav-toggle::before { transform: translateY(25%) rotate(-135deg); }
+@media (hover: none) { .nav-toggle { display: block; } }
 .nav-drop {
     position: absolute; top: 100%; left: 0;
     min-width: 15rem; padding-top: 0.6rem;
@@ -355,13 +371,15 @@ footer {
 }
 .foot-logo { display: inline-flex; text-decoration: none; overflow: hidden; height: 22px; align-items: center; }
 .foot-logo-img { height: 64px; width: auto; flex-shrink: 0; }
-.foot-links { display: flex; gap: 2rem; }
+.foot-links { display: flex; gap: 2rem; align-items: flex-end; }
 .foot-link {
     font-size: 0.72rem; color: var(--t3); text-decoration: none;
     transition: color 0.2s;
 }
 .foot-link:hover { color: var(--bone); }
 .foot-link-legal { color: var(--t3); }
+.foot-contact { display: flex; flex-direction: column; }
+.foot-cta { font-size: 0.6rem; color: var(--t3); text-transform: uppercase; letter-spacing: 0.06em; }
 .foot-copy { font-size: 0.72rem; color: var(--t3); }
 .foot-disclaimer { font-size: 0.6rem; color: var(--t3); text-transform: uppercase; letter-spacing: 0.06em; margin-top: 0.5rem; }
 

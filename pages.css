@@ -279,6 +279,14 @@ button.rk-tick { cursor: default; border-bottom: 1px dotted var(--t3); }
 .key-name { font-size: clamp(3.5rem, 9vw, 8rem); line-height: 0.9; letter-spacing: -0.02em; }
 .key-text { font-size: clamp(1.16rem, 2.08vw, 1.72rem); font-weight: 500; color: var(--t2); line-height: 1.55; letter-spacing: -0.01em; max-width: 44ch; text-wrap: pretty; }
 .key-text strong { display: block; color: var(--bone); font-weight: 700; margin-bottom: 0.4rem; }
+/* FLI's holdings note: half the paragraph's width (width 0 + min-width keeps it from
+   widening the fit-content box it is measured against). */
+.key-body { justify-self: start; }
+.key-disclose {
+    display: block; width: 0; min-width: 50%;
+    margin-top: 1.25rem;
+    font-size: 0.72rem; font-weight: 300; line-height: 1.5; color: var(--t3);
+}
 
 /* ── INDEX: WINNERS & LOSERS ── */
 .wl { display: grid; grid-template-columns: 1fr 1fr; gap: 4rem 5rem; align-items: start; }

@@ -12,6 +12,7 @@ const YEAR = 2026;
 const NAV = (current) => `<nav class="nav" id="mainNav" aria-label="Site">
     <div class="nav-menu">
         <a href="/" class="nav-logo"><img src="/logo.svg" alt="FIRST LIGHT" class="nav-logo-img"></a>
+        <button type="button" class="nav-toggle" aria-label="Menu" aria-expanded="false" aria-controls="navDrop"></button>
         <div class="nav-drop" id="navDrop">
             <ul>
                 <li><a href="/">Home</a></li>
@@ -25,7 +26,7 @@ const NAV = (current) => `<nav class="nav" id="mainNav" aria-label="Site">
 const FOOTER = `<footer>
     <a href="/" class="foot-logo"><img src="/logo.svg" alt="FIRST LIGHT" class="foot-logo-img"></a>
     <nav class="foot-links">
-        <a href="mailto:contact@firstlightequity.com" class="foot-link">contact@firstlightequity.com</a>
+        <span class="foot-contact"><span class="foot-cta">Bring us a fighter:</span><a href="mailto:contact@firstlightequity.com" class="foot-link">contact@firstlightequity.com</a></span>
         <a href="/privacy.html" class="foot-link foot-link-legal">Privacy</a>
     </nav>
     <p class="foot-copy">© ${YEAR} FIRST LIGHT</p>
@@ -212,11 +213,15 @@ export function manifestoPage({ site }) {
 // starts hidden; observatory.js fills and reveals it (see there: it is cosmetic).
 // The paragraph, in two parts: on the page the last sentence is set apart as a closing line.
 const OBSERVATORY_TEXT_LINES = [
-    'The Observatory follows every professional fighter across all major promotions, from their first bout to their latest post. It measures what a name is worth inside and outside the cage, and what moves it. Its readings drive First Light\'s investment decisions.',
+    'The Observatory follows every professional fighter across all major promotions, from their first bout to their latest post. It measures what a name is worth inside and outside the cage, and what moves it. Its readings decide which names First Light backs.',
     'The First Light Index is that valuation, made public.',
 ];
 const OBSERVATORY_TEXT = OBSERVATORY_TEXT_LINES.join(' ');
 const OBSERVATORY_DESC = 'The Observatory follows every professional fighter across all major promotions, from their first bout to their latest post, and measures what a name is worth.';
+
+// Holdings disclosure: a small, quiet line under the Index link on the Observatory and
+// under the FLI definition on the rankings.
+const HOLDINGS_TEXT = 'First Light may hold interests in athletes covered by the Index.';
 
 export function observatoryPage({ site }) {
     const url = '/observatory/';
@@ -231,7 +236,7 @@ export function observatoryPage({ site }) {
     <h1 class="ob-title" id="ob-title">The First Light Observatory</h1>
     <p class="ob-sub">The deepest record of commercial value in professional fighting.</p>
     <p class="ob-text">${esc(OBSERVATORY_TEXT_LINES[0])} <span class="ob-close">${esc(OBSERVATORY_TEXT_LINES[1])}</span></p>
-    <p class="ob-link"><a href="/index/">First Light Index <span aria-hidden="true">&rarr;</span></a></p>
+    <div class="ob-link"><a href="/index/">First Light Index <span aria-hidden="true">&rarr;</span></a><small class="ob-disclose">${HOLDINGS_TEXT}</small></div>
     <p class="ob-status" id="obStatus" hidden><span class="ob-dot" aria-hidden="true"></span>Last reading: <time id="obStatusTime"></time></p>
     <p class="ob-credit"><span>Journalists may publish Observatory data.</span><span>Credit: First Light Observatory.</span><span><a href="mailto:contact@firstlightequity.com">contact@firstlightequity.com</a></span></p>
 </main>`;
@@ -413,11 +418,14 @@ const KEY = `
         <div class="pg-inner pg-inner--wide">
             <div class="key-item" data-r>
                 <h2 class="key-name">FLR</h2>
-                <p class="key-text"><strong>First Light Rating.</strong> A skill score built from a fighter's fight results, and the number these rankings are sorted by. It is deliberately conservative: the less we know about a fighter, the lower they are rated until the results are in.</p>
+                <p class="key-text"><strong>First Light Rating.</strong> The industry's most accurate algorithmic skill score, built from a fighter's in-cage performance and fight results. The First Light Rankings are based on it. It is deliberately conservative: the less we know about a fighter, the lower they are rated until the results are in.</p>
             </div>
             <div class="key-item" data-r>
                 <h2 class="key-name">FLI</h2>
-                <p class="key-text"><strong>First Light Index.</strong> It compares a fighter's fame with what their FLR rating would predict, on a scale from −1 to +1. Above zero, their audience is bigger than their skill explains: they know how to be a star. Below zero, they are better than their audience knows. The arrow shows how the FLI has moved over about the last 30 days; hover it to see the trend.</p>
+                <div class="key-body">
+                    <p class="key-text"><strong>First Light Index.</strong> It compares a fighter's fame with what their FLR rating would predict, on a scale from −1 to +1. Above zero, their audience is bigger than their skill explains: they know how to be a star. Below zero, they are better than their audience knows. The arrow shows how the FLI has moved over about the last 30 days; hover it to see the trend.</p>
+                    <small class="key-disclose">${HOLDINGS_TEXT}</small>
+                </div>
             </div>
         </div>
     </section>`;
