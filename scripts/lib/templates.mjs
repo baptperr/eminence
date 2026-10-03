@@ -1519,7 +1519,18 @@ function nextFightBlock(n) {
     return `<p class="pub-line"><strong>vs ${esc(n.opponent)}</strong> · ${esc(n.event)} (${esc(n.promotion)}) · ${fmtDate(n.date)}</p>`;
 }
 
-function socialBlock(s) {
+// Which follower chart belongs to this platform's block. Each social[] entry carries its own
+// (`followers_chart`); an older payload sent only charts.followers, one platform's history —
+// it goes under the platform it names (series.platform, else its axis label), never tacked
+// on after whichever platform happens to come last.
+function platformFollowerChart(s, legacy) {
+    if (s.followers_chart !== undefined) return s.followers_chart;
+    if (!legacy) return null;
+    const named = legacy.platform ?? legacy.y?.label ?? legacy.label ?? '';
+    return String(named).toLowerCase().startsWith(String(s.platform).toLowerCase()) ? legacy : null;
+}
+
+function socialBlock(s, legacy) {
     const rows = statRow([
         [s.followers != null ? num(s.followers) : null, 'Followers'],
         [s.engagement_rate != null ? pct(s.engagement_rate, 2) : null, 'Engagement'],
@@ -1530,6 +1541,8 @@ function socialBlock(s) {
     ]);
     const mix = (s.media_mix ?? []).length
         ? `<p class="pub-fine">${s.media_mix.map((m) => `${esc(m.type)} ${pct(m.share, 0)}`).join(' · ')}</p>` : '';
+    const fc = platformFollowerChart(s, legacy);
+    const followers = chart(fc, { unit: 'Followers', yRefs: extremeRefs(fc, { hi: s.followers != null ? `${num(s.followers)} today` : null }), tone: 'accent' });
     // The caveat, not the headline: engagement_basis is a real sentence ("the median over the
     // last 12 of 12 posts"), not a 30-day window, and now reads that way — small print under
     // everything else, not the second line of the block.
@@ -1539,6 +1552,7 @@ function socialBlock(s) {
                 ${storyHtml(storyParas(s))}
                 ${rows}${mix}
                 <p class="pub-fine pub-fine--tiny">Engagement is ${esc(s.engagement_basis)}, not a 30-day window. Measured ${fmtDate(s.measured_on)}.</p>
+                ${followers}
             </div>`;
 }
 
@@ -1806,7 +1820,7 @@ export function mediaKitPage({ page, site }) {
         </div>
     </header>
 ${section('pub-next', 'Next fight', nextFightBlock(d.next_fight), null, storyParas(d.next_fight))}
-${section('pub-social', 'Social', d.social.length ? `${d.social.map(socialBlock).join('')}${chart(d.charts.followers, { unit: 'Followers', yRefs: extremeRefs(d.charts.followers, { hi: d.social[0]?.followers != null ? `${num(d.social[0].followers)} today` : null }), tone: 'accent' })}` : '', null, storyParas(d.social_story))}
+${section('pub-social', 'Social', d.social.length ? d.social.map((s) => socialBlock(s, d.charts.followers)).join('') : '', null, storyParas(d.social_story))}
 ${section('pub-posts', 'Posting activity', postingCalendarBlock(d), 'One cell per day the window covers; colour shows how that post did against this fighter’s own average, not against anyone else’s.', storyParas(d.posting_calendar))}
 ${section('pub-wiki', 'Attention', attentionBlock(d.wikipedia, d.charts.pageviews, bouts, fwRows[0]), null, storyParas(d.wikipedia))}
 ${section('pub-geo', 'Markets', marketsBlock(d.market_concentration), null, storyParas(d.market_concentration))}
