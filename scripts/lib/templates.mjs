@@ -2257,16 +2257,17 @@ function cohortBlock(c) {
     return `${target}${diffs}`;
 }
 
+// Every section draws nothing when its data is missing, so a fighter with no measured
+// attention yet would get a name, a date and nothing else — which reads as a broken page.
+// Say what is missing instead.
+function emptyInternal(name) {
+    return section('pub-empty', 'Nothing measured yet',
+        `<p class="pub-line">We do not yet hold the readings this page is built from for ${esc(name)}: Wikipedia attention, search geography, card positions or a rating. Sections appear here as those readings come in.</p>`);
+}
+
 export function internalDataPage({ page, site }) {
     const d = page.data;
-
-    const body = `<main class="pub">
-    <header class="pub-head">
-        <div class="pub-inner">
-            ${nameLines(page.fighter_name)}
-            <p class="pub-asof">Data measured on ${fmtDate(page.measured_on)}.</p>
-        </div>
-    </header>
+    const sections = `
 ${section('pub-fl', 'Overview', overviewBlock(d.first_light, d.field, !!storyParas(d.first_light, d.field)), null, storyParas(d.first_light, d.field))}
 ${(() => {
     const ladder = Array.isArray(d.funnel?.graphic?.stages);
@@ -2289,6 +2290,16 @@ ${(() => {
 ${section('pub-off', 'Between fights', offCycleTable(offCycleRows(d.off_cycle)), offCycleNote(d.off_cycle) ?? 'Weeks where attention spiked with no fight nearby (a sponsor push, a media hit, a story) shown against how far that week sat from the nearest bout.', storyParas(d.off_cycle))}
 ${section('pub-billing', 'Card position', billingBlock(d.billing), d.billing ? 'The card-position score is how high this fighter is billed relative to what their level alone predicts for that matchup: above zero means billed higher than expected, below means lower. A promotion’s own championship weighting (PFL, for one) can push the score above 1.0.' : null, storyParas(d.billing))}
 ${section('pub-cohort', 'Compared with fighters at the same level', cohortBlock(d.cohort), null, storyParas(d.cohort))}
+`;
+
+    const body = `<main class="pub">
+    <header class="pub-head">
+        <div class="pub-inner">
+            ${nameLines(page.fighter_name)}
+            <p class="pub-asof">Data measured on ${fmtDate(page.measured_on)}.</p>
+        </div>
+    </header>
+${sections.trim() ? sections : emptyInternal(page.fighter_name)}
 </main>
 ${PUB_FOOTER}`;
 
