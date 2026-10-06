@@ -4097,25 +4097,31 @@
   }
  ],
  "winners_losers": {
-  "period": "Weekend of 12–13 Sep 2026",
+  "period": "UFC 332",
   "winners": [
    {
-    "name": "Anders Fjellstad",
+    "name": "Kalinn Williams",
     "outcome": "loss",
-    "opponent": "Ruben Castellanos",
-    "method": "Decision (Split)",
-    "event": "Sample Fight Night 41",
-    "date": "2026-09-12",
-    "change": 70.7
+    "opponent": "Dricus Du Plessis",
+    "method": "KO (Punches)",
+    "event": "UFC 332",
+    "date": "2026-09-14",
+    "change": 5820,
+    "multiple": 59.2,
+    "opponent_multiple": 39.3,
+    "follower_change": 12.5
    },
    {
-    "name": "Mateus Albuquerque",
+    "name": "Mick Parkin",
     "outcome": "loss",
-    "opponent": "Dario Okonkwo-Reyes",
-    "method": "KO (Punches)",
-    "event": "Sample Cup Final",
-    "date": "2026-09-05",
-    "change": 18.2
+    "opponent": "Kai Kara-France",
+    "method": "Decision (Split)",
+    "event": "UFC 332",
+    "date": "2026-09-14",
+    "change": 4770,
+    "multiple": 48.7,
+    "opponent_multiple": 30.6,
+    "follower_change": 8.3
    }
   ],
   "losers": [
