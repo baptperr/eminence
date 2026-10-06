@@ -271,6 +271,7 @@ function checkMediaKit(data, bad) {
             if (!isStr(m?.type) || !isNum(m?.share)) bad(`"${at}.media_mix[${j}]" needs "type" and a numeric "share"`);
         });
         if (!isDate(s?.measured_on)) bad(`"${at}.measured_on" must be a date`);
+        checkSeries(s?.followers_chart, `${at}.followers_chart`, bad);
     });
 
     // Optional now: the posting calendar replaced the top-posts list, and a payload that
