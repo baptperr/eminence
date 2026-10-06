@@ -50,7 +50,7 @@ export function parseFrontMatter(source, file) {
     return { meta, body: m[2] };
 }
 
-// ── Markdown subset: ##/### headings, paragraphs, - and 1. lists, > quotes, ---,
+// ── Markdown subset: ##/### headings, paragraphs, - and 1. lists, > quotes, ---, | tables |,
 // ![alt](src) images, and **bold** *italic* `code` [text](url) inline. ──
 // Escaping happens first and everything after works on escaped text, so nothing in the
 // source can inject markup.
@@ -72,7 +72,8 @@ export function renderMarkdown(md) {
     const lines = md.replace(/\r\n/g, '\n').split('\n');
     const out = [];
     let i = 0;
-    const isBlockStart = (l) => /^(#{2,3} |> |- |\d+\. |---\s*$|!\[)/.test(l);
+    const isBlockStart = (l) => /^(#{2,3} |> |- |\d+\. |---\s*$|!\[|\|)/.test(l);
+    const cells = (l) => l.trim().replace(/^\||\|$/g, '').split('|').map((c) => c.trim());
     while (i < lines.length) {
         const line = lines[i];
         if (!line.trim()) { i++; continue; }
@@ -86,6 +87,17 @@ export function renderMarkdown(md) {
             const src = safeUrl(m[2]);
             if (src) out.push(`<figure><img src="${esc(src)}" alt="${esc(m[1])}" loading="lazy"></figure>`);
             i++; continue;
+        }
+        // | a | b | tables: a header row, a |---|---| rule, then body rows.
+        if (line.startsWith('|') && /^\|[\s:|-]+\|\s*$/.test(lines[i + 1] || '')) {
+            const head = cells(line).map((c) => `<th>${inline(c)}</th>`).join('');
+            i += 2;
+            const rows = [];
+            while (i < lines.length && lines[i].startsWith('|')) {
+                rows.push(`<tr>${cells(lines[i++]).map((c) => `<td>${inline(c)}</td>`).join('')}</tr>`);
+            }
+            out.push(`<div class="prose-table"><table><thead><tr>${head}</tr></thead><tbody>${rows.join('')}</tbody></table></div>`);
+            continue;
         }
         if (line.startsWith('> ')) {
             const q = [];
