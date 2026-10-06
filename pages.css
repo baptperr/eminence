@@ -105,6 +105,11 @@
 }
 .prose hr { border: none; border-top: 1px solid var(--border-d); margin-block: 3rem; }
 .prose code { font-size: 0.9em; background: var(--night-card); padding: 0.1em 0.35em; }
+/* Articles: a paragraph that is only italic text (source credits, chart captions, the closing
+   data notes) is a footnote: small, muted, tight to the table or chart above it. */
+.art .prose p:has(> em:only-child) { font-size: 0.72rem; line-height: 1.5; color: var(--t3); max-width: 68ch; margin-top: 0.5rem; }
+.art .prose p:has(> em:only-child) > em { font-size: inherit; color: inherit; }
+.art .prose p:has(> em:only-child):last-child { margin-top: 2rem; }
 .prose figure { margin-block: 2.5rem; }
 .prose img { display: block; width: 100%; height: auto; }
 .prose figure + p > em:only-child, .prose-table + p > em:only-child { font-size: 0.85rem; color: var(--t3); font-style: normal; }
