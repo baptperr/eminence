@@ -2,11 +2,18 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <!--
   Runs scripts/refresh-site.sh every morning. To install:
-    1. Replace /Users/YOU below with your home directory (two places, plus the log paths).
+    1. Replace /Users/YOU below with your home directory (in the command, plus the log paths).
     2. cp scripts/com.firstlight.refresh-site.plist.example ~/Library/LaunchAgents/com.firstlight.refresh-site.plist
     3. launchctl load ~/Library/LaunchAgents/com.firstlight.refresh-site.plist
   To test now:  launchctl start com.firstlight.refresh-site   (then read the log)
   To remove:    launchctl unload ~/Library/LaunchAgents/com.firstlight.refresh-site.plist
+
+  The command runs master's committed copy of the script (`git show`), not the checkout's, so
+  whatever branch or uncommitted edits the checkout holds, the job behaves as master says. The
+  script then builds master in a separate worktree (see its header).
+
+  07:30 Paris comes after the Observatory's Monday-morning results fetch (ingest_events, from
+  03:00 UTC), so Monday's run publishes the weekend's results and ranks.
 
   If the laptop is asleep at 07:30, launchd runs the job when it wakes. If it is switched off
   or lid-closed and asleep all day, nothing runs and the site simply keeps its last data.
@@ -17,7 +24,8 @@
     <key>ProgramArguments</key>
     <array>
         <string>/bin/bash</string>
-        <string>/Users/YOU/code/baptperr/eminence/scripts/refresh-site.sh</string>
+        <string>-c</string>
+        <string>repo=/Users/YOU/code/first-light/eminence; s="$(mktemp -t refresh-site)" &amp;&amp; git -C "$repo" show master:scripts/refresh-site.sh &gt; "$s" &amp;&amp; EMINENCE_REPO="$repo" /bin/bash "$s"; rc=$?; rm -f "$s"; exit $rc</string>
     </array>
     <key>StartCalendarInterval</key>
     <dict><key>Hour</key><integer>7</integer><key>Minute</key><integer>30</integer></dict>

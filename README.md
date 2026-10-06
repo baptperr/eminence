@@ -42,9 +42,16 @@ Observatory (Postgres, on the laptop)
              └─ scripts/build.mjs → dist/ → wrangler deploy
 ```
 
-`scripts/refresh-site.sh` (`npm run refresh`) runs the export and deploys when the file changed. Schedule it
-with `scripts/com.firstlight.refresh-site.plist.example` (a launchd job; install steps are in the file). Setup,
-once:
+`scripts/refresh-site.sh` (`npm run refresh`) runs the export and deploys when the file changed. It deploys
+the committed `master` (`DEPLOY_REF` to change it) plus the laptop's data, never the checkout's working tree:
+it builds in a fresh worktree of that commit (`../eminence-deploy`) and copies `data/index.json`,
+`data/publications/` and `data/private/` into it. So work in progress on another branch, committed or not,
+stays off the live site until it is merged into `master`. Schedule it with
+`scripts/com.firstlight.refresh-site.plist.example` (a launchd job; install steps are in the file); the job
+runs `master`'s copy of the script, whatever the checkout holds. It runs every morning at 07:30 Paris: on
+Monday that is after the Observatory has re-read the weekend's results, and winners and losers are
+recomputed each morning as the post-fight readings land (see the Observatory README, "Publishing to the
+public site"). Setup, once:
 
 1. In Cloudflare, create an API token from the "Edit Cloudflare Workers" template and note the account id.
    Create the file `~/.config/first-light/env` (it does not exist until you make it: `mkdir -p ~/.config/first-light`
