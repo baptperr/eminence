@@ -514,6 +514,22 @@ const WL_RULE = {
     losers: 'Won the fight, and grew their audience far less than fighters of a similar size.',
 };
 
+// New exports carry the Wikipedia spike as a multiple of the fighter's own normal ('59×'); an old
+// export (no `multiple`) falls back to the percentage.
+const mult = (n) => `${num(n, 1).replace(/\.0$/, '')}×`;
+function wlFig(e, kind) {
+    const glyph = `<span class="wl-glyph" aria-hidden="true">${e.change < 0 ? '▼' : '▲'}</span>`;
+    if (!isNum(e.multiple)) {
+        return `<span class="wl-change wl-change--${kind}">${glyph} ${signed(e.change)}%</span>${e.typical != null ? `
+                            <span class="wl-typical">typical ${signed(e.typical)}%</span>` : ''}`;
+    }
+    const opp = isNum(e.opponent_multiple) ? ` · opponent ${mult(e.opponent_multiple)}` : '';
+    const fol = isNum(e.follower_change) ? `
+                            <span class="wl-typical">Followers ${signed(e.follower_change)}%</span>` : '';
+    return `<span class="wl-change wl-change--${kind}">${mult(e.multiple)}</span>
+                            <span class="wl-typical">Wikipedia views vs their normal${opp}</span>${fol}`;
+}
+
 function wlList(kind, heading, items) {
     const rows = items.map((e) => {
         const won = e.outcome === 'win';
@@ -524,8 +540,7 @@ function wlList(kind, heading, items) {
                         <span class="wl-who"><span class="wl-name">${esc(e.name)}</span>
                             <span class="wl-line"><span class="wl-res wl-res--${won ? 'won' : 'lost'}">${won ? 'Won' : 'Lost'}</span>${versus}${e.method ? ` · ${esc(e.method)}` : ''}</span>${where ? `
                             <span class="wl-line wl-line--dim">${where}</span>` : ''}</span>
-                        <span class="wl-fig"><span class="wl-change wl-change--${kind}"><span class="wl-glyph" aria-hidden="true">${e.change < 0 ? '▼' : '▲'}</span> ${signed(e.change)}%</span>${e.typical != null ? `
-                            <span class="wl-typical">typical ${signed(e.typical)}%</span>` : ''}</span>
+                        <span class="wl-fig">${wlFig(e, kind)}</span>
                     </li>`;
     }).join('');
     return `
@@ -548,7 +563,8 @@ export function winnersLosersPage({ data, site }) {
     </header>
     <div class="pg-body pg-body--flush">${wl.winners.length || wl.losers.length ? `
         <div class="pg-inner pg-inner--wide wl">${wlList('winners', 'Winners', wl.winners)}${wlList('losers', 'Losers', wl.losers)}
-        </div>` : `
+        </div>${wl.winners.concat(wl.losers).some((e) => isNum(e.multiple)) ? `
+        <div class="pg-inner pg-inner--wide"><p class="wl-rule" data-r>The figure is Wikipedia views in the three days after the fight, as a multiple of the fighter’s own normal. Source: First Light Observatory.</p></div>` : ''}` : `
         <div class="pg-inner pg-inner--wide"><p class="pg-empty" data-r>No clear winners or losers yet.</p></div>`}
     </div>
 </main>

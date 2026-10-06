@@ -112,6 +112,8 @@ export async function loadIndex(file) {
                 if (!isStr(e?.name)) bad(`${at}.name missing`);
                 if (e.outcome !== outcome) bad(`${at}.outcome must be "${outcome}"`);
                 if (!isNum(e.change) || (sign > 0 && e.change <= 0)) bad(`${at}.change must be ${sign > 0 ? 'positive' : 'a number'}`);
+                for (const k of ['multiple', 'opponent_multiple']) if (e[k] != null && (!isNum(e[k]) || e[k] <= 0)) bad(`${at}.${k} must be a positive number`);
+                if (e.follower_change != null && !isNum(e.follower_change)) bad(`${at}.follower_change must be a number`);
                 if (e.date != null && Number.isNaN(new Date(e.date).getTime())) bad(`${at}.date must be a date`);
             });
         }
