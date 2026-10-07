@@ -2,7 +2,7 @@
 title: Johnny Walker at UFC 332, in the data.
 date: 2026-10-06
 summary: Walker knocked out Mick Parkin in his UFC heavyweight debut. His Instagram and Wikipedia numbers from the weekend, set against the rest of the card, his peers and his own past fights.
-draft: true
+draft: false
 ---
 Johnny Walker went into UFC 332 on a bad run: 1–3 in his previous four fights, the last a split-decision loss to Dominick Reyes in April. He was moving up to heavyweight for the first time, and in fight week he told MMA Fighting that, while cutting to 205 pounds, his vision would go dark in the middle of sparring ([BoxingNews](https://boxingnews.com/news/walker-weight-cut-struggles-ufc-332-heavyweight-debut), 30 September). The UFC put his debut on the early prelims.
 
@@ -16,7 +16,7 @@ Between 2 and 6 October, Walker's account went from 2,034,125 to 2,045,941 follo
 |---|---|---|---|
 | **Johnny Walker** | W, KO (knee), R1 3:35 | **+11,816** | **+0.58%** |
 | Payton Talbott | W, TKO, R1 2:09 | +23,665 | +6.9% |
-| Mick Parkin | L, KO, R1 3:35 | | +1.96% |
+| Mick Parkin | L, KO, R1 3:35 | +346 (17,679 → 18,025) | +1.96% |
 
 *Source: First Light Observatory.*
 
