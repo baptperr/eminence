@@ -16,6 +16,7 @@ const NAV = (current) => `<nav class="nav" id="mainNav" aria-label="Site">
         <div class="nav-drop" id="navDrop">
             <ul>
                 <li><a href="/">Home</a></li>
+                <li><a href="/publications/"${current === 'publications' ? ' aria-current="page"' : ''}>Publications</a></li>
                 <li><a href="/index/"${current === 'index' ? ' aria-current="page"' : ''}>Index</a></li>
                 <li><a href="/observatory/"${current === 'observatory' ? ' aria-current="page"' : ''}>Observatory</a></li>
             </ul>
