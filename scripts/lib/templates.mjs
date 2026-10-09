@@ -214,7 +214,7 @@ export function manifestoPage({ site }) {
 // starts hidden; observatory.js fills and reveals it (see there: it is cosmetic).
 // The paragraph, in two parts: on the page the last sentence is set apart as a closing line.
 const OBSERVATORY_TEXT_LINES = [
-    'The Observatory follows every professional fighter across all major promotions, from their first bout to their latest post. It measures what a name is worth inside and outside the cage, and what moves it. Its readings decide which names First Light backs.',
+    'The Observatory follows every professional fighter across promotions worldwide, from their first bout to their latest post. It measures what a name is worth inside and outside the cage, and what moves it. Its readings decide which names First Light backs.',
     'The First Light Index is that valuation, made public.',
 ];
 const OBSERVATORY_TEXT = OBSERVATORY_TEXT_LINES.join(' ');
@@ -224,8 +224,8 @@ const OBSERVATORY_DESC = 'The First Light Observatory measures fighter fame agai
 // promotions plus 'Other'), and ~350,000 total fighters in Observatory (docs/firstlight/decisions.md),
 // of which ~20,000 are active, relevant professionals. Using conservative round numbers: 40+ organisations, 20,000+ active fighters.
 const OBSERVATORY_METHOD = [
-    'The Observatory reads Google Search, Wikipedia page views, Instagram, TikTok, YouTube and X. It captures followers, views, engagement, countries, markets and languages. Fight performance is measured by the First Light Rating (FLR)\u2014which tracks a fighter\u2019s true skill beyond the win/loss record and is more accurate than FightMatrix. The Observatory also records earnings: money earned inside the cage and out.',
-    'Coverage spans 40+ organisations and 20,000+ active fighters, with readings taken continuously around every event. The First Light Index compares a fighter\u2019s fame against what the FLR predicts, on a scale from \u22121 to +1.',
+    'The Observatory reads Google Search, Wikipedia page views, Instagram, TikTok, YouTube and X. It captures followers, views, engagement, search, countries, markets and languages. Fight performance is measured by the First Light Rating (FLR). It does not just look at panel rankings: it is built from in-cage performance and results, and tracks a fighter\u2019s level beyond the simple win/loss record. It is more accurate than the industry incumbents. The Observatory also records earnings: money earned inside the cage and out.',
+    'Coverage spans 40+ organisations and 20,000+ active fighters, with readings taken continuously around every event. The First Light Index (FLI) compares a fighter\u2019s fame against what the FLR predicts, on a scale from \u22121 to +1. It shows which fighters are better than their audience knows, and which ones know how to be a star.',
     'On the sport, no filter: fighters, bouts and promotions from everywhere, not only the UFC. On the audience, a deliberate Western lens, mostly English-speaking and American, because that is where the advertising market is largest. Hence the platforms we read.',
 ];
 
@@ -243,15 +243,17 @@ export function observatoryPage({ site }) {
     <div class="ob-bg" aria-hidden="true">
         <video class="ob-video" data-src="/observatory.mp4" data-src-portrait="/observatory-mobile.mp4" muted autoplay loop playsinline disablepictureinpicture preload="none"></video>
     </div>
+    <div class="ob-hero" id="obHero">
     <h1 class="ob-title" id="ob-title">The First Light Observatory</h1>
     <p class="ob-sub">The deepest record of commercial value in professional fighting.</p>
     <p class="ob-text">${esc(OBSERVATORY_TEXT_LINES[0])} <span class="ob-close">${esc(OBSERVATORY_TEXT_LINES[1])}</span></p>
     <div class="ob-link"><a href="/index/">First Light Index <span aria-hidden="true">&rarr;</span></a><small class="ob-disclose">${HOLDINGS_TEXT}</small></div>
-    <div class="ob-method"><button type="button" class="ob-method-toggle" aria-haspopup="dialog" aria-expanded="false" aria-controls="obMethod">How the data works</button></div>
+    <div class="ob-method"><button type="button" class="ob-method-toggle" aria-expanded="false" aria-controls="obMethod">How the data works</button></div>
+    </div>
     <p class="ob-status" id="obStatus" hidden><span class="ob-dot" aria-hidden="true"></span>Last reading: <time id="obStatusTime"></time></p>
     <p class="ob-credit"><span>Journalists may publish Observatory data.</span><span>Credit: First Light Observatory.</span><span><a href="mailto:contact@firstlightequity.com">contact@firstlightequity.com</a></span></p>
-</main>
-    <div class="ob-modal" id="obModal" hidden><div class="ob-modal-dialog" id="obMethod" role="dialog" aria-modal="true" aria-label="How the data works" tabindex="-1"><button type="button" class="ob-modal-close" aria-label="Close">&times;</button>${OBSERVATORY_METHOD.map(t => `<p>${esc(t)}</p>`).join('')}</div></div>`;
+    <div class="ob-panel" id="obMethod" role="region" aria-label="How the data works" tabindex="-1">${OBSERVATORY_METHOD.map(t => `<p>${esc(t)}</p>`).join('')}</div>
+</main>`;
     return shell({
         title: 'First Light Observatory',
         description: OBSERVATORY_DESC,

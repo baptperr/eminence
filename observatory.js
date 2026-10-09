@@ -25,37 +25,78 @@
     // for every visitor). Consecutive readings are therefore 5 to 15 minutes apart, and the
     // line shows the latest one already past: a reload shows the same time, and it only ever
     // moves forward, for everyone at once. The line stays hidden without JS.
-    // "How the data works": a centred pop-up. Opens from the toggle, closes with the x, Esc or a
-    // click on the backdrop; focus moves into it and back to the toggle.
+    // "How the data works": an inline reveal. The hero (title to Index link and this toggle) shifts
+    // up and shrinks; the text fades in at the foot, between the status line and the press
+    // credit, which never move. The panel's edges and the hero's offset are measured here, so
+    // the text always sits in the real gap, whatever the size. Phones have no gap: the text
+    // spans the width, just above the status line. Esc or a second click reverses it.
     (function () {
+        var ob = document.querySelector('.ob');
+        var hero = document.getElementById('obHero');
+        var panel = document.getElementById('obMethod');
         var toggle = document.querySelector('.ob-method-toggle');
-        var modal = document.getElementById('obModal');
-        var dialog = document.getElementById('obMethod');
-        var x = modal && modal.querySelector('.ob-modal-close');
-        if (!toggle || !modal || !dialog) return;
-        function close() {
-            if (modal.hidden) return;
-            modal.hidden = true;
-            toggle.setAttribute('aria-expanded', 'false');
-            document.removeEventListener('keydown', onKey, true);
-            toggle.focus();
-        }
-        function onKey(e) {
-            if (e.key === 'Escape') { e.preventDefault(); close(); }
-            else if (e.key === 'Tab') {   // keep focus inside while open
-                e.preventDefault();
-                (document.activeElement === x ? dialog : x).focus();
+        var status = document.getElementById('obStatus');
+        var credit = document.querySelector('.ob-credit');
+        if (!ob || !hero || !panel || !toggle || !credit) return;
+        var SCALE = 0.85, GAP = 12, open = false;
+        function px(v) { return parseFloat(v) || 0; }
+        function layout() {
+            var o = ob.getBoundingClientRect(), c = credit.getBoundingClientRect();
+            var wide = window.matchMedia('(min-width: 900px) and (min-height: 560px)').matches;
+            var navB = px(getComputedStyle(ob).paddingTop) + o.top;
+            var left, right, bottom;
+            if (wide) {
+                var sr = status && !status.hidden ? status.getBoundingClientRect() : { right: o.left + px(getComputedStyle(ob).paddingLeft), bottom: c.bottom };
+                var sp = status && !status.hidden ? px(getComputedStyle(status).paddingRight) : 0;
+                left = sr.right - sp - o.left + 1.5 * GAP;
+                right = o.right - c.left + 1.5 * GAP;
+                bottom = o.bottom - c.bottom;
+            } else {
+                var top = (status && !status.hidden) ? status.getBoundingClientRect().top + px(getComputedStyle(status).paddingTop) : c.top;
+                left = px(getComputedStyle(ob).paddingLeft);
+                right = px(getComputedStyle(ob).paddingRight);
+                bottom = o.bottom - Math.min(top, c.top) + GAP;
+            }
+            ob.style.setProperty('--ob-l', left + 'px');
+            ob.style.setProperty('--ob-r', right + 'px');
+            ob.style.setProperty('--ob-b', bottom + 'px');
+            ob.style.setProperty('--ob-h', 'none');
+            ob.style.setProperty('--ob-scale', SCALE);
+            // Natural hero box (transform off), then the shift that lifts its scaled bottom clear of the panel.
+            var was = hero.style.transition; hero.style.transition = 'none';
+            var had = hero.classList.contains('is-shifted'); hero.classList.remove('is-shifted');
+            var h = hero.getBoundingClientRect();
+            if (had) hero.classList.add('is-shifted');
+            hero.style.transition = was;
+            var panelTop = o.bottom - bottom - panel.offsetHeight;
+            // the toggle hangs below the hero; include it in the block that must clear the panel
+            var t = toggle.getBoundingClientRect(), bottomEdge = Math.max(h.bottom, t.bottom - (had ? 0 : 0));
+            var natBottom = h.bottom + (toggle.offsetHeight + px(getComputedStyle(toggle.parentNode).marginTop));
+            var scaledBottom = h.top + (natBottom - h.top) * SCALE;
+            var shift = Math.min(0, panelTop - GAP - scaledBottom);
+            var minTop = navB - h.top;   // do not climb under the nav
+            var over = Math.max(0, minTop - shift);
+            if (over > 0) shift = minTop;
+            ob.style.setProperty('--ob-shift', shift + 'px');
+            panel.dataset.overflow = over > 0 ? Math.round(over) : '0';
+            if (over > 0) {   // never clip silently: let the panel scroll, and flag it
+                var avail = o.bottom - bottom - (h.top + shift + (natBottom - h.top) * SCALE) - GAP;
+                ob.style.setProperty('--ob-h', Math.max(avail, 80) + 'px');
             }
         }
-        toggle.addEventListener('click', function () {
-            modal.hidden = false;
-            toggle.setAttribute('aria-expanded', 'true');
-            document.addEventListener('keydown', onKey, true);
-            dialog.scrollTop = 0;
-            dialog.focus();
-        });
-        if (x) x.addEventListener('click', close);
-        modal.addEventListener('click', function (e) { if (e.target === modal) close(); });
+        function set(state) {
+            open = state;
+            if (open) layout();
+            hero.classList.toggle('is-shifted', open);
+            panel.classList.toggle('is-open', open);
+            toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+            if (open) { panel.scrollTop = 0; document.addEventListener('keydown', onKey, true); }
+            else { document.removeEventListener('keydown', onKey, true); }
+        }
+        function onKey(e) { if (e.key === 'Escape') { e.preventDefault(); set(false); toggle.focus(); } }
+        toggle.addEventListener('click', function () { set(!open); });
+        window.addEventListener('resize', function () { if (open) layout(); });
+        window.addEventListener('orientationchange', function () { if (open) layout(); });
     })();
 
     var line = document.getElementById('obStatus');

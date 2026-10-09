@@ -45,7 +45,7 @@ body.page-observatory { background: #000; color: var(--t1); }
 /* A tight dark glow, sized in em so it follows each line's own scale, lifts the type off a
    lighter patch of footage; the wide soft one keeps each block clean on it. Set per
    element because an inherited text-shadow keeps the parent's em. */
-.ob > :not(.ob-bg) {
+.ob > :not(.ob-bg), .ob-hero > * {
     text-shadow: 0 0 0.12em rgba(0,0,0,0.85), 0 0 0.35em rgba(0,0,0,0.55), 0 1px 18px rgba(0,0,0,0.6);
 }
 
@@ -170,13 +170,14 @@ body.page-observatory { background: #000; color: var(--t1); }
         align-items: start;
         padding-bottom: clamp(2.5rem, 8vh, 5rem);
     }
-    .ob-title  { grid-column: 1 / -1; grid-row: 2; margin: 0; }
-    .ob-sub    { grid-column: 1 / -1; grid-row: 3; white-space: nowrap; max-width: none; padding-left: 0.6em; }
+    .ob-hero   { grid-column: 1 / -1; grid-row: 2 / span 4; }
+    .ob-title  { margin: 0; }
+    .ob-sub    { white-space: nowrap; max-width: none; padding-left: 0.6em; }
     .ob-text   {
-        grid-column: 1 / -1; grid-row: 4; justify-self: center; text-align: center;
+        align-self: center; text-align: center;
         margin-top: clamp(3rem, 9vh, 6rem); max-width: 48ch;
     }
-    .ob-link   { grid-column: 1 / -1; grid-row: 5; justify-self: center; text-align: center; }
+    .ob-link   { align-self: center; text-align: center; }
     .ob-status { grid-column: 1 / span 6; grid-row: 7; align-self: center; justify-self: start; margin: -1.1em 0 -1.1em -1.6em; }
     .ob-credit {
         grid-column: 7 / span 5; grid-row: 7; justify-self: end; align-self: center;
@@ -193,49 +194,43 @@ body.page-observatory { background: #000; color: var(--t1); }
 }
 
 /* ── methodology: collapsed by default, so the page keeps its sparse look ──
-   The toggle sits in the empty band under the Index link (a clear step below the holdings note)
-   and takes no extra room. The text opens as a centred pop-up over a subtle backdrop; both are
-   position: fixed, so nothing in the page moves, grows or scrolls, and the pop-up simply covers
-   the status line and the credit while it is open. */
-.ob-method { font-size: clamp(0.64rem, min(0.75vw, 1.4vh), 0.78rem); line-height: 1.6; color: var(--t3); }
+   The toggle hangs just under the Index link (zero height, so it takes no room). Opening it
+   moves and shrinks the whole hero (.ob-hero) up, and the text appears in the space freed at
+   the foot, between the status line and the press credit. Neither of those moves. observatory.js
+   measures them and sets the panel's edges and the hero's offset; this is only the styling. */
+.ob-hero { display: flex; flex-direction: column; align-items: flex-start; position: relative;
+    transform-origin: 50% 0; transition: transform 0.4s ease; will-change: transform; }
+.ob-method { font-size: clamp(0.64rem, min(0.75vw, 1.4vh), 0.78rem); line-height: 1.6; color: var(--t3);
+    position: absolute; top: 100%; left: 0; right: 0; height: 0; text-align: center;
+    margin-top: clamp(1rem, 3vh, 2rem); }
 .ob-method-toggle {
-    appearance: none; background: none; border: 0; padding: 0; margin: 0; font: inherit; color: inherit;
-    cursor: pointer; width: fit-content; font-weight: 300; letter-spacing: 0.04em;
+    appearance: none; background: none; border: 0; padding: 0; margin: 0 auto; font: inherit; color: inherit;
+    display: block; cursor: pointer; width: fit-content; font-weight: 300; letter-spacing: 0.04em;
     opacity: 0.75; transition: opacity 0.2s;
 }
 .ob-method-toggle::after { content: ' +'; }
+.ob-method-toggle[aria-expanded="true"]::after { content: ' \2212'; }
 .ob-method-toggle:hover, .ob-method-toggle:focus-visible { opacity: 1; outline: none; color: var(--t1); }
 .ob-method-toggle:focus-visible { text-decoration: underline; text-underline-offset: 0.25em; }
-@media (min-width: 900px) and (min-height: 560px) {
-    .ob-method { grid-column: 1 / -1; grid-row: 6; justify-self: center; align-self: start; text-align: center;
-        margin-top: clamp(1rem, 3vh, 2rem); height: 0; overflow: visible; }
-    .ob-method-toggle { display: block; margin: 0 auto; }
-}
+.ob-hero.is-shifted { transform: translateY(var(--ob-shift, 0px)) scale(var(--ob-scale, 0.85)); }
 @media (max-width: 899px) {
-    .ob-method { margin: 0 0 0.6rem; width: 100%; max-width: 46ch; }
+    .ob-hero { width: 100%; }
+    .ob-method { margin-top: 0.9rem; text-align: left; }
+    .ob-method-toggle { margin: 0; }
 }
-.ob-modal {
-    position: fixed; inset: 0; z-index: 200; display: flex; align-items: center; justify-content: center;
-    padding: 1.25rem; background: rgba(0,0,0,0.5); text-align: left;
+
+.ob-panel {
+    position: absolute; z-index: 1; box-sizing: border-box; left: var(--ob-l, 0px); right: var(--ob-r, 0px);
+    bottom: var(--ob-b, 0px); max-height: var(--ob-h, none); overflow-y: auto; overscroll-behavior: contain;
+    font-size: clamp(0.8125rem, 0.95vw, 0.92rem); line-height: 1.5; color: var(--t2); text-align: left;
+    opacity: 0; visibility: hidden; transform: translateY(0.6rem);
+    transition: opacity 0.35s ease, transform 0.4s ease, visibility 0s linear 0.4s;
 }
-.ob-modal[hidden] { display: none; }
-.ob-modal-dialog {
-    position: relative; box-sizing: border-box; width: min(50vw, 44rem); max-height: calc(100dvh - 2.5rem);
-    overflow-y: auto; overscroll-behavior: contain; padding: 1.6rem 2.6rem 1.7rem 1.8rem;
-    background: rgba(8,8,8,0.9); border: 1px solid rgba(255,255,255,0.14); border-radius: 0.5rem;
-    font-size: clamp(0.8rem, 0.95vw, 0.92rem); line-height: 1.7; color: var(--t2);
-}
-.ob-modal-dialog:focus { outline: none; }
-.ob-modal-dialog p { margin: 0.8em 0 0; max-width: none; text-wrap: pretty; }
-.ob-modal-dialog p:first-child { margin-top: 0; }
-.ob-modal-close {
-    position: absolute; top: 0.5rem; right: 0.6rem; width: 2rem; height: 2rem; padding: 0; border: 0;
-    background: none; color: var(--t3); font: inherit; font-size: 1.4rem; line-height: 1; cursor: pointer;
-    transition: color 0.2s;
-}
-.ob-modal-close:hover, .ob-modal-close:focus-visible { color: var(--t1); outline: none; }
-.ob-modal-close:focus-visible { box-shadow: 0 0 0 1px rgba(255,255,255,0.5); border-radius: 50%; }
-@media (max-width: 899px) {
-    .ob-modal { padding: 0.9rem; }
-    .ob-modal-dialog { width: 100%; max-height: calc(100dvh - 1.8rem); padding: 1.3rem 2.4rem 1.4rem 1.1rem; font-size: 0.82rem; }
+.ob-panel.is-open { opacity: 1; visibility: visible; transform: none;
+    transition: opacity 0.35s ease 0.08s, transform 0.4s ease, visibility 0s; }
+.ob-panel:focus { outline: none; }
+.ob-panel p { margin: 0.7em 0 0; max-width: none; text-wrap: pretty; }
+.ob-panel p:first-child { margin-top: 0; }
+@media (prefers-reduced-motion: reduce) {
+    .ob-hero, .ob-panel, .ob-panel.is-open { transition: none; }
 }
