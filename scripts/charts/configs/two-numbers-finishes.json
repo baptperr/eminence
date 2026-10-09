@@ -1,0 +1,15 @@
+{
+  "out": "content/publications/two-numbers-to-check-in-january-2028/chart-finishes.svg",
+  "title": "Bouts ending in a finish, by year",
+  "alt": "Line chart: share of UFC bouts ending in a KO, TKO or submission, January to mid-September of each year. 52.5% in 2016, 49.0% in 2021, 45.0% in 2024, 49.3% in 2025, 55.6% in 2026.",
+  "footnote": "Jan to 19 Sep of each year, same window every year. KO, TKO and submission. Source: First Light Observatory.",
+  "yRange": [40, 60],
+  "gridlines": [40, 50, 60],
+  "unit": { "suffix": "%", "decimals": 1, "gridDecimals": 0 },
+  "points": [
+    { "year": 2016, "value": 52.5 }, { "year": 2017, "value": 51.2 }, { "year": 2018, "value": 48.7 },
+    { "year": 2019, "value": 46.4 }, { "year": 2020, "value": 49.5 }, { "year": 2021, "value": 49.0 },
+    { "year": 2022, "value": 52.2 }, { "year": 2023, "value": 50.7 }, { "year": 2024, "value": 45.0, "below": true },
+    { "year": 2025, "value": 49.3, "below": true }, { "year": 2026, "value": 55.6 }
+  ]
+}

@@ -1,0 +1,23 @@
+{
+  "out": "content/publications/two-numbers-to-check-in-january-2028/chart-activity.svg",
+  "title": "Fights per fighter, per year",
+  "alt": "Line chart: fights per year for each champion or top-5 fighter versus each unranked fighter on the roster. Top-5 fighters: 1.99 in 2016, 1.37 in 2026 so far. Unranked fighters: 1.07 in 2016, 1.19 in 2026 so far.",
+  "footnote": ["* Hollow dots: 2019 has thin ranking coverage; 2026 is January to late September (rankings to 24 Sep).", "Source: First Light Observatory, UFC rankings."],
+  "height": 380,
+  "yRange": [0.5, 2.25],
+  "gridlines": [0.5, 1.0, 1.5, 2.0],
+  "unit": { "suffix": "", "decimals": 2, "gridDecimals": 1 },
+  "endLabels": [{ "year": 2016 }, { "year": 2026 }],
+  "series": [
+    { "name": "Top 5", "color": "#ffffff", "width": 2.5, "labelDy": -12, "points": [
+      { "year": 2016, "value": 1.99 }, { "year": 2017, "value": 1.70 }, { "year": 2018, "value": 1.63 },
+      { "year": 2019, "value": 1.31, "partial": true }, { "year": 2020, "value": 1.43 }, { "year": 2021, "value": 1.57 },
+      { "year": 2022, "value": 1.48 }, { "year": 2023, "value": 1.45 }, { "year": 2024, "value": 1.52 },
+      { "year": 2025, "value": 1.52 }, { "year": 2026, "value": 1.37, "partial": true } ] },
+    { "name": "Not top 5", "color": "#a6a6a6", "width": 2, "labelDy": 22, "points": [
+      { "year": 2016, "value": 1.07 }, { "year": 2017, "value": 1.06 }, { "year": 2018, "value": 1.08 },
+      { "year": 2019, "value": 1.03, "partial": true }, { "year": 2020, "value": 1.00 }, { "year": 2021, "value": 1.17 },
+      { "year": 2022, "value": 1.19 }, { "year": 2023, "value": 1.08 }, { "year": 2024, "value": 1.15 },
+      { "year": 2025, "value": 1.16 }, { "year": 2026, "value": 1.19, "partial": true } ] }
+  ]
+}
