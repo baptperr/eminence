@@ -224,7 +224,7 @@ body.page-observatory { background: #000; color: var(--t1); }
 .ob-panel:focus { outline: none; }
 .ob-panel-in {
     margin: 0 auto; text-align: center; text-wrap: pretty;
-    font-weight: 400; font-size: clamp(1.05rem, min(1.45vw, 2.5vh), 1.35rem); line-height: 1.6;
+    font-weight: 300; font-size: clamp(1.05rem, min(1.45vw, 2.5vh), 1.35rem); line-height: 1.6;
     color: var(--t1); max-width: var(--tw, 48ch);
     padding-top: 0.8em; zoom: var(--pk, 1);
 }
