@@ -1,7 +1,9 @@
 ---
 title: Two numbers to check in January 2028
 date: 2026-10-08
-summary: The UFC is moving from selling the story before the fight to selling what happens inside it. Two predictions for 2027, written down now to be scored in public in January 2028: • stars will fight less • the UFC will put on more lopsided matchups.
+summary: The UFC is moving from selling the story before the fight to selling what happens inside it.<br>Two predictions for 2027, written down now to be scored in public in January 2028:
+  - stars will fight less
+  - the UFC will put on more lopsided matchups
 draft: true
 ---
 The UFC used to sell what happened before the fight: the personalities, the stakes, the story. It is now moving to selling what happens inside it, the finish you replay and the beating you cannot look away from. Stars are the expensive part of the first model. Two numbers will show how fast the second one is taking over, and we are calling both for 2027.
@@ -29,9 +31,11 @@ This is simple activity: how many times a year a top-5 fighter fights, against h
 
 ![Line chart: fights per year for each top-5 fighter versus each unranked fighter, 2016 to 2026. Top-5 fighters fell from 1.99 to 1.37 in 2026 so far; unranked fighters rose from 1.07 to 1.19.](/publications/two-numbers-to-check-in-january-2028/chart-activity.svg)
 
+*Source: [First Light Observatory](/observatory/).*
+
 In 2016 a top-5 fighter fought 86% more often than everyone else. In 2026 so far, it is 15% more often. That is a drop of 71 percentage points, or about 38% in how much more often stars fight (a top-5 fighter went from fighting 1.99 times a year to 1.37, a fall of 31%, while everyone else went from 1.07 to 1.19, a rise of 11%).
 
-This is not the product getting worse. The product is the fights, and there are as many as before. The recipe is changing. A star-based product is built from pre-fight value: the build-up, the personalities, the names you already know. That kind of value is getting thinner, because the stars appear less often. The value is moving to what happens in the cage. The UFC is switching from one kind of entertainment to another, and the star-based kind is the one losing ground.
+The product isn't getting worse, but the recipe is changing. A star-based product is built from pre-fight value: the build-up, the personalities, the names you already know, the stakes that have fans tensed up before the fight starts. That kind of value is getting thinner, because the stars appear less often, and less resources are put in promoting their narratives. The entertainment value is moving to the crazy action that happens inside the cage.
 
 The 2026 figures are partial (January to late September, rankings through 24 September), and late-year star cards can lift a full year. That is why this is a call on the full year. In every full year since 2021, a top-5 fighter fought between 1.24x and 1.34x as often as an unranked one. Our call: in 2027, below 1.20x.
 
@@ -41,11 +45,13 @@ A heavy favourite is a fighter with a 75% or better chance of winning. The share
 
 ![Line chart: share of UFC bouts with a heavy favourite by year, 10.8% in 2021 up to 28.2% in 2026 so far (through 19 September), with the 2027 call marked above 30%.](/publications/two-numbers-to-check-in-january-2028/chart-heavy-favourites.svg)
 
+*Source: [First Light Observatory](/observatory/).*
+
 Why it matters: lopsided matchups end in finishes more often. Since 2010, bouts where the favourite is between 50% and 60% have ended in a finish 47% of the time; when the favourite is at 80% or better, it is 65%. In January to 19 September, 49% of bouts ended in a finish across 2016–2025; in 2026 it is 55.6%, the highest of any year since 2010. About half of the rise in the finish rate between 2016–21 and 2025–26 is accounted for by the odds alone.
 
 ![Line chart: share of UFC bouts ending in a KO, TKO or submission, January to 19 September of each year, 52.5% in 2016, 45.0% in 2024, 55.6% in 2026.](/publications/two-numbers-to-check-in-january-2028/chart-finishes.svg)
 
-*Source: [First Light Observatory](/observatory/). Fight ranks come from the UFC rankings; win chances come from betting odds, available for 87% of 2026 bouts.*
+*Source: [First Light Observatory](/observatory/).*
 
 ## What the numbers add up to
 
@@ -55,6 +61,8 @@ Together they point to one change. The UFC is swapping star-based, pre-fight val
 
 ## What this means for fighters
 
-Fighters have long relied on the UFC's build-ups (the narratives, the hype, the promos, the personalities) to turn them into stars. That is the pre-fight value the promotion is putting less weight on, as it shifts toward the value created in the cage.
+Fighters have long relied on the UFC's build-ups (the narratives, the hype, the promos, the personalities) to turn them into stars. That out-of-fight value is exactly what the UFC is putting less weight on, as it shifts toward the value created in the cage.
 
-Do not count on the promotion to build you into a star, because the star-based model is no longer its centre. The same goes for commercial value. If most of your money is made in fights, and stars will fight less, the sensible move is to make money outside the sport. Your value is yours to increase, and so is your income outside the cage. If you want star economics, you will have to take them into your own hands.
+If your goal is to become a star, do not count on the promotion building you up into one, because that's no longer the business they're in. If your goal is to earn off your name, you will be given less opportunities to do it in the cage. Your value is yours to increase, and so is your income beyond the sport.<br>If you want star economics, you will have to take them into your own hands.
+
+Credits: [First Light Observatory](/observatory/)
