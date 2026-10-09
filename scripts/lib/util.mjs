@@ -114,7 +114,8 @@ export function renderMarkdown(md) {
         }
         const para = [];
         while (i < lines.length && lines[i].trim() && !isBlockStart(lines[i])) para.push(lines[i++]);
-        out.push(`<p>${inline(para.join(' '))}</p>`);
+        // A line ending in a backslash is a hard line break inside the paragraph.
+        out.push(`<p>${para.map((l) => (l.endsWith('\\') ? `${inline(l.slice(0, -1).trimEnd())}<br>` : inline(l))).join(' ').replace(/<br> /g, '<br>')}</p>`);
     }
     return out.join('\n');
 }
