@@ -20,6 +20,8 @@ From 1 January to 19 September, the like-for-like premium was **1.18x in 2026**,
 
 The honest part: 2025 was 1.07x over those months, and 1.30x for the full year. Late-year star cards can lift the figure by a lot, so a low start proves nothing. That is why this is a call on the full year. Across the years on record, the full-year premium runs from 1.24x to 1.62x. Our call is 2027 below 1.20x, under every year we have measured.
 
+![Line chart: UFC star premium by year, 1.34x in 2021 down to 1.18x in 2026 so far (through 19 September), with the 2027 call marked below 1.20x.](/publications/two-numbers-to-check-in-january-2028/chart-star-premium.svg)
+
 ## Number two: the favourites
 
 A heavy favourite is a fighter the market gives a 75% or better chance of winning. Their share of bouts, by year since 2021:
@@ -37,8 +39,15 @@ A heavy favourite is a fighter the market gives a 75% or better chance of winnin
 
 It has risen every year and has never reached 30%. Our call is more than 30% in 2027.
 
-## What this means for fighters
-
-If star fights stop earning a premium, the money moves to whoever owns the rest of what a fighter is: the name, the audience, the face. That is the asset First Light invests in, and these are the two numbers we will use to tell whether we are right.
+![Line chart: share of UFC bouts with a heavy favourite by year, 10.8% in 2021 up to 28.2% in 2026 so far (through 19 September), with the 2027 call marked above 30%.](/publications/two-numbers-to-check-in-january-2028/chart-heavy-favourites.svg)
 
 We will publish the 2027 figures in January 2028.
+
+## What this means for fighters
+
+Being a star is going to pay less in the cage. A premium under 1.20x means the fight itself stops rewarding the name, so the money has to be made outside, and a star's value will end up being cashed in outside the sport.
+
+The UFC is moving from selling entertaining buildings to selling entertaining fights. It spends less and less promoting narratives and personalities, and you can already see it. The promotion is no longer in that business.
+
+**Nobody is going to build your name for you.**\
+**Build it yourself, outside the cage.**
