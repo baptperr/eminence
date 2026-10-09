@@ -454,3 +454,7 @@ button.rk-tick { cursor: default; border-bottom: 1px dotted var(--t3); }
 @media (max-width: 640px) {
     .entry-title { font-size: 1.3rem; }
 }
+
+/* Standalone bold conclusion: a paragraph that is only bold text gets extra top spacing. */
+.prose p:has(> strong:only-child) { margin-top: 3.5rem; font-size: 1.1em; }
+.prose p > strong:only-child { color: var(--bone); font-weight: 700; }

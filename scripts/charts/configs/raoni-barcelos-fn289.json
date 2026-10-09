@@ -1,0 +1,23 @@
+{
+  "out": "content/publications/raoni-barcelos-fn289/chart-followers.svg",
+  "title": "Raoni Barcelos: Instagram followers around FN 289",
+  "alt": "Raoni Barcelos Instagram followers, 5 Sep to 3 Oct 2026, with the 26 Sep fight marked and two named phases: fight week buildup (19-25 Sep) and aftermath (27-29 Sep)",
+  "footnote": "Every Instagram reading in the Observatory, 5 Sep to 3 Oct 2026.",
+  "start": "2026-09-05",
+  "end": "2026-10-03",
+  "yRange": [40000, 90000],
+  "gridlines": [40000, 60000, 80000],
+  "event": { "date": "2026-09-26", "label": "Fight, 26 Sep" },
+  "phases": [
+    { "start": "2026-09-19", "end": "2026-09-25", "label": "Sep 19–25: fight week buildup" },
+    { "start": "2026-09-27", "end": "2026-09-29", "label": "Sep 27–29: aftermath" }
+  ],
+  "points": [
+    { "date": "2026-09-05", "value": 53500 },
+    { "date": "2026-09-19", "value": 53600 },
+    { "date": "2026-09-25", "value": 54600 },
+    { "date": "2026-09-27", "value": 55300 },
+    { "date": "2026-09-29", "value": 80400 },
+    { "date": "2026-10-03", "value": 83600 }
+  ]
+}
