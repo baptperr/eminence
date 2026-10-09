@@ -218,14 +218,14 @@ const OBSERVATORY_TEXT_LINES = [
     'The First Light Index is that valuation, made public.',
 ];
 const OBSERVATORY_TEXT = OBSERVATORY_TEXT_LINES.join(' ');
-const OBSERVATORY_DESC = 'The First Light Observatory reads Google, Wikipedia, Instagram, TikTok, YouTube and X, rates fight performance and publishes the First Light Index.';
+const OBSERVATORY_DESC = 'The First Light Observatory measures fighter fame against skill across 40+ organisations and 20,000+ fighters. Sources: Google, Wikipedia, Instagram, TikTok, YouTube, X.';
 // Collapsed by default (founder, 9 Oct 2026: keep the page light; no SEO bloat). Breadth as the
-// founder specified it. Scale figures come from the Observatory repo: 20 entries in
-// config/promotions.yaml (19 named promotions plus 'Other'), and 345,000 fighters rated
-// (docs/firstlight/decisions.md, ADR-023), rounded down.
+// founder specified it. Scale figures: 20 entries in config/promotions.yaml (19 named
+// promotions plus 'Other'), and ~350,000 total fighters in Observatory (docs/firstlight/decisions.md),
+// of which ~20,000 are active, relevant professionals. Using conservative round numbers: 40+ organisations, 20,000+ active fighters.
 const OBSERVATORY_METHOD = [
-    'The Observatory reads Google Search, Wikipedia page views, Instagram, TikTok, YouTube and X, capturing followers, views, engagement, countries, markets and languages. It measures fight performance with the First Light Rating (FLR), which tracks a fighter\u2019s level beyond the win/loss record and is more accurate than FightMatrix, and it adds earnings statistics inside and outside the cage.',
-    'It covers more than 15 promotions and over 340,000 fighters, with readings taken continuously and around every event. The First Light Index sets a fighter\u2019s fame against what the FLR predicts, on a scale from \u22121 to +1.',
+    'The Observatory reads Google Search, Wikipedia page views, Instagram, TikTok, YouTube and X. It captures followers, views, engagement, countries, markets and languages. Fight performance is measured by the First Light Rating (FLR)\u2014which tracks a fighter\u2019s true skill beyond the win/loss record and is more accurate than FightMatrix. The Observatory also records earnings: money earned inside the cage and out.',
+    'Coverage spans 40+ organisations and 20,000+ active fighters, with readings taken continuously around every event. The First Light Index compares a fighter\u2019s fame against what the FLR predicts, on a scale from \u22121 to +1.',
 ];
 
 // Holdings disclosure: a small, quiet line under the Index link on the Observatory and
