@@ -5,7 +5,7 @@
 //   • private                — the standard shell, minus everything that could leak the URL
 //   • publication kit        — no shell at all: no nav, no logo, no site footer (publication.css)
 
-import { esc, safeUrl, isExternal, fmtDate, renderMarkdown, slugify } from './util.mjs';
+import { esc, safeUrl, isExternal, fmtDate, renderMarkdown, linkObservatory, OBSERVATORY_URL, slugify } from './util.mjs';
 
 const YEAR = 2026;
 
@@ -168,8 +168,9 @@ export function articlePage({ article, site }) {
         </header>
         <div class="pg-inner pg-inner--read">
             <div class="prose">
-${renderMarkdown(article.body)}
+${linkObservatory(renderMarkdown(article.body, { figureCredit: true }))}
             </div>
+            <p class="art-credit">Data: <a href="${OBSERVATORY_URL}">First Light Observatory</a>, First Light's proprietary database of fighter fame and performance. Explore it at <a href="${OBSERVATORY_URL}">firstlightequity.com/observatory</a>.</p>
             <div class="art-end">
                 <a href="/index/">Where fighters stand now: the Index</a>
                 <a href="/publications/">All publications</a>

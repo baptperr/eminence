@@ -68,7 +68,35 @@ function inline(raw) {
     return s;
 }
 
-export function renderMarkdown(md) {
+export const OBSERVATORY_URL = '/observatory/';
+const OBS_LINK = (text) => `<a href="${OBSERVATORY_URL}">${text}</a>`;
+
+// Article credit for the Observatory, applied to rendered HTML so every article inherits it:
+// every "Source: First Light Observatory" is linked, and so is the first other mention in
+// the prose. Only text nodes are touched; existing links and figure captions are skipped.
+// Plain internal links: followed, no rel attribute.
+export function linkObservatory(html) {
+    let inA = 0, inCap = 0, first = true;
+    return html.split(/(<[^>]+>)/).map((part) => {
+        if (part.startsWith('<')) {
+            if (/^<a[\s>]/.test(part)) inA++; else if (part === '</a>') inA--;
+            else if (part === '<figcaption>') inCap++; else if (part === '</figcaption>') inCap--;
+            return part;
+        }
+        if (inA || inCap) return part;
+        return part.replace(/(Source: )?(First Light Observatory|Observatory)/g, (all, src, name) => {
+            if (src) { first = false; return `${src}${OBS_LINK(name)}`; }
+            if (!first) return all;
+            first = false;
+            return OBS_LINK(name);
+        });
+    }).join('');
+}
+
+// Credit under every chart: the figure caption plus the link, from one place.
+export const FIGURE_CREDIT = `<figcaption>Source: ${OBS_LINK('First Light Observatory')}</figcaption>`;
+
+export function renderMarkdown(md, { figureCredit = false } = {}) {
     const lines = md.replace(/\r\n/g, '\n').split('\n');
     const out = [];
     let i = 0;
@@ -85,7 +113,7 @@ export function renderMarkdown(md) {
         if (/^---\s*$/.test(line)) { out.push('<hr>'); i++; continue; }
         if ((m = line.match(/^!\[([^\]]*)\]\(([^)\s]+)\)\s*$/))) {
             const src = safeUrl(m[2]);
-            if (src) out.push(`<figure><img src="${esc(src)}" alt="${esc(m[1])}" loading="lazy"></figure>`);
+            if (src) out.push(`<figure><img src="${esc(src)}" alt="${esc(m[1])}" loading="lazy">${figureCredit ? FIGURE_CREDIT : ''}</figure>`);
             i++; continue;
         }
         // | a | b | tables: a header row, a |---|---| rule, then body rows.

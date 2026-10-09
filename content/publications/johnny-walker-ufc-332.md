@@ -39,13 +39,13 @@ His earlier fights are compared through his Wikipedia page across eight language
 
 ![Extra Wikipedia views in the three days from fight night, Walker's last four wins over Cirkunov, Craig, Smith and Zhang, his April 2026 loss to Reyes, and UFC 332 against Parkin](/publications/johnny-walker-ufc-332/extra-views.svg)
 
-*Extra Wikipedia views over his normal level in the three days from fight night, eight language editions. The outlined bar is a loss. Source: First Light Observatory.*
+*Extra Wikipedia views over his normal level in the three days from fight night, eight language editions. The outlined bar is a loss.*
 
 His normal traffic has fallen over the same period, from about 2,500 views a day before the Cirkunov fight in 2019 to about 690 before Saturday. Measured against that smaller baseline, the three days after the Parkin fight averaged 18.5 times his normal daily views, which is a typical spike for one of his fights: they usually fall between 13 and 28 times. The Reyes loss came in at 14.1 times.
 
 ![Average daily Wikipedia views in the three days from fight night as a multiple of normal daily views, for the same six fights](/publications/johnny-walker-ufc-332/times-normal.svg)
 
-*Average daily Wikipedia views in the three days from fight night, as a multiple of normal daily views. Source: First Light Observatory.*
+*Average daily Wikipedia views in the three days from fight night, as a multiple of normal daily views.*
 
 | Fight | Result | Normal daily views | Extra views, 3 days | Multiple of normal |
 |---|---|---|---|---|
