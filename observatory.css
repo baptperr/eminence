@@ -195,11 +195,13 @@ body.page-observatory { background: #000; color: var(--t1); }
 
 /* ── methodology: collapsed by default, so the page keeps its sparse look ──
    The toggle hangs just under the Index link (zero height, so it takes no room). Opening it
-   moves and shrinks the whole hero (.ob-hero) up, and the text appears in the space freed at
-   the foot, between the status line and the press credit. Neither of those moves. observatory.js
-   measures them and sets the panel's edges and the hero's offset; this is only the styling. */
-.ob-hero { display: flex; flex-direction: column; align-items: flex-start; position: relative;
-    transform-origin: 50% 0; transition: transform 0.4s ease; will-change: transform; }
+   (.ob.is-open) shrinks the hero to the top of the page (zoom, so the layout follows), tucks the
+   status line and the press credit smaller into the bottom corners, and fades the text in
+   across the band between them. observatory.js measures the real gap and picks the shrink
+   factors (--hk title and subline, --tk paragraph and link), the corner offsets (--ob-sx/sy,
+   --ob-cx/cy), the panel's edges and its type size, so the text always fits with no scrolling.
+   This is only the styling. */
+.ob-hero { display: flex; flex-direction: column; align-items: flex-start; position: relative; }
 .ob-method { font-size: clamp(0.64rem, min(0.75vw, 1.4vh), 0.78rem); line-height: 1.6; color: var(--t3);
     position: absolute; top: 100%; left: 0; right: 0; height: 0; text-align: center;
     margin-top: clamp(1rem, 3vh, 2rem); }
@@ -212,7 +214,30 @@ body.page-observatory { background: #000; color: var(--t1); }
 .ob-method-toggle[aria-expanded="true"]::after { content: ' \2212'; }
 .ob-method-toggle:hover, .ob-method-toggle:focus-visible { opacity: 1; outline: none; color: var(--t1); }
 .ob-method-toggle:focus-visible { text-decoration: underline; text-underline-offset: 0.25em; }
-.ob-hero.is-shifted { transform: translateY(var(--ob-shift, 0px)) scale(var(--ob-scale, 0.85)); }
+
+.ob-title, .ob-sub, .ob-text, .ob-link, .ob-status, .ob-credit {
+    transition: zoom 0.5s ease, margin 0.5s ease, transform 0.5s ease;
+}
+.ob-method { transition: margin 0.5s ease;
+}
+.ob.is-open { grid-template-rows: 0fr auto auto auto auto 1fr auto; transition: grid-template-rows 0.5s ease; }
+.ob.is-open .ob-hero { margin-top: 0.5rem; }
+.ob.is-open .ob-title { zoom: var(--hk, 0.55); }
+.ob.is-open .ob-sub   { zoom: var(--hk, 0.55); margin-top: 0.5rem; }
+.ob.is-open .ob-text  { zoom: var(--tk, 0.7); margin-top: 0.9rem; }
+.ob.is-open .ob-link  { zoom: var(--tk, 0.7); margin-top: 0.6rem; }
+.ob.is-open .ob-status { transform: translate(var(--ob-sx, 0px), var(--ob-sy, 0px)) scale(var(--ob-fs, 0.8)); transform-origin: 1.6em 50%; }
+.ob.is-open .ob-credit { transform: translate(var(--ob-cx, 0px), var(--ob-cy, 0px)) scale(var(--ob-fs, 0.8)); transform-origin: 100% 100%; }
+.ob.is-open.ob-narrow .ob-title { margin-top: 0.5rem; }
+.ob.is-open.ob-narrow .ob-sub   { margin-top: 0.4rem; }
+.ob.is-open.ob-narrow .ob-text  { margin-top: 0.6rem; }
+.ob.is-open.ob-narrow .ob-link  { margin: 0.5rem 0 0; }
+.ob.is-open.ob-narrow .ob-credit { transform-origin: 0 100%; }
+.ob.is-open.ob-narrow .ob-method { margin-top: 0.45rem; }
+.ob.is-open.ob-narrow ~ .ob-panel, .ob-panel.is-narrow { line-height: 1.4; }
+.ob-panel.is-narrow p { margin-top: 0.5em; }
+.ob-panel.is-narrow p:first-child { margin-top: 0; }
+.ob.ob-measuring, .ob.ob-measuring * { transition: none !important; }
 @media (max-width: 899px) {
     .ob-hero { width: 100%; }
     .ob-method { margin-top: 0.9rem; text-align: left; }
@@ -221,16 +246,16 @@ body.page-observatory { background: #000; color: var(--t1); }
 
 .ob-panel {
     position: absolute; z-index: 1; box-sizing: border-box; left: var(--ob-l, 0px); right: var(--ob-r, 0px);
-    bottom: var(--ob-b, 0px); max-height: var(--ob-h, none); overflow-y: auto; overscroll-behavior: contain;
-    font-size: clamp(0.8125rem, 0.95vw, 0.92rem); line-height: 1.5; color: var(--t2); text-align: left;
+    bottom: var(--ob-b, 0px);
+    font-size: var(--ob-pf, 0.8125rem); line-height: 1.5; color: var(--t2); text-align: left;
     opacity: 0; visibility: hidden; transform: translateY(0.6rem);
     transition: opacity 0.35s ease, transform 0.4s ease, visibility 0s linear 0.4s;
 }
 .ob-panel.is-open { opacity: 1; visibility: visible; transform: none;
-    transition: opacity 0.35s ease 0.08s, transform 0.4s ease, visibility 0s; }
+    transition: opacity 0.35s ease 0.2s, transform 0.4s ease 0.1s, visibility 0s; }
 .ob-panel:focus { outline: none; }
 .ob-panel p { margin: 0.7em 0 0; max-width: none; text-wrap: pretty; }
 .ob-panel p:first-child { margin-top: 0; }
 @media (prefers-reduced-motion: reduce) {
-    .ob-hero, .ob-panel, .ob-panel.is-open { transition: none; }
+    .ob.is-open, .ob-title, .ob-sub, .ob-text, .ob-link, .ob-status, .ob-credit, .ob-panel, .ob-panel.is-open { transition: none; }
 }

@@ -25,11 +25,11 @@
     // for every visitor). Consecutive readings are therefore 5 to 15 minutes apart, and the
     // line shows the latest one already past: a reload shows the same time, and it only ever
     // moves forward, for everyone at once. The line stays hidden without JS.
-    // "How the data works": an inline reveal. The hero (title to Index link and this toggle) shifts
-    // up and shrinks; the text fades in at the foot, between the status line and the press
-    // credit, which never move. The panel's edges and the hero's offset are measured here, so
-    // the text always sits in the real gap, whatever the size. Phones have no gap: the text
-    // spans the width, just above the status line. Esc or a second click reverses it.
+    // "How the data works": an inline reveal that never scrolls. Opening shrinks the hero to
+    // the top (zoom), tucks the status line and the press credit smaller towards the bottom
+    // corners, and fades the text in across the band between them. Everything is measured
+    // here with transitions off, so whatever the screen the text sits in the real gap at
+    // 13px or more; the hero shrinks only as far as it must. Esc or a second click reverses it.
     (function () {
         var ob = document.querySelector('.ob');
         var hero = document.getElementById('obHero');
@@ -37,66 +37,108 @@
         var toggle = document.querySelector('.ob-method-toggle');
         var status = document.getElementById('obStatus');
         var credit = document.querySelector('.ob-credit');
-        if (!ob || !hero || !panel || !toggle || !credit) return;
-        var SCALE = 0.85, GAP = 12, open = false;
+        var text = hero && hero.querySelector('.ob-text');
+        var wideMq = window.matchMedia('(min-width: 900px) and (min-height: 560px)');
+        if (!ob || !hero || !panel || !toggle || !credit || !text) return;
+        var EDGE = 14, GAP = 16, MIN = 13, MAX = 15, open = false;
+        var HK = [0.62, 0.55, 0.5, 0.45, 0.4];
         function px(v) { return parseFloat(v) || 0; }
-        function layout() {
-            var o = ob.getBoundingClientRect(), c = credit.getBoundingClientRect();
-            var wide = window.matchMedia('(min-width: 900px) and (min-height: 560px)').matches;
-            var navB = px(getComputedStyle(ob).paddingTop) + o.top;
-            var left, right, bottom;
-            if (wide) {
-                var sr = status && !status.hidden ? status.getBoundingClientRect() : { right: o.left + px(getComputedStyle(ob).paddingLeft), bottom: c.bottom };
-                var sp = status && !status.hidden ? px(getComputedStyle(status).paddingRight) : 0;
-                left = sr.right - sp - o.left + 1.5 * GAP;
-                right = o.right - c.left + 1.5 * GAP;
-                bottom = o.bottom - c.bottom;
-            } else {
-                var top = (status && !status.hidden) ? status.getBoundingClientRect().top + px(getComputedStyle(status).paddingTop) : c.top;
-                left = px(getComputedStyle(ob).paddingLeft);
-                right = px(getComputedStyle(ob).paddingRight);
-                bottom = o.bottom - Math.min(top, c.top) + GAP;
-            }
-            ob.style.setProperty('--ob-l', left + 'px');
-            ob.style.setProperty('--ob-r', right + 'px');
-            ob.style.setProperty('--ob-b', bottom + 'px');
-            ob.style.setProperty('--ob-h', 'none');
-            ob.style.setProperty('--ob-scale', SCALE);
-            // Natural hero box (transform off), then the shift that lifts its scaled bottom clear of the panel.
-            var was = hero.style.transition; hero.style.transition = 'none';
-            var had = hero.classList.contains('is-shifted'); hero.classList.remove('is-shifted');
-            var h = hero.getBoundingClientRect();
-            if (had) hero.classList.add('is-shifted');
-            hero.style.transition = was;
-            var panelTop = o.bottom - bottom - panel.offsetHeight;
-            // the toggle hangs below the hero; include it in the block that must clear the panel
-            var t = toggle.getBoundingClientRect(), bottomEdge = Math.max(h.bottom, t.bottom - (had ? 0 : 0));
-            var natBottom = h.bottom + (toggle.offsetHeight + px(getComputedStyle(toggle.parentNode).marginTop));
-            var scaledBottom = h.top + (natBottom - h.top) * SCALE;
-            var shift = Math.min(0, panelTop - GAP - scaledBottom);
-            var minTop = navB - h.top;   // do not climb under the nav
-            var over = Math.max(0, minTop - shift);
-            if (over > 0) shift = minTop;
-            ob.style.setProperty('--ob-shift', shift + 'px');
-            panel.dataset.overflow = over > 0 ? Math.round(over) : '0';
-            if (over > 0) {   // never clip silently: let the panel scroll, and flag it
-                var avail = o.bottom - bottom - (h.top + shift + (natBottom - h.top) * SCALE) - GAP;
-                ob.style.setProperty('--ob-h', Math.max(avail, 80) + 'px');
-            }
+        function set(name, v) { ob.style.setProperty(name, v); }
+        function showStatus() { return status && !status.hidden; }
+        // Fit the panel to a width and read its natural height at a given type size.
+        function panelHeight(w, size) {
+            panel.style.width = w + 'px'; set('--ob-pf', size + 'px');
+            return panel.offsetHeight;
         }
-        function set(state) {
+        // Must run with .ob-measuring on and .is-open off. Leaves the result in custom properties.
+        function fit() {
+            var wide = wideMq.matches, i;
+            ob.classList.toggle('ob-narrow', !wide); panel.classList.toggle('is-narrow', !wide);
+            ob.classList.remove('is-open');
+            var o = ob.getBoundingClientRect();
+            var W = o.width, H = o.height, safe = wide ? 0 : 6;
+            var c = credit.getBoundingClientRect(), s = showStatus() ? status.getBoundingClientRect() : null;
+            var fs = wide ? 0.78 : 0.82;
+            set('--ob-fs', fs);
+            // Corners: credit's right (wide) or left (narrow) edge and bottom move to the screen edge.
+            var cdx = wide ? (o.right - EDGE) - c.right : (o.left + EDGE) - c.left;
+            var cdy = (o.bottom - EDGE - safe) - c.bottom;
+            var cH = c.height * fs;
+            set('--ob-cx', cdx + 'px'); set('--ob-cy', cdy + 'px');
+            var sdx = 0, sdy = 0, sRight = o.left + EDGE;
+            if (s) {
+                var padL = px(getComputedStyle(status).paddingLeft), sp = padL;
+                var textLeft = s.left + padL;
+                sdx = (o.left + EDGE) - textLeft;
+                var sCenter = s.top + s.height / 2;
+                var tCenter = wide ? (o.bottom - EDGE - cH / 2) : (o.bottom - EDGE - safe - cH - 6 - (s.height * fs) / 2);
+                sdy = tCenter - sCenter;
+                sRight = (o.left + EDGE) + (s.width - 2 * sp) * fs;   // visible text right edge
+            }
+            set('--ob-sx', sdx + 'px'); set('--ob-sy', sdy + 'px');
+            var panelLeft, panelRight, panelBottom, bandTop;
+            var creditLeft = wide ? (o.right - EDGE) - c.width * fs : o.left;
+            if (wide) {
+                panelLeft = sRight + GAP * 1.5; panelRight = creditLeft - GAP * 1.5;
+                panelBottom = o.bottom - EDGE;
+            } else {
+                panelLeft = o.left + px(getComputedStyle(ob).paddingLeft); panelRight = o.right - px(getComputedStyle(ob).paddingRight);
+                var footTop = (s ? o.bottom - EDGE - safe - cH - 6 - s.height * fs : o.bottom - EDGE - safe - cH);
+                if (s) footTop += (s.height * (1 - fs)) / 2 * 0;   // halo padding gives the breathing room
+                panelBottom = footTop - GAP * 0.5;
+            }
+            var w = Math.max(panelRight - panelLeft, 120);
+            set('--ob-l', (panelLeft - o.left) + 'px');
+            set('--ob-r', (o.right - panelRight) + 'px');
+            set('--ob-b', (o.bottom - panelBottom) + 'px');
+            // Shrink the hero step by step until the text at 13px+ fits below it.
+            var best = null;
+            for (i = 0; i < HK.length; i++) {
+                var hk = HK[i];
+                // the paragraph's own zoom: as large as 0.9 of the title's, never below 13px
+                var fsText = px(getComputedStyle(text).fontSize);
+                var tk = Math.max(Math.min(hk + 0.05, 0.9), MIN / fsText);
+                set('--hk', hk); set('--tk', Math.min(tk, 1));
+                ob.classList.add('is-open');
+                var hb = Math.max(toggle.getBoundingClientRect().bottom, hero.getBoundingClientRect().bottom);
+                ob.classList.remove('is-open');
+                var avail = (panelBottom - GAP) - hb;
+                // Is a 13px+ panel the right height for the room? The widest type that fits wins.
+                var size = null;
+                for (var f = MAX; f >= MIN; f -= 0.25) { if (panelHeight(w, f) <= avail) { size = f; break; } }
+                best = { hk: hk, tk: tk, size: size, avail: avail };
+                if (size) break;
+            }
+            set('--hk', best.hk); set('--tk', Math.min(best.tk, 1));
+            if (!best.size) panelHeight(w, MIN);
+            else panelHeight(w, best.size);
+            panel.dataset.overflow = best.size ? '0' : String(Math.round(panelHeight(w, MIN) - best.avail));
+            panel.dataset.size = String(best.size || MIN);
+            panel.dataset.hk = String(best.hk);
+        }
+        // Measure with transitions off, then return to the closed layout so opening animates.
+        function measure() {
+            var was = ob.classList.contains('is-open');
+            ob.classList.add('ob-measuring');
+            fit();
+            if (was) ob.classList.add('is-open');
+            void ob.offsetHeight;
+            ob.classList.remove('ob-measuring');
+        }
+        function setOpen(state) {
             open = state;
-            if (open) layout();
-            hero.classList.toggle('is-shifted', open);
+            if (open) { measure(); void ob.offsetHeight; }
+            ob.classList.toggle('is-open', open);
             panel.classList.toggle('is-open', open);
             toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
-            if (open) { panel.scrollTop = 0; document.addEventListener('keydown', onKey, true); }
+            if (open) { document.addEventListener('keydown', onKey, true); }
             else { document.removeEventListener('keydown', onKey, true); }
         }
-        function onKey(e) { if (e.key === 'Escape') { e.preventDefault(); set(false); toggle.focus(); } }
-        toggle.addEventListener('click', function () { set(!open); });
-        window.addEventListener('resize', function () { if (open) layout(); });
-        window.addEventListener('orientationchange', function () { if (open) layout(); });
+        function onKey(e) { if (e.key === 'Escape') { e.preventDefault(); setOpen(false); toggle.focus(); } }
+        toggle.addEventListener('click', function () { setOpen(!open); });
+        function refit() { if (open) measure(); }
+        window.addEventListener('resize', refit);
+        window.addEventListener('orientationchange', refit);
     })();
 
     var line = document.getElementById('obStatus');
