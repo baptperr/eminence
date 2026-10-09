@@ -191,3 +191,22 @@ body.page-observatory { background: #000; color: var(--t1); }
     .ob { height: auto; min-height: 100dvh; }
     .ob-bg { position: fixed; }
 }
+
+/* ── methodology: collapsed by default, so the page keeps its sparse look ── */
+.ob-method { font-size: clamp(0.64rem, min(0.75vw, 1.4vh), 0.78rem); line-height: 1.6; color: var(--t3); max-width: 46ch; }
+.ob-method summary {
+    cursor: pointer; list-style: none; width: fit-content; font-weight: 300; letter-spacing: 0.04em;
+    opacity: 0.75; transition: opacity 0.2s;
+}
+.ob-method summary::-webkit-details-marker { display: none; }
+.ob-method summary::after { content: ' +'; }
+.ob-method[open] summary::after { content: ' \2212'; }
+.ob-method summary:hover, .ob-method summary:focus-visible { opacity: 1; outline: none; color: var(--t1); }
+.ob-method p { margin: 0.7em 0 0; color: var(--t2); text-wrap: pretty; }
+.ob-method[open] { padding: 0.9em 1.1em; background: radial-gradient(closest-side, rgba(0,0,0,0.6), rgba(0,0,0,0.4) 60%, transparent); }
+@media (min-width: 900px) and (min-height: 560px) {
+    .ob-method { grid-column: 1 / -1; grid-row: 6; justify-self: center; align-self: start; text-align: center; margin-top: clamp(1rem, 3vh, 2rem);
+        height: 0; overflow: visible; /* opening it overlays the empty band; the layout above never shifts */ }
+    .ob-method summary { margin: 0 auto; }
+}
+@media (max-width: 899px) { .ob-method { margin: 0 0 0.6rem; } .ob-method[open] { max-height: 30dvh; overflow: auto; } }

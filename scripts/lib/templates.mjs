@@ -218,7 +218,14 @@ const OBSERVATORY_TEXT_LINES = [
     'The First Light Index is that valuation, made public.',
 ];
 const OBSERVATORY_TEXT = OBSERVATORY_TEXT_LINES.join(' ');
-const OBSERVATORY_DESC = 'The Observatory follows every professional fighter across all major promotions, from their first bout to their latest post, and measures what a name is worth.';
+const OBSERVATORY_DESC = 'The First Light Observatory tracks fighter audiences and fight results, and publishes the First Light Index: fame measured against skill.';
+// Collapsed by default (founder, 9 Oct 2026: keep the page light; no SEO bloat). Every claim
+// here is one the repo or the page already makes; no platform list or reading frequency is stated.
+const OBSERVATORY_METHOD = [
+    'The Observatory records fighters\u2019 audiences, such as Instagram followers, alongside their fight results and records. It repeats those readings around each event, including the days after a result, so a change can be measured against what came before.',
+    'The First Light Index compares a fighter\u2019s fame with what their skill rating would predict, on a scale from \u22121 to +1. Above zero, the audience is larger than the skill explains; below zero, the fighter is better than their audience knows.',
+    'Publications cite the Observatory as First Light Observatory and link here.',
+];
 
 // Holdings disclosure: a small, quiet line under the Index link on the Observatory and
 // under the FLI definition on the rankings.
@@ -238,6 +245,7 @@ export function observatoryPage({ site }) {
     <p class="ob-sub">The deepest record of commercial value in professional fighting.</p>
     <p class="ob-text">${esc(OBSERVATORY_TEXT_LINES[0])} <span class="ob-close">${esc(OBSERVATORY_TEXT_LINES[1])}</span></p>
     <div class="ob-link"><a href="/index/">First Light Index <span aria-hidden="true">&rarr;</span></a><small class="ob-disclose">${HOLDINGS_TEXT}</small></div>
+    <details class="ob-method"><summary>How the data works</summary>${OBSERVATORY_METHOD.map(t => `<p>${esc(t)}</p>`).join('')}</details>
     <p class="ob-status" id="obStatus" hidden><span class="ob-dot" aria-hidden="true"></span>Last reading: <time id="obStatusTime"></time></p>
     <p class="ob-credit"><span>Journalists may publish Observatory data.</span><span>Credit: First Light Observatory.</span><span><a href="mailto:contact@firstlightequity.com">contact@firstlightequity.com</a></span></p>
 </main>`;
