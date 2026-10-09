@@ -25,6 +25,39 @@
     // for every visitor). Consecutive readings are therefore 5 to 15 minutes apart, and the
     // line shows the latest one already past: a reload shows the same time, and it only ever
     // moves forward, for everyone at once. The line stays hidden without JS.
+    // "How the data works": a centred pop-up. Opens from the toggle, closes with the x, Esc or a
+    // click on the backdrop; focus moves into it and back to the toggle.
+    (function () {
+        var toggle = document.querySelector('.ob-method-toggle');
+        var modal = document.getElementById('obModal');
+        var dialog = document.getElementById('obMethod');
+        var x = modal && modal.querySelector('.ob-modal-close');
+        if (!toggle || !modal || !dialog) return;
+        function close() {
+            if (modal.hidden) return;
+            modal.hidden = true;
+            toggle.setAttribute('aria-expanded', 'false');
+            document.removeEventListener('keydown', onKey, true);
+            toggle.focus();
+        }
+        function onKey(e) {
+            if (e.key === 'Escape') { e.preventDefault(); close(); }
+            else if (e.key === 'Tab') {   // keep focus inside while open
+                e.preventDefault();
+                (document.activeElement === x ? dialog : x).focus();
+            }
+        }
+        toggle.addEventListener('click', function () {
+            modal.hidden = false;
+            toggle.setAttribute('aria-expanded', 'true');
+            document.addEventListener('keydown', onKey, true);
+            dialog.scrollTop = 0;
+            dialog.focus();
+        });
+        if (x) x.addEventListener('click', close);
+        modal.addEventListener('click', function (e) { if (e.target === modal) close(); });
+    })();
+
     var line = document.getElementById('obStatus');
     var out = document.getElementById('obStatusTime');
     if (!line || !out) return;

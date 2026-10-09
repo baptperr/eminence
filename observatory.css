@@ -193,43 +193,49 @@ body.page-observatory { background: #000; color: var(--t1); }
 }
 
 /* ── methodology: collapsed by default, so the page keeps its sparse look ──
-   On desktop the toggle sits in the empty band under the Index link, a clear step below the
-   holdings note. The details box is zero-height, so opening it overlays the band and nothing
-   else moves: the status line and the credit stay exactly where they are. The open text is a
-   narrow centred block that fits between them (status ends left of it, credit starts right of it). */
+   The toggle sits in the empty band under the Index link (a clear step below the holdings note)
+   and takes no extra room. The text opens as a centred pop-up over a subtle backdrop; both are
+   position: fixed, so nothing in the page moves, grows or scrolls, and the pop-up simply covers
+   the status line and the credit while it is open. */
 .ob-method { font-size: clamp(0.64rem, min(0.75vw, 1.4vh), 0.78rem); line-height: 1.6; color: var(--t3); }
-.ob-method summary {
-    cursor: pointer; list-style: none; width: fit-content; font-weight: 300; letter-spacing: 0.04em;
+.ob-method-toggle {
+    appearance: none; background: none; border: 0; padding: 0; margin: 0; font: inherit; color: inherit;
+    cursor: pointer; width: fit-content; font-weight: 300; letter-spacing: 0.04em;
     opacity: 0.75; transition: opacity 0.2s;
 }
-.ob-method summary::-webkit-details-marker { display: none; }
-.ob-method summary::after { content: ' +'; }
-.ob-method[open] summary::after { content: ' \2212'; }
-.ob-method summary:hover, .ob-method summary:focus-visible { opacity: 1; outline: none; color: var(--t1); }
-.ob-method p { margin: 0.5em 0 0; max-width: none; color: var(--t2); text-wrap: pretty; }
+.ob-method-toggle::after { content: ' +'; }
+.ob-method-toggle:hover, .ob-method-toggle:focus-visible { opacity: 1; outline: none; color: var(--t1); }
+.ob-method-toggle:focus-visible { text-decoration: underline; text-underline-offset: 0.25em; }
 @media (min-width: 900px) and (min-height: 560px) {
     .ob-method { grid-column: 1 / -1; grid-row: 6; justify-self: center; align-self: start; text-align: center;
         margin-top: clamp(1rem, 3vh, 2rem); height: 0; overflow: visible; }
-    .ob-method summary { margin: 0 auto; }
-    
-    .ob-method[open] { width: min(35vw, 33rem); }
-    .ob-method[open] p { margin-top: 0.4em; }
-    .ob-method[open] .ob-method-body > p:first-child { margin-top: 0.6em; }
+    .ob-method-toggle { display: block; margin: 0 auto; }
 }
-/* Where the open text cannot clear the foot (a short desktop window), the page scrolls rather than
-   clipping it; the box is still zero-height, so nothing moves and the status line stays put. */
-@media (min-width: 900px) and (min-height: 560px) and (max-height: 960px) {
-    html:has(.ob-method[open]), body.page-observatory:has(.ob-method[open]) { height: auto; overflow: auto; }
-    .ob:has(.ob-method[open]) .ob-bg { position: fixed; }
-}
-/* Phones: the toggle keeps its place in the column and the open text floats up over the statement,
-   so the status line below it never moves. A dark pool keeps it legible over the lines it covers. */
 @media (max-width: 899px) {
-    .ob-method { margin: 0 0 0.6rem; width: 100%; max-width: 46ch; position: relative; }
-    .ob-method-body { display: none; }
-    .ob-method[open] .ob-method-body {
-        display: block; position: absolute; left: -0.5rem; right: -0.5rem; bottom: calc(100% + 0.4rem); z-index: 2;
-        padding: 0.7em 0.9em 0.9em; border-radius: 0.5rem; background: rgba(0,0,0,0.82);
-    }
-    .ob-method[open] .ob-method-body p:first-child { margin-top: 0; }
+    .ob-method { margin: 0 0 0.6rem; width: 100%; max-width: 46ch; }
+}
+.ob-modal {
+    position: fixed; inset: 0; z-index: 200; display: flex; align-items: center; justify-content: center;
+    padding: 1.25rem; background: rgba(0,0,0,0.5); text-align: left;
+}
+.ob-modal[hidden] { display: none; }
+.ob-modal-dialog {
+    position: relative; box-sizing: border-box; width: min(50vw, 44rem); max-height: calc(100dvh - 2.5rem);
+    overflow-y: auto; overscroll-behavior: contain; padding: 1.6rem 2.6rem 1.7rem 1.8rem;
+    background: rgba(8,8,8,0.9); border: 1px solid rgba(255,255,255,0.14); border-radius: 0.5rem;
+    font-size: clamp(0.8rem, 0.95vw, 0.92rem); line-height: 1.7; color: var(--t2);
+}
+.ob-modal-dialog:focus { outline: none; }
+.ob-modal-dialog p { margin: 0.8em 0 0; max-width: none; text-wrap: pretty; }
+.ob-modal-dialog p:first-child { margin-top: 0; }
+.ob-modal-close {
+    position: absolute; top: 0.5rem; right: 0.6rem; width: 2rem; height: 2rem; padding: 0; border: 0;
+    background: none; color: var(--t3); font: inherit; font-size: 1.4rem; line-height: 1; cursor: pointer;
+    transition: color 0.2s;
+}
+.ob-modal-close:hover, .ob-modal-close:focus-visible { color: var(--t1); outline: none; }
+.ob-modal-close:focus-visible { box-shadow: 0 0 0 1px rgba(255,255,255,0.5); border-radius: 50%; }
+@media (max-width: 899px) {
+    .ob-modal { padding: 0.9rem; }
+    .ob-modal-dialog { width: 100%; max-height: calc(100dvh - 1.8rem); padding: 1.3rem 2.4rem 1.4rem 1.1rem; font-size: 0.82rem; }
 }
