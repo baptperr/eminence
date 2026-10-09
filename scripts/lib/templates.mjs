@@ -170,7 +170,7 @@ export function articlePage({ article, site }) {
             <div class="prose">
 ${linkObservatory(renderMarkdown(article.body, { figureCredit: true }))}
             </div>
-            <p class="art-credit">Data: <a href="${OBSERVATORY_URL}">First Light Observatory</a>, First Light's proprietary database of fighter fame and performance. Explore it at <a href="${OBSERVATORY_URL}">firstlightequity.com/observatory</a>.</p>
+            <p class="art-credit">Data Credit: <a href="${OBSERVATORY_URL}">First Light Observatory</a>.</p>
             <div class="art-end">
                 <a href="/index/">Where fighters stand now: the Index</a>
                 <a href="/publications/">All publications</a>
