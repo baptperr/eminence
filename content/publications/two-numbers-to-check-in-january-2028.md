@@ -1,7 +1,7 @@
 ---
 title: Two numbers to check in January 2028
 date: 2026-10-08
-summary: The UFC is moving from selling the story before the fight to selling what happens inside it. Two predictions for 2027, written down now to be scored in public in January 2028 - stars will fight less, and the UFC will put on more lopsided matchups.
+summary: The UFC is moving from selling the story before the fight to selling what happens inside it. Two predictions for 2027, written down now to be scored in public in January 2028: • stars will fight less • the UFC will put on more lopsided matchups.
 draft: true
 ---
 The UFC used to sell what happened before the fight: the personalities, the stakes, the story. It is now moving to selling what happens inside it, the finish you replay and the beating you cannot look away from. Stars are the expensive part of the first model. Two numbers will show how fast the second one is taking over, and we are calling both for 2027.
@@ -14,15 +14,14 @@ We will check both in January 2028 and publish the result, right or wrong.
 
 ## Why this is happening
 
-The main reason is cost. Stars are very expensive. A promotion that wants to spend less on them has to find entertainment that does not depend on them, and that is what happens in the cage: the crazy finish, the beatdown.
+The business around the UFC has changed, and the way fighters are paid and rewarded has changed with it. Spending and incentives now point the same way, and together they change what the UFC puts in the cage.
 
-The business around the UFC has changed in ways that point the same direction. This is a shift in incentives, not a villain, and none of it is any one company's fault.
+- **US pay-per-view has ended.** Since 2026 every UFC event in the US is on Paramount+, under a seven-year, $7.7B deal, about $1.1B a year. A fighter used to be both a cost line and a revenue line: a star cost more, and also sold more. Now revenue is flat, set by the broadcast deal, so a fighter is only a cost line, and stars suddenly look expensive.
+- **The UFC is run more like a regular business.** Since 2023 it has sat inside TKO, a public company, and Endeavor, which owns most of TKO, was taken private by the investment firm Silver Lake in 2025. The UFC's money flows are now incentivised and nudged by parties further from the end product.
 
-- **US pay-per-view has ended.** Since 2026 every UFC event in the US is on Paramount+, under a seven-year, $7.7B deal, about $1.1B a year. Revenue no longer depends on how an individual card sells, so there is less reason to build a card around one famous name.
-- **The UFC is part of a listed company.** Since 2023 it has sat inside TKO, a public company, and a public company is paid for steady margins.
-- **Its biggest shareholder is private equity.** Endeavor, which owns most of TKO, was taken private by the investment firm Silver Lake in 2025. An owner like that also rewards predictable margins.
+What follows from these facts is a change in what gets rewarded. A matchmaker is rewarded for predictable, repeatable entertainment, and is not rewarded for building a card around one famous name. A fighter is rewarded for finishing fights, and is not rewarded for fame. An owner is rewarded for steady margins, and is not rewarded for the upside of a single star.
 
-None of these owners decided to get rid of stars. The structure they work in simply fits a cheaper kind of entertainment that relies less on expensive stars, and that is the direction the UFC is already moving in.
+This shows up in matchmaking, the product itself. Stars fight less often relative to everyone else, and more bouts are lopsided on paper. The UFC is moving from entertainment that depends on expensive stars to entertainment that happens in the cage: the crazy finish, the beatdown. Spending and incentives agree, and the product is changing to match.
 
 ## Number one: how often stars fight
 
@@ -46,7 +45,7 @@ Why it matters: lopsided matchups end in finishes more often. Since 2010, bouts 
 
 ![Line chart: share of UFC bouts ending in a KO, TKO or submission, January to 19 September of each year, 52.5% in 2016, 45.0% in 2024, 55.6% in 2026.](/publications/two-numbers-to-check-in-january-2028/chart-finishes.svg)
 
-*Source: First Light Observatory. Fight ranks come from the UFC rankings; win chances come from betting odds, available for 87% of 2026 bouts.*
+*Source: [First Light Observatory](/observatory/). Fight ranks come from the UFC rankings; win chances come from betting odds, available for 87% of 2026 bouts.*
 
 ## What the numbers add up to
 
@@ -56,6 +55,6 @@ Together they point to one change. The UFC is swapping star-based, pre-fight val
 
 ## What this means for fighters
 
-Fighters have long relied on the UFC's build-ups (the narratives, the hype, the promos, the personalities) to turn them into stars. That is the part the UFC is now spending less on.
+Fighters have long relied on the UFC's build-ups (the narratives, the hype, the promos, the personalities) to turn them into stars. That is the pre-fight value the promotion is putting less weight on, as it shifts toward the value created in the cage.
 
-Do not count on the promotion to build you into a star, because it is no longer in the business of stars. The same goes for commercial value. If most of your money is made in fights, and stars will fight less, the sensible move is to make money outside the sport. Your value is yours to increase, and so is your income outside the cage. If you want star economics, you will have to take them into your own hands.
+Do not count on the promotion to build you into a star, because the star-based model is no longer its centre. The same goes for commercial value. If most of your money is made in fights, and stars will fight less, the sensible move is to make money outside the sport. Your value is yours to increase, and so is your income outside the cage. If you want star economics, you will have to take them into your own hands.
