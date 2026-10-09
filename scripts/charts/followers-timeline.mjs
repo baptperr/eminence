@@ -24,7 +24,11 @@ const ypx = (v) => Y0 - ((v - vmin) / 20000) * 112;
 const phases = cfg.phases || [];
 const rows = [];       // label rows to avoid overlapping text
 const tw = (t) => t.length * 5.9;
-const phaseSvg = phases.map((p) => {
+const valueOn = (s) => { const f = cfg.points.find((q) => q.date === s); if (!f) throw new Error(`no point on ${s} for phase label`); return f.value; };
+// "{pct}" in a phase label becomes the % change between the points on the phase's start and end dates.
+const pctText = (p) => { const c = (valueOn(p.end) / valueOn(p.start) - 1) * 100; return `${c >= 0 ? '+' : '\u2212'}${Math.abs(c).toFixed(1)}%`; };
+const phaseSvg = phases.map((raw) => {
+  const p = { ...raw, label: raw.label.replace('{pct}', pctText(raw)) };
   const a = x(p.start), b = x(p.end), mid = (a + b) / 2, w = tw(p.label);
   let lx = mid, anchor = 'middle';
   if (b - a < w) { lx = a; anchor = 'start'; }
@@ -39,9 +43,12 @@ const H = 382 + Math.max(rows.length, 1) * 14 + 24;
 const grid = (cfg.gridlines || []).map((v) => `<line x1="${X0}" x2="${X1}" y1="${ypx(v).toFixed(1)}" y2="${ypx(v).toFixed(1)}" stroke="#fff" stroke-opacity=".12"/><text x="${X0 - 8}" y="${(ypx(v) + 4).toFixed(1)}" fill="#a6a6a6" font-size="12" text-anchor="end">${v / 1000}k</text>`).join('');
 const pts = cfg.points.map((p) => [x(p.date), ypx(p.value), p]);
 const lastX = pts[pts.length - 1][0];
-const dots = pts.map(([px, py, p]) => {
+const dots = pts.map(([px, py, p], i) => {
   const end = px === lastX;
-  return `<circle cx="${px.toFixed(1)}" cy="${py.toFixed(1)}" r="4" fill="#fff"/><text x="${(end ? px - 6 : px).toFixed(1)}" y="${(py - 12).toFixed(1)}" fill="#fff" font-size="12" text-anchor="${end ? 'end' : 'middle'}">${k(p.value)}</text><text x="${px.toFixed(1)}" y="350" fill="#a6a6a6" font-size="11" text-anchor="middle">${fmtDate(p.date)}</text>`;
+  // Steep climb ahead: the line would cut through a label above the dot, so put it below-right instead.
+  const steep = !end && pts[i + 1][1] < py - 30;
+  const lx = end ? px - 6 : steep ? px + 8 : px, ly = steep ? py + 18 : py - 12, la = end ? 'end' : steep ? 'start' : 'middle';
+  return `<circle cx="${px.toFixed(1)}" cy="${py.toFixed(1)}" r="4" fill="#fff"/><text x="${lx.toFixed(1)}" y="${ly.toFixed(1)}" fill="#fff" font-size="12" text-anchor="${la}">${k(p.value)}</text><text x="${px.toFixed(1)}" y="350" fill="#a6a6a6" font-size="11" text-anchor="middle">${fmtDate(p.date)}</text>`;
 }).join('');
 const ev = cfg.event ? `<line x1="${x(cfg.event.date)}" x2="${x(cfg.event.date)}" y1="${YT}" y2="${Y0}" stroke="#fff" stroke-dasharray="4 4"/><text x="${x(cfg.event.date) - 6}" y="62" fill="#fff" font-size="12" text-anchor="end">${cfg.event.label}</text>` : '';
 const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 ${H}" role="img" aria-label="${cfg.alt}" font-family="DM Sans, Helvetica, Arial, sans-serif"><rect width="720" height="${H}" fill="#000"/><text x="${X0}" y="26" fill="#fff" font-size="16" font-weight="700">${cfg.title}</text>${grid}${ev}<polyline fill="none" stroke="#fff" stroke-width="2.5" points="${pts.map(([a, b]) => `${a.toFixed(1)},${b.toFixed(1)}`).join(' ')}"/>${dots}${phaseSvg}<text x="${X0}" y="${H - 8}" fill="#a6a6a6" font-size="11">${cfg.footnote}</text></svg>`;

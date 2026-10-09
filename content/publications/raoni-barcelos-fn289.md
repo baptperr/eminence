@@ -1,7 +1,7 @@
 ---
 title: Raoni Barcelos: losing the fight, gaining the fame
 date: 2026-10-08
-summary: He lost his main event fight, and gained +47% Instagram followers in four days.
+summary: He lost his first UFC main event, and gained +47% Instagram followers in four days.
 draft: true
 ---
 On the same Fight Night 289 card, the typical loser gained 1.7% in Instagram followers over four days. The typical winner gained 3.9%. Raoni Barcelos, who lost, gained 47%: 54.6k to 80.4k.
