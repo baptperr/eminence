@@ -209,6 +209,7 @@ body.page-observatory { background: #000; color: var(--t1); }
         height: 0; overflow: visible; /* opening it overlays the empty band; the layout above never shifts */ }
     .ob-method summary { margin: 0 auto; }
 }
+.ob:has(.ob-method[open]) > .ob-status { visibility: hidden; } /* the longer open text would sit on the cosmetic status line */
 /* A short desktop window cannot hold the open text over the foot (status, credit): with it open the
    page grows and scrolls, as it already does under 520px high (and on phones). */
 @media (min-width: 900px) and (min-height: 560px) and (max-height: 820px) {
