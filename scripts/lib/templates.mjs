@@ -212,10 +212,8 @@ export function manifestoPage({ site }) {
 // picking the portrait cut on portrait screens, so reduced-motion and no-JS visitors get the
 // still (a CSS background, portrait or landscape) and nothing else. The status line
 // starts hidden; observatory.js fills and reveals it (see there: it is cosmetic).
-// The paragraph, in two parts: on the page the last sentence is set apart as a closing line.
 const OBSERVATORY_TEXT_LINES = [
     'The Observatory follows every professional fighter across promotions worldwide, from their first bout to their latest post. It measures what a name is worth inside and outside the cage, and what moves it. Its readings decide which names First Light backs.',
-    'The First Light Index is that valuation, made public.',
 ];
 const OBSERVATORY_TEXT = OBSERVATORY_TEXT_LINES.join(' ');
 const OBSERVATORY_DESC = 'The First Light Observatory measures fighter fame against skill. Sources: Google, Wikipedia, Instagram, TikTok, YouTube, X. Earnings in and out of the cage.';
@@ -246,7 +244,7 @@ export function observatoryPage({ site }) {
     <div class="ob-hero" id="obHero">
     <h1 class="ob-title" id="ob-title">The First Light Observatory</h1>
     <p class="ob-sub">The deepest record of commercial value in professional fighting.</p>
-    <p class="ob-text">${esc(OBSERVATORY_TEXT_LINES[0])} <span class="ob-close">${esc(OBSERVATORY_TEXT_LINES[1])}</span></p>
+    <p class="ob-text">${esc(OBSERVATORY_TEXT_LINES[0])}</p>
     <div class="ob-panel" id="obMethod" role="region" aria-label="How the data works" tabindex="-1"><div class="ob-panel-clip"><div class="ob-panel-in">${OBSERVATORY_METHOD.map(t => `<p>${esc(t)}</p>`).join('')}</div></div></div>
     <div class="ob-method"><button type="button" class="ob-method-toggle" aria-expanded="false" aria-controls="obMethod">How the data works</button></div>
     <div class="ob-link"><a href="/index/">First Light Index <span aria-hidden="true">&rarr;</span></a><small class="ob-disclose">${HOLDINGS_TEXT}</small></div>

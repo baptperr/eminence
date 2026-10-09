@@ -42,9 +42,8 @@
         var text = hero && hero.querySelector('.ob-text');
         var wideMq = window.matchMedia('(min-width: 900px) and (min-height: 560px)');
         if (!ob || !hero || !panel || !toggle || !credit || !text || !link) return;
-        var GAP = 18, MIN = 13, open = false;
-        var HK = [0.8, 0.72, 0.65, 0.58, 0.52, 0.46];
-        var TW = [48, 54, 60, 66, 74, 84];
+        var GAP = 30, MIN = 13, open = false;
+        var HK = [0.85, 0.8, 0.72, 0.65, 0.58, 0.52, 0.46];
         function px(v) { return parseFloat(v) || 0; }
         function set(name, v) { ob.style.setProperty(name, v); }
         function showStatus() { return status && !status.hidden; }
@@ -76,53 +75,70 @@
             }
             var fsText = px(getComputedStyle(text).fontSize), best = null;
             var fsSub = px(getComputedStyle(hero.querySelector('.ob-sub')).fontSize);
+            // Size hierarchy: the hero paragraph stays HIER px larger than the new text, which
+            // stays at 13px or more. The new text spans most of the viewport (above the status
+            // line and press credit now), centred, so it needs few lines.
+            var HIER = 1.5, wantW = Math.min(window.innerWidth * 0.78, 1000);
             for (i = 0; i < HK.length && !best; i++) {
-                for (j = 0; j < TW.length; j++) {
-                    var hk = HK[i];
-                    var tk = Math.min(Math.max(MIN / fsText, Math.min(hk + 0.1, 0.85)), 1);
-                    set('--hk', hk); set('--sk', Math.min(Math.max(hk, MIN / fsSub), 1)); set('--tk', tk); set('--tw', TW[j] + 'ch');
-                    set('--lk-dx', '0px'); set('--lk-dy', '0px');
-                    ob.classList.add('is-open'); panel.classList.add('is-open');
-                    var tb = toggle.getBoundingClientRect().bottom;
-                    var lr = link.getBoundingClientRect();
-                    var room = bandTop - (wide ? GAP : 10) - tb;
-                    var last = (i === HK.length - 1 && j === TW.length - 1);
-                    if (room >= (wide ? 26 : 2) || last) {
-                        var ar = a.getBoundingClientRect();
-                        set('--lk-dx', wide ? (bandX - (ar.left + ar.width / 2)) + 'px' : '0px');
-                        set('--lk-dy', (wide ? bandTop - ar.top : bandTop - lr.top) + 'px');
-                        best = { hk: hk, tk: tk, tw: TW[j], room: room };
-                        break;
-                    }
-                    ob.classList.remove('is-open'); panel.classList.remove('is-open');
+                var hk = HK[i];
+                var heroPx = Math.max(MIN + HIER, Math.min(fsText * Math.min(hk + 0.1, 0.85), fsText));
+                var tk = heroPx / fsText, pk = Math.max(MIN, heroPx - HIER) / fsText;
+                set('--hk', hk); set('--sk', Math.min(Math.max(hk, MIN / fsSub), 1)); set('--tk', tk); set('--pk', pk);
+                set('--tw', wide ? Math.round(wantW / pk) + 'px' : 'none');
+                set('--lk-dx', '0px'); set('--lk-dy', '0px');
+                ob.classList.add('is-open'); panel.classList.add('is-open');
+                var tb = toggle.getBoundingClientRect().bottom;
+                var lr = link.getBoundingClientRect();
+                var room = bandTop - (wide ? GAP : 14) - tb;
+                if (room >= (wide ? 40 : 22) || i === HK.length - 1) {
+                    var ar = a.getBoundingClientRect();
+                    set('--lk-dx', wide ? (bandX - (ar.left + ar.width / 2)) + 'px' : '0px');
+                    set('--lk-dy', (wide ? bandTop - ar.top : bandTop - lr.top) + 'px');
+                    best = { hk: hk, tk: tk, pk: pk, room: room };
+                    break;
                 }
+                ob.classList.remove('is-open'); panel.classList.remove('is-open');
             }
             ob.classList.remove('is-open'); panel.classList.remove('is-open');
             panel.dataset.room = String(Math.round(best.room));
             panel.dataset.hk = String(best.hk);
-            panel.dataset.size = String(Math.round(fsText * best.tk * 10) / 10);
+            panel.dataset.size = String(Math.round(fsText * best.pk * 10) / 10);
+            panel.dataset.hero = String(Math.round(fsText * best.tk * 10) / 10);
         }
-        // Measure with transitions off, then return to the prior state so opening animates.
-        function measure() {
-            var was = open;
+        // Measure with transitions off, then return to the prior state. The open flag is already set
+        // when opening starts, so keepOpen says whether to restore the open look (a resize) or
+        // leave the closed baseline in place (the opening click: the cause of the old jump).
+        function measure(keepOpen) {
+            var was = keepOpen;
             ob.classList.add('ob-measuring');
             fit();
             if (was) { ob.classList.add('is-open'); panel.classList.add('is-open'); }
             void ob.offsetHeight;
             ob.classList.remove('ob-measuring');
         }
-        function setOpen(state) {
-            open = state;
-            if (open) { measure(); void ob.offsetHeight; }
+        // Opening: measure with transitions off, let the browser paint that closed baseline, and
+        // only then add the classes, so every property has a settled "from" value to animate from.
+        var raf = 0;
+        function apply() {
             ob.classList.toggle('is-open', open);
             panel.classList.toggle('is-open', open);
+        }
+        function setOpen(state) {
+            open = state;
+            cancelAnimationFrame(raf);
             toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
-            if (open) { document.addEventListener('keydown', onKey, true); }
-            else { document.removeEventListener('keydown', onKey, true); }
+            if (open) {
+                measure();
+                raf = requestAnimationFrame(function () { raf = requestAnimationFrame(apply); });
+                document.addEventListener('keydown', onKey, true);
+            } else {
+                apply();
+                document.removeEventListener('keydown', onKey, true);
+            }
         }
         function onKey(e) { if (e.key === 'Escape') { e.preventDefault(); setOpen(false); toggle.focus(); } }
         toggle.addEventListener('click', function () { setOpen(!open); });
-        function refit() { if (open) measure(); }
+        function refit() { if (open) measure(true); }
         window.addEventListener('resize', refit);
         window.addEventListener('orientationchange', refit);
     })();

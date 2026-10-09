@@ -68,10 +68,6 @@ body.page-observatory { background: #000; color: var(--t1); }
     color: var(--t1); max-width: 46ch; text-wrap: pretty;
 }
 
-/* The closing sentence stands apart as its own line, balanced so it never leaves a word or
-   two dangling on a narrow screen. */
-.ob-close { display: block; margin-top: 0.55em; text-wrap: balance; }
-
 /* ── status ── */
 .ob-status {
     display: inline-flex; align-items: center; gap: 0.75em; white-space: nowrap;
@@ -199,7 +195,7 @@ body.page-observatory { background: #000; color: var(--t1); }
    of the hero paragraph (same face, same line height, same measure), and slides the Index link
    down into the bottom band between the status line and the press credit. The status line and
    the credit never move. observatory.js measures the real room and picks the shrink factors
-   (--hk title and subline, --tk paragraph and text), the measure (--tw) and the link's
+   (--hk title and subline, --tk hero paragraph, --pk new text: always 1.5px smaller), the measure (--tw) and the link's
    offsets (--lk-dx/--lk-dy/--lk-h), so nothing scrolls and no text drops under 13px.
    This is only the styling. */
 .ob-hero { display: flex; flex-direction: column; align-items: flex-start; position: relative; }
@@ -214,7 +210,7 @@ body.page-observatory { background: #000; color: var(--t1); }
 .ob-method-toggle[aria-expanded="true"]::after { content: ' \2212'; }
 .ob-method-toggle:hover, .ob-method-toggle:focus-visible { opacity: 1; outline: none; color: var(--t1); }
 .ob-method-toggle:focus-visible { text-decoration: underline; text-underline-offset: 0.25em; }
-.ob-link { margin-top: 0.6rem; }
+.ob-link { margin-top: clamp(1.75rem, 5.5vh, 3.25rem); }
 
 /* The text: the hero paragraph's own type, in a box that grows from nothing. */
 .ob-panel {
@@ -230,17 +226,14 @@ body.page-observatory { background: #000; color: var(--t1); }
     margin: 0 auto; text-align: center; text-wrap: pretty;
     font-weight: 400; font-size: clamp(1.05rem, min(1.45vw, 2.5vh), 1.35rem); line-height: 1.6;
     color: var(--t1); max-width: var(--tw, 48ch);
-    padding-top: 0.8em; zoom: var(--tk, 1);
+    padding-top: 0.8em; zoom: var(--pk, 1);
 }
-.ob-panel-in p { margin: 0.8em 0 0; }
+.ob-panel-in p { margin: 0.8em 0 0; max-width: none; }
 .ob-panel-in p:first-child { margin-top: 0; }
 @media (max-width: 899px) {
     .ob-panel-in { text-align: left; font-size: clamp(0.8rem, 3.45vw, 0.98rem); line-height: 1.5; max-width: none; }
     .ob-panel { align-self: stretch; }
     .ob-method { align-self: flex-start; margin-top: 0.45rem; }
-}
-@media (min-width: 900px) and (min-height: 560px) {
-    .ob.is-open .ob-text { max-width: var(--tw, 48ch); }
 }
 
 .ob-title, .ob-sub, .ob-text, .ob-link, .ob-method, .ob-panel-in {
