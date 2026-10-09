@@ -194,17 +194,17 @@ body.page-observatory { background: #000; color: var(--t1); }
 }
 
 /* ── methodology: collapsed by default, so the page keeps its sparse look ──
-   The toggle hangs just under the Index link (zero height, so it takes no room). Opening it
-   (.ob.is-open) shrinks the hero to the top of the page (zoom, so the layout follows), tucks the
-   status line and the press credit smaller into the bottom corners, and fades the text in
-   across the band between them. observatory.js measures the real gap and picks the shrink
-   factors (--hk title and subline, --tk paragraph and link), the corner offsets (--ob-sx/sy,
-   --ob-cx/cy), the panel's edges and its type size, so the text always fits with no scrolling.
+   The toggle sits just under the hero paragraph. Opening it (.ob.is-open) lifts the hero and
+   shrinks it a little, grows the three paragraphs out of the toggle's place as a continuation
+   of the hero paragraph (same face, same line height, same measure), and slides the Index link
+   down into the bottom band between the status line and the press credit. The status line and
+   the credit never move. observatory.js measures the real room and picks the shrink factors
+   (--hk title and subline, --tk paragraph and text), the measure (--tw) and the link's
+   offsets (--lk-dx/--lk-dy/--lk-h), so nothing scrolls and no text drops under 13px.
    This is only the styling. */
 .ob-hero { display: flex; flex-direction: column; align-items: flex-start; position: relative; }
-.ob-method { font-size: clamp(0.64rem, min(0.75vw, 1.4vh), 0.78rem); line-height: 1.6; color: var(--t3);
-    position: absolute; top: 100%; left: 0; right: 0; height: 0; text-align: center;
-    margin-top: clamp(1rem, 3vh, 2rem); }
+.ob-method { align-self: center; margin-top: 0.5rem; line-height: 1.6; color: var(--t3);
+    font-size: clamp(0.8125rem, min(0.85vw, 1.6vh), 0.9rem); text-align: center; }
 .ob-method-toggle {
     appearance: none; background: none; border: 0; padding: 0; margin: 0 auto; font: inherit; color: inherit;
     display: block; cursor: pointer; width: fit-content; font-weight: 300; letter-spacing: 0.04em;
@@ -214,48 +214,57 @@ body.page-observatory { background: #000; color: var(--t1); }
 .ob-method-toggle[aria-expanded="true"]::after { content: ' \2212'; }
 .ob-method-toggle:hover, .ob-method-toggle:focus-visible { opacity: 1; outline: none; color: var(--t1); }
 .ob-method-toggle:focus-visible { text-decoration: underline; text-underline-offset: 0.25em; }
+.ob-link { margin-top: 0.6rem; }
 
-.ob-title, .ob-sub, .ob-text, .ob-link, .ob-status, .ob-credit {
-    transition: zoom 0.5s ease, margin 0.5s ease, transform 0.5s ease;
+/* The text: the hero paragraph's own type, in a box that grows from nothing. */
+.ob-panel {
+    display: grid; grid-template-rows: 0fr; align-self: center; width: 100%;
+    opacity: 0; visibility: hidden;
+    transition: grid-template-rows 0.4s ease, opacity 0.3s ease, visibility 0s linear 0.4s;
 }
-.ob-method { transition: margin 0.5s ease;
+.ob-panel.is-open { grid-template-rows: 1fr; opacity: 1; visibility: visible;
+    transition: grid-template-rows 0.4s ease, opacity 0.35s ease 0.1s, visibility 0s; }
+.ob-panel-clip { min-height: 0; overflow: hidden; }
+.ob-panel:focus { outline: none; }
+.ob-panel-in {
+    margin: 0 auto; text-align: center; text-wrap: pretty;
+    font-weight: 400; font-size: clamp(1.05rem, min(1.45vw, 2.5vh), 1.35rem); line-height: 1.6;
+    color: var(--t1); max-width: var(--tw, 48ch);
+    padding-top: 0.8em; zoom: var(--tk, 1);
 }
-.ob.is-open { grid-template-rows: 0fr auto auto auto auto 1fr auto; transition: grid-template-rows 0.5s ease; }
+.ob-panel-in p { margin: 0.8em 0 0; }
+.ob-panel-in p:first-child { margin-top: 0; }
+@media (max-width: 899px) {
+    .ob-panel-in { text-align: left; font-size: clamp(0.8rem, 3.45vw, 0.98rem); line-height: 1.5; max-width: none; }
+    .ob-panel { align-self: stretch; }
+    .ob-method { align-self: flex-start; margin-top: 0.45rem; }
+}
+@media (min-width: 900px) and (min-height: 560px) {
+    .ob.is-open .ob-text { max-width: var(--tw, 48ch); }
+}
+
+.ob-title, .ob-sub, .ob-text, .ob-link, .ob-method, .ob-panel-in {
+    transition: zoom 0.4s ease, margin 0.4s ease, transform 0.4s ease, max-width 0.4s ease;
+}
+.ob.is-open { grid-template-rows: 0fr auto auto auto auto 1fr auto; transition: grid-template-rows 0.4s ease; }
 .ob.is-open .ob-hero { margin-top: 0.5rem; }
-.ob.is-open .ob-title { zoom: var(--hk, 0.55); }
-.ob.is-open .ob-sub   { zoom: var(--hk, 0.55); margin-top: 0.5rem; }
-.ob.is-open .ob-text  { zoom: var(--tk, 0.7); margin-top: 0.9rem; }
-.ob.is-open .ob-link  { zoom: var(--tk, 0.7); margin-top: 0.6rem; }
-.ob.is-open .ob-status { transform: translate(var(--ob-sx, 0px), var(--ob-sy, 0px)) scale(var(--ob-fs, 0.8)); transform-origin: 1.6em 50%; }
-.ob.is-open .ob-credit { transform: translate(var(--ob-cx, 0px), var(--ob-cy, 0px)) scale(var(--ob-fs, 0.8)); transform-origin: 100% 100%; }
+.ob.is-open .ob-title { zoom: var(--hk, 0.7); }
+.ob.is-open .ob-sub   { zoom: var(--sk, 0.7); margin-top: 0.5rem; }
+.ob.is-open .ob-text  { zoom: var(--tk, 0.8); margin-top: 0.9rem; }
+.ob.is-open .ob-method { margin-top: 0.5rem; }
+.ob.is-open .ob-link  { margin-top: 0; margin-bottom: calc(-1 * var(--lk-h, 0px));
+    transform: translate(var(--lk-dx, 0px), var(--lk-dy, 0px)); }
 .ob.is-open.ob-narrow .ob-title { margin-top: 0.5rem; }
 .ob.is-open.ob-narrow .ob-sub   { margin-top: 0.4rem; }
 .ob.is-open.ob-narrow .ob-text  { margin-top: 0.6rem; }
-.ob.is-open.ob-narrow .ob-link  { margin: 0.5rem 0 0; }
-.ob.is-open.ob-narrow .ob-credit { transform-origin: 0 100%; }
-.ob.is-open.ob-narrow .ob-method { margin-top: 0.45rem; }
-.ob.is-open.ob-narrow ~ .ob-panel, .ob-panel.is-narrow { line-height: 1.4; }
-.ob-panel.is-narrow p { margin-top: 0.5em; }
-.ob-panel.is-narrow p:first-child { margin-top: 0; }
+.ob.is-open.ob-narrow .ob-text, .ob.is-open.ob-narrow .ob-panel-in { line-height: 1.38; }
+.ob.is-open.ob-narrow .ob-hero { margin-top: 0; }
+.ob.is-open.ob-narrow .ob-method { margin-top: 0.3rem; }
+.ob-panel.is-narrow .ob-panel-in { padding-top: 0.55em; }
+.ob-panel.is-narrow .ob-panel-in p { margin-top: 0.55em; }
+.ob-panel.is-narrow .ob-panel-in p:first-child { margin-top: 0; }
 .ob.ob-measuring, .ob.ob-measuring * { transition: none !important; }
-@media (max-width: 899px) {
-    .ob-hero { width: 100%; }
-    .ob-method { margin-top: 0.9rem; text-align: left; }
-    .ob-method-toggle { margin: 0; }
-}
-
-.ob-panel {
-    position: absolute; z-index: 1; box-sizing: border-box; left: var(--ob-l, 0px); right: var(--ob-r, 0px);
-    bottom: var(--ob-b, 0px);
-    font-size: var(--ob-pf, 0.8125rem); line-height: 1.5; color: var(--t2); text-align: left;
-    opacity: 0; visibility: hidden; transform: translateY(0.6rem);
-    transition: opacity 0.35s ease, transform 0.4s ease, visibility 0s linear 0.4s;
-}
-.ob-panel.is-open { opacity: 1; visibility: visible; transform: none;
-    transition: opacity 0.35s ease 0.2s, transform 0.4s ease 0.1s, visibility 0s; }
-.ob-panel:focus { outline: none; }
-.ob-panel p { margin: 0.7em 0 0; max-width: none; text-wrap: pretty; }
-.ob-panel p:first-child { margin-top: 0; }
+@media (max-width: 899px) { .ob-hero { width: 100%; } }
 @media (prefers-reduced-motion: reduce) {
-    .ob.is-open, .ob-title, .ob-sub, .ob-text, .ob-link, .ob-status, .ob-credit, .ob-panel, .ob-panel.is-open { transition: none; }
+    .ob.is-open, .ob-title, .ob-sub, .ob-text, .ob-link, .ob-method, .ob-panel, .ob-panel.is-open, .ob-panel-in { transition: none; }
 }
