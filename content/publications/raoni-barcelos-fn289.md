@@ -16,4 +16,6 @@ Everyone watching wanted the same thing: to follow him and his story. Is he okay
 
 A fighter can't control the night. He controls what happens next, outside the cage. If something happens to you on the biggest night of your career, post the update yourself, the same day: you're awake, here's what happened, here's what's next.
 
-**The open loop in the audience's mind is the opportunity. Own the narrative, or strangers will control it for you.**
+**The open loop in the audience's mind is an opportunity.**
+
+**Own the narrative, or someone else will control it for you.**

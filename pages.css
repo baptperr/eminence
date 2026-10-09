@@ -457,4 +457,6 @@ button.rk-tick { cursor: default; border-bottom: 1px dotted var(--t3); }
 
 /* Standalone bold conclusion: a paragraph that is only bold text gets extra top spacing. */
 .prose p:has(> strong:only-child) { margin-top: 3.5rem; font-size: 1.1em; }
+/* Consecutive bold-only paragraphs form one closing block: tight spacing between them. */
+.prose p:has(> strong:only-child) + p:has(> strong:only-child) { margin-top: 0.35rem; }
 .prose p > strong:only-child { color: var(--bone); font-weight: 700; }
