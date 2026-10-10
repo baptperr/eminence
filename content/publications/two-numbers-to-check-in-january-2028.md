@@ -31,7 +31,6 @@ This is simple activity: how many times a year a top-5 fighter fights, against h
 
 ![Line chart: fights per year for each top-5 fighter versus each unranked fighter, 2016 to 2026. Top-5 fighters fell from 1.99 to 1.37 in 2026 so far; unranked fighters rose from 1.07 to 1.19.](/publications/two-numbers-to-check-in-january-2028/chart-activity.svg)
 
-*Source: [First Light Observatory](/observatory/).*
 
 In 2016 a top-5 fighter fought 86% more often than everyone else. In 2026 so far, it is 15% more often. That is a drop of 71 percentage points, or about 38% in how much more often stars fight (a top-5 fighter went from fighting 1.99 times a year to 1.37, a fall of 31%, while everyone else went from 1.07 to 1.19, a rise of 11%).
 
@@ -45,13 +44,11 @@ A heavy favourite is a fighter with a 75% or better chance of winning. The share
 
 ![Line chart: share of UFC bouts with a heavy favourite by year, 10.8% in 2021 up to 28.2% in 2026 so far (through 19 September), with the 2027 call marked above 30%.](/publications/two-numbers-to-check-in-january-2028/chart-heavy-favourites.svg)
 
-*Source: [First Light Observatory](/observatory/).*
 
 Why it matters: lopsided matchups end in finishes more often. Since 2010, bouts where the favourite is between 50% and 60% have ended in a finish 47% of the time; when the favourite is at 80% or better, it is 65%. In January to 19 September, 49% of bouts ended in a finish across 2016–2025; in 2026 it is 55.6%, the highest of any year since 2010. About half of the rise in the finish rate between 2016–21 and 2025–26 is accounted for by the odds alone.
 
 ![Line chart: share of UFC bouts ending in a KO, TKO or submission, January to 19 September of each year, 52.5% in 2016, 45.0% in 2024, 55.6% in 2026.](/publications/two-numbers-to-check-in-january-2028/chart-finishes.svg)
 
-*Source: [First Light Observatory](/observatory/).*
 
 ## What the numbers add up to
 
@@ -64,5 +61,3 @@ Together they point to one change. The UFC is swapping star-based, pre-fight val
 Fighters have long relied on the UFC's build-ups (the narratives, the hype, the promos, the personalities) to turn them into stars. That out-of-fight value is exactly what the UFC is putting less weight on, as it shifts toward the value created in the cage.
 
 If your goal is to become a star, do not count on the promotion building you up into one, because that's no longer the business they're in. If your goal is to earn off your name, you will be given less opportunities to do it in the cage. Your value is yours to increase, and so is your income beyond the sport.<br>If you want star economics, you will have to take them into your own hands.
-
-Credits: [First Light Observatory](/observatory/)

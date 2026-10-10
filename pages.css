@@ -126,11 +126,12 @@
 .prose th:last-child, .prose td:last-child { padding-right: 0; }
 .prose td strong { color: var(--bone); }
 
-.art-credit { margin: 4.5rem 0 0; font-size: 0.85rem; line-height: 1.6; color: var(--t3); }
-.art-credit a { color: inherit; text-decoration: underline; text-underline-offset: 0.2em; }
+.art-credit { margin: 4.5rem 0 0; font-size: 1.05rem; line-height: 1.6; color: var(--t3); }
+.art-credit a { color: var(--bone); text-decoration: none; border-bottom: 1px solid var(--border-d); transition: border-color 0.2s; }
+.art-credit a:hover { border-color: var(--bone); }
 .art-credit + .art-end { margin-top: 1.5rem; border-top: 0; padding-top: 0; }
-.prose figure figcaption { margin-top: 0.75rem; font-size: 0.85rem; color: var(--t3); }
-.prose figure figcaption a { color: inherit; text-decoration: underline; text-underline-offset: 0.2em; }
+/* The one credit under every chart: small, muted, thin underline on the name. */
+.prose figure figcaption { margin-top: 0.5rem; font-size: 0.72rem; line-height: 1.5; color: var(--t3); }
 .art-end {
     display: flex; flex-wrap: wrap; gap: 1rem 2.5rem;
     margin: 4.5rem 0 6rem; padding-top: 2rem; border-top: 1px solid var(--border-d);

@@ -2,7 +2,7 @@
   "out": "content/publications/two-numbers-to-check-in-january-2028/chart-heavy-favourites.svg",
   "title": "Bouts with a heavy favourite, by year",
   "alt": "Line chart: share of UFC bouts with a heavy favourite (75% or better). 10.8% in 2021, 16.9% in 2022, 19.4% in 2023, 21.6% in 2024, 24.8% in 2025, and 28.2% in 2026 so far, through 19 September. The 2027 call is above 30%.",
-  "footnote": "* 2026 is partial, through 19 Sep, bouts with odds only (87%). Source: First Light Observatory.",
+  "footnote": "* 2026 is partial, through 19 Sep, bouts with odds only (87%).",
   "yRange": [0, 35],
   "gridlines": [0, 10, 20, 30],
   "unit": { "suffix": "%", "decimals": 1, "gridDecimals": 0 },

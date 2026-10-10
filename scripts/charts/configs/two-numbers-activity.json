@@ -2,7 +2,7 @@
   "out": "content/publications/two-numbers-to-check-in-january-2028/chart-activity.svg",
   "title": "Fights per fighter, per year",
   "alt": "Line chart: fights per year for each champion or top-5 fighter versus each unranked fighter on the roster. Top-5 fighters: 1.99 in 2016, 1.37 in 2026 so far. Unranked fighters: 1.07 in 2016, 1.19 in 2026 so far.",
-  "footnote": ["* Hollow dots: 2019 has thin ranking coverage; 2026 is January to late September (rankings to 24 Sep).", "Source: First Light Observatory, UFC rankings."],
+  "footnote": ["* Hollow dots: 2019 has thin ranking coverage; 2026 is January to late September (rankings to 24 Sep)."],
   "height": 380,
   "yRange": [0.5, 2.25],
   "gridlines": [0.5, 1.0, 1.5, 2.0],

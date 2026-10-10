@@ -99,7 +99,19 @@ export function linkObservatory(html) {
 }
 
 // Credit under every chart: the figure caption plus the link, from one place.
-export const FIGURE_CREDIT = `<figcaption>Source: ${OBS_LINK('First Light Observatory')}</figcaption>`;
+// The one credit under a chart, styled in pages.css as the subtle small line with a thin underline.
+export const FIGURE_CREDIT = `<figcaption>Source: ${OBS_LINK('First Light Observatory')}.</figcaption>`;
+
+// A credit the author typed by hand ("*Source: First Light Observatory.*", with or without a
+// link) is removed so the template's own credit is the only one. An italic caption that says
+// more keeps its words and loses only the credit sentence.
+const SOURCE_SENTENCE = /\s*Source: (?:\[First Light Observatory\]\([^)]*\)|First Light Observatory)\.?/g;
+function captionWithoutCredit(para) {
+    const text = para.join(' ').trim();
+    const m = text.match(/^\*([^*]+)\*$/);
+    if (!m) return null;
+    return m[1].replace(SOURCE_SENTENCE, '').trim();
+}
 
 export function renderMarkdown(md, { figureCredit = false } = {}) {
     const lines = md.replace(/\r\n/g, '\n').split('\n');
@@ -118,8 +130,24 @@ export function renderMarkdown(md, { figureCredit = false } = {}) {
         if (/^---\s*$/.test(line)) { out.push('<hr>'); i++; continue; }
         if ((m = line.match(/^!\[([^\]]*)\]\(([^)\s]+)\)\s*$/))) {
             const src = safeUrl(m[2]);
-            if (src) out.push(`<figure><img src="${esc(src)}" alt="${esc(m[1])}" loading="lazy">${figureCredit ? FIGURE_CREDIT : ''}</figure>`);
-            i++; continue;
+            i++;
+            // A hand-typed italic credit right after the chart would be a second credit.
+            let j = i, extra = '';
+            while (j < lines.length && !lines[j].trim()) j++;
+            if (figureCredit && j < lines.length && /^\*[^*]/.test(lines[j])) {
+                const para = [];
+                let k = j;
+                while (k < lines.length && lines[k].trim() && !isBlockStart(lines[k])) para.push(lines[k++]);
+                const rest = captionWithoutCredit(para);
+                if (rest !== null && SOURCE_SENTENCE.test(para.join(' '))) {
+                    SOURCE_SENTENCE.lastIndex = 0;
+                    if (rest) extra = `<p>${inline(`*${rest}*`)}</p>`;
+                    i = k;
+                }
+                SOURCE_SENTENCE.lastIndex = 0;
+            }
+            if (src) out.push(`<figure><img src="${esc(src)}" alt="${esc(m[1])}" loading="lazy">${figureCredit ? FIGURE_CREDIT : ''}</figure>${extra}`);
+            continue;
         }
         // | a | b | tables: a header row, a |---|---| rule, then body rows.
         if (line.startsWith('|') && /^\|[\s:|-]+\|\s*$/.test(lines[i + 1] || '')) {
@@ -149,6 +177,9 @@ export function renderMarkdown(md, { figureCredit = false } = {}) {
         while (i < lines.length && lines[i].trim() && !isBlockStart(lines[i])) para.push(lines[i++]);
         // A line ending in a backslash is a hard line break inside the paragraph.
         // A paragraph opening with "Credits:" is the solid end-of-article credit line.
+        // A hand-typed "Credits:" line is dropped: the template ends every article with the one
+        // "Data Credit: First Light Observatory".
+        if (figureCredit && /^Credits: /.test(para[0])) continue;
         const cls = /^Credits: /.test(para[0]) ? ' class="credits"' : '';
         out.push(`<p${cls}>${para.map((l) => (l.endsWith('\\') ? `${inline(l.slice(0, -1).trimEnd())}<br>` : inline(l))).join(' ').replace(/<br> /g, '<br>')}</p>`);
     }
