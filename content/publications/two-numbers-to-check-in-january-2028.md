@@ -4,7 +4,7 @@ date: 2026-10-08
 summary: The UFC is moving from selling the story before the fight to selling what happens inside it.<br>Two predictions for 2027, written down now to be scored in public in January 2028:
   - stars will fight less
   - the UFC will put on more lopsided matchups
-draft: true
+draft: false
 ---
 The UFC used to sell what happened before the fight: the personalities, the stakes, the story. It is now moving to selling what happens inside it, the finish you replay and the beating you cannot look away from. Stars are the expensive part of the first model. Two numbers will show how fast the second one is taking over, and we are calling both for 2027.
 
