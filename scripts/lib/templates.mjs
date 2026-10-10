@@ -220,10 +220,10 @@ const OBSERVATORY_DESC = 'The First Light Observatory measures fighter fame agai
 // Collapsed by default (founder, 9 Oct 2026: keep the page light; no SEO bloat). Breadth as the
 // founder specified it. Scale figures: 20 entries in config/promotions.yaml (19 named
 // promotions plus 'Other'), and ~350,000 total fighters in Observatory (docs/firstlight/decisions.md),
-// of which ~20,000 are active, relevant professionals. Using conservative round numbers: 40+ organisations, 20,000+ active fighters.
+// of which ~20,000 are active, relevant professionals. Using conservative round numbers: 20+ organisations, 8,000+ active pro fighters.
 const OBSERVATORY_METHOD = [
     'The Observatory reads Google Search, Wikipedia page views, Instagram, TikTok, YouTube and X. It captures followers, views, engagement, search, countries, markets and languages. Fighter skill level is measured by the First Light Rating (FLR). It does not just look at panel rankings: it is built from in-cage performance and results, and tracks a fighter\u2019s skill beyond the simple win/loss record. It is more accurate than all industry incumbents. The Observatory also records earnings: money earned inside the cage and out.',
-    'Coverage spans 40+ organisations and 20,000+ active fighters, with readings taken continuously around every event. The First Light Index (FLI) compares a fighter\u2019s fame against what the FLR predicts, on a scale from \u22121 to +1. It shows which fighters are undervalued phenoms, and which are overhyped names.',
+    'Coverage spans 20+ organisations and 8,000+ active pro fighters, with readings taken continuously around every event. The First Light Index (FLI) compares a fighter\u2019s fame against what the FLR predicts, on a scale from \u22121 to +1. It shows which fighters are undervalued phenoms, and which are overhyped names.',
     'On the sport, no filter: fighters, bouts and promotions from everywhere, not only the UFC. On the audience, a deliberate Western lens, mostly English-speaking and American, because that is where the advertising market is largest. Hence the platforms we read.',
 ];
 
