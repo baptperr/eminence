@@ -110,6 +110,8 @@
 .art .prose p:has(> em:only-child) { font-size: 0.72rem; line-height: 1.5; color: var(--t3); max-width: 68ch; margin-top: 0.5rem; }
 .art .prose p:has(> em:only-child) > em { font-size: inherit; color: inherit; }
 .art .prose p:has(> em:only-child):last-child { margin-top: 2rem; }
+/* End-of-article credit line ("Credits: ..."): solid and larger than the chart captions. */
+.art .prose p.credits { font-size: 1.05rem; font-style: normal; color: var(--bone); margin-top: 3rem; padding-top: 1.25rem; border-top: 1px solid var(--border-d); }
 .prose figure { margin-block: 2.5rem; }
 .prose img { display: block; width: 100%; height: auto; }
 .prose figure + p > em:only-child, .prose-table + p > em:only-child { font-size: 0.85rem; color: var(--t3); font-style: normal; }
@@ -465,3 +467,7 @@ button.rk-tick { cursor: default; border-bottom: 1px dotted var(--t3); }
 /* Two-line bold conclusion (bold, hard break, bold) styled like the single-line one. */
 .prose p:has(> strong + br + strong) { margin-top: 3.5rem; font-size: 1.1em; }
 .prose p > strong:only-child, .prose p > strong + br + strong, .prose p > strong:has(+ br) { color: var(--bone); font-weight: 700; }
+
+/* Summary with bullet items: intro text, then one bullet per line. */
+.sum-list { list-style: disc; margin: .5em 0 0; padding-left: 1.25em; }
+.sum-list li { margin: .15em 0; }

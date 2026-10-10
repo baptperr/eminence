@@ -54,7 +54,15 @@ export async function loadArticles(dir, { drafts }) {
         }
         const draft = meta.draft === 'true';
         if (draft && !drafts) continue;
-        articles.push({ slug, title: meta.title, date: meta.date, summary: meta.summary, type, draft, body });
+        // A summary may carry bullet items: `summary_items` lists render as a stacked <ul>;
+        // `summary` itself stays a flat plain-text string for meta/og descriptions.
+        const summaryItems = meta.summary_items || [];
+        // A literal `<br>` in the intro is a line break on the page; the flat form uses a space.
+        const flatIntro = meta.summary.replace(/\s*<br>\s*/gi, ' ');
+        const summary = summaryItems.length
+            ? `${flatIntro} ${summaryItems.join('; ')}.`.replace(/\s+/g, ' ')
+            : flatIntro;
+        articles.push({ slug, title: meta.title, date: meta.date, summary, summaryIntro: meta.summary, summaryItems, type, draft, body });
     }
     return articles.sort((a, b) => (a.date < b.date ? 1 : a.date > b.date ? -1 : a.slug.localeCompare(b.slug)));
 }

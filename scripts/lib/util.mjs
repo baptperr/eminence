@@ -41,11 +41,16 @@ export function parseFrontMatter(source, file) {
     const m = source.match(/^---\r?\n([\s\S]*?)\r?\n---\r?\n?([\s\S]*)$/);
     if (!m) throw new Error(`${file}: missing front matter (--- fences)`);
     const meta = {};
+    let lastKey = null;
     for (const line of m[1].split(/\r?\n/)) {
         if (!line.trim() || line.trim().startsWith('#')) continue;
+        // Indented `- item` lines under a key add list items to it (see `<key>_items`).
+        const item = line.match(/^\s+-\s+(.+)$/);
+        if (item && lastKey) { (meta[`${lastKey}_items`] ||= []).push(item[1].trim()); continue; }
         const i = line.indexOf(':');
         if (i < 1) throw new Error(`${file}: bad front matter line "${line}"`);
-        meta[line.slice(0, i).trim()] = line.slice(i + 1).trim().replace(/^(['"])(.*)\1$/, '$2');
+        lastKey = line.slice(0, i).trim();
+        meta[lastKey] = line.slice(i + 1).trim().replace(/^(['"])(.*)\1$/, '$2');
     }
     return { meta, body: m[2] };
 }
@@ -55,7 +60,7 @@ export function parseFrontMatter(source, file) {
 // Escaping happens first and everything after works on escaped text, so nothing in the
 // source can inject markup.
 function inline(raw) {
-    let s = esc(raw);
+    let s = esc(raw).replace(/\s*&lt;br&gt;\s*/gi, '<br>'); // literal <br> is a line break
     s = s.replace(/`([^`]+)`/g, '<code>$1</code>');
     s = s.replace(/\[([^\]]+)\]\(([^)\s]+)\)/g, (all, text, href) => {
         const url = safeUrl(href.replace(/&amp;/g, '&'));
@@ -143,7 +148,9 @@ export function renderMarkdown(md, { figureCredit = false } = {}) {
         const para = [];
         while (i < lines.length && lines[i].trim() && !isBlockStart(lines[i])) para.push(lines[i++]);
         // A line ending in a backslash is a hard line break inside the paragraph.
-        out.push(`<p>${para.map((l) => (l.endsWith('\\') ? `${inline(l.slice(0, -1).trimEnd())}<br>` : inline(l))).join(' ').replace(/<br> /g, '<br>')}</p>`);
+        // A paragraph opening with "Credits:" is the solid end-of-article credit line.
+        const cls = /^Credits: /.test(para[0]) ? ' class="credits"' : '';
+        out.push(`<p${cls}>${para.map((l) => (l.endsWith('\\') ? `${inline(l.slice(0, -1).trimEnd())}<br>` : inline(l))).join(' ').replace(/<br> /g, '<br>')}</p>`);
     }
     return out.join('\n');
 }

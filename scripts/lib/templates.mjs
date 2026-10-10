@@ -110,6 +110,11 @@ ${js
 
 const TYPE_LABEL = { article: 'Article', 'case-study': 'Case study' };
 
+// Summary as HTML: plain string unless the article gave bullet items, then intro + stacked <ul>.
+const summaryList = (a) => `<ul class="sum-list">${a.summaryItems.map((i) => `<li>${esc(i)}</li>`).join('')}</ul>`;
+const escBr = (t) => esc(t).replace(/\s*&lt;br&gt;\s*/gi, '<br>');
+const summaryInner = (a) => (a.summaryItems?.length ? `${escBr(a.summaryIntro)}${summaryList(a)}` : esc(a.summary));
+
 // ── /publications/ ──
 export function archivePage({ articles, site }) {
     const rows = articles.map((a) => `
@@ -118,7 +123,7 @@ export function archivePage({ articles, site }) {
                     <time class="entry-date" datetime="${esc(a.date)}">${fmtDate(a.date)}</time>
                     <span class="entry-main">
                         <span class="entry-title">${esc(a.title)}</span>
-                        <span class="entry-sum">${esc(a.summary)}</span>
+                        <span class="entry-sum">${summaryInner(a)}</span>
                     </span>
                     <span class="entry-type">${TYPE_LABEL[a.type]}</span>
                 </a>
@@ -163,7 +168,7 @@ export function articlePage({ article, site }) {
             <div class="pg-inner pg-inner--read">
                 <p class="art-meta" data-r><a href="/publications/">Publications</a><span aria-hidden="true"> / </span>${TYPE_LABEL[article.type]}<span aria-hidden="true"> · </span><time datetime="${esc(article.date)}">${fmtDate(article.date)}</time></p>
                 <h1 class="art-title" data-r style="--d:60ms">${esc(article.title)}</h1>
-                <p class="art-dek" data-r style="--d:120ms">${esc(article.summary)}</p>
+                <div class="art-dek" data-r style="--d:120ms">${summaryInner(article)}</div>
             </div>
         </header>
         <div class="pg-inner pg-inner--read">
@@ -453,7 +458,7 @@ function archiveTeaser(articles) {
                 <li>
                     <a class="entry" href="/publications/${a.slug}/" data-r>
                         <time class="entry-date" datetime="${esc(a.date)}">${fmtDate(a.date)}</time>
-                        <span class="entry-main"><span class="entry-title">${esc(a.title)}</span><span class="entry-sum">${esc(a.summary)}</span></span>
+                        <span class="entry-main"><span class="entry-title">${esc(a.title)}</span><span class="entry-sum">${summaryInner(a)}</span></span>
                         <span class="entry-type">${TYPE_LABEL[a.type]}</span>
                     </a>
                 </li>`).join('')}
