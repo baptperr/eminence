@@ -1,6 +1,6 @@
 ---
 title: Two numbers to check in January 2028
-date: 2026-10-08
+date: 2026-10-10
 summary: The UFC is moving from selling the story before the fight to selling what happens inside it.<br>Two predictions for 2027, written down now to be scored in public in January 2028:
   - stars will fight less
   - the UFC will put on more lopsided matchups
