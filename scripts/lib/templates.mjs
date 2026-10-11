@@ -35,6 +35,8 @@ export const FOOTER = `<footer>
 // The company is "First Light", in title case, everywhere it is written. Only the logo (an image)
 // is set in capitals.
 export const BRAND = 'First Light';
+// Who articles are by, unless an article's front matter says `author:`.
+export const AUTHOR = 'Baptiste Perrier';
 const EMAIL = 'contact@firstlightequity.com';
 
 // Site-wide preview image, used by any page that has none of its own. `build.mjs` sets it when
@@ -246,7 +248,7 @@ export function articlePage({ article, site }) {
     <article class="art">
         <header class="art-head">
             <div class="pg-inner pg-inner--read">
-                <p class="art-meta" data-r><a href="/publications/">Publications</a><span aria-hidden="true"> / </span>${TYPE_LABEL[article.type]}<span aria-hidden="true"> · </span><time datetime="${esc(article.date)}">${fmtDate(article.date)}</time></p>
+                <p class="art-meta" data-r><a href="/publications/">Publications</a><span aria-hidden="true"> / </span>${TYPE_LABEL[article.type]}<span aria-hidden="true"> · </span><time datetime="${esc(article.date)}">${fmtDate(article.date)}</time><span aria-hidden="true"> · </span>By ${esc(article.author ?? AUTHOR)}</p>
                 <h1 class="art-title" data-r style="--d:60ms">${esc(article.title)}</h1>
                 <div class="art-dek" data-r style="--d:120ms">${summaryInner(article)}</div>
             </div>
@@ -282,7 +284,7 @@ ${FOOTER}`;
             headline: article.title.slice(0, 110),
             description: article.summary,
             datePublished: published, dateModified: modified,
-            author: { '@id': `${site}/#organization` },
+            author: { '@type': 'Person', name: article.author ?? AUTHOR, worksFor: { '@id': `${site}/#organization` } },
             publisher: { '@id': `${site}/#organization` },
             mainEntityOfPage: `${site}${url}`,
             isPartOf: { '@id': `${site}/#website` },

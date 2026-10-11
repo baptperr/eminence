@@ -37,9 +37,12 @@ list. Everything else, including `data/`, `scripts/` and `apps-script/`, is not 
 
 Every indexable page gets its head from `seoHead` in `templates.mjs` (description, canonical, Open Graph,
 `max-image-preview:large` for Google Discover, and one schema.org graph with the Organization). The
-hand-written homepage gets the same block at its `<!-- seo-head -->` marker. An article's preview image is
-`image: cover.jpg` (and optionally `image_alt:`) in its front matter, the file in `content/publications/<slug>/`,
-at least 1200px wide; `og-default.jpg` at the repo root, when present, is the fallback for every page.
+hand-written homepage gets the same block at its `<!-- seo-head -->` marker. **Every article's preview image is
+a snapshot of one of its charts**, made by the build (`lib/cover.mjs`, headless Chrome) as `cover.png` at
+1200x630: the chart named by `cover_chart: chart-x.svg` in the front matter, else the first chart in the body.
+`image: photo.jpg` (at least 1200px wide, in the article's folder) replaces the snapshot. Articles are bylined to
+`AUTHOR` in `templates.mjs` unless the front matter says `author:`. The homepage's card is `og-home.jpg`;
+every other page without its own uses `observatory-og.jpg`.
 
 Articles: front matter `title`, `date`, `summary`, optional `type` (`article` or `case-study`) and
 `draft: true`. Body is a small Markdown subset (`##`/`###`, lists, `>` quotes, images, links, bold, italic).

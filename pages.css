@@ -543,3 +543,8 @@ button.rk-tick { cursor: default; border-bottom: 1px dotted var(--t3); }
 .dp-names { list-style: none; columns: 3 220px; column-gap: 2.5rem; }
 .dp-names li { break-inside: avoid; padding: 0.35rem 0; color: var(--t2); }
 .dp-names .dp-sub { display: inline; margin-left: 0.5rem; }
+.ch figcaption { margin-top: 0.5rem; font-size: 0.72rem; line-height: 1.5; color: var(--t3); }
+.ch figcaption a { color: inherit; }
+.ch-note { margin-top: 0.35rem; font-size: 0.78rem; color: var(--t3); line-height: 1.5; max-width: 80ch; }
+.dp-credit { margin: 0 0 1rem; }
+.pg-fine + .dp-credit { margin-top: 2rem; }

@@ -91,7 +91,7 @@ export async function loadArticles(dir, { drafts }) {
             if (size.width < 1200) throw new Error(`${file}: image "${meta.image}" is ${size.width}px wide; Google Discover needs at least 1200`);
             image = { src: `/publications/${slug}/${meta.image}`, ...size, alt: meta.image_alt || meta.title };
         }
-        articles.push({ slug, title: meta.title, date: meta.date, updated: meta.updated || null, summary, summaryIntro: meta.summary, summaryItems, type, draft, body, image });
+        articles.push({ slug, title: meta.title, date: meta.date, updated: meta.updated || null, summary, summaryIntro: meta.summary, summaryItems, type, draft, body, image, coverChart: meta.cover_chart || null, author: meta.author || null });
     }
     return articles.sort((a, b) => (a.date < b.date ? 1 : a.date > b.date ? -1 : a.slug.localeCompare(b.slug)));
 }

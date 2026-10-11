@@ -4,7 +4,7 @@
 // so they need no script; each point carries a native tooltip and the numbers behind every chart
 // are also in a table on the same page.
 
-import { esc, fmtDate } from './util.mjs';
+import { esc, fmtDate, FIGURE_CREDIT, OBSERVATORY_URL } from './util.mjs';
 import {
     BRAND, FOOTER, HINT_FLI, HINT_FLR, HOLDINGS_TEXT, INDEX_TOP, byDivision, divisionUrl, fliAttrs, fliCell,
     fmtMultiple, num, rankingTable, shell, signed, subtabs,
@@ -27,6 +27,9 @@ const plural = (division) => {
 const RESULT = { win: 'Won', loss: 'Lost', draw: 'Draw', nc: 'No contest' };
 const monthFmt = new Intl.DateTimeFormat('en-GB', { month: 'short', year: 'numeric', timeZone: 'UTC' });
 const fmtMonth = (ym) => monthFmt.format(new Date(`${ym}-01T00:00:00Z`));
+
+// The credit line every article ends on, in the same words and style.
+const DATA_CREDIT = `<p class="art-credit dp-credit">Data Credit: <a href="${OBSERVATORY_URL}">First Light Observatory</a>.</p>`;
 
 const METHOD_LINK = (anchor, text) => `<a href="/observatory/methodology/#${anchor}">${text}</a>`;
 
@@ -90,8 +93,9 @@ export function skillChart(points, fights = []) {
                 ${dots}
                 <text class="ch-val" x="${(lx + 10).toFixed(1)}" y="${(ly + 4).toFixed(1)}">${num(v[v.length - 1])}</text>
             </svg>
-            <figcaption>FLR after each pro fight. Hover a point for the fight.</figcaption>
-        </figure>`;
+            ${FIGURE_CREDIT}
+        </figure>
+        <p class="ch-note">FLR after each pro fight. Hover a point for the fight.</p>`;
 }
 
 // Attention rank, 1 at the top, on a log scale: the difference between 1st and 10th matters as
@@ -119,8 +123,9 @@ export function attentionChart(series, fights = []) {
                 ${dots}
                 <text class="ch-val" x="${(lx + 10).toFixed(1)}" y="${(ly + 4).toFixed(1)}">#${num(last.rank)}</text>
             </svg>
-            <figcaption>Rank by Wikipedia page views each month, among every professional fighter the Observatory reads Wikipedia for (1 = most read). Vertical lines are fights.</figcaption>
-        </figure>`;
+            ${FIGURE_CREDIT}
+        </figure>
+        <p class="ch-note">Rank by Wikipedia page views each month, among every professional fighter the Observatory reads Wikipedia for (1 = most read). Vertical lines are fights.</p>`;
 }
 
 // ── /fighters/<slug>/ ───────────────────────────────────────────────────────────────────
@@ -213,7 +218,8 @@ export function fighterPage({ f, site, generatedAt }) {
     </section>` : ''}${fightsTable(f)}
     <section class="pg-body pg-body--rule">
         <div class="pg-inner pg-inner--wide">
-            <p class="pg-fine" data-r>Source: <a href="/observatory/">First Light Observatory</a>. ${METHOD_LINK('flr', 'How these numbers are made')}. ${HOLDINGS_TEXT}</p>
+            ${DATA_CREDIT}
+            <p class="pg-fine" data-r>${METHOD_LINK('flr', 'How these numbers are made')}. ${HOLDINGS_TEXT}</p>
         </div>
     </section>
 </main>
@@ -325,7 +331,7 @@ export function divisionPage({ division, rows, data, fightersBySlug, site }) {
         </div>
     </section>
     <section class="pg-body pg-body--rule">
-        <div class="pg-inner pg-inner--wide"><p class="pg-fine" data-r>${METHOD_LINK('flr', 'How the FLR and FLI are measured')} · <a href="/data/rankings.csv">Download every division (CSV)</a> · ${HOLDINGS_TEXT}</p></div>
+        <div class="pg-inner pg-inner--wide">${DATA_CREDIT}<p class="pg-fine" data-r>${METHOD_LINK('flr', 'How the FLR and FLI are measured')} · <a href="/data/rankings.csv">Download every division (CSV)</a> · ${HOLDINGS_TEXT}</p></div>
     </section>
 </main>
 ${FOOTER}`;
@@ -422,7 +428,8 @@ export function eventPage({ e, site }) {
                     </tbody>
                 </table>
             </div>
-            <p class="pg-fine" data-r>Attention is Wikipedia views in the three days after the fight, as a multiple of the fighter’s usual daily views; — means too little history to measure (${METHOD_LINK('attention', 'how it is measured')}). Highlighted fights went against the result: the loser drew more attention than the winner. Source: <a href="/observatory/">First Light Observatory</a>.</p>
+            <p class="pg-fine" data-r>Attention is Wikipedia views in the three days after the fight, as a multiple of the fighter’s usual daily views; — means too little history to measure (${METHOD_LINK('attention', 'how it is measured')}). Highlighted fights went against the result: the loser drew more attention than the winner.</p>
+            ${DATA_CREDIT}
         </div>
     </section>
 </main>

@@ -14,6 +14,7 @@ import { imageSize, loadArticles, loadIndex, loadPrivate, loadPublications } fro
 import { archivePage, articlePage, BRAND, divisionUrl, indexPage, internalDataPage, manifestoPage, mediaKitPage, notFoundPage, observatoryPage, privatePage, seoHead, setDefaultImage, setFighterPages, winnersLosersPage } from './lib/templates.mjs';
 import { byDivision, divisionPage, eventPage, eventsIndexPage, fighterPage, fightersIndexPage, methodologyPage, rankingsCsv, rankingsJson } from './lib/pages-data.mjs';
 import { esc } from './lib/util.mjs';
+import { COVER, coverChart, renderCover } from './lib/cover.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const args = new Set(process.argv.slice(2));
@@ -31,7 +32,7 @@ const STATIC = [
     'favicon.png', 'logo.png', 'logo.svg',
     'fonts',
     'hero-pc.mp4', 'hero-mobile.mp4', 'brand-universal.mp4', 'promote.mp4', 'monetize.mp4',
-    'observatory.mp4', 'observatory-poster.jpg', 'observatory-og.jpg',
+    'observatory.mp4', 'observatory-poster.jpg', 'observatory-og.jpg', 'og-home.jpg',
     'observatory-mobile.mp4', 'observatory-poster-mobile.jpg',
 ];
 
@@ -56,13 +57,9 @@ async function main() {
     await mkdir(OUT, { recursive: true });
     for (const item of STATIC) await cp(path.join(ROOT, item), path.join(OUT, item), { recursive: true });
 
-    // The site-wide preview image (social cards, Discover), for any page without its own. Optional:
-    // until og-default.jpg is added to the repo, those pages carry no image.
-    const ogDefault = path.join(ROOT, 'og-default.jpg');
-    if (await stat(ogDefault).then(() => true, () => false)) {
-        await cp(ogDefault, path.join(OUT, 'og-default.jpg'));
-        setDefaultImage({ src: '/og-default.jpg', ...(await imageSize(ogDefault)), alt: BRAND });
-    }
+    // The preview image (social cards, Discover) for any page without its own: the Observatory's,
+    // since nearly every such page is a data page. The homepage has its own (og-home.jpg).
+    setDefaultImage({ src: '/observatory-og.jpg', ...(await imageSize(path.join(ROOT, 'observatory-og.jpg'))), alt: 'The First Light Observatory' });
 
     // A git-triggered Cloudflare build has no access to the local export, so it must not
     // publish the "being compiled" placeholder over a live rankings page. Failing the build
@@ -136,6 +133,18 @@ async function main() {
     }
 
     for (const article of articles) {
+        // Every article's preview image is a snapshot of one of its charts (lib/cover.mjs), unless
+        // its front matter names an image. Without Chrome on this machine it falls back to the default.
+        const chart = !article.image && coverChart(article, path.join(ROOT, 'content/publications'));
+        if (chart) {
+            const out = path.join(OUT, 'publications', article.slug, 'cover.png');
+            await mkdir(path.dirname(out), { recursive: true });
+            if (await renderCover({ svgFile: chart, outFile: out, fontsDir: path.join(ROOT, 'fonts') })) {
+                article.image = { src: `/publications/${article.slug}/cover.png`, ...COVER, alt: `Chart from “${article.title}”` };
+            } else {
+                console.warn(`  ${article.slug}: no Chrome found for its cover snapshot; using the default image (set CHROME_PATH)`);
+            }
+        }
         await write(`publications/${article.slug}/index.html`, articlePage({ article, site: SITE }));
         routes.push({ url: `/publications/${article.slug}/`, lastmod: article.updated ?? article.date });
         // Images and other files that sit next to an article: content/publications/<slug>/*
@@ -206,7 +215,8 @@ const HOME = {
 };
 function homePage(html) {
     if (!html.includes('<!-- seo-head -->')) throw new Error('index.html: the <!-- seo-head --> marker is missing');
-    return html.replace('<!-- seo-head -->', seoHead({ ...HOME, url: '/', site: SITE }).join('\n    '));
+    const image = { src: '/og-home.jpg', width: 1200, height: 630, alt: 'We find the person in the fighter and we make the world watch' };
+    return html.replace('<!-- seo-head -->', seoHead({ ...HOME, url: '/', site: SITE, image }).join('\n    '));
 }
 
 // RSS: a feed readers and aggregators (Feedly, news apps, some search tools) poll for new articles.
