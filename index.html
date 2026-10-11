@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FIRST LIGHT</title>
+    <title>First Light — We take a stake in a fighter's name</title>
+    <!-- seo-head -->
     <link rel="icon" type="image/png" href="favicon.png">
     <link rel="apple-touch-icon" href="favicon.png">
     <link rel="preload" href="fonts/dm-sans-var-latin.woff2" as="font" type="font/woff2" crossorigin>
@@ -251,6 +252,12 @@
         }
         .video-fade.clear { opacity: 0; }
         .video-text {
+            /* An <h1> for search engines and screen readers; these undo every heading style
+               (style.css and the browser's) so it renders exactly as the old <div> did. */
+            margin: 0;
+            font: inherit;
+            letter-spacing: normal;
+            text-wrap: wrap;
             position: absolute;
             bottom: 10%;
             left: 0; right: 0;
@@ -330,7 +337,7 @@
 
 <nav class="nav nav-hidden" id="mainNav" aria-label="Site">
     <div class="nav-menu">
-        <a href="#hero" class="nav-logo"><img src="logo.svg" alt="FIRST LIGHT" class="nav-logo-img"></a>
+        <a href="#hero" class="nav-logo"><img src="logo.svg" alt="First Light" class="nav-logo-img"></a>
         <button type="button" class="nav-toggle" aria-label="Menu" aria-expanded="false" aria-controls="navDrop"></button>
         <div class="nav-drop" id="navDrop">
             <ul>
@@ -359,14 +366,14 @@
         })();
     </script>
     <div class="video-fade" id="videoFade"></div>
-    <div class="video-text" id="videoText">
-        <div class="video-line1-clip"><div class="video-line1">We find the <strong style="font-weight:700">person</strong> in the <strong style="font-weight:700">fighter</strong> and we</div></div>
-        <div class="video-line2">
-            <div class="video-line2-row"><span class="slam-clip"><span class="slam-word" style="--wi:0">Make</span></span> <span class="slam-clip"><span class="slam-word" style="--wi:1">the</span></span></div>
-            <div class="video-line2-row"><span class="slam-clip"><span class="slam-word" style="--wi:2">World</span></span></div>
-            <div class="video-line2-row"><span class="slam-clip"><span class="slam-word" style="--wi:3">Watch</span></span></div>
-        </div>
-    </div>
+    <h1 class="video-text" id="videoText">
+        <span class="video-line1-clip"><span class="video-line1">We find the <strong style="font-weight:700">person</strong> in the <strong style="font-weight:700">fighter</strong> and we</span></span>
+        <span class="video-line2">
+            <span class="video-line2-row"><span class="slam-clip"><span class="slam-word" style="--wi:0">Make</span></span> <span class="slam-clip"><span class="slam-word" style="--wi:1">the</span></span></span>
+            <span class="video-line2-row"><span class="slam-clip"><span class="slam-word" style="--wi:2">World</span></span></span>
+            <span class="video-line2-row"><span class="slam-clip"><span class="slam-word" style="--wi:3">Watch</span></span></span>
+        </span>
+    </h1>
 </section>
 
 <hr style="border:none;border-top:2px solid rgba(255,255,255,0.5);width:88%;margin:0 auto;">
@@ -390,9 +397,7 @@
                     <p class="wwd-tagline" data-r style="--d:80ms">The name is the asset, in the cage and out of it. We build it into an identity promoters can't ignore and fans can't forget.</p>
                 </div>
                 <div class="wwd-vid" data-r style="--d:80ms">
-                    <video autoplay muted loop playsinline>
-                        <source src="brand-universal.mp4" type="video/mp4">
-                    </video>
+                    <video muted loop playsinline preload="none" data-src="brand-universal.mp4"></video>
                 </div>
             </div>
         </div>
@@ -401,9 +406,7 @@
         <div class="wwd-item wwd-item--flip">
             <div class="wwd-grid">
                 <div class="wwd-vid" data-r style="--d:80ms">
-                    <video autoplay muted loop playsinline>
-                        <source src="promote.mp4" type="video/mp4">
-                    </video>
+                    <video muted loop playsinline preload="none" data-src="promote.mp4"></video>
                 </div>
                 <div class="wwd-left">
                     <span class="wwd-name" data-r style="--wwd-w:3.72">PROMOTION</span>
@@ -420,9 +423,7 @@
                     <p class="wwd-tagline" data-r style="--d:80ms">Attention isn't income. We turn the name into revenue that recurs, compounds, and outlasts the career.</p>
                 </div>
                 <div class="wwd-vid" data-r style="--d:80ms">
-                    <video autoplay muted loop playsinline>
-                        <source src="monetize.mp4" type="video/mp4">
-                    </video>
+                    <video muted loop playsinline preload="none" data-src="monetize.mp4"></video>
                 </div>
             </div>
         </div>
@@ -463,16 +464,35 @@
 </section>
 
 <footer>
-    <a href="#hero" class="foot-logo"><img src="logo.svg" alt="FIRST LIGHT" class="foot-logo-img"></a>
+    <a href="#hero" class="foot-logo"><img src="logo.svg" alt="First Light" class="foot-logo-img"></a>
     <nav class="foot-links">
         <span class="foot-contact"><span class="foot-cta">Bring us a fighter:</span><a href="mailto:contact@firstlightequity.com" class="foot-link">contact@firstlightequity.com</a></span>
     </nav>
-    <p class="foot-copy">© 2026 FIRST LIGHT</p>
-    <p class="foot-disclaimer">Fighters shown in videos are used as illustrative examples only and are not necessarily athletes FIRST LIGHT holds an interest in.</p>
+    <p class="foot-copy">© 2026 First Light</p>
+    <p class="foot-disclaimer">Fighters shown in videos are used as illustrative examples only and are not necessarily athletes First Light holds an interest in.</p>
 </footer>
 
 <script src="menu.js"></script>
 <script src="nav.js"></script>
+<script>
+// The three pillar videos load only as they come near the screen (a viewport and a half early,
+// so they are already playing when seen) instead of all ~11 MB with the page.
+(function () {
+    var vids = Array.prototype.slice.call(document.querySelectorAll('video[data-src]'));
+    function start(v) {
+        if (v.src) return;
+        v.src = v.getAttribute('data-src');
+        v.autoplay = true;
+        var p = v.play();
+        if (p && p.catch) p.catch(function () {});
+    }
+    if (!('IntersectionObserver' in window)) { vids.forEach(start); return; }
+    var io = new IntersectionObserver(function (entries) {
+        entries.forEach(function (e) { if (e.isIntersecting) { start(e.target); io.unobserve(e.target); } });
+    }, { rootMargin: '150% 0px' });
+    vids.forEach(function (v) { io.observe(v); });
+})();
+</script>
 <script>
 // Fit all four text lines to the same pixel width as WATCH at its natural CSS size
 function fitVideoText() {

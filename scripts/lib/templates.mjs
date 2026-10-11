@@ -11,7 +11,7 @@ const YEAR = 2026;
 
 const NAV = (current) => `<nav class="nav" id="mainNav" aria-label="Site">
     <div class="nav-menu">
-        <a href="/" class="nav-logo"><img src="/logo.svg" alt="FIRST LIGHT" class="nav-logo-img"></a>
+        <a href="/" class="nav-logo"><img src="/logo.svg" alt="First Light" class="nav-logo-img"></a>
         <button type="button" class="nav-toggle" aria-label="Menu" aria-expanded="false" aria-controls="navDrop"></button>
         <div class="nav-drop" id="navDrop">
             <ul>
@@ -25,59 +25,123 @@ const NAV = (current) => `<nav class="nav" id="mainNav" aria-label="Site">
 </nav>`;
 
 const FOOTER = `<footer>
-    <a href="/" class="foot-logo"><img src="/logo.svg" alt="FIRST LIGHT" class="foot-logo-img"></a>
+    <a href="/" class="foot-logo"><img src="/logo.svg" alt="First Light" class="foot-logo-img"></a>
     <nav class="foot-links">
         <span class="foot-contact"><span class="foot-cta">Bring us a fighter:</span><a href="mailto:contact@firstlightequity.com" class="foot-link">contact@firstlightequity.com</a></span>
     </nav>
-    <p class="foot-copy">© ${YEAR} FIRST LIGHT</p>
+    <p class="foot-copy">© ${YEAR} First Light</p>
 </footer>`;
 
-// Every page goes through here. Three concerns that used to travel together as one `priv`
-// flag now vary independently, because the publication pages need a combination the site
-// never needed before (noindex, but still carrying Open Graph, and no nav at all):
-//   • `noindex`  — robots noindex/nofollow/noarchive/nosnippet + no-referrer, and no canonical
-//                  link or <meta name="description"> (both would be dead weight on a page
-//                  that's never indexed and is only ever reached by direct link).
-//   • `og`       — Open Graph tags, so a forwarded link unfurls with a title and description.
-//                  `og:url` is skipped when `noindex` is set: these pages have no canonical
-//                  address worth asserting.
-//   • `nav`      — the site nav (logo + dropdown). Off for the publication pages, which have
-//                  no nav, no logo and no links out at all.
-// Existing call sites are unaffected: `priv: true` (the old private-page behaviour) is exactly
-// `noindex: true, og: false`, and every other site still gets its nav.
-// `image` ({ src, width, height, alt }) adds og:image and a large Twitter card; `jsonld` is an
-// object (or array) written as one application/ld+json block.
-function shell({ title, description, url, site, current, body, css = ['/pages.css'], bodyClass = '', noindex = false, og = true, nav = true, scripts = true, js = null, image = null, jsonld = null }) {
+// The company is "First Light", in title case, everywhere it is written. Only the logo (an image)
+// is set in capitals.
+export const BRAND = 'First Light';
+const EMAIL = 'contact@firstlightequity.com';
+
+// Site-wide preview image, used by any page that has none of its own. `build.mjs` sets it when
+// `og-default.jpg` is in the repo; until then pages without an image simply carry none.
+let DEFAULT_IMAGE = null;
+export function setDefaultImage(image) { DEFAULT_IMAGE = image; }
+
+// The organisation and the website, as schema.org nodes. Every indexable page carries both, so
+// search engines read one entity, "First Light", wherever they land.
+export const orgNode = (site) => ({
+    '@type': 'Organization', '@id': `${site}/#organization`,
+    name: BRAND, url: `${site}/`, email: EMAIL,
+    logo: { '@type': 'ImageObject', url: `${site}/logo.png`, width: 960, height: 540 },
+});
+const websiteNode = (site) => ({
+    '@type': 'WebSite', '@id': `${site}/#website`, name: BRAND, url: `${site}/`,
+    publisher: { '@id': `${site}/#organization` }, inLanguage: 'en',
+});
+const breadcrumbNode = (site, url, crumbs) => ({
+    '@type': 'BreadcrumbList', '@id': `${site}${url}#breadcrumb`,
+    itemListElement: crumbs.map(([name, href], i) => ({ '@type': 'ListItem', position: i + 1, name, item: `${site}${href}` })),
+});
+
+// The tags every indexable page shares, also injected into the hand-written homepage by the
+// build. `max-image-preview:large` is what lets Google show a page in Discover with a big image.
+export function seoHead({ title, description, url, site, ogType = 'website', image = DEFAULT_IMAGE, article = null, crumbs = null, jsonld = null, indexable = true }) {
+    const head = [
+        `<meta name="description" content="${esc(description)}">`,
+        `<link rel="canonical" href="${esc(site + url)}">`,
+        indexable
+            ? '<meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">'
+            : '<meta name="robots" content="noindex, follow">',
+        `<link rel="alternate" type="application/rss+xml" title="${BRAND}: publications" href="${site}/feed.xml">`,
+        `<meta property="og:site_name" content="${BRAND}">`,
+        `<meta property="og:type" content="${ogType}">`,
+        `<meta property="og:title" content="${esc(title)}">`,
+        `<meta property="og:description" content="${esc(description)}">`,
+        `<meta property="og:url" content="${esc(site + url)}">`,
+        '<meta property="og:locale" content="en_GB">',
+    ];
+    if (article) {
+        head.push(`<meta property="article:published_time" content="${esc(article.published)}">`);
+        if (article.modified) head.push(`<meta property="article:modified_time" content="${esc(article.modified)}">`);
+    }
+    head.push(...imageTags(title, description, site, image));
+    const graph = [orgNode(site), websiteNode(site)];
+    if (crumbs) graph.push(breadcrumbNode(site, url, crumbs));
+    for (const node of [].concat(jsonld ?? [])) graph.push(...(node['@graph'] ?? [node]));
+    head.push(`<script type="application/ld+json">${JSON.stringify({ '@context': 'https://schema.org', '@graph': graph }).replace(/</g, '\\u003c')}</script>`);
+    return head;
+}
+
+function imageTags(title, description, site, image) {
+    if (!image) return ['<meta name="twitter:card" content="summary">'];
+    return [
+        `<meta property="og:image" content="${esc(site + image.src)}">`,
+        `<meta property="og:image:width" content="${image.width}">`,
+        `<meta property="og:image:height" content="${image.height}">`,
+        `<meta property="og:image:alt" content="${esc(image.alt)}">`,
+        '<meta name="twitter:card" content="summary_large_image">',
+        `<meta name="twitter:title" content="${esc(title)}">`,
+        `<meta name="twitter:description" content="${esc(description)}">`,
+        `<meta name="twitter:image" content="${esc(site + image.src)}">`,
+        `<meta name="twitter:image:alt" content="${esc(image.alt)}">`,
+    ];
+}
+
+// Which fighters and events have their own page. `build.mjs` fills this before rendering, so any
+// template can link a name; a name with no page stays plain text.
+const LINKS = { fighters: new Map(), events: new Map() };
+export function setLinks({ fighters, events }) {
+    LINKS.fighters = fighters ?? new Map();
+    LINKS.events = events ?? new Map();
+}
+export const fighterUrl = (name) => LINKS.fighters.get(name) ?? null;
+export const eventKey = (event, date) => `${event}|${date}`;
+export function fighterLink(name, cls = '') {
+    const url = fighterUrl(name);
+    return url ? `<a href="${url}"${cls ? ` class="${cls}"` : ''}>${esc(name)}</a>` : esc(name);
+}
+function eventLink(event, date) {
+    const url = LINKS.events.get(eventKey(event, date));
+    return url ? `<a href="${url}">${esc(event)}</a>` : esc(event);
+}
+
+// Every page goes through here. Private and publication pages pass `noindex` (robots
+// noindex/nofollow/noarchive/nosnippet + no-referrer, no canonical, no description, no schema);
+// `og` then decides whether a forwarded link still unfurls with a title and description, and `nav`
+// whether the site nav is drawn. Every other page is indexable and gets `seoHead`; `indexable:
+// false` keeps such a page out of the index ("noindex, follow") without the private-page extras.
+function shell({ title, description, url, site, current, body, css = ['/pages.css'], bodyClass = '', noindex = false, og = true, nav = true, scripts = true, js = null, image, jsonld = null, ogType, article = null, crumbs = null, indexable = true }) {
     const head = [];
     if (noindex) {
         head.push('<meta name="robots" content="noindex, nofollow, noarchive, nosnippet">', '<meta name="referrer" content="no-referrer">');
-    } else {
-        head.push(`<meta name="description" content="${esc(description)}">`, `<link rel="canonical" href="${esc(site + url)}">`);
-    }
-    if (og) {
-        head.push(
-            '<meta property="og:site_name" content="FIRST LIGHT">',
-            '<meta property="og:type" content="website">',
-            `<meta property="og:title" content="${esc(title)}">`,
-            `<meta property="og:description" content="${esc(description)}">`,
-        );
-        if (!noindex) head.push(`<meta property="og:url" content="${esc(site + url)}">`);
-        if (image) {
+        if (og) {
             head.push(
-                `<meta property="og:image" content="${esc(site + image.src)}">`,
-                `<meta property="og:image:width" content="${image.width}">`,
-                `<meta property="og:image:height" content="${image.height}">`,
-                `<meta property="og:image:alt" content="${esc(image.alt)}">`,
-                '<meta name="twitter:card" content="summary_large_image">',
-                `<meta name="twitter:title" content="${esc(title)}">`,
-                `<meta name="twitter:description" content="${esc(description)}">`,
-                `<meta name="twitter:image" content="${esc(site + image.src)}">`,
-                `<meta name="twitter:image:alt" content="${esc(image.alt)}">`,
+                `<meta property="og:site_name" content="${BRAND}">`,
+                '<meta property="og:type" content="website">',
+                `<meta property="og:title" content="${esc(title)}">`,
+                `<meta property="og:description" content="${esc(description)}">`,
             );
+            if (image) head.push(...imageTags(title, description, site, image));
         }
+        if (jsonld) head.push(`<script type="application/ld+json">${JSON.stringify(jsonld).replace(/</g, '\\u003c')}</script>`);
+    } else {
+        head.push(...seoHead({ title, description, url, site, ogType, image: image === undefined ? DEFAULT_IMAGE : image, article, crumbs, jsonld, indexable }));
     }
-    // `<` is escaped so no string inside the JSON can close the script element.
-    if (jsonld) head.push(`<script type="application/ld+json">${JSON.stringify(jsonld).replace(/</g, '\\u003c')}</script>`);
     return `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -154,9 +218,10 @@ export function archivePage({ articles, site }) {
 </main>
 ${FOOTER}`;
     return shell({
-        title: 'Publications — FIRST LIGHT',
-        description: 'Articles and case studies from FIRST LIGHT on building a fighter\'s name and turning it into income.',
+        title: 'Publications — First Light',
+        description: 'Articles and data from First Light on fighters\' fame, skill and what moves them: Instagram, Wikipedia and the First Light Index, event by event.',
         url: '/publications/', site, current: 'publications', body,
+        crumbs: [['First Light', '/'], ['Publications', '/publications/']],
     });
 }
 
@@ -184,10 +249,31 @@ ${linkObservatory(renderMarkdown(article.body, { figureCredit: true }))}
     </article>
 </main>
 ${FOOTER}`;
+    const url = `/publications/${article.slug}/`;
+    const image = article.image ?? DEFAULT_IMAGE;
+    const published = `${article.date}T08:00:00Z`;
+    const modified = article.updated ? `${article.updated}T08:00:00Z` : published;
     return shell({
-        title: `${article.title} — FIRST LIGHT`,
+        // A title that ends in a full stop on the page reads badly with a suffix after it.
+        title: `${article.title.replace(/\.$/, '')} — ${BRAND}`,
         description: article.summary,
-        url: `/publications/${article.slug}/`, site, current: 'publications', body,
+        url, site, current: 'publications', body,
+        ogType: 'article', image,
+        article: { published, modified: article.updated ? modified : null },
+        crumbs: [[BRAND, '/'], ['Publications', '/publications/'], [article.title, url]],
+        jsonld: {
+            '@type': article.type === 'case-study' ? 'Article' : 'NewsArticle',
+            '@id': `${site}${url}#article`,
+            headline: article.title.slice(0, 110),
+            description: article.summary,
+            datePublished: published, dateModified: modified,
+            author: { '@id': `${site}/#organization` },
+            publisher: { '@id': `${site}/#organization` },
+            mainEntityOfPage: `${site}${url}`,
+            isPartOf: { '@id': `${site}/#website` },
+            ...(image ? { image: { '@type': 'ImageObject', url: `${site}${image.src}`, width: image.width, height: image.height } } : {}),
+            ...(article.about?.length ? { about: article.about.map((f) => ({ '@type': 'Person', name: f.name, url: `${site}${f.url}` })) } : {}),
+        },
     });
 }
 
@@ -205,9 +291,11 @@ export function manifestoPage({ site }) {
 </main>
 <script src="/manifesto.js"></script>`;
     return shell({
-        title: 'Manifesto — FIRST LIGHT',
-        description: 'The FIRST LIGHT manifesto. Coming soon.',
+        title: 'Manifesto — First Light',
+        description: 'The First Light manifesto. Coming soon.',
         url: '/manifesto/', site, current: 'publications', body,
+        // Kept out of the index until it is written: a "coming soon" page is thin content.
+        indexable: false,
         css: ['/manifesto.css'], bodyClass: 'page-manifesto', scripts: false,
     });
 }
@@ -232,16 +320,32 @@ const OBSERVATORY_METHOD = [
     'On the sport, no filter: fighters, bouts and promotions from everywhere, not only the UFC. On the audience, a deliberate Western lens, mostly English-speaking and American, because that is where the advertising market is largest. Hence the platforms we read.',
 ];
 
+// The Observatory as a schema.org Dataset, for Google Dataset Search. `creditText` is the credit
+// journalists are asked to give; `distribution` lists the public downloads the build writes.
+const observatoryDataset = (site) => ({
+    '@type': 'Dataset', '@id': `${site}/observatory/#dataset`,
+    name: 'First Light Observatory', alternateName: 'First Light Rankings and First Light Index',
+    description: `${OBSERVATORY_TEXT} Published here: the First Light Rating (FLR) and First Light Index (FLI) for the top fighters in every MMA division, and the attention each fighter drew around their fights.`,
+    url: `${site}/observatory/`,
+    creator: { '@id': `${site}/#organization` }, publisher: { '@id': `${site}/#organization` },
+    creditText: 'First Light Observatory',
+    isAccessibleForFree: true,
+    license: `${site}/observatory/#cite`,
+    keywords: ['MMA rankings', 'UFC rankings', 'fighter ratings', 'fighter popularity', 'Wikipedia pageviews', 'mixed martial arts data'],
+    variableMeasured: ['First Light Rating (FLR)', 'First Light Index (FLI)', 'Wikipedia attention multiple around a fight'],
+    measurementTechnique: `${site}/observatory/methodology/`,
+    distribution: [
+        { '@type': 'DataDownload', encodingFormat: 'text/csv', contentUrl: `${site}/data/rankings.csv` },
+        { '@type': 'DataDownload', encodingFormat: 'application/json', contentUrl: `${site}/data/rankings.json` },
+    ],
+});
+
 // Holdings disclosure: a small, quiet line under the Index link on the Observatory and
 // under the FLI definition on the rankings.
 const HOLDINGS_TEXT = 'First Light may hold interests in athletes covered by the Index.';
 
 export function observatoryPage({ site }) {
     const url = '/observatory/';
-    const org = {
-        '@type': 'Organization', '@id': `${site}/#organization`,
-        name: 'First Light', url: `${site}/`, logo: `${site}/logo.png`, email: 'contact@firstlightequity.com',
-    };
     const body = `<main class="ob">
     <div class="ob-bg" aria-hidden="true">
         <video class="ob-video" data-src="/observatory.mp4" data-src-portrait="/observatory-mobile.mp4" muted autoplay loop playsinline disablepictureinpicture preload="none"></video>
@@ -263,14 +367,8 @@ export function observatoryPage({ site }) {
         url, site, current: 'observatory', body,
         css: ['/observatory.css'], bodyClass: 'page-observatory', js: ['/menu.js', '/observatory.js'],
         image: { src: '/observatory-og.jpg', width: 1200, height: 630, alt: 'The First Light Observatory' },
-        jsonld: {
-            '@context': 'https://schema.org',
-            '@graph': [org, {
-                '@type': 'Dataset', '@id': `${site}${url}#dataset`,
-                name: 'First Light Observatory', description: OBSERVATORY_TEXT,
-                url: `${site}${url}`, creator: { '@id': org['@id'] },
-            }],
-        },
+        crumbs: [[BRAND, '/'], ['Observatory', url]],
+        jsonld: observatoryDataset(site),
     });
 }
 
@@ -470,8 +568,8 @@ function archiveTeaser(articles) {
 
 export function indexPage({ data, articles, site }) {
     const meta = {
-        title: 'Rankings — FIRST LIGHT',
-        description: 'FIRST LIGHT rankings: FLR ratings and First Light Index scores for the top fighters in every division.',
+        title: 'MMA Rankings by Skill and Fame — First Light',
+        description: 'MMA rankings by division and pound-for-pound, from the First Light Rating (skill, from in-cage performance) and the First Light Index (fame against skill). Updated weekly.',
         url: '/index/', site, current: 'index',
     };
 
@@ -528,22 +626,35 @@ ${FOOTER}`;
 
 // Each side's rule, in a line under its heading: the figures only make sense against it.
 const WL_RULE = {
-    winners: 'Lost the fight, and still grew their audience far more than fighters of a similar size.',
-    losers: 'Won the fight, and grew their audience far less than fighters of a similar size.',
+    winners: 'Lost the fight, and drew more attention than the fighter who beat them.',
+    losers: 'Won the fight, and drew less attention than the fighter they beat.',
 };
+const WL_UNIT = 'Wikipedia views in the three days after the fight, as a multiple of the fighter’s usual daily views.';
+
+// An attention multiple at two significant figures: 1.4×, 9.8×, 14×, 210×. Fine enough to tell
+// two fighters apart, coarse enough that a quiet name's spike doesn't read as "+1,953.5%".
+export function fmtMultiple(m) {
+    if (m == null) return '';
+    const digits = m < 10 ? 1 : 0;
+    const rounded = m < 10 ? m : Number(m.toPrecision(2));
+    return `${num(rounded, digits)}×`;
+}
 
 function wlList(kind, heading, items) {
     const rows = items.map((e) => {
         const won = e.outcome === 'win';
-        const versus = e.opponent ? ` ${won ? 'against' : 'to'} ${esc(e.opponent)}` : '';
-        const where = [e.event ? esc(e.event) : '', e.date ? fmtDate(e.date) : ''].filter(Boolean).join(' · ');
+        const versus = e.opponent ? ` ${won ? 'against' : 'to'} ${fighterLink(e.opponent)}` : '';
+        const where = [e.event ? eventLink(e.event, e.date) : '', e.date ? fmtDate(e.date) : ''].filter(Boolean).join(' · ');
+        // Older exports carry only `change` (the spike as a percentage); the multiple is the same number.
+        const multiple = e.multiple ?? (e.change != null ? 1 + e.change / 100 : null);
+        const theirs = e.opponent_multiple != null && e.opponent
+            ? `<span class="wl-typical">${esc(lastName(e.opponent))}: ${fmtMultiple(e.opponent_multiple)}</span>` : '';
         return `
                     <li class="wl-row">
-                        <span class="wl-who"><span class="wl-name">${esc(e.name)}</span>
+                        <span class="wl-who"><span class="wl-name">${fighterLink(e.name)}</span>
                             <span class="wl-line"><span class="wl-res wl-res--${won ? 'won' : 'lost'}">${won ? 'Won' : 'Lost'}</span>${versus}${e.method ? ` · ${esc(e.method)}` : ''}</span>${where ? `
                             <span class="wl-line wl-line--dim">${where}</span>` : ''}</span>
-                        <span class="wl-fig"><span class="wl-change wl-change--${kind}"><span class="wl-glyph" aria-hidden="true">${e.change < 0 ? '▼' : '▲'}</span> ${signed(e.change)}%</span>${e.typical != null ? `
-                            <span class="wl-typical">typical ${signed(e.typical)}%</span>` : ''}</span>
+                        <span class="wl-fig"><span class="wl-change wl-change--${kind}" title="${esc(WL_UNIT)}">${fmtMultiple(multiple)}<span class="sr-only"> usual Wikipedia views</span></span>${theirs}</span>
                     </li>`;
     }).join('');
     return `
@@ -554,6 +665,8 @@ function wlList(kind, heading, items) {
             </ol>
         </section>`;
 }
+
+const lastName = (name) => name.trim().split(/\s+/).slice(-1)[0];
 
 export function winnersLosersPage({ data, site }) {
     const wl = data.winners_losers;
@@ -566,14 +679,15 @@ export function winnersLosersPage({ data, site }) {
     </header>
     <div class="pg-body pg-body--flush">${wl.winners.length || wl.losers.length ? `
         <div class="pg-inner pg-inner--wide wl">${wlList('winners', 'Winners', wl.winners)}${wlList('losers', 'Losers', wl.losers)}
-        </div>` : `
+        </div>
+        <div class="pg-inner pg-inner--wide"><p class="pg-fine wl-unit" data-r>× is ${WL_UNIT.charAt(0).toLowerCase()}${WL_UNIT.slice(1)} <a href="/observatory/methodology/#attention">How it is measured</a>.</p></div>` : `
         <div class="pg-inner pg-inner--wide"><p class="pg-empty" data-r>No clear winners or losers yet.</p></div>`}
     </div>
 </main>
 ${FOOTER}`;
     return shell({
-        title: 'Last weekend’s winners — FIRST LIGHT',
-        description: 'Fighters whose fame went against the result: lost the fight and gained fame, won it and gained none.',
+        title: 'Last weekend’s winners — First Light',
+        description: 'MMA fighters whose fame went against the result last weekend: who lost the fight and still drew more attention than the winner, and who won and drew less.',
         url: '/index/winners-losers/', site, current: 'index', body,
     });
 }
@@ -645,7 +759,7 @@ ${f ? `
 ` : ''}</main>
 ${FOOTER}`;
     return shell({
-        title: `${page.title || 'Media kit'} — FIRST LIGHT`,
+        title: `${page.title || 'Media kit'} — First Light`,
         url: '', site, current: null, body, noindex: true, og: false,
     });
 }
@@ -657,12 +771,12 @@ export function notFoundPage({ site }) {
     <header class="pg-head">
         <div class="pg-inner">
             <h1 class="pg-title">Not found.</h1>
-            <p class="pg-lede"><a href="/">FIRST LIGHT</a></p>
+            <p class="pg-lede"><a href="/">First Light</a></p>
         </div>
     </header>
 </main>
 ${FOOTER}`;
-    return shell({ title: 'Not found — FIRST LIGHT', url: '', site, current: null, body, noindex: true, og: false });
+    return shell({ title: 'Not found — First Light', url: '', site, current: null, body, noindex: true, og: false });
 }
 
 // ── /publications/kit/[slug-token]/{media-kit,internal-data}/ ──
@@ -1856,7 +1970,7 @@ ${section('pub-trajectory', 'Trajectory', trajectoryBlock(d.trajectory, !!storyP
 ${PUB_FOOTER}`;
 
     return shell({
-        title: `${f.name} · Media kit · FIRST LIGHT`,
+        title: `${f.name} · Media kit · First Light`,
         description: `Audience and performance measurement for ${f.name}, measured ${page.measured_on}.`,
         url: '', site, current: null, body,
         css: ['/publication.css'], noindex: true, og: true, nav: false, js: ['/pub-fit.js', '/pub-carousel.js'],
@@ -2322,7 +2436,7 @@ ${sections.trim() ? sections : emptyInternal(page.fighter_name)}
 ${PUB_FOOTER}`;
 
     return shell({
-        title: `${page.fighter_name} · Internal data · FIRST LIGHT`,
+        title: `${page.fighter_name} · Internal data · First Light`,
         description: `Internal measurement for ${page.fighter_name}'s management team, measured ${page.measured_on}.`,
         url: '', site, current: null, body,
         css: ['/publication.css'], noindex: true, og: true, nav: false, js: ['/pub-fit.js', '/pub-carousel.js'],

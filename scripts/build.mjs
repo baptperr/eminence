@@ -7,11 +7,12 @@
 // (data exports, scripts, docs, the Apps Script source) stays out of what gets served.
 
 import { createHash } from 'node:crypto';
-import { cp, mkdir, readdir, readFile, rm, writeFile } from 'node:fs/promises';
+import { cp, mkdir, readdir, readFile, rm, stat, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { loadArticles, loadIndex, loadPrivate, loadPublications } from './lib/data.mjs';
-import { archivePage, articlePage, indexPage, internalDataPage, manifestoPage, mediaKitPage, notFoundPage, observatoryPage, privatePage, winnersLosersPage } from './lib/templates.mjs';
+import { imageSize, loadArticles, loadIndex, loadPrivate, loadPublications } from './lib/data.mjs';
+import { archivePage, articlePage, BRAND, indexPage, internalDataPage, manifestoPage, mediaKitPage, notFoundPage, observatoryPage, privatePage, seoHead, setDefaultImage, winnersLosersPage } from './lib/templates.mjs';
+import { esc } from './lib/util.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const args = new Set(process.argv.slice(2));
@@ -54,6 +55,14 @@ async function main() {
     await mkdir(OUT, { recursive: true });
     for (const item of STATIC) await cp(path.join(ROOT, item), path.join(OUT, item), { recursive: true });
 
+    // The site-wide preview image (social cards, Discover), for any page without its own. Optional:
+    // until og-default.jpg is added to the repo, those pages carry no image.
+    const ogDefault = path.join(ROOT, 'og-default.jpg');
+    if (await stat(ogDefault).then(() => true, () => false)) {
+        await cp(ogDefault, path.join(OUT, 'og-default.jpg'));
+        setDefaultImage({ src: '/og-default.jpg', ...(await imageSize(ogDefault)), alt: BRAND });
+    }
+
     // A git-triggered Cloudflare build has no access to the local export, so it must not
     // publish the "being compiled" placeholder over a live rankings page. Failing the build
     // leaves the previous deployment serving.
@@ -70,13 +79,15 @@ async function main() {
     const publications = await loadPublications(path.join(DATA, 'publications'));
 
     // Public routes. `lastmod` feeds the sitemap.
+    // The manifesto is not listed: it is noindexed until it is written.
+    const mtime = async (f) => (await stat(path.join(ROOT, f))).mtime.toISOString();
     const routes = [
-        { url: '/', lastmod: null },
+        { url: '/', lastmod: await mtime('index.html') },
         { url: '/publications/', lastmod: articles[0]?.date ?? null },
-        { url: '/manifesto/', lastmod: null },
-        { url: '/observatory/', lastmod: null },
+        { url: '/observatory/', lastmod: await mtime('scripts/lib/templates.mjs') },
         { url: '/index/', lastmod: indexData?.generated_at ?? null },
     ];
+    await write('index.html', homePage(await readFile(path.join(ROOT, 'index.html'), 'utf8')));
     await write('404.html', notFoundPage({ site: SITE }));
     await write('publications/index.html', archivePage({ articles, site: SITE }));
     await write('manifesto/index.html', manifestoPage({ site: SITE }));
@@ -88,7 +99,7 @@ async function main() {
     }
     for (const article of articles) {
         await write(`publications/${article.slug}/index.html`, articlePage({ article, site: SITE }));
-        routes.push({ url: `/publications/${article.slug}/`, lastmod: article.date });
+        routes.push({ url: `/publications/${article.slug}/`, lastmod: article.updated ?? article.date });
         // Images and other files that sit next to an article: content/publications/<slug>/*
         const assets = path.join(ROOT, 'content/publications', article.slug);
         await cp(assets, path.join(OUT, 'publications', article.slug), { recursive: true }).catch((e) => {
@@ -121,6 +132,8 @@ ${routes.map((r) => `  <url><loc>${SITE}${r.url}</loc>${r.lastmod ? `<lastmod>${
 </urlset>
 `);
 
+    await write('feed.xml', feed(articles));
+
     // No Disallow for /publications/private/: robots.txt is public, so it would publish the
     // path, and a blocked crawler never sees the noindex tag anyway.
     await write('robots.txt', `User-agent: *\nAllow: /\n\nSitemap: ${SITE}/sitemap.xml\n`);
@@ -145,6 +158,40 @@ ${routes.map((r) => `  <url><loc>${SITE}${r.url}</loc>${r.lastmod ? `<lastmod>${
     console.log(`${SAMPLE ? 'Sample build' : 'Built'} → ${path.relative(ROOT, OUT)}/`);
     console.log(`  ${articles.length} article(s), index ${indexData ? 'from data' : 'placeholder (no data/index.json)'}, ${privatePages.length} private page(s), ${publications.length} publication(s)`);
     if (SAMPLE) console.log('  Preview only: fictional data. Deploys come from dist/, not this folder.');
+}
+
+// The homepage is hand-written; its shared head (description, canonical, Open Graph, schema) is
+// generated like every other page's and put where the `<!-- seo-head -->` marker is.
+const HOME = {
+    title: 'First Light — We take a stake in a fighter\'s name',
+    description: 'First Light takes an equity stake in a fighter\'s name and builds it: branding, promotion and monetization, guided by Observatory data on 350,000 professional fighters. No fees, no cut of purses.',
+};
+function homePage(html) {
+    if (!html.includes('<!-- seo-head -->')) throw new Error('index.html: the <!-- seo-head --> marker is missing');
+    return html.replace('<!-- seo-head -->', seoHead({ ...HOME, url: '/', site: SITE }).join('\n    '));
+}
+
+// RSS: a feed readers and aggregators (Feedly, news apps, some search tools) poll for new articles.
+function feed(articles) {
+    const items = articles.map((a) => `    <item>
+      <title>${esc(a.title)}</title>
+      <link>${SITE}/publications/${a.slug}/</link>
+      <guid isPermaLink="true">${SITE}/publications/${a.slug}/</guid>
+      <pubDate>${new Date(`${a.date}T08:00:00Z`).toUTCString()}</pubDate>
+      <description>${esc(a.summary)}</description>
+    </item>`).join('\n');
+    return `<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>${BRAND}: publications</title>
+    <link>${SITE}/publications/</link>
+    <atom:link href="${SITE}/feed.xml" rel="self" type="application/rss+xml"/>
+    <description>Data on fighters' fame and skill from the First Light Observatory.</description>
+    <language>en</language>
+${items}
+  </channel>
+</rss>
+`;
 }
 
 // Cloudflare lets browsers keep a stylesheet or script for four hours, and a page is fetched fresh, so

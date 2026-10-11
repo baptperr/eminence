@@ -28,6 +28,25 @@ async function readJson(file) {
     }
 }
 
+// Width and height of a PNG or JPEG, read from its header (no image library in this project).
+export async function imageSize(file) {
+    const buf = await readFile(file);
+    if (buf.subarray(1, 4).toString() === 'PNG') return { width: buf.readUInt32BE(16), height: buf.readUInt32BE(20) };
+    if (buf[0] === 0xff && buf[1] === 0xd8) {
+        let i = 2;
+        while (i < buf.length) {
+            if (buf[i] !== 0xff) { i++; continue; }
+            const marker = buf[i + 1];
+            // Start-of-frame markers carry the size; C4, C8 and CC are not frames.
+            if (marker >= 0xc0 && marker <= 0xcf && ![0xc4, 0xc8, 0xcc].includes(marker)) {
+                return { height: buf.readUInt16BE(i + 5), width: buf.readUInt16BE(i + 7) };
+            }
+            i += 2 + buf.readUInt16BE(i + 2);
+        }
+    }
+    throw new Error(`${file}: not a PNG or JPEG`);
+}
+
 const exists = (dir) => readdir(dir).then(() => true, () => false);
 
 // ── Articles: content/publications/<slug>.md ──
@@ -62,7 +81,17 @@ export async function loadArticles(dir, { drafts }) {
         const summary = summaryItems.length
             ? `${flatIntro} ${summaryItems.join('; ')}.`.replace(/\s+/g, ' ')
             : flatIntro;
-        articles.push({ slug, title: meta.title, date: meta.date, summary, summaryIntro: meta.summary, summaryItems, type, draft, body });
+        if (meta.updated && Number.isNaN(new Date(meta.updated).getTime())) throw new Error(`${file}: bad updated date "${meta.updated}"`);
+        // `image`: the preview picture for social cards and Google Discover, a JPEG or PNG in the
+        // article's own folder. Discover wants it at least 1200px wide; 1200x630 suits every card.
+        let image = null;
+        if (meta.image) {
+            const src = path.join(dir, slug, meta.image);
+            const size = await imageSize(src).catch(() => { throw new Error(`${file}: image "${meta.image}" not found in content/publications/${slug}/`); });
+            if (size.width < 1200) throw new Error(`${file}: image "${meta.image}" is ${size.width}px wide; Google Discover needs at least 1200`);
+            image = { src: `/publications/${slug}/${meta.image}`, ...size, alt: meta.image_alt || meta.title };
+        }
+        articles.push({ slug, title: meta.title, date: meta.date, updated: meta.updated || null, summary, summaryIntro: meta.summary, summaryItems, type, draft, body, image });
     }
     return articles.sort((a, b) => (a.date < b.date ? 1 : a.date > b.date ? -1 : a.slug.localeCompare(b.slug)));
 }
