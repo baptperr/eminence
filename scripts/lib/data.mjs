@@ -153,7 +153,35 @@ export async function loadIndex(file) {
             });
         }
     }
-    return { ...d, winners_losers: wl };
+
+    // Fighter pages and the event archive (observatory/site_pages.py). Slugs become URLs, so they
+    // must be URL-safe and unique; everything that links by slug must point at a page that exists.
+    const SLUG = /^[a-z0-9]+(-[a-z0-9]+)*$/;
+    const fighters = d.fighters ?? [];
+    const events = d.events ?? [];
+    if (!Array.isArray(fighters) || !Array.isArray(events)) bad('"fighters" and "events" must be arrays');
+    const fslugs = new Set(), eslugs = new Set();
+    fighters.forEach((f, i) => {
+        if (!isStr(f?.name) || !SLUG.test(f?.slug ?? '')) bad(`fighters[${i}] needs a name and a lowercase-hyphen slug`);
+        if (fslugs.has(f.slug)) bad(`fighters[${i}].slug "${f.slug}" is used twice`);
+        fslugs.add(f.slug);
+        if (f.fli != null && (!isNum(f.fli) || Math.abs(f.fli) > 1)) bad(`fighters[${i}].fli must be between -1 and 1`);
+        for (const [j, p] of (f.skill ?? []).entries()) if (!isDate(p?.date) || !isNum(p.flr)) bad(`fighters[${i}].skill[${j}] needs a date and an flr`);
+        for (const [j, p] of (f.attention ?? []).entries()) if (!/^\d{4}-\d{2}$/.test(p?.month ?? '') || !isInt(p.rank) || !isInt(p.of)) bad(`fighters[${i}].attention[${j}] needs month, rank and of`);
+        for (const [j, x] of (f.fights ?? []).entries()) if (!isDate(x?.date) || !isStr(x.opponent) || !isStr(x.event)) bad(`fighters[${i}].fights[${j}] needs a date, an opponent and an event`);
+    });
+    events.forEach((e, i) => {
+        if (!isStr(e?.name) || !SLUG.test(e?.slug ?? '') || !isDate(e.date) || !Array.isArray(e.bouts)) bad(`events[${i}] needs a name, slug, date and bouts`);
+        if (eslugs.has(e.slug)) bad(`events[${i}].slug "${e.slug}" is used twice`);
+        eslugs.add(e.slug);
+    });
+    const check = (slug, set, where) => { if (slug != null && !set.has(slug)) bad(`${where} links to "${slug}", which has no page`); };
+    d.rankings.forEach((r, i) => check(r.slug, fslugs, `rankings[${i}]`));
+    fighters.forEach((f, i) => (f.fights ?? []).forEach((x, j) => { check(x.opponent_slug, fslugs, `fighters[${i}].fights[${j}]`); check(x.event_slug, eslugs, `fighters[${i}].fights[${j}]`); }));
+    events.forEach((e, i) => e.bouts.forEach((b, j) => { check(b.winner?.slug, fslugs, `events[${i}].bouts[${j}].winner`); check(b.loser?.slug, fslugs, `events[${i}].bouts[${j}].loser`); }));
+    for (const side of ['winners', 'losers']) (wl?.[side] ?? []).forEach((e, i) => { check(e.slug, fslugs, `winners_losers.${side}[${i}]`); check(e.opponent_slug, fslugs, `winners_losers.${side}[${i}]`); check(e.event_slug, eslugs, `winners_losers.${side}[${i}]`); });
+
+    return { ...d, winners_losers: wl, fighters, events };
 }
 
 // ── /publications/private/<token>/ ──

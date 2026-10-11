@@ -24,7 +24,7 @@ const NAV = (current) => `<nav class="nav" id="mainNav" aria-label="Site">
     </div>
 </nav>`;
 
-const FOOTER = `<footer>
+export const FOOTER = `<footer>
     <a href="/" class="foot-logo"><img src="/logo.svg" alt="First Light" class="foot-logo-img"></a>
     <nav class="foot-links">
         <span class="foot-contact"><span class="foot-cta">Bring us a fighter:</span><a href="mailto:contact@firstlightequity.com" class="foot-link">contact@firstlightequity.com</a></span>
@@ -102,22 +102,35 @@ function imageTags(title, description, site, image) {
     ];
 }
 
-// Which fighters and events have their own page. `build.mjs` fills this before rendering, so any
-// template can link a name; a name with no page stays plain text.
-const LINKS = { fighters: new Map(), events: new Map() };
-export function setLinks({ fighters, events }) {
-    LINKS.fighters = fighters ?? new Map();
-    LINKS.events = events ?? new Map();
-}
-export const fighterUrl = (name) => LINKS.fighters.get(name) ?? null;
-export const eventKey = (event, date) => `${event}|${date}`;
-export function fighterLink(name, cls = '') {
-    const url = fighterUrl(name);
-    return url ? `<a href="${url}"${cls ? ` class="${cls}"` : ''}>${esc(name)}</a>` : esc(name);
-}
-function eventLink(event, date) {
-    const url = LINKS.events.get(eventKey(event, date));
-    return url ? `<a href="${url}">${esc(event)}</a>` : esc(event);
+const slugLink = (text, slug, base) => (slug ? `<a href="${base}${esc(slug)}/">${esc(text)}</a>` : esc(text));
+
+// Fighters with a page, by exact name, for linking names in article prose. `build.mjs` fills it;
+// a name two fighters share is left out, so a link can never point at the wrong person.
+let FIGHTER_PAGES = new Map();
+export function setFighterPages(map) { FIGHTER_PAGES = map; }
+
+// Links the first mention of each fighter with a page in an article's rendered HTML. Only text in
+// paragraphs, list items and table cells: never inside a link, a heading, a caption or code.
+// Returns the html and the fighters it linked (for the article's schema.org `about`).
+export function linkFighterNames(html) {
+    if (!FIGHTER_PAGES.size) return { html, linked: [] };
+    const names = [...FIGHTER_PAGES.keys()].sort((a, b) => b.length - a.length);
+    const re = new RegExp(`(?<![\\p{L}\\p{N}])(${names.map((n) => esc(n).replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|')})(?![\\p{L}\\p{N}])`, 'gu');
+    const linked = new Map();
+    let skip = 0;
+    const out = html.split(/(<[^>]+>)/).map((part) => {
+        const tag = part.match(/^<(\/?)(a|h[1-6]|figcaption|code|th|title|svg)\b/i);
+        if (tag) { skip += tag[1] ? -1 : 1; return part; }
+        if (part.startsWith('<') || skip > 0) return part;
+        return part.replace(re, (m) => {
+            const name = m.replace(/&#39;/g, "'").replace(/&amp;/g, '&');
+            const url = FIGHTER_PAGES.get(name);
+            if (!url || linked.has(name)) return m;
+            linked.set(name, url);
+            return `<a href="${url}">${m}</a>`;
+        });
+    }).join('');
+    return { html: out, linked: [...linked].map(([name, url]) => ({ name, url })) };
 }
 
 // Every page goes through here. Private and publication pages pass `noindex` (robots
@@ -125,7 +138,7 @@ function eventLink(event, date) {
 // `og` then decides whether a forwarded link still unfurls with a title and description, and `nav`
 // whether the site nav is drawn. Every other page is indexable and gets `seoHead`; `indexable:
 // false` keeps such a page out of the index ("noindex, follow") without the private-page extras.
-function shell({ title, description, url, site, current, body, css = ['/pages.css'], bodyClass = '', noindex = false, og = true, nav = true, scripts = true, js = null, image, jsonld = null, ogType, article = null, crumbs = null, indexable = true }) {
+export function shell({ title, description, url, site, current, body, css = ['/pages.css'], bodyClass = '', noindex = false, og = true, nav = true, scripts = true, js = null, image, jsonld = null, ogType, article = null, crumbs = null, indexable = true }) {
     const head = [];
     if (noindex) {
         head.push('<meta name="robots" content="noindex, nofollow, noarchive, nosnippet">', '<meta name="referrer" content="no-referrer">');
@@ -227,6 +240,8 @@ ${FOOTER}`;
 
 // ── /publications/[slug]/ ──
 export function articlePage({ article, site }) {
+    const prose = linkFighterNames(linkObservatory(renderMarkdown(article.body, { figureCredit: true })));
+    article = { ...article, about: prose.linked };
     const body = `<main>
     <article class="art">
         <header class="art-head">
@@ -238,7 +253,7 @@ export function articlePage({ article, site }) {
         </header>
         <div class="pg-inner pg-inner--read">
             <div class="prose">
-${linkObservatory(renderMarkdown(article.body, { figureCredit: true }))}
+${prose.html}
             </div>
             <p class="art-credit">Data Credit: <a href="${OBSERVATORY_URL}">First Light Observatory</a>.</p>
             <div class="art-end">
@@ -342,7 +357,7 @@ const observatoryDataset = (site) => ({
 
 // Holdings disclosure: a small, quiet line under the Index link on the Observatory and
 // under the FLI definition on the rankings.
-const HOLDINGS_TEXT = 'First Light may hold interests in athletes covered by the Index.';
+export const HOLDINGS_TEXT = 'First Light may hold interests in athletes covered by the Index.';
 
 export function observatoryPage({ site }) {
     const url = '/observatory/';
@@ -373,8 +388,8 @@ export function observatoryPage({ site }) {
 }
 
 // ── /index/ (rankings) and /index/winners-losers/ ──
-const num = (n, digits = 0) => new Intl.NumberFormat('en-GB', { minimumFractionDigits: digits, maximumFractionDigits: digits }).format(n);
-const signed = (n, digits = 1) => `${n > 0 ? '+' : n < 0 ? '−' : ''}${num(Math.abs(n), digits)}`;
+export const num = (n, digits = 0) => new Intl.NumberFormat('en-GB', { minimumFractionDigits: digits, maximumFractionDigits: digits }).format(n);
+export const signed = (n, digits = 1) => `${n > 0 ? '+' : n < 0 ? '−' : ''}${num(Math.abs(n), digits)}`;
 
 const TOP_OPEN = 3;
 
@@ -420,8 +435,8 @@ function tone(value, full) {
 // A column-header abbreviation with a two-line tooltip: the full name, then what it measures.
 const hint = (label, name, desc, right = false) =>
     `<span class="hint${right ? ' hint--right' : ''}">${label}<span class="hint-tip"><strong>${esc(name)}</strong><span class="hint-desc">${esc(desc)}</span></span></span>`;
-const HINT_FLR = (right) => hint('FLR', 'First Light Rating', 'measure of true skill', right);
-const HINT_FLI = (right) => hint('FLI', 'First Light Index', 'fame compared to skill', right);
+export const HINT_FLR = (right) => hint('FLR', 'First Light Rating', 'measure of true skill', right);
+export const HINT_FLI = (right) => hint('FLI', 'First Light Index', 'fame compared to skill', right);
 
 // Mobile shrinks a division name beside the fighter's own to a 2-4 letter code (own row is too
 // narrow for "Light Heavyweight"). Standard MMA-media shorthand; the full name is still the text
@@ -434,7 +449,7 @@ const WEIGHT_ABBR = {
 };
 
 // FLI value, its 30-day ticker, and (when there is a history) the sparkline on hover/focus.
-function fliCell(r) {
+export function fliCell(r) {
     if (r.fli_status === 'pending') return `<span class="rk-flag hint">Pending<span class="hint-tip">Withheld until this fighter’s audience has been fully checked.</span></span>`;
     if (r.fli == null) return '—';
     const tr = r.fli_trend;
@@ -454,7 +469,7 @@ function fliCell(r) {
     return `<span class="rk-fli-top"><span class="rk-fli-n">${signed(r.fli, 2)}</span>${tick}</span><span class="rk-bar" aria-hidden="true"><span class="${r.fli < 0 ? 'neg' : 'pos'}" style="width:${(Math.min(Math.abs(r.fli), 1) * 50).toFixed(1)}%"></span></span>`;
 }
 
-function fliAttrs(r) {
+export function fliAttrs(r) {
     if (r.fli == null) return 'class="rk-fli"';
     const t = tone(r.fli, 0.6);
     return `class="rk-fli ${t.cls}" style="--m:${t.m}"`;
@@ -470,7 +485,7 @@ function rankRows(rows, { hasMove, hasFlr, hasFli }) {
         return `
                     <tr>
                         <th scope="row" class="rk-rank"><span class="rk-n">${r.rank}</span></th>
-                        <td class="rk-name"><span class="rk-name-row"><span class="rk-name-text">${esc(r.name)}</span>${weight}${move}</span></td>${hasFlr ? `
+                        <td class="rk-name"><span class="rk-name-row"><span class="rk-name-text">${r.slug ? `<a href="/fighters/${esc(r.slug)}/">${esc(r.name)}</a>` : esc(r.name)}</span>${weight}${move}</span></td>${hasFlr ? `
                         <td class="rk-num" data-label="FLR">${r.rating != null ? num(r.rating) : '—'}</td>` : ''}${hasFli ? `
                         <td ${fliAttrs(r)} data-label="FLI">${fliCell(r)}</td>` : ''}
                     </tr>`;
@@ -480,7 +495,7 @@ function rankRows(rows, { hasMove, hasFlr, hasFli }) {
 // One division: the top three always showing, the rest behind a CSS-only toggle whose control
 // sits at the very bottom, so it is where you are looking whether the list is open or shut.
 // Both tables share fixed column widths so they read as one.
-function rankingTable(division, rows) {
+export function rankingTable(division, rows, { collapse = true, heading = 'h3', link = true } = {}) {
     const cols = {
         hasMove: rows.some((r) => r.prev_rank !== undefined),
         hasFlr: rows.some((r) => r.rating != null),
@@ -503,29 +518,48 @@ function rankingTable(division, rows) {
                 <tbody>${rankRows(part, cols)}
                 </tbody>
             </table>`;
-    const top = rows.slice(0, TOP_OPEN), rest = rows.slice(TOP_OPEN);
+    const open = collapse ? TOP_OPEN : rows.length;
+    const top = rows.slice(0, open), rest = rows.slice(open);
     const name = division || 'Overall';
     const slug = slugify(name);
     const last = rows[rows.length - 1].rank;
+    const title = division && link ? `<a href="${divisionUrl(division)}">${esc(division)}</a>` : esc(division);
     return `
         <div class="rk-div"${division ? ` id="${esc(slug)}"` : ''} data-r>${division ? `
-            <h3 class="rk-div-name">${esc(division)}</h3>` : ''}${rest.length ? `
+            <${heading} class="rk-div-name">${title}</${heading}>` : ''}${rest.length ? `
             <input type="checkbox" class="rk-toggle" id="${esc(slug)}-more" aria-label="Show ranks ${TOP_OPEN + 1} to ${last}">` : ''}
             ${table(top, false, `${name}, top ${top.length}`)}${rest.length ? `
             <div class="rk-rest">
                 ${table(rest, true, `${name}, ranks ${TOP_OPEN + 1} to ${last}`)}
             </div>
-            <label class="rk-more" for="${esc(slug)}-more"><span class="rk-more-open">Expand</span><span class="rk-more-close">Collapse</span></label>` : ''}
+            <label class="rk-more" for="${esc(slug)}-more"><span class="rk-more-open">Expand</span><span class="rk-more-close">Collapse</span></label>` : ''}${division && link ? `
+            <a class="rk-deeper" href="${divisionUrl(division)}">Top 30 and more on ${esc(division)} <span aria-hidden="true">&rarr;</span></a>` : ''}
         </div>`;
+}
+
+// Each division's own page: /index/lightweight/, /index/mens-pound-for-pound/.
+export const divisionUrl = (division) => `/index/${slugify(division)}/`;
+export const INDEX_TOP = 15;
+
+// Divisions in the export's order, fighters within one by rank.
+export function byDivision(rankings) {
+    const divisions = new Map();
+    for (const r of rankings) {
+        const key = r.division ?? '';
+        if (!divisions.has(key)) divisions.set(key, []);
+        divisions.get(key).push(r);
+    }
+    for (const rows of divisions.values()) rows.sort((a, b) => a.rank - b.rank);
+    return divisions;
 }
 
 // The two sections of the Index, as a header: the current one is the page title (white, underlined),
 // the other is a link to it.
-function subtabs(current, hasWinners) {
+export function subtabs(current, hasWinners, hasEvents = false) {
     const tab = (id, label, href) => current === id
         ? `<h1 class="subtab is-on" aria-current="page">${label}</h1>`
         : `<a class="subtab" href="${href}">${label}</a>`;
-    return `<div class="subtabs" data-r>${tab('rankings', 'Rankings', '/index/')}${hasWinners ? tab('winners', 'Last weekend’s winners', '/index/winners-losers/') : ''}</div>`;
+    return `<div class="subtabs" data-r>${tab('rankings', 'Rankings', '/index/')}${hasWinners ? tab('winners', 'Last weekend’s winners', '/index/winners-losers/') : ''}${hasEvents ? tab('events', 'Events', '/events/') : ''}</div>`;
 }
 
 const KEY = `
@@ -588,19 +622,13 @@ ${FOOTER}`,
         });
     }
 
-    // Divisions keep the order the export gives them; fighters within one are by rank.
-    const divisions = new Map();
-    for (const r of data.rankings) {
-        const key = r.division ?? '';
-        if (!divisions.has(key)) divisions.set(key, []);
-        divisions.get(key).push(r);
-    }
-    for (const rows of divisions.values()) rows.sort((a, b) => a.rank - b.rank);
+    // The export carries 30 a division; this page shows 15, each division's own page all of them.
+    const divisions = byDivision(data.rankings.filter((r) => r.rank <= INDEX_TOP));
 
     const body = `<main>
     <header class="pg-head pg-head--rankings">
         <div class="pg-inner pg-inner--wide">
-            ${subtabs('rankings', !!data.winners_losers)}
+            ${subtabs('rankings', !!data.winners_losers, !!data.events?.length)}
             <p class="pg-asof" data-r style="--d:80ms">${data.period ? `${esc(data.period)} · ` : ''}Updated <time datetime="${esc(data.generated_at)}">${fmtDate(data.generated_at)}</time></p>
             ${divisions.size > 1 ? `<details class="jump-wrap">
                 <summary class="jump-summary">Jump to a division</summary>
@@ -615,13 +643,16 @@ ${FOOTER}`,
             : '\n            <p class="pg-empty">No rankings this period.</p>'}
         </div>
     </section>
-${KEY}${data.methodology ? `
+${KEY}
+    <section class="pg-body pg-body--rule">
+        <div class="pg-inner pg-inner--wide"><p class="pg-fine" data-r><a href="/observatory/methodology/">How the FLR and FLI are measured, and how accurate they are</a> · <a href="/fighters/">Every fighter with a page</a> · <a href="/data/rankings.csv">Download the rankings (CSV)</a></p></div>
+    </section>${data.methodology ? `
     <section class="pg-body pg-body--rule">
         <div class="pg-inner pg-inner--wide"><p class="pg-fine" data-r>${esc(data.methodology)}</p></div>
     </section>
 ` : ''}${archiveTeaser(articles)}</main>
 ${FOOTER}`;
-    return shell({ ...meta, body });
+    return shell({ ...meta, body, crumbs: [[BRAND, '/'], ['Rankings', '/index/']] });
 }
 
 // Each side's rule, in a line under its heading: the figures only make sense against it.
@@ -643,15 +674,15 @@ export function fmtMultiple(m) {
 function wlList(kind, heading, items) {
     const rows = items.map((e) => {
         const won = e.outcome === 'win';
-        const versus = e.opponent ? ` ${won ? 'against' : 'to'} ${fighterLink(e.opponent)}` : '';
-        const where = [e.event ? eventLink(e.event, e.date) : '', e.date ? fmtDate(e.date) : ''].filter(Boolean).join(' · ');
+        const versus = e.opponent ? ` ${won ? 'against' : 'to'} ${slugLink(e.opponent, e.opponent_slug, '/fighters/')}` : '';
+        const where = [e.event ? slugLink(e.event, e.event_slug, '/events/') : '', e.date ? fmtDate(e.date) : ''].filter(Boolean).join(' · ');
         // Older exports carry only `change` (the spike as a percentage); the multiple is the same number.
         const multiple = e.multiple ?? (e.change != null ? 1 + e.change / 100 : null);
         const theirs = e.opponent_multiple != null && e.opponent
             ? `<span class="wl-typical">${esc(lastName(e.opponent))}: ${fmtMultiple(e.opponent_multiple)}</span>` : '';
         return `
                     <li class="wl-row">
-                        <span class="wl-who"><span class="wl-name">${fighterLink(e.name)}</span>
+                        <span class="wl-who"><span class="wl-name">${slugLink(e.name, e.slug, '/fighters/')}</span>
                             <span class="wl-line"><span class="wl-res wl-res--${won ? 'won' : 'lost'}">${won ? 'Won' : 'Lost'}</span>${versus}${e.method ? ` · ${esc(e.method)}` : ''}</span>${where ? `
                             <span class="wl-line wl-line--dim">${where}</span>` : ''}</span>
                         <span class="wl-fig"><span class="wl-change wl-change--${kind}" title="${esc(WL_UNIT)}">${fmtMultiple(multiple)}<span class="sr-only"> usual Wikipedia views</span></span>${theirs}</span>
@@ -673,7 +704,7 @@ export function winnersLosersPage({ data, site }) {
     const body = `<main>
     <header class="pg-head pg-head--rankings">
         <div class="pg-inner pg-inner--wide">
-            ${subtabs('winners', true)}
+            ${subtabs('winners', true, !!data.events?.length)}
             <p class="pg-asof" data-r style="--d:80ms">${wl.period ? `${esc(wl.period)} · ` : ''}Updated <time datetime="${esc(data.generated_at)}">${fmtDate(data.generated_at)}</time></p>
         </div>
     </header>

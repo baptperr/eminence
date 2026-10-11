@@ -11,7 +11,8 @@ import { cp, mkdir, readdir, readFile, rm, stat, writeFile } from 'node:fs/promi
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { imageSize, loadArticles, loadIndex, loadPrivate, loadPublications } from './lib/data.mjs';
-import { archivePage, articlePage, BRAND, indexPage, internalDataPage, manifestoPage, mediaKitPage, notFoundPage, observatoryPage, privatePage, seoHead, setDefaultImage, winnersLosersPage } from './lib/templates.mjs';
+import { archivePage, articlePage, BRAND, divisionUrl, indexPage, internalDataPage, manifestoPage, mediaKitPage, notFoundPage, observatoryPage, privatePage, seoHead, setDefaultImage, setFighterPages, winnersLosersPage } from './lib/templates.mjs';
+import { byDivision, divisionPage, eventPage, eventsIndexPage, fighterPage, fightersIndexPage, methodologyPage, rankingsCsv, rankingsJson } from './lib/pages-data.mjs';
 import { esc } from './lib/util.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
@@ -88,15 +89,52 @@ async function main() {
         { url: '/index/', lastmod: indexData?.generated_at ?? null },
     ];
     await write('index.html', homePage(await readFile(path.join(ROOT, 'index.html'), 'utf8')));
+    // Article prose links fighters by exact name; a name two fighters share links to neither.
+    const nameCount = new Map();
+    for (const f of indexData?.fighters ?? []) nameCount.set(f.name, (nameCount.get(f.name) ?? 0) + 1);
+    setFighterPages(new Map((indexData?.fighters ?? []).filter((f) => nameCount.get(f.name) === 1).map((f) => [f.name, `/fighters/${f.slug}/`])));
+
     await write('404.html', notFoundPage({ site: SITE }));
     await write('publications/index.html', archivePage({ articles, site: SITE }));
     await write('manifesto/index.html', manifestoPage({ site: SITE }));
     await write('observatory/index.html', observatoryPage({ site: SITE }));
+    await write('observatory/methodology/index.html', methodologyPage({ site: SITE }));
+    routes.push({ url: '/observatory/methodology/', lastmod: await mtime('scripts/lib/pages-data.mjs') });
     await write('index/index.html', indexPage({ data: indexData, articles, site: SITE }));
     if (indexData?.winners_losers) {
         await write('index/winners-losers/index.html', winnersLosersPage({ data: indexData, site: SITE }));
         routes.push({ url: '/index/winners-losers/', lastmod: indexData.generated_at });
     }
+    if (indexData) {
+        const updated = indexData.generated_at;
+        await write('data/rankings.csv', rankingsCsv(indexData, SITE));
+        await write('data/rankings.json', rankingsJson(indexData, SITE));
+        const fightersBySlug = new Map(indexData.fighters.map((f) => [f.slug, f]));
+        for (const [division, rows] of byDivision(indexData.rankings)) {
+            if (!division) continue;
+            const url = divisionUrl(division);
+            await write(`${url.slice(1)}index.html`, divisionPage({ division, rows, data: indexData, fightersBySlug, site: SITE }));
+            routes.push({ url, lastmod: updated });
+        }
+        if (indexData.fighters.length) {
+            await write('fighters/index.html', fightersIndexPage({ fighters: indexData.fighters, site: SITE }));
+            routes.push({ url: '/fighters/', lastmod: updated });
+        }
+        for (const f of indexData.fighters) {
+            await write(`fighters/${f.slug}/index.html`, fighterPage({ f, site: SITE, generatedAt: updated }));
+            routes.push({ url: `/fighters/${f.slug}/`, lastmod: updated });
+        }
+        if (indexData.events.length) {
+            await write('events/index.html', eventsIndexPage({ events: indexData.events, data: indexData, site: SITE }));
+            routes.push({ url: '/events/', lastmod: indexData.events[0].date });
+        }
+        for (const e of indexData.events) {
+            await write(`events/${e.slug}/index.html`, eventPage({ e, site: SITE }));
+            // An event's numbers settle within a few days of it; the page changes rarely after that.
+            routes.push({ url: `/events/${e.slug}/`, lastmod: e.date });
+        }
+    }
+
     for (const article of articles) {
         await write(`publications/${article.slug}/index.html`, articlePage({ article, site: SITE }));
         routes.push({ url: `/publications/${article.slug}/`, lastmod: article.updated ?? article.date });
