@@ -466,7 +466,14 @@ export function methodologyPage({ site }) {
             <p>The betting market is better still, and is expected to stay that way: closing odds know about injuries, weight cuts, short-notice replacements and styles, none of which a rating can see. The FLR is a measure of what fighters have shown in the cage, not a betting tool.</p>`)}${sec('fli', 'The First Light Index.', `
             <p>The FLI compares a fighter’s fame with what their FLR would predict. Fame is the size of the audience a fighter commands, read across Google Search, Wikipedia, Instagram, YouTube, TikTok and X, each weighted by what it is worth and brought to one scale. A curve is fitted to fame against skill over every rated fighter, because fame is winner-take-most: the very best are disproportionately famous.</p>
             <p>The FLI is where a fighter sits against that curve, on a scale from −1 to +1. Above zero, their audience is bigger than their skill explains. Below zero, they are better than their audience knows. The arrow on the rankings is its change over about 30 days.</p>`, 'FLI')}${sec('phase', 'Career phase.', `
-            <p>Each month, a fighter’s FLR is compared with their best so far. <strong>Prime</strong>: at or near their best. <strong>Developing</strong>: near their best and still climbing. <strong>Declining</strong>: clearly below it. <strong>Inactive</strong>: no fight in two years. <strong>Unproven</strong>: too few fights to say.</p>`)}${sec('cite', 'Using this data.', `
+            <p>Each month, a fighter’s FLR is compared with their best so far.</p>
+            <ul>
+                <li><strong>Developing.</strong> Near their best and still climbing.</li>
+                <li><strong>Prime.</strong> At or near their best.</li>
+                <li><strong>Declining.</strong> Clearly below their best.</li>
+                <li><strong>Inactive.</strong> No fight in two years.</li>
+                <li><strong>Unproven.</strong> Too few fights to say.</li>
+            </ul>`)}${sec('cite', 'Using this data.', `
             <p>Journalists and researchers may publish anything on this site, with the credit <strong>Source: First Light Observatory</strong> and, online, a link to the page it came from. The current rankings are downloadable as <a href="/data/rankings.csv">CSV</a> and <a href="/data/rankings.json">JSON</a>. For anything else, or deeper data on a fighter, write to <a href="mailto:contact@firstlightequity.com">contact@firstlightequity.com</a>.</p>
             <p>${HOLDINGS_TEXT}</p>`)}
 </main>
