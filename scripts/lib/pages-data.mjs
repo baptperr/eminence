@@ -7,7 +7,7 @@
 import { esc, fmtDate, FIGURE_CREDIT, OBSERVATORY_URL } from './util.mjs';
 import {
     BRAND, FOOTER, HINT_FLI, HINT_FLR, HOLDINGS_TEXT, INDEX_TOP, byDivision, divisionUrl, fliAttrs, fliCell,
-    fmtMultiple, num, rankingTable, shell, signed, subtabs,
+    num, rankingTable, shell, signed, subtabs,
 } from './templates.mjs';
 
 const fighterHref = (slug) => `/fighters/${slug}/`;
@@ -120,7 +120,7 @@ function statTiles(f) {
     if (f.flr) tiles.push(['FLR', `${num(f.flr.rating)}`, `${ordinal(f.flr.rank)} of ${num(f.flr.of)} · ${esc(f.flr.division)}`, HINT_FLR(false)]);
     if (f.fli != null) {
         const tr = f.fli_trend;
-        const move = tr && tr.dir !== 'flat' ? ` · ${tr.dir === 'up' ? '▲' : '▼'} ${signed(tr.delta, 2)} in ${tr.days} days` : '';
+        const move = tr && tr.dir !== 'flat' ? `<br>${tr.dir === 'up' ? '▲' : '▼'} ${signed(tr.delta, 2)} in ${tr.days} days` : '';
         tiles.push(['FLI', signed(f.fli, 2), `${f.fli >= 0 ? 'Fame ahead of skill' : 'Skill ahead of fame'}${move}`, HINT_FLI(false)]);
     }
     if (f.phase) tiles.push(['Phase', esc(f.phase.phase), `Career-best FLR ${num(f.phase.best)}, ${fmtDate(f.phase.best_date)}`, METHOD_LINK('phase', 'Career phase')]);
@@ -132,11 +132,13 @@ function statTiles(f) {
 
 function fightsTable(f) {
     if (!f.fights?.length) return '';
+    const anyFli = f.fights.some((x) => x.fli_change != null);
     const rows = f.fights.map((x) => `
                     <tr>
                         <td class="dp-nowrap">${fmtDate(x.date)}</td>
                         <td><span class="dp-res dp-res--${esc(x.result)}">${RESULT[x.result] ?? esc(x.result)}</span> ${x.result === 'loss' ? 'to' : 'vs'} ${link(x.opponent, x.opponent_slug)}${x.title ? ' <span class="dp-flag">Title</span>' : ''}<span class="dp-sub">${eventLinkTo(x.event, x.event_slug)}${x.method ? ` · ${esc(x.method)}${x.round ? `, R${x.round}` : ''}` : ''}</span></td>
-                        <td class="dp-num">${x.flr_change != null ? signed(x.flr_change, 0) : '—'}</td>
+                        <td class="dp-num">${x.flr_change != null ? signed(x.flr_change, 0) : '—'}</td>${anyFli ? `
+                        <td class="dp-num">${x.fli_change != null ? signed(x.fli_change, 2) : '—'}${x.verdict ? `<span class="dp-sub dp-verdict">${VERDICT[x.verdict]}</span>` : ''}</td>` : ''}
                     </tr>`).join('');
     return `
     <section class="pg-body pg-body--rule" aria-labelledby="dp-fights">
@@ -144,12 +146,12 @@ function fightsTable(f) {
             <h2 class="pg-h2 pg-h2--small" id="dp-fights" data-r>Recent fights.</h2>
             <div class="dp-table" data-r>
                 <table>
-                    <thead><tr><th scope="col">Date</th><th scope="col">Fight</th><th scope="col" class="dp-num">FLR</th></tr></thead>
+                    <thead><tr><th scope="col">Date</th><th scope="col">Fight</th><th scope="col" class="dp-num">FLR</th>${anyFli ? '<th scope="col" class="dp-num">FLI</th>' : ''}</tr></thead>
                     <tbody>${rows}
                     </tbody>
                 </table>
             </div>
-            <p class="pg-fine" data-r>FLR is the First Light Rating points the fight earned or cost them. ${METHOD_LINK('flr', 'How it is measured')}.</p>
+            <p class="pg-fine" data-r>FLR is the First Light Rating points the fight earned or cost them.${anyFli ? '<br>FLI is what the fight did to their fame against their skill.' : ''} ${METHOD_LINK('fight', 'How it is measured')}.</p>
         </div>
     </section>`;
 }
@@ -178,7 +180,7 @@ export function fighterPage({ f, site, generatedAt }) {
     <section class="pg-body pg-body--rule">
         <div class="pg-inner pg-inner--wide">
             ${DATA_CREDIT}
-            <p class="pg-fine" data-r>${METHOD_LINK('flr', 'How these numbers are made')}. ${HOLDINGS_TEXT}</p>
+            <p class="pg-fine" data-r>${METHOD_LINK('flr', 'How these numbers are made')}.<br>${HOLDINGS_TEXT}</p>
         </div>
     </section>
 </main>
@@ -309,15 +311,18 @@ ${FOOTER}`;
 
 // ── /events/ and /events/<slug>/ ────────────────────────────────────────────────────────
 
-// Every fighter on a card whose rating the fight moved, both sides of every bout.
-const rated = (e) => e.bouts.flatMap((b) => [{ ...b.winner, result: 'win' }, { ...b.loser, result: 'loss' }])
-    .filter((s) => s.flr_change != null).sort((a, b) => b.flr_change - a.flr_change);
+// What a fame verdict (observatory/fame_verdict.py) says, in the page's own words.
+const VERDICT = { fame_winner: 'Lost, but drew a lot of attention', fame_loser: 'Won, but drew very little attention' };
+
+// The fighters on a card whose attention went against the result, fame winners first.
+const turned = (e) => e.bouts.flatMap((b) => [{ ...b.winner, result: 'win' }, { ...b.loser, result: 'loss' }])
+    .filter((p) => p.verdict).sort((a, b) => (a.verdict === b.verdict ? Math.abs(b.fli_change) - Math.abs(a.fli_change) : a.verdict === 'fame_winner' ? -1 : 1));
 
 function eventSummary(e) {
-    const s = rated(e);
-    if (!s.length) return `${e.bouts.length} ${e.bouts.length === 1 ? 'fight' : 'fights'}`;
-    const up = s[0], down = s[s.length - 1];
-    return `${up.name} gained the most rating (${signed(up.flr_change, 0)})${down.flr_change < 0 ? `; ${down.name} lost the most (${signed(down.flr_change, 0)})` : ''}`;
+    const t = turned(e);
+    if (!t.length) return 'Every fighter’s attention followed the result';
+    const say = (p) => `${p.name} ${p.verdict === 'fame_winner' ? 'lost, but drew a lot of attention' : 'won, but drew very little attention'}`;
+    return t.slice(0, 2).map(say).join('; ') + (t.length > 2 ? `; ${t.length - 2} more` : '');
 }
 
 export function eventsIndexPage({ events, data, site }) {
@@ -325,7 +330,7 @@ export function eventsIndexPage({ events, data, site }) {
     <header class="pg-head pg-head--rankings">
         <div class="pg-inner pg-inner--wide">
             ${subtabs('events', !!data.winners_losers, true)}
-            <p class="pg-lede" data-r style="--d:80ms">Every card of the last year, and what each fight did to the First Light Rating of the fighters in it.</p>
+            <p class="pg-lede" data-r style="--d:80ms">Every card since the Observatory began reading fights in full, and what each fight did to the fighters’ attention, their skill and the FLI between them.</p>
         </div>
     </header>
     <section class="pg-body pg-body--flush">
@@ -344,8 +349,8 @@ export function eventsIndexPage({ events, data, site }) {
 </main>
 ${FOOTER}`;
     return shell({
-        title: `MMA events: results and ratings — ${BRAND}`,
-        description: 'Every UFC, PFL, ONE and Rizin card of the last year, with what each fight did to every fighter’s First Light Rating.',
+        title: `MMA events: who each fight made famous — ${BRAND}`,
+        description: 'Every UFC, PFL, ONE and Rizin card of the last year, with what each fight did to every fighter’s attention, skill and First Light Index.',
         url: '/events/', site, current: 'index', body,
         crumbs: [[BRAND, '/'], ['Events', '/events/']],
     });
@@ -353,16 +358,15 @@ ${FOOTER}`;
 
 export function eventPage({ e, site }) {
     const url = eventHref(e.slug);
-    const s = rated(e);
-    const tiles = s.length ? [['Biggest rating gain', s[0]], ...(s[s.length - 1].flr_change < 0 ? [['Biggest rating loss', s[s.length - 1]]] : [])] : [];
-    const side = (p, won) => `<span class="dp-res dp-res--${won ? 'win' : 'loss'}">${won ? 'W' : 'L'}</span> ${link(p.name, p.slug)}`;
-    const flr = (p) => (p.flr_change != null ? signed(p.flr_change, 0) : '—');
+    const tiles = turned(e).slice(0, 3).map((p) => [VERDICT[p.verdict], p]);
+    const side = (p, won) => `<span class="dp-res dp-res--${won ? 'win' : 'loss'}">${won ? 'W' : 'L'}</span> ${link(p.name, p.slug)}${p.flr_change != null ? ` <span class="dp-flr">FLR ${signed(p.flr_change, 0)}</span>` : ''}${p.verdict ? `<span class="dp-sub dp-verdict">${VERDICT[p.verdict]}</span>` : ''}`;
+    const fli = (p) => (p.fli_change != null ? signed(p.fli_change, 2) : '—');
     const rows = e.bouts.map((b) => `
-                    <tr>
+                    <tr${b.winner.verdict || b.loser.verdict ? ' class="dp-against"' : ''}>
                         <td>${side(b.winner, true)}<span class="dp-sub">${b.method ? esc(b.method) : ''}${b.round ? `, R${b.round}` : ''}${b.weight_class ? ` · ${esc(b.weight_class)}` : ''}${b.title ? ' · Title' : ''}</span></td>
-                        <td class="dp-num">${flr(b.winner)}</td>
+                        <td class="dp-num">${fli(b.winner)}</td>
                         <td>${side(b.loser, false)}</td>
-                        <td class="dp-num">${flr(b.loser)}</td>
+                        <td class="dp-num">${fli(b.loser)}</td>
                     </tr>`).join('');
     const body = `<main>
     <header class="pg-head">
@@ -371,7 +375,7 @@ export function eventPage({ e, site }) {
             <h1 class="pg-title pg-title--name" data-r style="--d:60ms">${esc(e.name)}</h1>
             <p class="pg-lede" data-r style="--d:120ms">${esc(eventSummary(e))}.</p>${tiles.length ? `
             <dl class="dp-tiles" data-r>${tiles.map(([label, p]) => `
-                <div class="dp-tile"><dt>${label}</dt><dd><span class="dp-tile-v">${signed(p.flr_change, 0)}</span><span class="dp-tile-s">${link(p.name, p.slug)}, ${p.result === 'win' ? 'won' : 'lost'}</span></dd></div>`).join('')}
+                <div class="dp-tile"><dt>${label}</dt><dd><span class="dp-tile-v">${signed(p.fli_change, 2)}</span><span class="dp-tile-s">${link(p.name, p.slug)}, ${p.result === 'win' ? 'won' : 'lost'}</span></dd></div>`).join('')}
             </dl>` : ''}
         </div>
     </header>
@@ -380,20 +384,20 @@ export function eventPage({ e, site }) {
             <h2 class="pg-h2 pg-h2--small" id="dp-card" data-r>The card.</h2>
             <div class="dp-table" data-r>
                 <table>
-                    <thead><tr><th scope="col">Winner</th><th scope="col" class="dp-num">FLR</th><th scope="col">Loser</th><th scope="col" class="dp-num">FLR</th></tr></thead>
+                    <thead><tr><th scope="col">Winner</th><th scope="col" class="dp-num">FLI</th><th scope="col">Loser</th><th scope="col" class="dp-num">FLI</th></tr></thead>
                     <tbody>${rows}
                     </tbody>
                 </table>
             </div>
-            <p class="pg-fine" data-r>FLR is the First Light Rating points the fight earned or cost each fighter. ${METHOD_LINK('flr', 'How it is measured')}.</p>
+            <p class="pg-fine" data-r>FLI is what the fight did to each fighter’s fame against their skill; — means it could not be read.<br>FLR is the First Light Rating points the fight earned or cost them. Highlighted fights are where attention went against the result. ${METHOD_LINK('fight', 'How it is measured')}.</p>
             ${DATA_CREDIT}
         </div>
     </section>
 </main>
 ${FOOTER}`;
     return shell({
-        title: `${e.name}: results and ratings — ${BRAND}`,
-        description: `${e.name}, ${fmtDate(e.date)}: every result on the card and what it did to each fighter’s First Light Rating. ${eventSummary(e)}.`,
+        title: `${e.name}: who the fight made famous — ${BRAND}`,
+        description: `${e.name}, ${fmtDate(e.date)}: what every fight on the card did to each fighter’s attention, skill and First Light Index. ${eventSummary(e)}.`,
         url, site, current: 'index', body,
         crumbs: [[BRAND, '/'], ['Events', '/events/'], [e.name, url]],
         jsonld: {
@@ -465,7 +469,9 @@ export function methodologyPage({ site }) {
             <p>On the fights both rate, the FLR picks the winner ${(a.fm.flr - a.fm.them).toFixed(1)} points more often than Fight Matrix, the longest-running algorithmic MMA ranking. Its probabilities are also better calibrated: when the FLR gives a fighter a 70% chance, they win close to 70% of the time (log loss ${a.fm.flrLL.toFixed(3)} against ${a.fm.themLL.toFixed(3)}, lower is better).</p>
             <p>The betting market is better still, and is expected to stay that way: closing odds know about injuries, weight cuts, short-notice replacements and styles, none of which a rating can see. The FLR is a measure of what fighters have shown in the cage, not a betting tool.</p>`)}${sec('fli', 'The First Light Index.', `
             <p>The FLI compares a fighter’s fame with what their FLR would predict. Fame is the size of the audience a fighter commands, read across Google Search, Wikipedia, Instagram, YouTube, TikTok and X, each weighted by what it is worth and brought to one scale. A curve is fitted to fame against skill over every rated fighter, because fame is winner-take-most: the very best are disproportionately famous.</p>
-            <p>The FLI is where a fighter sits against that curve, on a scale from −1 to +1. Above zero, their audience is bigger than their skill explains. Below zero, they are better than their audience knows. The arrow on the rankings is its change over about 30 days.</p>`, 'FLI')}${sec('phase', 'Career phase.', `
+            <p>The FLI is where a fighter sits against that curve, on a scale from −1 to +1. Above zero, their audience is bigger than their skill explains. Below zero, they are better than their audience knows. The arrow on the rankings is its change over about 30 days.</p>`, 'FLI')}${sec('fight', 'What a fight does to the FLI.', `
+            <p>A fight moves both sides of the FLI. The rating moves with the performance. Attention moves with how the public took it: the fame the fight added across the platforms the Observatory reads, each weighted by what it is worth, the same way the FLI weighs them. The fight’s FLI change is the two together, in one number.</p>
+            <p><strong>When attention goes against the result.</strong> A fighter who lost, whose rating barely moved, and whose fight added at least the attention a winner typically gains, won the night in the eyes of the public. A fighter who won and whose fight added no more attention than a loser typically gains lost it, and the more the rating rose, the more the performance went unrewarded. A rise in the FLI that comes only from a heavy defeat never counts.</p>`)}${sec('phase', 'Career phase.', `
             <p>Each month, a fighter’s FLR is compared with their best so far.</p>
             <ul>
                 <li><strong>Developing.</strong> Near their best and still climbing.</li>

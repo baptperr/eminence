@@ -147,7 +147,7 @@ export async function loadIndex(file) {
                 const at = `winners_losers.${side}[${i}]`;
                 if (!isStr(e?.name)) bad(`${at}.name missing`);
                 if (e.outcome !== outcome) bad(`${at}.outcome must be "${outcome}"`);
-                if (!isNum(e.attention) || e.attention < 0) bad(`${at}.attention must be a non-negative number`);
+                if (!isNum(e.fli_change)) bad(`${at}.fli_change must be a number`);
                 if (!isNum(e.flr_change)) bad(`${at}.flr_change must be a number`);
                 if (e.date != null && Number.isNaN(new Date(e.date).getTime())) bad(`${at}.date must be a date`);
             });

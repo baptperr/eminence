@@ -660,19 +660,10 @@ ${FOOTER}`;
 // Each side's rule, in a line under its heading: the figures only make sense against it. Attention
 // is never named by what it is read from (no platform, no unit): see the methodology page.
 const WL_RULE = {
-    winners: 'Lost the fight, but it was close, and drew the attention of a winner.',
-    losers: 'Won the fight, but only just, and drew the attention of a loser.',
+    winners: 'Lost the fight, but drew a lot of attention.',
+    losers: 'Won the fight, but drew very little attention.',
 };
-const ATTENTION_NOTE = 'Attention after the fight, against what is typical for a fighter of the same profile: 1.0× is typical.';
-
-// An attention figure at two significant figures: 0.3×, 1.8×, 14×. Fine enough to tell two
-// fighters apart, coarse enough not to read as false precision.
-export function fmtMultiple(m) {
-    if (m == null) return '';
-    const digits = m < 10 ? 1 : 0;
-    const rounded = m < 10 ? m : Number(m.toPrecision(2));
-    return `${num(rounded, digits)}×`;
-}
+const FIGHT_FLI_NOTE = 'FLI is what the fight did to the fighter’s fame against their skill.';
 
 function wlList(kind, heading, items) {
     const rows = items.map((e) => {
@@ -680,12 +671,13 @@ function wlList(kind, heading, items) {
         const versus = e.opponent ? ` ${won ? 'against' : 'to'} ${slugLink(e.opponent, e.opponent_slug, '/fighters/')}` : '';
         const where = [e.event ? slugLink(e.event, e.event_slug, '/events/') : '', e.date ? fmtDate(e.date) : ''].filter(Boolean).join(' · ');
         const flr = e.flr_change != null ? `<span class="wl-typical">FLR ${signed(e.flr_change, 0)}</span>` : '';
+        const fli = `${signed(e.fli_change, 2)}<span class="wl-unit-tag"> FLI</span>`;
         return `
                     <li class="wl-row">
                         <span class="wl-who"><span class="wl-name">${slugLink(e.name, e.slug, '/fighters/')}</span>
                             <span class="wl-line"><span class="wl-res wl-res--${won ? 'won' : 'lost'}">${won ? 'Won' : 'Lost'}</span>${versus}${e.method ? ` · ${esc(e.method)}` : ''}</span>${where ? `
                             <span class="wl-line wl-line--dim">${where}</span>` : ''}</span>
-                        <span class="wl-fig"><span class="wl-change wl-change--${kind}" title="${esc(ATTENTION_NOTE)}">${fmtMultiple(e.attention)}<span class="sr-only"> attention</span></span>${flr}</span>
+                        <span class="wl-fig"><span class="wl-change wl-change--${kind}" title="${esc(FIGHT_FLI_NOTE)}">${fli}</span>${flr}</span>
                     </li>`;
     }).join('');
     return `
@@ -709,14 +701,14 @@ export function winnersLosersPage({ data, site }) {
     <div class="pg-body pg-body--flush">${wl.winners.length || wl.losers.length ? `
         <div class="pg-inner pg-inner--wide wl">${wlList('winners', 'Winners', wl.winners)}${wlList('losers', 'Losers', wl.losers)}
         </div>
-        <div class="pg-inner pg-inner--wide"><p class="pg-fine wl-unit" data-r>${ATTENTION_NOTE}<br>FLR is the First Light Rating points the fight earned or cost them. <a href="/observatory/methodology/">How it is measured</a>.</p></div>` : `
+        <div class="pg-inner pg-inner--wide"><p class="pg-fine wl-unit" data-r>${FIGHT_FLI_NOTE}<br>FLR is the First Light Rating points the fight earned or cost them. <a href="/observatory/methodology/#fight">How it is measured</a>.</p></div>` : `
         <div class="pg-inner pg-inner--wide"><p class="pg-empty" data-r>No clear winners or losers yet.</p></div>`}
     </div>
 </main>
 ${FOOTER}`;
     return shell({
         title: 'Last weekend’s winners — First Light',
-        description: 'MMA fighters whose fame went against the result last weekend: who lost a close fight and still drew a winner’s attention, and who won narrowly and drew a loser’s.',
+        description: 'MMA fighters whose fame went against the result last weekend: who lost the fight but drew a lot of attention, and who won it but drew very little.',
         url: '/index/winners-losers/', site, current: 'index', body,
     });
 }
