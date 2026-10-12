@@ -315,12 +315,12 @@ button.rk-tick { cursor: default; border-bottom: 1px dotted var(--t3); }
 }
 
 /* ── INDEX: WINNERS & LOSERS ── */
-.wl { display: grid; grid-template-columns: 1fr 1fr; gap: 4rem 5rem; align-items: start; }
+.wl { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 4rem 5rem; align-items: start; }
 .wl-col .pg-h2 { margin-bottom: 0.6rem; }
 .wl-rule { font-size: 0.9rem; color: var(--t3); line-height: 1.5; max-width: 40ch; margin-bottom: 1.5rem; }
 .wl-list { list-style: none; border-top: 1px solid var(--border-d); }
 .wl-row {
-    display: grid; grid-template-columns: 1fr auto; column-gap: 1.5rem; align-items: start;
+    display: grid; grid-template-columns: minmax(0, 1fr) auto; column-gap: 1.5rem; align-items: start;
     padding: 1.35rem 0 1.4rem; border-bottom: 1px solid var(--border-n);
 }
 .wl-row--none { display: block; color: var(--t3); }
@@ -376,7 +376,7 @@ button.rk-tick { cursor: default; border-bottom: 1px dotted var(--t3); }
 
 /* ── RESPONSIVE ── */
 @media (max-width: 900px) {
-    .wl { grid-template-columns: 1fr; gap: 3.5rem; }
+    .wl { grid-template-columns: minmax(0, 1fr); gap: 3.5rem; }
     .key-item { grid-template-columns: 1fr; }
     .entry { grid-template-columns: 1fr auto; }
     .entry-date { grid-column: 1 / -1; }
@@ -602,3 +602,30 @@ button.rk-tick { cursor: default; border-bottom: 1px dotted var(--t3); }
 .dp-names .dp-sub { display: block; margin-left: 0; }
 .dp-group:first-child .dp-letter { margin-top: 0; }
 .wl-att { margin-top: 0.35rem; color: var(--t2); }
+
+/* Charts: axes a step above the gridlines. */
+.ch-axis { stroke: #fff; stroke-opacity: 0.35; stroke-width: 1; }
+/* Fame against skill: the clickable dots (field.js). */
+.fm-hit circle { fill: transparent; stroke: transparent; cursor: pointer; }
+.fm-hit:hover circle, .fm-hit:focus circle { fill: var(--bone); stroke: var(--night); stroke-width: 2; }
+.fm-tip { pointer-events: none; paint-order: stroke; stroke: var(--night); stroke-width: 4px; }
+/* The career course: skill in bone, attention in amber; each line's fan in its own colour. */
+.ch-legend { list-style: none; display: flex; gap: 1.5rem; margin-bottom: 0.6rem; font-size: 0.8rem; color: var(--t2); }
+.cs-key::before { content: ''; display: inline-block; width: 1.1rem; height: 2px; vertical-align: middle; margin-right: 0.45rem; }
+.cs-key--skill::before { background: #f0ebe3; }
+.cs-key--att::before { background: #d4925a; }
+.cs-line { fill: none; stroke-width: 2; stroke-linejoin: round; }
+.cs-skill .cs-line { stroke: #f0ebe3; }
+.cs-att .cs-line { stroke: #d4925a; }
+.cs-dot { stroke: var(--night); stroke-width: 2; }
+.cs-skill .cs-dot { fill: #f0ebe3; }
+.cs-att .cs-dot { fill: #d4925a; }
+.cs-att .cs-fan { fill: #d4925a; }
+.cs-att .cs-mid { stroke: #d4925a; }
+.cs-end--att { fill: #d4925a; }
+
+/* Last week: the event as a small title across the row, then the fighter and the numbers. */
+.wl-event { grid-column: 1 / -1; min-width: 0; font-size: 0.75rem; letter-spacing: 0.04em; color: var(--t3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 0.45rem; }
+.wl-event a { color: inherit; }
+.wl-fig .wl-typical + .wl-typical { margin-top: -0.1rem; }
+.wl-col { min-width: 0; }

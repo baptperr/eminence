@@ -73,7 +73,7 @@ function fieldScale(field) {
     const x0 = Math.floor(Math.min(...xs) / 100) * 100, x1 = Math.ceil(Math.max(...xs) / 100) * 100;
     const y0 = Math.min(...ys) - 0.2, y1 = Math.max(...ys) + 0.2;
     return {
-        x0, x1,
+        x0, x1, y0, y1,
         x: (v) => FL + ((v - x0) / (x1 - x0)) * (FW - FL - FR),
         y: (v) => FT + (1 - (v - y0) / (y1 - y0)) * (FH - FT - FB),
     };
@@ -97,8 +97,10 @@ function fieldChart(field, f) {
     return `<figure class="ch">
             <div class="fm-wrap">
                 <img class="fm-bg" src="/fighters/field.svg" alt="" width="${FW}" height="${FH}" loading="lazy">
-                <svg class="fm-top ch-svg" viewBox="0 0 ${FW} ${FH}" role="img" aria-label="${esc(`${f.name} on the field of every fighter with an FLI: skill across, fame up. ${f.fli != null ? (f.fli >= 0 ? 'Above the curve: more famous than their skill predicts.' : 'Below the curve: better than their fame.') : ''}`)}">
-                    <line class="ch-grid" x1="${FL}" x2="${FW - FR}" y1="${FH - FB}" y2="${FH - FB}"/>
+                <svg class="fm-top ch-svg" viewBox="0 0 ${FW} ${FH}" data-x0="${s.x0}" data-x1="${s.x1}" data-y0="${s.y0}" data-y1="${s.y1}" data-me="${esc(f.slug)}" role="img" aria-label="${esc(`${f.name} on the field of every fighter with an FLI: skill across, fame up. ${f.fli != null ? (f.fli >= 0 ? 'Above the curve: more famous than their skill predicts.' : 'Below the curve: better than their fame.') : ''}`)}">
+                    <line class="ch-axis" x1="${FL}" x2="${FW - FR}" y1="${FH - FB}" y2="${FH - FB}"/>
+                    <line class="ch-axis" x1="${FL}" x2="${FL}" y1="${FT}" y2="${FH - FB}"/>
+                    <g class="fm-hits"></g>
                     ${ticks.join('')}
                     <text class="ch-lab" x="${FW - FR}" y="${FH - 28}" text-anchor="end">Skill (FLR) →</text>
                     <text class="ch-lab" x="${FL - 8}" y="${FT + 10}" text-anchor="end">Fame ↑</text>
@@ -108,84 +110,78 @@ function fieldChart(field, f) {
             </div>
             ${FIGURE_CREDIT}
         </figure>
-        <p class="ch-note">Every fighter with an FLI, by skill and fame. The dashed curve is the fame their skill predicts: above it, a fighter is more famous than their skill; below it, better than their fame.</p>`;
+        <p class="ch-note">Every fighter with an FLI, by skill and fame. Hover a dot for the fighter; click to open their page. The dashed curve is the fame their skill predicts: above it, a fighter is more famous than their skill; below it, better than their fame.</p>`;
 }
 
 // ── A career, and where it is heading ──────────────────────────────────────────────────
-// Two panels on one time axis (years since the first rated pro fight), never two scales on one
-// panel: skill above, attention below. Each carries the fighter's own line and, from now, the
-// fan of what their comparables did next: 10th to 90th percentile, darker 25th to 75th, dashed
-// median. Attention is an index (today = 100) on a log scale.
-const CW = 720, CL = 52, CR = 70, PAD = 10;
-function coursePanel({ line, fan, top, h, xs, log, label, fmt }) {
-    // On the log scale, a hundredth of today is the floor: a career's first months can sit
-    // thousands of times lower and would flatten everything else.
-    const FLOOR = 1;
-    if (log) line = line.filter((p) => p[1] > 0).map(([s, v]) => [s, Math.max(v, FLOOR)]);
-    const vals = [...line.map((p) => p[1]), ...fan.flatMap((b) => [b.p10, b.p90])].filter((v) => v > 0);
-    let lo = Math.min(...vals), hi = Math.max(...vals);
-    if (log) lo = Math.max(lo, FLOOR);
-    const tf = log ? Math.log10 : (v) => v;
-    if (!log) { const pad = Math.max(20, (hi - lo) * 0.06); lo -= pad; hi += pad; }
-    const L0 = tf(lo), L1 = tf(hi) === tf(lo) ? tf(lo) + 1 : tf(hi);
-    const y = (v) => top + PAD + (1 - (tf(v) - L0) / (L1 - L0)) * (h - 2 * PAD);
-    let ticks;
-    if (log) {
-        ticks = [[1000, '×10'], [300, '×3'], [100, 'today'], [33.3, '÷3'], [10, '÷10'], [3.33, '÷30'], [1, '÷100']]
-            .filter(([v]) => v >= lo * 0.98 && v <= hi * 1.02);
-    } else {
-        const step = niceStep(hi - lo, 3);
-        ticks = [];
-        for (let v = Math.ceil(lo / step) * step; v <= hi; v += step) ticks.push([v, num(v)]);
-    }
-    const grid = ticks.map(([v, t]) => `<line class="ch-grid" x1="${CL}" x2="${CW - CR}" y1="${y(v).toFixed(1)}" y2="${y(v).toFixed(1)}"/><text class="ch-lab" x="${CL - 8}" y="${(y(v) + 4).toFixed(1)}" text-anchor="end">${t}</text>`).join('');
-    const pts = line.map(([s, v]) => `${xs(s).toFixed(1)},${y(v).toFixed(1)}`).join(' ');
-    const area = (a, b) => fan.length > 1 ? `${fan.map((p) => `${xs(p.abs).toFixed(1)},${y(p[a]).toFixed(1)}`).join(' ')} ${[...fan].reverse().map((p) => `${xs(p.abs).toFixed(1)},${y(p[b]).toFixed(1)}`).join(' ')}` : '';
-    const last = line[line.length - 1];
-    const mid = fan.length > 1 ? `<polyline class="cs-mid" points="${fan.map((p) => `${xs(p.abs).toFixed(1)},${y(p.p50).toFixed(1)}`).join(' ')}"/>` : '';
-    return `${grid}<text class="cs-title" x="${CL}" y="${top - 6}">${label}</text>${fan.length > 1 ? `<polygon class="cs-fan" points="${area('p10', 'p90')}"/><polygon class="cs-fan cs-fan--in" points="${area('p25', 'p75')}"/>${mid}` : ''}<polyline class="ch-line" points="${pts}"/><circle class="ch-dot" cx="${xs(last[0]).toFixed(1)}" cy="${y(last[1]).toFixed(1)}" r="4"/>${fan.length > 1 ? `<text class="ch-lab" x="${(xs(fan[fan.length - 1].abs) + 6).toFixed(1)}" y="${(y(fan[fan.length - 1].p50) + 4).toFixed(1)}">${fmt(fan[fan.length - 1].p50)}</text>` : ''}`;
-}
+// Skill and attention on one chart and one scale. Attention is drawn at the rating its fame would
+// match on the FLI's curve (the export does the conversion), so attention above skill is an FLI
+// above zero and the gap between the lines is the FLI. Each line runs on into the fan of what the
+// most comparable fighters did over the next two years: 10th to 90th percentile, darker 25th to
+// 75th, dashed median. Time is in dates; the fighter's age at each year is in brackets.
+const CW = 720, CH = 340, CL = 52, CR = 96, CT = 16, CB = 40;
+const ym = (s) => { const [y, m] = s.split('-').map(Number); return y + (m - 0.5) / 12; };
 
 function courseChart(f) {
     const sk = f.course, at = f.attention_course;
     if (!sk) return '';
-    const now = sk.stage_now;
-    // Two years ahead at most: beyond that the comparables' futures say little (see the caption).
-    const abs = (c) => (c?.fan ?? []).filter((b) => b.t <= 2).map((b) => ({ ...b, abs: c.stage_now + b.t }));
-    const skFan = abs(sk), atFan = abs(at);
-    const starts = [sk.line[0][0], ...(at ? [at.line[0][0]] : [])];
-    const s0 = Math.max(0, Math.min(...starts)), s1 = Math.max(now, ...skFan.map((b) => b.abs), ...atFan.map((b) => b.abs));
-    const xs = (s) => CL + ((s - s0) / (s1 - s0 || 1)) * (CW - CL - CR);
-    const hSk = 210, hAt = at ? 150 : 0, gap = at ? 46 : 0, top = 22;
-    const H = top + hSk + gap + hAt + 34;
+    const series = [{ key: 'skill', label: 'Skill', c: sk }, ...(at ? [{ key: 'att', label: 'Attention', c: at }] : [])];
+    const t0 = Math.min(...series.map((s) => ym(s.c.line[0][0])));
+    const t1 = Math.max(...series.map((s) => ym((s.c.fan.at(-1) ?? { date: s.c.line.at(-1)[0] }).date)));
+    const skillVals = [...sk.line.map((p) => p[1]), ...sk.fan.flatMap((b) => [b.p10, b.p90])];
+    const attVals = at ? [...at.line.map((p) => p[1]), ...at.fan.flatMap((b) => [b.p10, b.p90])] : [];
+    // The scale follows skill, and attention as far down as 150 below the lowest skill: a career's
+    // first months can sit far below, and are cut at the floor rather than flattening the rest.
+    let lo = Math.min(...skillVals, ...attVals.filter((v) => v >= Math.min(...skillVals) - 150));
+    let hi = Math.max(...skillVals, ...attVals);
+    const pad = Math.max(20, (hi - lo) * 0.05); lo -= pad; hi += pad;
+    const step = niceStep(hi - lo, 4);
+    lo = Math.floor(lo / step) * step; hi = Math.ceil(hi / step) * step;
+    const x = (t) => CL + ((t - t0) / (t1 - t0 || 1)) * (CW - CL - CR);
+    const y = (v) => CT + (1 - (v - lo) / (hi - lo)) * (CH - CT - CB);
+    const inside = (v) => v >= lo && v <= hi;
+    const grid = [];
+    for (let v = lo; v <= hi + 1e-9; v += step) grid.push(`<line class="ch-grid" x1="${CL}" x2="${CW - CR}" y1="${y(v).toFixed(1)}" y2="${y(v).toFixed(1)}"/><text class="ch-lab" x="${CL - 8}" y="${(y(v) + 4).toFixed(1)}" text-anchor="end">${num(v)}</text>`);
+    // Years along the bottom, with the age then in brackets when the date of birth is known.
+    const span = t1 - t0, every = span > 14 ? 4 : span > 7 ? 2 : 1;
+    const age = sk.age ?? at?.age;
+    const ageAt = (yr) => (age ? Math.floor(age.years - (ym(age.at) - yr)) : null);
     const years = [];
-    const step = s1 - s0 > 12 ? 4 : s1 - s0 > 6 ? 2 : 1;
-    for (let v = Math.ceil(s0 / step) * step; v <= s1; v += step) years.push(`<text class="ch-lab" x="${xs(v).toFixed(1)}" y="${H - 10}" text-anchor="middle">${v === 0 ? 'debut' : `${v} yr`}</text>`);
-    const nowX = xs(now).toFixed(1);
+    for (let yr = Math.ceil(t0); yr <= Math.floor(t1); yr += 1) {
+        if ((yr - Math.ceil(t0)) % every) continue;
+        const a = ageAt(yr);
+        years.push(`<line class="ch-tick" x1="${x(yr).toFixed(1)}" x2="${x(yr).toFixed(1)}" y1="${CH - CB}" y2="${CH - CB + 5}"/><text class="ch-lab" x="${x(yr).toFixed(1)}" y="${CH - 14}" text-anchor="middle">${yr}${a != null ? ` (${a})` : ''}</text>`);
+    }
+    // A line broken wherever it leaves the scale.
+    const path = (pts) => {
+        const runs = [[]];
+        for (const [d, v] of pts) { if (inside(v)) runs.at(-1).push(`${x(ym(d)).toFixed(1)},${y(v).toFixed(1)}`); else if (runs.at(-1).length) runs.push([]); }
+        return runs.filter((r) => r.length > 1).map((r) => r.join(' '));
+    };
+    const draw = (s) => {
+        const fan = s.c.fan.length ? [{ date: s.c.line.at(-1)[0], p10: s.c.line.at(-1)[1], p25: s.c.line.at(-1)[1], p50: s.c.line.at(-1)[1], p75: s.c.line.at(-1)[1], p90: s.c.line.at(-1)[1] }, ...s.c.fan] : [];
+        const clamp = (v) => Math.min(hi, Math.max(lo, v));
+        const area = (a, b) => `${fan.map((p) => `${x(ym(p.date)).toFixed(1)},${y(clamp(p[a])).toFixed(1)}`).join(' ')} ${[...fan].reverse().map((p) => `${x(ym(p.date)).toFixed(1)},${y(clamp(p[b])).toFixed(1)}`).join(' ')}`;
+        const end = s.c.line.at(-1);
+        return `<g class="cs-${s.key}">${fan.length > 1 ? `<polygon class="cs-fan" points="${area('p10', 'p90')}"/><polygon class="cs-fan cs-fan--in" points="${area('p25', 'p75')}"/><polyline class="cs-mid" points="${fan.map((p) => `${x(ym(p.date)).toFixed(1)},${y(clamp(p.p50)).toFixed(1)}`).join(' ')}"/>` : ''}${path(s.c.line).map((pts) => `<polyline class="cs-line" points="${pts}"/>`).join('')}${inside(end[1]) ? `<circle class="cs-dot" cx="${x(ym(end[0])).toFixed(1)}" cy="${y(end[1]).toFixed(1)}" r="4"/>` : ''}</g>`;
+    };
+    // Direct labels at the right end of each fan (or line), nudged apart if they would touch.
+    const ends = series.map((s) => { const last = s.c.fan.at(-1) ?? { date: s.c.line.at(-1)[0], p50: s.c.line.at(-1)[1] }; return { s, x: x(ym(last.date)) + 8, y: y(Math.min(hi, Math.max(lo, last.p50))) }; });
+    if (ends.length === 2 && Math.abs(ends[0].y - ends[1].y) < 16) { const mid = (ends[0].y + ends[1].y) / 2, up = ends[0].y <= ends[1].y ? 0 : 1; ends[up].y = mid - 8; ends[1 - up].y = mid + 8; }
+    const nowX = x(ym(sk.line.at(-1)[0])).toFixed(1);
     return `<figure class="ch">
-            <svg class="ch-svg" viewBox="0 0 ${CW} ${H}" role="img" aria-label="${esc(`${f.name}'s skill${at ? ' and attention' : ''} by years since their first pro fight, with what ${sk.comparables} comparable fighters did over the next two years.`)}">
-                ${coursePanel({ line: sk.line, fan: skFan, top, h: hSk, xs, log: false, label: 'Skill (FLR)', fmt: (v) => num(v) })}
-                ${at ? coursePanel({ line: at.line, fan: atFan, top: top + hSk + gap, h: hAt, xs, log: true, label: 'Attention', fmt: (v) => (v >= 100 ? `×${(v / 100).toFixed(1)}` : `÷${(100 / v).toFixed(1)}`) }) : ''}
-                <line class="cs-now" x1="${nowX}" x2="${nowX}" y1="${top}" y2="${H - 28}"/><text class="ch-lab" x="${nowX}" y="${H - 28 + 0}" dy="-4" text-anchor="middle"></text>
+            <ul class="ch-legend" aria-hidden="true">${series.map((s) => `<li class="cs-key cs-key--${s.key}">${s.label}</li>`).join('')}</ul>
+            <svg class="ch-svg" viewBox="0 0 ${CW} ${CH}" role="img" aria-label="${esc(`${f.name}'s skill${at ? ' and attention' : ''} over time, on the First Light Rating scale${at ? ', attention placed at the rating its fame would match' : ''}, with what comparable fighters did over the next two years.`)}">
+                ${grid.join('')}
+                <line class="ch-axis" x1="${CL}" x2="${CL}" y1="${CT}" y2="${CH - CB}"/><line class="ch-axis" x1="${CL}" x2="${CW - CR}" y1="${CH - CB}" y2="${CH - CB}"/>
+                <line class="cs-now" x1="${nowX}" x2="${nowX}" y1="${CT}" y2="${CH - CB}"/>
+                ${series.map(draw).join('')}
+                ${ends.map((e) => `<text class="ch-val cs-end--${e.s.key}" x="${e.x.toFixed(1)}" y="${(e.y + 4).toFixed(1)}">${e.s.label}</text>`).join('')}
                 ${years.join('')}
             </svg>
             ${FIGURE_CREDIT}
         </figure>
-        <p class="ch-note">By years since their first pro fight. Right of the line, the shaded bands are what the fighters whose careers were most like this one at this point went on to do over the next two years: most of them inside the light band, half inside the dark one, the dashed line typical.</p>`;
-}
-
-function peersList(f) {
-    if (!f.peers?.length) return '';
-    return `
-    <section class="pg-body pg-body--rule" aria-labelledby="dp-peers">
-        <div class="pg-inner pg-inner--wide">
-            <h2 class="pg-h2 pg-h2--small" id="dp-peers" data-r>Fighters on the same path.</h2>
-            <ul class="dp-pairs dp-peers" data-r>${f.peers.map((p) => `
-                <li>${link(p.name, p.slug)}<span class="dp-sub">Where ${esc(f.name.split(' ').slice(-1)[0])} is now, in ${p.year}: FLR ${num(p.flr)}</span><span class="dp-pair-v ${p.flr_2y == null ? '' : p.flr_2y >= 0 ? 'fli-pos' : 'fli-neg'}">${p.flr_2y == null ? '' : `${signed(p.flr_2y, 0)} in two years`}</span></li>`).join('')}
-            </ul>
-            <p class="pg-fine" data-r>The closest of the fighters the course above is drawn from: the same rating, trend, experience and activity at the same point of a career.</p>
-        </div>
-    </section>`;
+        <p class="ch-note">Both on the First Light Rating scale. Attention is placed at the rating whose usual fame it matches: where it runs above skill, the fighter is more famous than their skill predicts. Right of the line, the shaded bands are what the fighters whose careers were most like this one at this point went on to do over the next two years: most inside the light band, half inside the dark one, the dashed line typical.${age ? ' Age in brackets.' : ''}</p>`;
 }
 
 // ── /fighters/<slug>/ ───────────────────────────────────────────────────────────────────
@@ -267,13 +263,14 @@ export function fighterPage({ f, site, generatedAt, field }) {
             <h2 class="pg-h2 pg-h2--small" id="dp-field" data-r>Fame against skill.</h2>
             <div data-r>${map}</div>
         </div>
-    </section>` : ''}${course ? `
+    </section>
+    <script src="/field.js" defer></script>` : ''}${course ? `
     <section class="pg-body pg-body--rule" aria-labelledby="dp-course">
         <div class="pg-inner pg-inner--wide">
             <h2 class="pg-h2 pg-h2--small" id="dp-course" data-r>Skill and attention, and where they are heading.</h2>
             <div data-r>${course}</div>
         </div>
-    </section>` : ''}${fightsTable(f)}${peersList(f)}
+    </section>` : ''}${fightsTable(f)}
     <section class="pg-body pg-body--rule">
         <div class="pg-inner pg-inner--wide">
             ${DATA_CREDIT}

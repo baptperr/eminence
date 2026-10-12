@@ -28,7 +28,7 @@ const STATIC = [
     // privacy.html stays in the repo but is not published for now.
     'index.html', '_redirects',
     'style.css', 'pages.css', 'manifesto.css', 'publication.css', 'observatory.css',
-    'nav.js', 'menu.js', 'manifesto.js', 'pub-fit.js', 'pub-carousel.js', 'observatory.js',
+    'nav.js', 'menu.js', 'manifesto.js', 'pub-fit.js', 'pub-carousel.js', 'observatory.js', 'field.js',
     'favicon.png', 'logo.png', 'logo.svg',
     'fonts',
     'hero-pc.mp4', 'hero-mobile.mp4', 'brand-universal.mp4', 'promote.mp4', 'monetize.mp4',
@@ -118,7 +118,11 @@ async function main() {
             routes.push({ url: '/fighters/', lastmod: updated });
         }
         // The field every fighter page draws its own fighter over (see fieldChart).
-        if (indexData.field) await write('fighters/field.svg', fieldSvg(indexData.field));
+        if (indexData.field) {
+            await write('fighters/field.svg', fieldSvg(indexData.field));
+            // Who on the field has a page, for field.js: [rating, fame, slug, name].
+            await write('fighters/field.json', JSON.stringify(indexData.field.pages ?? []));
+        }
         for (const f of indexData.fighters) {
             await write(`fighters/${f.slug}/index.html`, fighterPage({ f, site: SITE, generatedAt: updated, field: indexData.field }));
             routes.push({ url: `/fighters/${f.slug}/`, lastmod: updated });
@@ -247,7 +251,7 @@ ${items}
 // Cloudflare lets browsers keep a stylesheet or script for four hours, and a page is fetched fresh, so
 // a returning visitor could pair a new page with an old stylesheet (an unstyled dropdown, for one).
 // Every local css/js reference gets ?v=<hash of that file's content>, so a changed file is a new URL.
-const VERSIONED = ['style.css', 'pages.css', 'manifesto.css', 'publication.css', 'observatory.css', 'nav.js', 'menu.js', 'manifesto.js', 'pub-fit.js', 'pub-carousel.js', 'observatory.js'];
+const VERSIONED = ['style.css', 'pages.css', 'manifesto.css', 'publication.css', 'observatory.css', 'nav.js', 'menu.js', 'manifesto.js', 'pub-fit.js', 'pub-carousel.js', 'observatory.js', 'field.js'];
 async function versionAssets() {
     const hashes = {};
     for (const f of VERSIONED) {

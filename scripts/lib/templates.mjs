@@ -675,17 +675,19 @@ function wlList(kind, heading, items) {
         const flr = e.flr_change != null ? `<span class="wl-typical">FLR ${signed(e.flr_change, 0)}</span>` : '';
         const fli = `${signed(e.fli_change, 2)}<span class="wl-unit-tag"> FLI</span>`;
         // What made the FLI move: the attention alone, and the rest (the rating).
+        // What made the FLI move: the attention alone, and the rest (the rating), one per line.
         const split = e.fli_attention != null
-            ? `<span class="wl-typical">attention ${signed(e.fli_attention, 2)} · skill ${signed(e.fli_change - e.fli_attention, 2)}</span>` : '';
+            ? `<span class="wl-typical">attention ${signed(e.fli_attention, 2)}</span><span class="wl-typical">skill ${signed(e.fli_change - e.fli_attention, 2)}</span>` : '';
         // The attention the fight brought against what this result usually brings.
         const pct = (v) => `${signed(100 * v, 1)}%`;
         const against = e.attention != null && e.typical != null
-            ? `<span class="wl-line wl-att">Attention ${pct(e.attention)}, where a ${won ? 'win' : 'loss'} usually brings ${pct(e.typical)}</span>` : '';
+            ? `<span class="wl-line wl-att">Attention ${pct(e.attention)} vs usual ${won ? 'win' : 'loss'} ${pct(e.typical)}</span>` : '';
+        // The event is a small title over the whole row, on one line across both columns.
         return `
-                    <li class="wl-row">
+                    <li class="wl-row">${where ? `
+                        <span class="wl-event">${where}</span>` : ''}
                         <span class="wl-who"><span class="wl-name">${slugLink(e.name, e.slug, '/fighters/')}</span>
-                            <span class="wl-line"><span class="wl-res wl-res--${won ? 'won' : 'lost'}">${won ? 'Won' : 'Lost'}</span>${versus}${e.method ? ` · ${esc(e.method)}` : ''}</span>${where ? `
-                            <span class="wl-line wl-line--dim">${where}</span>` : ''}${against}</span>
+                            <span class="wl-line"><span class="wl-res wl-res--${won ? 'won' : 'lost'}">${won ? 'Won' : 'Lost'}</span>${versus}${e.method ? ` · ${esc(e.method)}` : ''}</span>${against}</span>
                         <span class="wl-fig"><span class="wl-change wl-change--${kind}" title="${esc(FIGHT_FLI_NOTE)}">${fli}</span>${split}${flr}</span>
                     </li>`;
     }).join('');
