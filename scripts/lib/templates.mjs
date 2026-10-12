@@ -647,7 +647,7 @@ ${FOOTER}`,
     </section>
 ${KEY}
     <section class="pg-body pg-body--rule">
-        <div class="pg-inner pg-inner--wide"><p class="pg-fine" data-r><a href="/observatory/methodology/">How the FLR and FLI are measured, and how accurate they are</a> · <a href="/fighters/">Every fighter with a page</a> · <a href="/data/rankings.csv">Download the rankings (CSV)</a></p></div>
+        <div class="pg-inner pg-inner--wide"><ul class="rk-links" data-r><li><a href="/observatory/methodology/">More about the measurements</a></li><li><a href="/fighters/">Fighters</a></li><li><a href="/observatory/methodology/#cite">Download the rankings</a></li></ul></div>
     </section>${data.methodology ? `
     <section class="pg-body pg-body--rule">
         <div class="pg-inner pg-inner--wide"><p class="pg-fine" data-r>${esc(data.methodology)}</p></div>

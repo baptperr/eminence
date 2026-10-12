@@ -62,40 +62,130 @@ function timeAxis(t0, t1, x) {
     return out.join('');
 }
 
-export function skillChart(points, fights = []) {
-    if (!points || points.length < 2) return '';
-    const byDate = new Map(fights.map((f) => [f.date, f]));
-    const t = points.map((p) => Date.parse(p.date));
-    const v = points.map((p) => p.flr);
-    const t0 = t[0], t1 = Math.max(t[t.length - 1], t0 + 86400000);
-    let lo = Math.min(...v), hi = Math.max(...v);
-    const pad = Math.max(20, (hi - lo) * 0.08);
-    lo -= pad; hi += pad;
-    const step = niceStep(hi - lo);
-    lo = Math.floor(lo / step) * step; hi = Math.ceil(hi / step) * step;
-    const x = (ti) => L + ((ti - t0) / (t1 - t0)) * PW;
-    const y = (val) => T + PH - ((val - lo) / (hi - lo)) * PH;
-    const grid = [];
-    for (let g = lo; g <= hi + 1e-9; g += step) {
-        grid.push(`<line class="ch-grid" x1="${L}" x2="${W - R}" y1="${y(g).toFixed(1)}" y2="${y(g).toFixed(1)}"/><text class="ch-lab" x="${L - 8}" y="${(y(g) + 4).toFixed(1)}" text-anchor="end">${num(g)}</text>`);
-    }
-    const pts = points.map((p, i) => [x(t[i]), y(p.flr)]);
-    const dots = points.map((p, i) => {
-        const f = byDate.get(p.date);
-        const what = f ? ` · ${RESULT[f.result] ?? f.result} ${f.result === 'win' ? 'against' : 'to'} ${f.opponent}` : '';
-        return `<circle class="ch-dot" cx="${pts[i][0].toFixed(1)}" cy="${pts[i][1].toFixed(1)}" r="4"><title>${esc(`${fmtDate(p.date)} · FLR ${num(p.flr)}${what}`)}</title></circle>`;
-    }).join('');
-    const [lx, ly] = pts[pts.length - 1];
+// ── Fame against skill: the FLI as a field ─────────────────────────────────────────────
+// Every fighter with an FLI at (FLR, fame), fame standardised so no position carries a count,
+// and the curve the FLI is measured from. The dots and curve are one shared image the build
+// writes once (/fighters/field.svg); each page draws its axes and its own fighter over it in the
+// same coordinates, so 400 pages do not each carry a thousand dots.
+const FW = 720, FH = 380, FL = 46, FR = 20, FT = 16, FB = 40;
+function fieldScale(field) {
+    const xs = field.points.map((p) => p[0]), ys = field.points.map((p) => p[1]);
+    const x0 = Math.floor(Math.min(...xs) / 100) * 100, x1 = Math.ceil(Math.max(...xs) / 100) * 100;
+    const y0 = Math.min(...ys) - 0.2, y1 = Math.max(...ys) + 0.2;
+    return {
+        x0, x1,
+        x: (v) => FL + ((v - x0) / (x1 - x0)) * (FW - FL - FR),
+        y: (v) => FT + (1 - (v - y0) / (y1 - y0)) * (FH - FT - FB),
+    };
+}
+
+export function fieldSvg(field) {
+    const s = fieldScale(field);
+    const dots = field.points.map(([a, b]) => `<circle cx="${s.x(a).toFixed(1)}" cy="${s.y(b).toFixed(1)}" r="2.6"/>`).join('');
+    const curve = field.curve.map(([a, b]) => `${s.x(a).toFixed(1)},${s.y(b).toFixed(1)}`).join(' ');
+    return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${FW} ${FH}" width="${FW}" height="${FH}"><g fill="#f0ebe3" fill-opacity="0.22">${dots}</g><polyline points="${curve}" fill="none" stroke="#f0ebe3" stroke-opacity="0.7" stroke-width="2" stroke-dasharray="6 5"/></svg>\n`;
+}
+
+function fieldChart(field, f) {
+    if (!field || !f.field) return '';
+    const s = fieldScale(field);
+    const [fx, fy] = f.field;
+    const ticks = [];
+    for (let v = s.x0; v <= s.x1; v += 200) ticks.push(`<text class="ch-lab" x="${s.x(v).toFixed(1)}" y="${FH - 14}" text-anchor="middle">${num(v)}</text>`);
+    const cx = s.x(fx), cy = s.y(fy);
+    const right = cx > FW - 200;
     return `<figure class="ch">
-            <svg class="ch-svg" viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(`First Light Rating after each pro fight, ${fmtDate(points[0].date)} to ${fmtDate(points[points.length - 1].date)}: from ${num(v[0])} to ${num(v[v.length - 1])}.`)}">
-                ${grid.join('')}${timeAxis(t0, t1, x)}
-                <polyline class="ch-line" points="${pts.map(([a, b]) => `${a.toFixed(1)},${b.toFixed(1)}`).join(' ')}"/>
-                ${dots}
-                <text class="ch-val" x="${(lx + 10).toFixed(1)}" y="${(ly + 4).toFixed(1)}">${num(v[v.length - 1])}</text>
+            <div class="fm-wrap">
+                <img class="fm-bg" src="/fighters/field.svg" alt="" width="${FW}" height="${FH}" loading="lazy">
+                <svg class="fm-top ch-svg" viewBox="0 0 ${FW} ${FH}" role="img" aria-label="${esc(`${f.name} on the field of every fighter with an FLI: skill across, fame up. ${f.fli != null ? (f.fli >= 0 ? 'Above the curve: more famous than their skill predicts.' : 'Below the curve: better than their fame.') : ''}`)}">
+                    <line class="ch-grid" x1="${FL}" x2="${FW - FR}" y1="${FH - FB}" y2="${FH - FB}"/>
+                    ${ticks.join('')}
+                    <text class="ch-lab" x="${FW - FR}" y="${FH - 28}" text-anchor="end">Skill (FLR) →</text>
+                    <text class="ch-lab" x="${FL - 8}" y="${FT + 10}" text-anchor="end">Fame ↑</text>
+                    <circle class="fm-me" cx="${cx.toFixed(1)}" cy="${cy.toFixed(1)}" r="7"/>
+                    <text class="ch-val" x="${(cx + (right ? -12 : 12)).toFixed(1)}" y="${(cy + 4).toFixed(1)}" text-anchor="${right ? 'end' : 'start'}">${esc(f.name)}</text>
+                </svg>
+            </div>
+            ${FIGURE_CREDIT}
+        </figure>
+        <p class="ch-note">Every fighter with an FLI, by skill and fame. The dashed curve is the fame their skill predicts: above it, a fighter is more famous than their skill; below it, better than their fame.</p>`;
+}
+
+// ── A career, and where it is heading ──────────────────────────────────────────────────
+// Two panels on one time axis (years since the first rated pro fight), never two scales on one
+// panel: skill above, attention below. Each carries the fighter's own line and, from now, the
+// fan of what their comparables did next: 10th to 90th percentile, darker 25th to 75th, dashed
+// median. Attention is an index (today = 100) on a log scale.
+const CW = 720, CL = 52, CR = 70, PAD = 10;
+function coursePanel({ line, fan, top, h, xs, log, label, fmt }) {
+    // On the log scale, a hundredth of today is the floor: a career's first months can sit
+    // thousands of times lower and would flatten everything else.
+    const FLOOR = 1;
+    if (log) line = line.filter((p) => p[1] > 0).map(([s, v]) => [s, Math.max(v, FLOOR)]);
+    const vals = [...line.map((p) => p[1]), ...fan.flatMap((b) => [b.p10, b.p90])].filter((v) => v > 0);
+    let lo = Math.min(...vals), hi = Math.max(...vals);
+    if (log) lo = Math.max(lo, FLOOR);
+    const tf = log ? Math.log10 : (v) => v;
+    if (!log) { const pad = Math.max(20, (hi - lo) * 0.06); lo -= pad; hi += pad; }
+    const L0 = tf(lo), L1 = tf(hi) === tf(lo) ? tf(lo) + 1 : tf(hi);
+    const y = (v) => top + PAD + (1 - (tf(v) - L0) / (L1 - L0)) * (h - 2 * PAD);
+    let ticks;
+    if (log) {
+        ticks = [[1000, '×10'], [300, '×3'], [100, 'today'], [33.3, '÷3'], [10, '÷10'], [3.33, '÷30'], [1, '÷100']]
+            .filter(([v]) => v >= lo * 0.98 && v <= hi * 1.02);
+    } else {
+        const step = niceStep(hi - lo, 3);
+        ticks = [];
+        for (let v = Math.ceil(lo / step) * step; v <= hi; v += step) ticks.push([v, num(v)]);
+    }
+    const grid = ticks.map(([v, t]) => `<line class="ch-grid" x1="${CL}" x2="${CW - CR}" y1="${y(v).toFixed(1)}" y2="${y(v).toFixed(1)}"/><text class="ch-lab" x="${CL - 8}" y="${(y(v) + 4).toFixed(1)}" text-anchor="end">${t}</text>`).join('');
+    const pts = line.map(([s, v]) => `${xs(s).toFixed(1)},${y(v).toFixed(1)}`).join(' ');
+    const area = (a, b) => fan.length > 1 ? `${fan.map((p) => `${xs(p.abs).toFixed(1)},${y(p[a]).toFixed(1)}`).join(' ')} ${[...fan].reverse().map((p) => `${xs(p.abs).toFixed(1)},${y(p[b]).toFixed(1)}`).join(' ')}` : '';
+    const last = line[line.length - 1];
+    const mid = fan.length > 1 ? `<polyline class="cs-mid" points="${fan.map((p) => `${xs(p.abs).toFixed(1)},${y(p.p50).toFixed(1)}`).join(' ')}"/>` : '';
+    return `${grid}<text class="cs-title" x="${CL}" y="${top - 6}">${label}</text>${fan.length > 1 ? `<polygon class="cs-fan" points="${area('p10', 'p90')}"/><polygon class="cs-fan cs-fan--in" points="${area('p25', 'p75')}"/>${mid}` : ''}<polyline class="ch-line" points="${pts}"/><circle class="ch-dot" cx="${xs(last[0]).toFixed(1)}" cy="${y(last[1]).toFixed(1)}" r="4"/>${fan.length > 1 ? `<text class="ch-lab" x="${(xs(fan[fan.length - 1].abs) + 6).toFixed(1)}" y="${(y(fan[fan.length - 1].p50) + 4).toFixed(1)}">${fmt(fan[fan.length - 1].p50)}</text>` : ''}`;
+}
+
+function courseChart(f) {
+    const sk = f.course, at = f.attention_course;
+    if (!sk) return '';
+    const now = sk.stage_now;
+    // Two years ahead at most: beyond that the comparables' futures say little (see the caption).
+    const abs = (c) => (c?.fan ?? []).filter((b) => b.t <= 2).map((b) => ({ ...b, abs: c.stage_now + b.t }));
+    const skFan = abs(sk), atFan = abs(at);
+    const starts = [sk.line[0][0], ...(at ? [at.line[0][0]] : [])];
+    const s0 = Math.max(0, Math.min(...starts)), s1 = Math.max(now, ...skFan.map((b) => b.abs), ...atFan.map((b) => b.abs));
+    const xs = (s) => CL + ((s - s0) / (s1 - s0 || 1)) * (CW - CL - CR);
+    const hSk = 210, hAt = at ? 150 : 0, gap = at ? 46 : 0, top = 22;
+    const H = top + hSk + gap + hAt + 34;
+    const years = [];
+    const step = s1 - s0 > 12 ? 4 : s1 - s0 > 6 ? 2 : 1;
+    for (let v = Math.ceil(s0 / step) * step; v <= s1; v += step) years.push(`<text class="ch-lab" x="${xs(v).toFixed(1)}" y="${H - 10}" text-anchor="middle">${v === 0 ? 'debut' : `${v} yr`}</text>`);
+    const nowX = xs(now).toFixed(1);
+    return `<figure class="ch">
+            <svg class="ch-svg" viewBox="0 0 ${CW} ${H}" role="img" aria-label="${esc(`${f.name}'s skill${at ? ' and attention' : ''} by years since their first pro fight, with what ${sk.comparables} comparable fighters did over the next two years.`)}">
+                ${coursePanel({ line: sk.line, fan: skFan, top, h: hSk, xs, log: false, label: 'Skill (FLR)', fmt: (v) => num(v) })}
+                ${at ? coursePanel({ line: at.line, fan: atFan, top: top + hSk + gap, h: hAt, xs, log: true, label: 'Attention', fmt: (v) => (v >= 100 ? `×${(v / 100).toFixed(1)}` : `÷${(100 / v).toFixed(1)}`) }) : ''}
+                <line class="cs-now" x1="${nowX}" x2="${nowX}" y1="${top}" y2="${H - 28}"/><text class="ch-lab" x="${nowX}" y="${H - 28 + 0}" dy="-4" text-anchor="middle"></text>
+                ${years.join('')}
             </svg>
             ${FIGURE_CREDIT}
         </figure>
-        <p class="ch-note">FLR after each pro fight. Hover a point for the fight.</p>`;
+        <p class="ch-note">By years since their first pro fight. Right of the line, the shaded bands are what the fighters whose careers were most like this one at this point went on to do over the next two years: most of them inside the light band, half inside the dark one, the dashed line typical.</p>`;
+}
+
+function peersList(f) {
+    if (!f.peers?.length) return '';
+    return `
+    <section class="pg-body pg-body--rule" aria-labelledby="dp-peers">
+        <div class="pg-inner pg-inner--wide">
+            <h2 class="pg-h2 pg-h2--small" id="dp-peers" data-r>Fighters on the same path.</h2>
+            <ul class="dp-pairs dp-peers" data-r>${f.peers.map((p) => `
+                <li>${link(p.name, p.slug)}<span class="dp-sub">Where ${esc(f.name.split(' ').slice(-1)[0])} is now, in ${p.year}: FLR ${num(p.flr)}</span><span class="dp-pair-v ${p.flr_2y == null ? '' : p.flr_2y >= 0 ? 'fli-pos' : 'fli-neg'}">${p.flr_2y == null ? '' : `${signed(p.flr_2y, 0)} in two years`}</span></li>`).join('')}
+            </ul>
+            <p class="pg-fine" data-r>The closest of the fighters the course above is drawn from: the same rating, trend, experience and activity at the same point of a career.</p>
+        </div>
+    </section>`;
 }
 
 // ── /fighters/<slug>/ ───────────────────────────────────────────────────────────────────
@@ -156,10 +246,11 @@ function fightsTable(f) {
     </section>`;
 }
 
-export function fighterPage({ f, site, generatedAt }) {
+export function fighterPage({ f, site, generatedAt, field }) {
     const url = fighterHref(f.slug);
     const fights = f.fights ?? [];
-    const skill = skillChart(f.skill, fights);
+    const map = fieldChart(field, f);
+    const course = courseChart(f);
     const division = f.flr?.division;
     const body = `<main>
     <header class="pg-head">
@@ -170,13 +261,19 @@ export function fighterPage({ f, site, generatedAt }) {
             <p class="pg-lede" data-r style="--d:120ms">${esc(fighterLede(f))}</p>
             ${statTiles(f)}
         </div>
-    </header>${skill ? `
-    <section class="pg-body pg-body--rule" aria-labelledby="dp-skill">
+    </header>${map ? `
+    <section class="pg-body pg-body--rule" aria-labelledby="dp-field">
         <div class="pg-inner pg-inner--wide">
-            <h2 class="pg-h2 pg-h2--small" id="dp-skill" data-r>Skill, fight by fight.</h2>
-            <div data-r>${skill}</div>
+            <h2 class="pg-h2 pg-h2--small" id="dp-field" data-r>Fame against skill.</h2>
+            <div data-r>${map}</div>
         </div>
-    </section>` : ''}${fightsTable(f)}
+    </section>` : ''}${course ? `
+    <section class="pg-body pg-body--rule" aria-labelledby="dp-course">
+        <div class="pg-inner pg-inner--wide">
+            <h2 class="pg-h2 pg-h2--small" id="dp-course" data-r>Skill and attention, and where they are heading.</h2>
+            <div data-r>${course}</div>
+        </div>
+    </section>` : ''}${fightsTable(f)}${peersList(f)}
     <section class="pg-body pg-body--rule">
         <div class="pg-inner pg-inner--wide">
             ${DATA_CREDIT}

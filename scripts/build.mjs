@@ -12,7 +12,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { imageSize, loadArticles, loadIndex, loadPrivate, loadPublications } from './lib/data.mjs';
 import { archivePage, articlePage, BRAND, divisionUrl, indexPage, internalDataPage, manifestoPage, mediaKitPage, notFoundPage, observatoryPage, privatePage, seoHead, setDefaultImage, setFighterPages, winnersLosersPage } from './lib/templates.mjs';
-import { byDivision, divisionPage, eventPage, eventsIndexPage, fighterPage, fightersIndexPage, methodologyPage, rankingsCsv, rankingsJson } from './lib/pages-data.mjs';
+import { byDivision, divisionPage, eventPage, eventsIndexPage, fieldSvg, fighterPage, fightersIndexPage, methodologyPage, rankingsCsv, rankingsJson } from './lib/pages-data.mjs';
 import { esc } from './lib/util.mjs';
 import { COVER, coverChart, renderCover } from './lib/cover.mjs';
 
@@ -117,8 +117,10 @@ async function main() {
             await write('fighters/index.html', fightersIndexPage({ fighters: indexData.fighters, site: SITE }));
             routes.push({ url: '/fighters/', lastmod: updated });
         }
+        // The field every fighter page draws its own fighter over (see fieldChart).
+        if (indexData.field) await write('fighters/field.svg', fieldSvg(indexData.field));
         for (const f of indexData.fighters) {
-            await write(`fighters/${f.slug}/index.html`, fighterPage({ f, site: SITE, generatedAt: updated }));
+            await write(`fighters/${f.slug}/index.html`, fighterPage({ f, site: SITE, generatedAt: updated, field: indexData.field }));
             routes.push({ url: `/fighters/${f.slug}/`, lastmod: updated });
         }
         if (indexData.events.length) {

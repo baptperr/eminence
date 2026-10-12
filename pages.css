@@ -559,3 +559,24 @@ button.rk-tick { cursor: default; border-bottom: 1px dotted var(--t3); }
 @media (max-width: 768px) {
     .mt-item { grid-template-columns: 1fr; gap: 1rem; }
 }
+
+/* Under the rankings: three ways further, centred and spread across the column. */
+.rk-links { list-style: none; display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem 2rem; text-align: center; }
+@media (max-width: 600px) { .rk-links { grid-template-columns: 1fr; } }
+.dp-pairs li > a { justify-self: start; }
+.rk-links a { color: var(--t2); font-size: 0.95rem; text-decoration: none; border-bottom: 1px solid var(--border-d); transition: color 0.2s, border-color 0.2s; }
+.rk-links a:hover, .rk-links a:focus-visible { color: var(--bone); border-color: var(--bone); }
+
+/* Fighter page: the fame-against-skill field (a shared image under a per-page overlay). */
+.fm-wrap { position: relative; }
+.fm-bg { display: block; width: 100%; height: auto; }
+.fm-top { position: absolute; inset: 0; width: 100%; height: 100%; }
+.fm-me { fill: var(--bone); stroke: var(--night); stroke-width: 3; }
+
+/* Fighter page: the career course, two panels on one time axis. */
+.cs-title { fill: var(--t2); font-size: 12px; letter-spacing: 0.12em; text-transform: uppercase; }
+.cs-fan { fill: #f0ebe3; fill-opacity: 0.08; }
+.cs-fan--in { fill-opacity: 0.14; }
+.cs-mid { fill: none; stroke: #f0ebe3; stroke-opacity: 0.6; stroke-width: 1.5; stroke-dasharray: 4 4; }
+.cs-now { stroke: #fff; stroke-opacity: 0.3; stroke-width: 1; }
+.dp-peers .dp-pair-v { font-size: 0.85rem; }
