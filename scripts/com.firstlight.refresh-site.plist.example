@@ -28,7 +28,11 @@
         <string>repo=/Users/YOU/code/first-light/eminence; s="$(mktemp -t refresh-site)" &amp;&amp; git -C "$repo" show master:scripts/refresh-site.sh &gt; "$s" &amp;&amp; EMINENCE_REPO="$repo" /bin/bash "$s"; rc=$?; rm -f "$s"; exit $rc</string>
     </array>
     <key>StartCalendarInterval</key>
-    <dict><key>Hour</key><integer>7</integer><key>Minute</key><integer>30</integer></dict>
+    <array>
+        <dict><key>Hour</key><integer>7</integer><key>Minute</key><integer>30</integer></dict>
+        <!-- Mondays again at 10:30 Paris, once the weekend's after-the-card readings are all in -->
+        <dict><key>Weekday</key><integer>1</integer><key>Hour</key><integer>10</integer><key>Minute</key><integer>30</integer></dict>
+    </array>
     <key>StandardOutPath</key><string>/Users/YOU/Library/Logs/first-light-refresh.log</string>
     <key>StandardErrorPath</key><string>/Users/YOU/Library/Logs/first-light-refresh.log</string>
 </dict>
