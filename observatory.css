@@ -261,3 +261,8 @@ body.page-observatory { background: #000; color: var(--t1); }
 @media (prefers-reduced-motion: reduce) {
     .ob.is-open, .ob-title, .ob-sub, .ob-text, .ob-link, .ob-method, .ob-panel, .ob-panel.is-open, .ob-panel-in { transition: none; }
 }
+
+/* The way into the full methodology: inside the collapsed panel, so the landing view stays as it is. */
+.ob-panel-in .ob-panel-more { margin-top: 1.2em; }
+.ob-panel-more a { color: #fff; text-decoration: none; border-bottom: 1px solid rgba(255, 255, 255, 0.35); transition: border-color 0.2s; }
+.ob-panel-more a:hover, .ob-panel-more a:focus-visible { border-color: #fff; outline: none; }
