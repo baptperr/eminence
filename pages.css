@@ -550,3 +550,14 @@ button.rk-tick { cursor: default; border-bottom: 1px dotted var(--t3); }
 .pg-fine + .dp-credit { margin-top: 2rem; }
 .dp-flr { font-size: 0.78rem; color: var(--t3); font-variant-numeric: tabular-nums; margin-left: 0.35rem; }
 .dp-verdict { color: var(--t2); }
+
+/* Methodology: the rankings key's two columns. FLR and FLI large on the left, all text on the right. */
+.mt-item { display: grid; grid-template-columns: minmax(9rem, 0.5fr) 1.6fr; gap: 1.5rem clamp(2rem, 5vw, 5rem); align-items: start; }
+.mt-label { max-width: none; font-family: 'Red Hat Display', sans-serif; font-weight: 800; color: var(--bone); }
+.mt-label:empty { display: block; }
+.mt-body { min-width: 0; max-width: 46rem; }
+.mt-body .pg-h2 { margin-bottom: 1.5rem; }
+@media (max-width: 768px) {
+    .mt-item { grid-template-columns: 1fr; gap: 1rem; }
+    .mt-label:empty { display: none; }
+}

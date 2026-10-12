@@ -183,7 +183,7 @@ function fightsTable(f) {
                     </tbody>
                 </table>
             </div>
-            <p class="pg-fine" data-r>FLR is how many rating points the fight moved. ${anyMultiple ? `Attention is what the fight drew, against what is typical for a fighter of the same profile: 1.0× is typical (${METHOD_LINK('attention', 'how it is measured')}).` : ''}</p>
+            <p class="pg-fine" data-r>${anyMultiple ? `Attention is what the fight drew, against what is typical for a fighter of the same profile: 1.0× is typical.<br>` : ''}FLR is the First Light Rating points the fight earned or cost them. ${METHOD_LINK('attention', 'How it is measured')}.</p>
         </div>
     </section>`;
 }
@@ -431,7 +431,7 @@ export function eventPage({ e, site }) {
                     </tbody>
                 </table>
             </div>
-            <p class="pg-fine" data-r>Attention is what the fight drew, against what is typical for a fighter of the same profile: 1.0× is typical; — means too little history to measure. FLR is the rating points the fight moved. Highlighted fights are where a fighter’s attention followed the performance rather than the result (${METHOD_LINK('attention', 'how it is measured')}).</p>
+            <p class="pg-fine" data-r>Attention is what the fight drew, against what is typical for a fighter of the same profile: 1.0× is typical; — means too little history to measure.<br>FLR is the First Light Rating points the fight earned or cost them. Highlighted fights are where a fighter’s attention followed the performance rather than the result (${METHOD_LINK('attention', 'how it is measured')}).</p>
             ${DATA_CREDIT}
         </div>
     </section>
@@ -466,28 +466,33 @@ const ACCURACY = {
 export function methodologyPage({ site }) {
     const a = ACCURACY;
     const url = '/observatory/methodology/';
-    const sec = (id, title, html) => `
+    // Two columns, like the key under the rankings: FLR and FLI set large on the left, every
+    // section's text in one column on the right so all of it lines up.
+    const sec = (id, title, html, label = '') => `
     <section class="pg-body pg-body--rule" id="${id}" aria-labelledby="${id}-h">
-        <div class="pg-inner pg-inner--read">
-            <h2 class="pg-h2 pg-h2--small" id="${id}-h" data-r>${title}</h2>
-            <div class="prose" data-r>${html}</div>
+        <div class="pg-inner pg-inner--wide mt-item">
+            <p class="key-name mt-label" aria-hidden="true" data-r>${label}</p>
+            <div class="mt-body">
+                <h2 class="pg-h2 pg-h2--small" id="${id}-h" data-r>${title}</h2>
+                <div class="prose" data-r>${html}</div>
+            </div>
         </div>
     </section>`;
     const body = `<main>
     <header class="pg-head">
-        <div class="pg-inner pg-inner--read">
+        <div class="pg-inner pg-inner--wide">
             <p class="art-meta" data-r><a href="/observatory/">Observatory</a><span aria-hidden="true"> / </span>Methodology</p>
             <h1 class="pg-title" data-r style="--d:60ms">How the numbers are made.</h1>
             <p class="pg-lede" data-r style="--d:120ms">Two numbers carry the site: the First Light Rating, for skill, and the First Light Index, for fame against that skill. Here is what goes into each, and how well the rating predicts fights.</p>
         </div>
-    </header>${sec('flr', 'The First Light Rating (FLR).', `
+    </header>${sec('flr', 'The First Light Rating.', `
             <p>The FLR is a skill rating built for MMA. It starts from Glicko-2, a rating system that tracks both how good a fighter is and how sure it is of that, and adds three things a win-loss record cannot see.</p>
             <ul>
                 <li><strong>How the fight was won.</strong> A dominant finish moves the rating more than a split decision.</li>
                 <li><strong>Every round, scored.</strong> First Light Scorecards learn how judges score a round from its strikes, takedowns and control time, then score the rounds no judge saw because the fight ended early. A fifth-round loss after four dominant rounds is no longer the same as one after four losing rounds.</li>
                 <li><strong>Where a fighter has been competing.</strong> Records built in a regional promotion are weighed by how that promotion’s fighters actually do when they move up.</li>
             </ul>
-            <p>The published number is deliberately conservative: it is the rating minus twice its uncertainty, so a fighter with few fights on record sits lower until the results are in. The First Light Rankings order each division by it.</p>`)}${sec('accuracy', 'How accurate it is.', `
+            <p>The published number is deliberately conservative: it is the rating minus twice its uncertainty, so a fighter with few fights on record sits lower until the results are in. The First Light Rankings order each division by it.</p>`, 'FLR')}${sec('accuracy', 'How accurate it is.', `
             <p>Every fight from ${a.window} was predicted with only what was known the day before it, and the prediction checked against the result. Nothing was fitted on the fights it was scored on.</p>
             <div class="prose-table"><table>
                 <thead><tr><th scope="col">Picking the winner</th><th scope="col">Same fights</th><th scope="col">FLR</th><th scope="col">Compared with</th></tr></thead>
@@ -498,9 +503,9 @@ export function methodologyPage({ site }) {
                 </tbody>
             </table></div>
             <p>On the fights both rate, the FLR picks the winner ${(a.fm.flr - a.fm.them).toFixed(1)} points more often than Fight Matrix, the longest-running algorithmic MMA ranking. Its probabilities are also better calibrated: when the FLR gives a fighter a 70% chance, they win close to 70% of the time (log loss ${a.fm.flrLL.toFixed(3)} against ${a.fm.themLL.toFixed(3)}, lower is better).</p>
-            <p>The betting market is better still, and is expected to stay that way: closing odds know about injuries, weight cuts, short-notice replacements and styles, none of which a rating can see. The FLR is a measure of what fighters have shown in the cage, not a betting tool.</p>`)}${sec('fli', 'The First Light Index (FLI).', `
-            <p>The FLI compares a fighter’s fame with what their FLR would predict. Fame is the size of the audience a fighter commands, read by the Observatory and brought to one scale. A curve is fitted to fame against skill over every rated fighter, because fame is winner-take-most: the very best are disproportionately famous.</p>
-            <p>The FLI is where a fighter sits against that curve, on a scale from −1 to +1. Above zero, their audience is bigger than their skill explains. Below zero, they are better than their audience knows. The arrow on the rankings is its change over about 30 days.</p>`)}${sec('attention', 'Attention around a fight.', `
+            <p>The betting market is better still, and is expected to stay that way: closing odds know about injuries, weight cuts, short-notice replacements and styles, none of which a rating can see. The FLR is a measure of what fighters have shown in the cage, not a betting tool.</p>`)}${sec('fli', 'The First Light Index.', `
+            <p>The FLI compares a fighter’s fame with what their FLR would predict. Fame is the size of the audience a fighter commands, read across Google Search, Wikipedia, Instagram, YouTube, TikTok and X, each weighted by what it is worth and brought to one scale. A curve is fitted to fame against skill over every rated fighter, because fame is winner-take-most: the very best are disproportionately famous.</p>
+            <p>The FLI is where a fighter sits against that curve, on a scale from −1 to +1. Above zero, their audience is bigger than their skill explains. Below zero, they are better than their audience knows. The arrow on the rankings is its change over about 30 days.</p>`, 'FLI')}${sec('attention', 'Attention around a fight.', `
             <p>Attention is how much the public turns towards a fighter: the curiosity and interest a name draws, read by the Observatory. After each fight it is compared with the fighter’s own usual level, then with what is typical for a fighter of the same profile, so a rising prospect and an established star can be read on the same scale. 1.0× is typical; 2.0× is twice what is typical.</p>
             <p>A fighter needs enough history before the fight for an honest comparison. Without it, no figure is shown.</p>
             <p><strong>When attention goes against the result.</strong> The result is a verdict; the rating reads the performance behind it. A fighter who lost a close fight, with a rating that barely moved, and still drew the attention of a typical winner, won the night in the eyes of the public. A fighter who won narrowly, gaining little rating, and drew no more attention than a typical loser, lost it. A heavy defeat is never counted as a fame win however much attention follows, and a dominant win never as a fame loss.</p>

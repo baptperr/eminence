@@ -709,7 +709,7 @@ export function winnersLosersPage({ data, site }) {
     <div class="pg-body pg-body--flush">${wl.winners.length || wl.losers.length ? `
         <div class="pg-inner pg-inner--wide wl">${wlList('winners', 'Winners', wl.winners)}${wlList('losers', 'Losers', wl.losers)}
         </div>
-        <div class="pg-inner pg-inner--wide"><p class="pg-fine wl-unit" data-r>${ATTENTION_NOTE} FLR is the rating points the fight moved. <a href="/observatory/methodology/#attention">How it is measured</a>.</p></div>` : `
+        <div class="pg-inner pg-inner--wide"><p class="pg-fine wl-unit" data-r>${ATTENTION_NOTE}<br>FLR is the First Light Rating points the fight earned or cost them. <a href="/observatory/methodology/#attention">How it is measured</a>.</p></div>` : `
         <div class="pg-inner pg-inner--wide"><p class="pg-empty" data-r>No clear winners or losers yet.</p></div>`}
     </div>
 </main>
