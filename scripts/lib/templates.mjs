@@ -342,14 +342,14 @@ const OBSERVATORY_METHOD = [
 const observatoryDataset = (site) => ({
     '@type': 'Dataset', '@id': `${site}/observatory/#dataset`,
     name: 'First Light Observatory', alternateName: 'First Light Rankings and First Light Index',
-    description: `${OBSERVATORY_TEXT} Published here: the First Light Rating (FLR) and First Light Index (FLI) for the top fighters in every MMA division, and the attention each fighter drew around their fights.`,
+    description: `${OBSERVATORY_TEXT} Published here: the First Light Rating (FLR) and First Light Index (FLI) for the top fighters in every MMA division, and what every fight did to each fighter's rating.`,
     url: `${site}/observatory/`,
     creator: { '@id': `${site}/#organization` }, publisher: { '@id': `${site}/#organization` },
     creditText: 'First Light Observatory',
     isAccessibleForFree: true,
     license: `${site}/observatory/#cite`,
     keywords: ['MMA rankings', 'UFC rankings', 'fighter ratings', 'fighter popularity', 'fighter attention', 'mixed martial arts data'],
-    variableMeasured: ['First Light Rating (FLR)', 'First Light Index (FLI)', 'Attention around a fight'],
+    variableMeasured: ['First Light Rating (FLR)', 'First Light Index (FLI)'],
     measurementTechnique: `${site}/observatory/methodology/`,
     distribution: [
         { '@type': 'DataDownload', encodingFormat: 'text/csv', contentUrl: `${site}/data/rankings.csv` },
@@ -709,7 +709,7 @@ export function winnersLosersPage({ data, site }) {
     <div class="pg-body pg-body--flush">${wl.winners.length || wl.losers.length ? `
         <div class="pg-inner pg-inner--wide wl">${wlList('winners', 'Winners', wl.winners)}${wlList('losers', 'Losers', wl.losers)}
         </div>
-        <div class="pg-inner pg-inner--wide"><p class="pg-fine wl-unit" data-r>${ATTENTION_NOTE}<br>FLR is the First Light Rating points the fight earned or cost them. <a href="/observatory/methodology/#attention">How it is measured</a>.</p></div>` : `
+        <div class="pg-inner pg-inner--wide"><p class="pg-fine wl-unit" data-r>${ATTENTION_NOTE}<br>FLR is the First Light Rating points the fight earned or cost them. <a href="/observatory/methodology/">How it is measured</a>.</p></div>` : `
         <div class="pg-inner pg-inner--wide"><p class="pg-empty" data-r>No clear winners or losers yet.</p></div>`}
     </div>
 </main>
