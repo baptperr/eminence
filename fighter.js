@@ -1,4 +1,36 @@
-// Fighter pages: makes the dots on "Fame against skill" clickable. The field is a shared image;
+// Fighter pages. Two things: the instant hovers on the charts, and the clickable dots on "Fame
+// against skill".
+(function () {
+    // Instant hovers: anything with data-tip inside a .ch--tips figure shows its text at once, on
+    // pointer or keyboard focus, in one small label that follows the target. Native SVG titles
+    // take a second to appear; these do not.
+    document.querySelectorAll('.ch--tips').forEach(function (fig) {
+        var tip = document.createElement('div');
+        tip.className = 'ch-tip';
+        tip.hidden = true;
+        fig.style.position = 'relative';
+        fig.appendChild(tip);
+        var show = function (el) {
+            tip.textContent = el.getAttribute('data-tip');
+            tip.hidden = false;
+            var f = fig.getBoundingClientRect(), r = el.getBoundingClientRect();
+            var left = r.left + r.width / 2 - f.left, w = tip.offsetWidth;
+            left = Math.max(0, Math.min(f.width - w, left - w / 2));
+            tip.style.left = left + 'px';
+            tip.style.top = Math.max(0, r.top - f.top - tip.offsetHeight - 8) + 'px';
+        };
+        var hide = function () { tip.hidden = true; };
+        fig.querySelectorAll('[data-tip]').forEach(function (el) {
+            el.addEventListener('pointerenter', function () { show(el); });
+            el.addEventListener('pointerleave', hide);
+            el.addEventListener('focus', function () { show(el); });
+            el.addEventListener('blur', hide);
+            el.addEventListener('click', function () { show(el); });
+        });
+    });
+})();
+
+// The dots on "Fame against skill", made clickable. The field is a shared image;
 // this reads the fighters who have a page (/fighters/field.json, cached across pages) and lays an
 // invisible target over each of their dots, in the overlay's own coordinates, with the name on
 // hover. Without script the chart is the same picture, just not clickable.

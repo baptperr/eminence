@@ -119,7 +119,10 @@ function fieldChart(field, f) {
 // above zero and the gap between the lines is the FLI. Each line runs on into the fan of what the
 // most comparable fighters did over the next two years: 10th to 90th percentile, darker 25th to
 // 75th, dashed median. Time is in dates; the fighter's age at each year is in brackets.
-const CW = 720, CH = 340, CL = 52, CR = 96, CT = 16, CB = 40;
+const CW = 720, CH = 380, CL = 70, CR = 96, CT = 16, CB = 80;
+// Under the plot: one strip per phase history, then the years.
+const STRIP_H = 10, STRIP_GAP = 6;
+const PHASE_CLASS = (label) => label.toLowerCase().replace(/[^a-z]+/g, '-');
 const ym = (s) => { const [y, m] = s.split('-').map(Number); return y + (m - 0.5) / 12; };
 
 function courseChart(f) {
@@ -150,7 +153,7 @@ function courseChart(f) {
     for (let yr = Math.ceil(t0); yr <= Math.floor(t1); yr += 1) {
         if ((yr - Math.ceil(t0)) % every) continue;
         const a = ageAt(yr);
-        years.push(`<line class="ch-tick" x1="${x(yr).toFixed(1)}" x2="${x(yr).toFixed(1)}" y1="${CH - CB}" y2="${CH - CB + 5}"/><text class="ch-lab" x="${x(yr).toFixed(1)}" y="${CH - 14}" text-anchor="middle">${yr}${a != null ? ` (${a})` : ''}</text>`);
+        years.push(`<text class="ch-lab" x="${x(yr).toFixed(1)}" y="${CH - 10}" text-anchor="middle">${yr}${a != null ? ` (${a})` : ''}</text>`);
     }
     // A line broken wherever it leaves the scale.
     const path = (pts) => {
@@ -169,19 +172,44 @@ function courseChart(f) {
     const ends = series.map((s) => { const last = s.c.fan.at(-1) ?? { date: s.c.line.at(-1)[0], p50: s.c.line.at(-1)[1] }; return { s, x: x(ym(last.date)) + 8, y: y(Math.min(hi, Math.max(lo, last.p50))) }; });
     if (ends.length === 2 && Math.abs(ends[0].y - ends[1].y) < 16) { const mid = (ends[0].y + ends[1].y) / 2, up = ends[0].y <= ends[1].y ? 0 : 1; ends[up].y = mid - 8; ends[1 - up].y = mid + 8; }
     const nowX = x(ym(sk.line.at(-1)[0])).toFixed(1);
-    return `<figure class="ch">
+    const plotB = CH - CB;
+    // Every pro fight as a thin vertical line, coloured by result, with a wider invisible target
+    // that shows the fight at once on hover or focus (fighter.js).
+    const RES = { W: 'Won', L: 'Lost', D: 'Draw', NC: 'No contest' };
+    const fights = (f.career ?? []).filter(([d]) => ym(d.slice(0, 7)) >= t0 && ym(d.slice(0, 7)) <= t1).map(([d, r, opp, method]) => {
+        const fx = x(ym(d.slice(0, 7)) + (Number(d.slice(8, 10)) - 15) / 365).toFixed(1);
+        const tip = `${fmtDate(d)} · ${RES[r] ?? r} ${r === 'L' ? 'to' : 'vs'} ${opp}${method ? ` · ${method}` : ''}`;
+        return `<line class="cs-fight cs-fight--${r.toLowerCase()}" x1="${fx}" x2="${fx}" y1="${CT}" y2="${plotB}"/><rect class="cs-hit" x="${(fx - 4).toFixed(1)}" y="${CT}" width="8" height="${plotB - CT}" data-tip="${esc(tip)}" tabindex="0"/>`;
+    }).join('');
+    // Phase strips: where the fighter was in each arc, month by month.
+    const monthEnd = (m) => ym(m) + 1 / 24;
+    const strip = (runs, row, label) => {
+        if (!runs?.length) return '';
+        const sy = plotB + 10 + row * (STRIP_H + STRIP_GAP);
+        const segs = runs.filter(([a, b]) => monthEnd(b) > t0 && ym(a) - 1 / 24 < t1).map(([a, b, ph]) => {
+            const xa = x(Math.max(t0, ym(a) - 1 / 24)), xb = x(Math.min(t1, monthEnd(b)));
+            const w = Math.max(0, xb - xa);
+            const range = a === b ? fmtMonth(a) : `${fmtMonth(a)} – ${fmtMonth(b)}`;
+            return `<rect class="cs-ph cs-ph--${PHASE_CLASS(ph)}" x="${xa.toFixed(1)}" y="${sy}" width="${w.toFixed(1)}" height="${STRIP_H}" data-tip="${esc(`${label}: ${ph} · ${range}`)}" tabindex="0"/>${w > ph.length * 6.2 + 10 ? `<text class="cs-ph-lab cs-ph-lab--${PHASE_CLASS(ph)}" x="${(xa + 5).toFixed(1)}" y="${sy + STRIP_H - 2}">${esc(ph)}</text>` : ''}`;
+        }).join('');
+        return `<text class="ch-lab" x="${CL - 8}" y="${sy + STRIP_H - 1}" text-anchor="end">${label}</text>${segs}`;
+    };
+    const strips = strip(f.skill_phases, 0, 'Skill') + (at ? strip(f.attention_phases, 1, 'Attention') : '');
+    return `<figure class="ch ch--tips">
             <ul class="ch-legend" aria-hidden="true">${series.map((s) => `<li class="cs-key cs-key--${s.key}">${s.label}</li>`).join('')}</ul>
             <svg class="ch-svg" viewBox="0 0 ${CW} ${CH}" role="img" aria-label="${esc(`${f.name}'s skill${at ? ' and attention' : ''} over time, on the First Light Rating scale${at ? ', attention placed at the rating its fame would match' : ''}, with what comparable fighters did over the next two years.`)}">
                 ${grid.join('')}
                 <line class="ch-axis" x1="${CL}" x2="${CL}" y1="${CT}" y2="${CH - CB}"/><line class="ch-axis" x1="${CL}" x2="${CW - CR}" y1="${CH - CB}" y2="${CH - CB}"/>
                 <line class="cs-now" x1="${nowX}" x2="${nowX}" y1="${CT}" y2="${CH - CB}"/>
+                <g class="cs-fights">${fights}</g>
                 ${series.map(draw).join('')}
+                ${strips}
                 ${ends.map((e) => `<text class="ch-val cs-end--${e.s.key}" x="${e.x.toFixed(1)}" y="${(e.y + 4).toFixed(1)}">${e.s.label}</text>`).join('')}
                 ${years.join('')}
             </svg>
             ${FIGURE_CREDIT}
         </figure>
-        <p class="ch-note">Both on the First Light Rating scale. Attention is placed at the rating whose usual fame it matches: where it runs above skill, the fighter is more famous than their skill predicts. Right of the line, the shaded bands are what the fighters whose careers were most like this one at this point went on to do over the next two years: most inside the light band, half inside the dark one, the dashed line typical.${age ? ' Age in brackets.' : ''}</p>`;
+        <p class="ch-note">Both on the First Light Rating scale. Thin vertical lines are fights (hover for each). Attention is placed at the rating whose usual fame it matches: where it runs above skill, the fighter is more famous than their skill predicts. Right of the line, the shaded bands are what the fighters whose careers were most like this one at this point went on to do over the next two years: most inside the light band, half inside the dark one, the dashed line typical.${age ? ' Age in brackets.' : ''} The strips underneath are the phases each arc was in: skill developing, prime or declining; attention rising, at its peak or fading.</p>`;
 }
 
 // ── /fighters/<slug>/ ───────────────────────────────────────────────────────────────────
@@ -264,10 +292,10 @@ export function fighterPage({ f, site, generatedAt, field }) {
             <div data-r>${map}</div>
         </div>
     </section>
-    <script src="/field.js" defer></script>` : ''}${course ? `
+` : ''}${course ? `
     <section class="pg-body pg-body--rule" aria-labelledby="dp-course">
         <div class="pg-inner pg-inner--wide">
-            <h2 class="pg-h2 pg-h2--small" id="dp-course" data-r>Skill and attention, and where they are heading.</h2>
+            <h2 class="pg-h2 pg-h2--small" id="dp-course" data-r>Skill and attention.</h2>
             <div data-r>${course}</div>
         </div>
     </section>` : ''}${fightsTable(f)}
@@ -285,6 +313,7 @@ ${FOOTER}`;
         description: fighterDescription(f),
         url, site, current: 'index', body, crumbs,
         ogType: 'profile',
+        js: ['/menu.js', '/nav.js', '/fighter.js'],
         jsonld: {
             '@type': 'ProfilePage', '@id': `${site}${url}#page`, url: `${site}${url}`,
             dateModified: generatedAt, isPartOf: { '@id': `${site}/#website` },
