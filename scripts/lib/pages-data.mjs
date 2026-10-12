@@ -241,7 +241,7 @@ function fightsTable(f) {
                     </tbody>
                 </table>
             </div>
-            <p class="pg-fine" data-r>FLR is the First Light Rating points the fight earned or cost them.${anyFli ? '<br>FLI is what the fight did to their fame against their skill.' : ''} ${METHOD_LINK('fight', 'How it is measured')}.</p>
+            <p class="pg-fine" data-r>FLR is the First Light Rating points the fight earned or cost them.${anyFli ? '<br>FLI is what the fight did to their fame against their skill.' : ''}<br>${METHOD_LINK('fight', 'How it is measured')}.</p>
         </div>
     </section>`;
 }
@@ -517,7 +517,7 @@ export function eventPage({ e, site }) {
                     </tbody>
                 </table>
             </div>
-            <p class="pg-fine" data-r>FLI is what the fight did to each fighter’s fame against their skill; — means it could not be read.<br>FLR is the First Light Rating points the fight earned or cost them. Highlighted fights are where attention went against the result. ${METHOD_LINK('fight', 'How it is measured')}.</p>
+            <p class="pg-fine" data-r>FLI is what the fight did to each fighter’s fame against their skill; — means it could not be read.<br>FLR is the First Light Rating points the fight earned or cost them. Highlighted fights are where attention went against the result.<br>${METHOD_LINK('fight', 'How it is measured')}.</p>
             ${DATA_CREDIT}
         </div>
     </section>

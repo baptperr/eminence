@@ -601,3 +601,4 @@ button.rk-tick { cursor: default; border-bottom: 1px dotted var(--t3); }
 .dp-group[hidden], .dp-names li[hidden] { display: none; }
 .dp-names .dp-sub { display: block; margin-left: 0; }
 .dp-group:first-child .dp-letter { margin-top: 0; }
+.wl-att { margin-top: 0.35rem; color: var(--t2); }

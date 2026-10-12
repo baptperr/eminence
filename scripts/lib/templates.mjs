@@ -674,12 +674,19 @@ function wlList(kind, heading, items) {
         const where = [e.event ? slugLink(e.event, e.event_slug, '/events/') : '', e.date ? fmtDate(e.date) : ''].filter(Boolean).join(' · ');
         const flr = e.flr_change != null ? `<span class="wl-typical">FLR ${signed(e.flr_change, 0)}</span>` : '';
         const fli = `${signed(e.fli_change, 2)}<span class="wl-unit-tag"> FLI</span>`;
+        // What made the FLI move: the attention alone, and the rest (the rating).
+        const split = e.fli_attention != null
+            ? `<span class="wl-typical">attention ${signed(e.fli_attention, 2)} · skill ${signed(e.fli_change - e.fli_attention, 2)}</span>` : '';
+        // The attention the fight brought against what this result usually brings.
+        const pct = (v) => `${signed(100 * v, 1)}%`;
+        const against = e.attention != null && e.typical != null
+            ? `<span class="wl-line wl-att">Attention ${pct(e.attention)}, where a ${won ? 'win' : 'loss'} usually brings ${pct(e.typical)}</span>` : '';
         return `
                     <li class="wl-row">
                         <span class="wl-who"><span class="wl-name">${slugLink(e.name, e.slug, '/fighters/')}</span>
                             <span class="wl-line"><span class="wl-res wl-res--${won ? 'won' : 'lost'}">${won ? 'Won' : 'Lost'}</span>${versus}${e.method ? ` · ${esc(e.method)}` : ''}</span>${where ? `
-                            <span class="wl-line wl-line--dim">${where}</span>` : ''}</span>
-                        <span class="wl-fig"><span class="wl-change wl-change--${kind}" title="${esc(FIGHT_FLI_NOTE)}">${fli}</span>${flr}</span>
+                            <span class="wl-line wl-line--dim">${where}</span>` : ''}${against}</span>
+                        <span class="wl-fig"><span class="wl-change wl-change--${kind}" title="${esc(FIGHT_FLI_NOTE)}">${fli}</span>${split}${flr}</span>
                     </li>`;
     }).join('');
     return `
@@ -703,7 +710,7 @@ export function winnersLosersPage({ data, site }) {
     <div class="pg-body pg-body--flush">${wl.winners.length || wl.losers.length ? `
         <div class="pg-inner pg-inner--wide wl">${wlList('winners', 'Winners', wl.winners)}${wlList('losers', 'Losers', wl.losers)}
         </div>
-        <div class="pg-inner pg-inner--wide"><p class="pg-fine wl-unit" data-r>${FIGHT_FLI_NOTE}<br>FLR is the First Light Rating points the fight earned or cost them. <a href="/observatory/methodology/#fight">How it is measured</a>.</p></div>` : `
+        <div class="pg-inner pg-inner--wide"><p class="pg-fine wl-unit" data-r>${FIGHT_FLI_NOTE}<br>FLR is the First Light Rating points the fight earned or cost them.<br><a href="/observatory/methodology/#fight">How it is measured</a>.</p></div>` : `
         <div class="pg-inner pg-inner--wide"><p class="pg-empty" data-r>No clear winners or losers yet.</p></div>`}
     </div>
 </main>
