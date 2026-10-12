@@ -580,3 +580,22 @@ button.rk-tick { cursor: default; border-bottom: 1px dotted var(--t3); }
 .cs-mid { fill: none; stroke: #f0ebe3; stroke-opacity: 0.6; stroke-width: 1.5; stroke-dasharray: 4 4; }
 .cs-now { stroke: #fff; stroke-opacity: 0.3; stroke-width: 1; }
 .dp-peers .dp-pair-v { font-size: 0.85rem; }
+
+/* On a phone the Index's four tabs sit on two short lines, all of them in view. */
+@media (max-width: 700px) {
+    .subtabs { gap: 0.55rem 1.15rem; }
+    .subtab { font-size: clamp(1.45rem, 7vw, 2rem); white-space: nowrap; }
+}
+
+/* Fighters: find a fighter. */
+.dp-find { margin-top: 2rem; max-width: 26rem; }
+.dp-find-in {
+    width: 100%; font: inherit; font-size: 1.05rem; color: var(--bone); background: transparent;
+    border: 0; border-bottom: 1px solid var(--border-d); padding: 0.6rem 0; border-radius: 0;
+    -webkit-appearance: none; appearance: none;
+}
+.dp-find-in::placeholder { color: var(--t3); }
+.dp-find-in:focus { outline: none; border-bottom-color: var(--bone); }
+.dp-group[hidden], .dp-names li[hidden] { display: none; }
+.dp-names .dp-sub { display: block; margin-left: 0; }
+.dp-group:first-child .dp-letter { margin-top: 0; }

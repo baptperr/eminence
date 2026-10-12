@@ -302,7 +302,11 @@ ${FOOTER}`;
 
 // ── /fighters/ ──────────────────────────────────────────────────────────────────────────
 
-export function fightersIndexPage({ fighters, site }) {
+// One line under a name: where the fighter stands. "Bantamweight · 30th · FLI +0.48".
+const standing = (f) => [f.flr ? `${f.flr.division} · ${ordinal(f.flr.rank)}` : null, f.fli != null ? `FLI ${signed(f.fli, 2)}` : null]
+    .filter(Boolean).join(' · ');
+
+export function fightersIndexPage({ fighters, data, site }) {
     const groups = new Map();
     for (const f of [...fighters].sort((a, b) => a.name.localeCompare(b.name, 'en'))) {
         const letter = f.name.normalize('NFD').charAt(0).toUpperCase();
@@ -311,26 +315,53 @@ export function fightersIndexPage({ fighters, site }) {
         groups.get(key).push(f);
     }
     const body = `<main>
-    <header class="pg-head">
+    <header class="pg-head pg-head--rankings">
         <div class="pg-inner pg-inner--wide">
-            <h1 class="pg-title" data-r>Fighters.</h1>
-            <p class="pg-lede" data-r style="--d:80ms">Every fighter with a page: the top 30 of each division, and everyone the Observatory measured on a card in the last year. ${num(fighters.length)} in all.</p>
+            ${subtabs('fighters', data)}
+            <p class="pg-lede" data-r style="--d:80ms">Every fighter with a page: the top 30 of each division, and everyone on a card the Observatory read in full. ${num(fighters.length)} in all.</p>
+            <div class="dp-find" data-r>
+                <label class="sr-only" for="dpFind">Find a fighter</label>
+                <input id="dpFind" class="dp-find-in" type="search" placeholder="Find a fighter" autocomplete="off" spellcheck="false" hidden>
+            </div>
             <ul class="dp-az" aria-label="Jump to a letter">${[...groups.keys()].map((k) => `<li><a href="#l-${k === '#' ? 'other' : k}">${k}</a></li>`).join('')}</ul>
         </div>
     </header>
     <section class="pg-body pg-body--rule">
-        <div class="pg-inner pg-inner--wide">${[...groups].map(([k, list]) => `
-            <h2 class="pg-h2 pg-h2--small dp-letter" id="l-${k === '#' ? 'other' : k}">${k}</h2>
-            <ul class="dp-names">${list.map((f) => `<li>${link(f.name, f.slug)}${f.flr ? `<span class="dp-sub">${esc(f.flr.division)}</span>` : ''}</li>`).join('')}</ul>`).join('')}
+        <div class="pg-inner pg-inner--wide" id="dpNames">${[...groups].map(([k, list]) => `
+            <div class="dp-group">
+                <h2 class="pg-h2 pg-h2--small dp-letter" id="l-${k === '#' ? 'other' : k}">${k}</h2>
+                <ul class="dp-names">${list.map((f) => `<li data-n="${esc(f.name.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase())}">${link(f.name, f.slug)}${standing(f) ? `<span class="dp-sub">${esc(standing(f))}</span>` : ''}</li>`).join('')}</ul>
+            </div>`).join('')}
+            <p class="pg-empty dp-none" hidden>No fighter by that name has a page yet.</p>
         </div>
     </section>
 </main>
+<script>
+// Filters the list as you type (accents and case ignored). Without script the box stays hidden
+// and the full A to Z list is the page.
+(function () {
+    var box = document.getElementById('dpFind'), root = document.getElementById('dpNames');
+    if (!box || !root) return;
+    box.hidden = false;
+    var items = Array.prototype.slice.call(root.querySelectorAll('li[data-n]'));
+    var groups = Array.prototype.slice.call(root.querySelectorAll('.dp-group'));
+    var none = root.querySelector('.dp-none'), az = document.querySelector('.dp-az');
+    box.addEventListener('input', function () {
+        var q = box.value.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().trim();
+        var shown = 0;
+        items.forEach(function (li) { var on = !q || li.getAttribute('data-n').indexOf(q) !== -1; li.hidden = !on; if (on) shown++; });
+        groups.forEach(function (g) { g.hidden = !g.querySelector('li[data-n]:not([hidden])'); });
+        none.hidden = shown > 0;
+        if (az) az.hidden = !!q;
+    });
+})();
+</script>
 ${FOOTER}`;
     return shell({
         title: `MMA fighters: ratings, fame and fight data — ${BRAND}`,
         description: `${num(fighters.length)} MMA fighters with their First Light Rating, First Light Index, skill curve and what every fight did to their rating.`,
         url: '/fighters/', site, current: 'index', body,
-        crumbs: [[BRAND, '/'], ['Fighters', '/fighters/']],
+        crumbs: [[BRAND, '/'], ['Index', '/index/'], ['Fighters', '/fighters/']],
     });
 }
 
@@ -374,7 +405,7 @@ export function divisionPage({ division, rows, data, fightersBySlug, site }) {
     const body = `<main>
     <header class="pg-head pg-head--rankings">
         <div class="pg-inner pg-inner--wide">
-            ${subtabs('division', !!data.winners_losers, !!data.events?.length)}
+            ${subtabs('division', data)}
             <h1 class="pg-title" data-r>${esc(division)} rankings.</h1>
             <p class="pg-lede" data-r style="--d:80ms">The top ${rows.length} ${plural(division)} by the First Light Rating, a skill score built from in-cage performance and results, with each one’s First Light Index: fame against what that skill predicts.${top ? ` ${esc(top.name)} leads at ${num(top.rating)}.` : ''}</p>
             <p class="pg-asof" data-r style="--d:100ms">${data.period ? `${esc(data.period)} · ` : ''}Updated <time datetime="${esc(data.generated_at)}">${fmtDate(data.generated_at)}</time> · <a href="/index/">All divisions</a></p>
@@ -426,7 +457,7 @@ export function eventsIndexPage({ events, data, site }) {
     const body = `<main>
     <header class="pg-head pg-head--rankings">
         <div class="pg-inner pg-inner--wide">
-            ${subtabs('events', !!data.winners_losers, true)}
+            ${subtabs('events', data)}
             <p class="pg-lede" data-r style="--d:80ms">Every card since the Observatory began reading fights in full, and what each fight did to the fighters’ attention, their skill and the FLI between them.</p>
         </div>
     </header>

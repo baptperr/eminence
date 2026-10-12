@@ -114,7 +114,7 @@ async function main() {
             routes.push({ url, lastmod: updated });
         }
         if (indexData.fighters.length) {
-            await write('fighters/index.html', fightersIndexPage({ fighters: indexData.fighters, site: SITE }));
+            await write('fighters/index.html', fightersIndexPage({ fighters: indexData.fighters, data: indexData, site: SITE }));
             routes.push({ url: '/fighters/', lastmod: updated });
         }
         // The field every fighter page draws its own fighter over (see fieldChart).

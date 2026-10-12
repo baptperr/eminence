@@ -557,11 +557,13 @@ export function byDivision(rankings) {
 
 // The two sections of the Index, as a header: the current one is the page title (white, underlined),
 // the other is a link to it.
-export function subtabs(current, hasWinners, hasEvents = false) {
+export function subtabs(current, data) {
     const tab = (id, label, href) => current === id
         ? `<h1 class="subtab is-on" aria-current="page">${label}</h1>`
         : `<a class="subtab" href="${href}">${label}</a>`;
-    return `<div class="subtabs" data-r>${tab('rankings', 'Rankings', '/index/')}${hasWinners ? tab('winners', 'Last weekend’s winners', '/index/winners-losers/') : ''}${hasEvents ? tab('events', 'Events', '/events/') : ''}</div>`;
+    // The Index's four views of the same data, in one row: the rankings, the weekly winners and
+    // losers, every card, every fighter.
+    return `<nav class="subtabs" aria-label="Index" data-r>${tab('rankings', 'Rankings', '/index/')}${data?.winners_losers ? tab('winners', 'Last weekend', '/index/winners-losers/') : ''}${data?.events?.length ? tab('events', 'Events', '/events/') : ''}${data?.fighters?.length ? tab('fighters', 'Fighters', '/fighters/') : ''}</nav>`;
 }
 
 const KEY = `
@@ -630,7 +632,7 @@ ${FOOTER}`,
     const body = `<main>
     <header class="pg-head pg-head--rankings">
         <div class="pg-inner pg-inner--wide">
-            ${subtabs('rankings', !!data.winners_losers, !!data.events?.length)}
+            ${subtabs('rankings', data)}
             <p class="pg-asof" data-r style="--d:80ms">${data.period ? `${esc(data.period)} · ` : ''}Updated <time datetime="${esc(data.generated_at)}">${fmtDate(data.generated_at)}</time></p>
             ${divisions.size > 1 ? `<details class="jump-wrap">
                 <summary class="jump-summary">Jump to a division</summary>
@@ -694,7 +696,7 @@ export function winnersLosersPage({ data, site }) {
     const body = `<main>
     <header class="pg-head pg-head--rankings">
         <div class="pg-inner pg-inner--wide">
-            ${subtabs('winners', true, !!data.events?.length)}
+            ${subtabs('winners', data)}
             <p class="pg-asof" data-r style="--d:80ms">${wl.period ? `${esc(wl.period)} · ` : ''}Updated <time datetime="${esc(data.generated_at)}">${fmtDate(data.generated_at)}</time></p>
         </div>
     </header>
