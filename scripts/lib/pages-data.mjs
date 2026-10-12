@@ -209,7 +209,7 @@ function courseChart(f) {
             </svg>
             ${FIGURE_CREDIT}
         </figure>
-        <p class="ch-note">Both on the First Light Rating scale. Thin vertical lines are fights (hover for each). Attention is placed at the rating whose usual fame it matches: where it runs above skill, the fighter is more famous than their skill predicts. Right of the line, the shaded bands are what the fighters whose careers were most like this one at this point went on to do over the next two years: most inside the light band, half inside the dark one, the dashed line typical.${age ? ' Age in brackets.' : ''} The strips underneath are the phases each arc was in: skill developing, prime or declining; attention rising, at its peak or fading.</p>`;
+        <p class="ch-note">Attention is drawn at the skill level its fame matches: above the skill line, more famous than skilled. Shaded: where the most similar careers went next.</p>`;
 }
 
 // ── /fighters/<slug>/ ───────────────────────────────────────────────────────────────────
