@@ -563,7 +563,7 @@ export function subtabs(current, data) {
         : `<a class="subtab" href="${href}">${label}</a>`;
     // The Index's four views of the same data, in one row: the rankings, the weekly winners and
     // losers, every card, every fighter.
-    return `<nav class="subtabs" aria-label="Index" data-r>${tab('rankings', 'Rankings', '/index/')}${data?.winners_losers ? tab('winners', 'Last weekend', '/index/winners-losers/') : ''}${data?.events?.length ? tab('events', 'Events', '/events/') : ''}${data?.fighters?.length ? tab('fighters', 'Fighters', '/fighters/') : ''}</nav>`;
+    return `<nav class="subtabs" aria-label="Index" data-r>${tab('rankings', 'Rankings', '/index/')}${data?.winners_losers ? tab('winners', 'Last week', '/index/winners-losers/') : ''}${data?.events?.length ? tab('events', 'Events', '/events/') : ''}${data?.fighters?.length ? tab('fighters', 'Fighters', '/fighters/') : ''}</nav>`;
 }
 
 const KEY = `
@@ -709,8 +709,8 @@ export function winnersLosersPage({ data, site }) {
 </main>
 ${FOOTER}`;
     return shell({
-        title: 'Last weekend’s winners — First Light',
-        description: 'MMA fighters whose fame went against the result last weekend: who lost the fight but drew a lot of attention, and who won it but drew very little.',
+        title: 'Last week’s winners and losers — First Light',
+        description: 'MMA fighters whose fame went against the result last week: who lost the fight but drew a lot of attention, and who won it but drew very little.',
         url: '/index/winners-losers/', site, current: 'index', body,
     });
 }
