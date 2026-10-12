@@ -234,7 +234,7 @@ export function archivePage({ articles, site }) {
 ${FOOTER}`;
     return shell({
         title: 'Publications — First Light',
-        description: 'Articles and data from First Light on fighters\' fame, skill and what moves them: Instagram, Wikipedia and the First Light Index, event by event.',
+        description: 'Articles and data from First Light on fighters\' fame, skill and what moves them, event by event.',
         url: '/publications/', site, current: 'publications', body,
         crumbs: [['First Light', '/'], ['Publications', '/publications/']],
     });
@@ -348,8 +348,8 @@ const observatoryDataset = (site) => ({
     creditText: 'First Light Observatory',
     isAccessibleForFree: true,
     license: `${site}/observatory/#cite`,
-    keywords: ['MMA rankings', 'UFC rankings', 'fighter ratings', 'fighter popularity', 'Wikipedia pageviews', 'mixed martial arts data'],
-    variableMeasured: ['First Light Rating (FLR)', 'First Light Index (FLI)', 'Wikipedia attention multiple around a fight'],
+    keywords: ['MMA rankings', 'UFC rankings', 'fighter ratings', 'fighter popularity', 'fighter attention', 'mixed martial arts data'],
+    variableMeasured: ['First Light Rating (FLR)', 'First Light Index (FLI)', 'Attention around a fight'],
     measurementTechnique: `${site}/observatory/methodology/`,
     distribution: [
         { '@type': 'DataDownload', encodingFormat: 'text/csv', contentUrl: `${site}/data/rankings.csv` },
@@ -657,15 +657,16 @@ ${FOOTER}`;
     return shell({ ...meta, body, crumbs: [[BRAND, '/'], ['Rankings', '/index/']] });
 }
 
-// Each side's rule, in a line under its heading: the figures only make sense against it.
+// Each side's rule, in a line under its heading: the figures only make sense against it. Attention
+// is never named by what it is read from (no platform, no unit): see the methodology page.
 const WL_RULE = {
-    winners: 'Lost the fight, and drew more attention than the fighter who beat them.',
-    losers: 'Won the fight, and drew less attention than the fighter they beat.',
+    winners: 'Lost the fight, but it was close, and drew the attention of a winner.',
+    losers: 'Won the fight, but only just, and drew the attention of a loser.',
 };
-const WL_UNIT = 'Wikipedia views in the three days after the fight, as a multiple of the fighter’s usual daily views.';
+const ATTENTION_NOTE = 'Attention after the fight, against what is typical for a fighter of the same profile: 1.0× is typical.';
 
-// An attention multiple at two significant figures: 1.4×, 9.8×, 14×, 210×. Fine enough to tell
-// two fighters apart, coarse enough that a quiet name's spike doesn't read as "+1,953.5%".
+// An attention figure at two significant figures: 0.3×, 1.8×, 14×. Fine enough to tell two
+// fighters apart, coarse enough not to read as false precision.
 export function fmtMultiple(m) {
     if (m == null) return '';
     const digits = m < 10 ? 1 : 0;
@@ -678,16 +679,13 @@ function wlList(kind, heading, items) {
         const won = e.outcome === 'win';
         const versus = e.opponent ? ` ${won ? 'against' : 'to'} ${slugLink(e.opponent, e.opponent_slug, '/fighters/')}` : '';
         const where = [e.event ? slugLink(e.event, e.event_slug, '/events/') : '', e.date ? fmtDate(e.date) : ''].filter(Boolean).join(' · ');
-        // Older exports carry only `change` (the spike as a percentage); the multiple is the same number.
-        const multiple = e.multiple ?? (e.change != null ? 1 + e.change / 100 : null);
-        const theirs = e.opponent_multiple != null && e.opponent
-            ? `<span class="wl-typical">${esc(lastName(e.opponent))}: ${fmtMultiple(e.opponent_multiple)}</span>` : '';
+        const flr = e.flr_change != null ? `<span class="wl-typical">FLR ${signed(e.flr_change, 0)}</span>` : '';
         return `
                     <li class="wl-row">
                         <span class="wl-who"><span class="wl-name">${slugLink(e.name, e.slug, '/fighters/')}</span>
                             <span class="wl-line"><span class="wl-res wl-res--${won ? 'won' : 'lost'}">${won ? 'Won' : 'Lost'}</span>${versus}${e.method ? ` · ${esc(e.method)}` : ''}</span>${where ? `
                             <span class="wl-line wl-line--dim">${where}</span>` : ''}</span>
-                        <span class="wl-fig"><span class="wl-change wl-change--${kind}" title="${esc(WL_UNIT)}">${fmtMultiple(multiple)}<span class="sr-only"> usual Wikipedia views</span></span>${theirs}</span>
+                        <span class="wl-fig"><span class="wl-change wl-change--${kind}" title="${esc(ATTENTION_NOTE)}">${fmtMultiple(e.attention)}<span class="sr-only"> attention</span></span>${flr}</span>
                     </li>`;
     }).join('');
     return `
@@ -698,8 +696,6 @@ function wlList(kind, heading, items) {
             </ol>
         </section>`;
 }
-
-const lastName = (name) => name.trim().split(/\s+/).slice(-1)[0];
 
 export function winnersLosersPage({ data, site }) {
     const wl = data.winners_losers;
@@ -713,14 +709,14 @@ export function winnersLosersPage({ data, site }) {
     <div class="pg-body pg-body--flush">${wl.winners.length || wl.losers.length ? `
         <div class="pg-inner pg-inner--wide wl">${wlList('winners', 'Winners', wl.winners)}${wlList('losers', 'Losers', wl.losers)}
         </div>
-        <div class="pg-inner pg-inner--wide"><p class="pg-fine wl-unit" data-r>× is ${WL_UNIT.charAt(0).toLowerCase()}${WL_UNIT.slice(1)} <a href="/observatory/methodology/#attention">How it is measured</a>.</p></div>` : `
+        <div class="pg-inner pg-inner--wide"><p class="pg-fine wl-unit" data-r>${ATTENTION_NOTE} FLR is the rating points the fight moved. <a href="/observatory/methodology/#attention">How it is measured</a>.</p></div>` : `
         <div class="pg-inner pg-inner--wide"><p class="pg-empty" data-r>No clear winners or losers yet.</p></div>`}
     </div>
 </main>
 ${FOOTER}`;
     return shell({
         title: 'Last weekend’s winners — First Light',
-        description: 'MMA fighters whose fame went against the result last weekend: who lost the fight and still drew more attention than the winner, and who won and drew less.',
+        description: 'MMA fighters whose fame went against the result last weekend: who lost a close fight and still drew a winner’s attention, and who won narrowly and drew a loser’s.',
         url: '/index/winners-losers/', site, current: 'index', body,
     });
 }

@@ -548,3 +548,5 @@ button.rk-tick { cursor: default; border-bottom: 1px dotted var(--t3); }
 .ch-note { margin-top: 0.35rem; font-size: 0.78rem; color: var(--t3); line-height: 1.5; max-width: 80ch; }
 .dp-credit { margin: 0 0 1rem; }
 .pg-fine + .dp-credit { margin-top: 2rem; }
+.dp-flr { font-size: 0.78rem; color: var(--t3); font-variant-numeric: tabular-nums; margin-left: 0.35rem; }
+.dp-verdict { color: var(--t2); }

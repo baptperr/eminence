@@ -117,7 +117,7 @@ export function attentionChart(series, fights = []) {
     const last = series[series.length - 1];
     const [lx, ly] = pts[pts.length - 1];
     return `<figure class="ch">
-            <svg class="ch-svg" viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(`Wikipedia attention rank by month among ${num(of)} professional fighters, ${fmtMonth(series[0].month)} to ${fmtMonth(last.month)}. Latest: #${num(last.rank)}.`)}">
+            <svg class="ch-svg" viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(`Attention rank by month among ${num(of)} professional fighters, ${fmtMonth(series[0].month)} to ${fmtMonth(last.month)}. Latest: #${num(last.rank)}.`)}">
                 ${grid}${fightMarks}${timeAxis(t0, t1, x)}
                 <polyline class="ch-line" points="${pts.map(([a, b]) => `${a.toFixed(1)},${b.toFixed(1)}`).join(' ')}"/>
                 ${dots}
@@ -125,7 +125,7 @@ export function attentionChart(series, fights = []) {
             </svg>
             ${FIGURE_CREDIT}
         </figure>
-        <p class="ch-note">Rank by Wikipedia page views each month, among every professional fighter the Observatory reads Wikipedia for (1 = most read). Vertical lines are fights.</p>`;
+        <p class="ch-note">Where the attention on this fighter ranked each month among about ${num(of)} professional fighters (1 = the most). Vertical lines are fights. ${METHOD_LINK('attention-rank', 'How it is measured')}.</p>`;
 }
 
 // ── /fighters/<slug>/ ───────────────────────────────────────────────────────────────────
@@ -141,7 +141,7 @@ function fighterLede(f) {
 function fighterDescription(f) {
     const parts = [fighterLede(f)];
     if (f.fli != null) parts.push(`First Light Index ${signed(f.fli, 2)}: ${f.fli >= 0 ? 'more famous than their skill predicts' : 'better than their audience knows'}.`);
-    parts.push('Skill fight by fight, Wikipedia attention month by month, and what each fight did to both.');
+    parts.push('Skill fight by fight, attention month by month, and what each fight did to both.');
     return parts.filter(Boolean).join(' ');
 }
 
@@ -155,7 +155,7 @@ function statTiles(f) {
     }
     if (f.phase) tiles.push(['Phase', esc(f.phase.phase), `Career-best FLR ${num(f.phase.best)}, ${fmtDate(f.phase.best_date)}`, METHOD_LINK('phase', 'Career phase')]);
     const att = f.attention?.[f.attention.length - 1];
-    if (att) tiles.push(['Attention', `#${num(att.rank)}`, `of ${num(att.of)} on Wikipedia, ${fmtMonth(att.month)}`, METHOD_LINK('attention', 'Attention rank')]);
+    if (att) tiles.push(['Attention', `#${num(att.rank)}`, `of ${num(att.of)} pros, ${fmtMonth(att.month)}`, METHOD_LINK('attention', 'Attention rank')]);
     if (f.record) tiles.push(['Record', `${f.record.w}–${f.record.l}${f.record.d ? `–${f.record.d}` : ''}`, `Pro${f.record.nc ? `, ${f.record.nc} NC` : ''}`, 'Record']);
     return `<dl class="dp-tiles" data-r>${tiles.map(([, value, sub, label]) => `
                 <div class="dp-tile"><dt>${label}</dt><dd><span class="dp-tile-v">${value}</span><span class="dp-tile-s">${sub}</span></dd></div>`).join('')}
@@ -164,13 +164,13 @@ function statTiles(f) {
 
 function fightsTable(f) {
     if (!f.fights?.length) return '';
-    const anyMultiple = f.fights.some((x) => x.multiple != null);
+    const anyMultiple = f.fights.some((x) => x.attention != null);
     const rows = f.fights.map((x) => `
                     <tr>
                         <td class="dp-nowrap">${fmtDate(x.date)}</td>
                         <td><span class="dp-res dp-res--${esc(x.result)}">${RESULT[x.result] ?? esc(x.result)}</span> ${x.result === 'win' ? 'vs' : x.result === 'loss' ? 'to' : 'vs'} ${link(x.opponent, x.opponent_slug)}${x.title ? ' <span class="dp-flag">Title</span>' : ''}<span class="dp-sub">${eventLinkTo(x.event, x.event_slug)}${x.method ? ` · ${esc(x.method)}${x.round ? `, R${x.round}` : ''}` : ''}</span></td>
                         <td class="dp-num">${x.flr_change != null ? signed(x.flr_change, 0) : '—'}</td>${anyMultiple ? `
-                        <td class="dp-num">${x.multiple != null ? fmtMultiple(x.multiple) : '—'}</td>` : ''}
+                        <td class="dp-num">${x.attention != null ? fmtMultiple(x.attention) : '—'}${x.verdict ? `<span class="dp-sub dp-verdict">${VERDICT[x.verdict]}</span>` : ''}</td>` : ''}
                     </tr>`).join('');
     return `
     <section class="pg-body pg-body--rule" aria-labelledby="dp-fights">
@@ -183,7 +183,7 @@ function fightsTable(f) {
                     </tbody>
                 </table>
             </div>
-            <p class="pg-fine" data-r>FLR is how many rating points the fight moved. ${anyMultiple ? `Attention is Wikipedia views in the three days after the fight, as a multiple of the fighter’s usual daily views (${METHOD_LINK('attention', 'how it is measured')}).` : ''}</p>
+            <p class="pg-fine" data-r>FLR is how many rating points the fight moved. ${anyMultiple ? `Attention is what the fight drew, against what is typical for a fighter of the same profile: 1.0× is typical (${METHOD_LINK('attention', 'how it is measured')}).` : ''}</p>
         </div>
     </section>`;
 }
@@ -270,7 +270,7 @@ export function fightersIndexPage({ fighters, site }) {
 ${FOOTER}`;
     return shell({
         title: `MMA fighters: ratings, fame and fight data — ${BRAND}`,
-        description: `${num(fighters.length)} MMA fighters with their First Light Rating, First Light Index, skill curve and Wikipedia attention, fight by fight.`,
+        description: `${num(fighters.length)} MMA fighters with their First Light Rating, First Light Index, skill curve and attention, fight by fight.`,
         url: '/fighters/', site, current: 'index', body,
         crumbs: [[BRAND, '/'], ['Fighters', '/fighters/']],
     });
@@ -353,13 +353,16 @@ ${FOOTER}`;
 const allMeasured = (e) => e.bouts.flatMap((b) => [
     { ...b.winner, result: 'win', opp: b.loser, bout: b },
     { ...b.loser, result: 'loss', opp: b.winner, bout: b },
-]).filter((x) => x.multiple != null);
+]).filter((x) => x.attention != null);
+
+// What a fame verdict (observatory/fame_verdict.py) says, in a few words.
+const VERDICT = { fame_winner: 'Lost close, drew a winner’s attention', fame_loser: 'Won narrowly, drew a loser’s attention' };
 
 function eventSummary(e) {
-    const m = allMeasured(e).sort((a, b) => b.multiple - a.multiple);
-    const against = e.bouts.filter((b) => b.against_result).length;
-    const lead = m[0] ? `${m[0].name} drew the most attention, ${fmtMultiple(m[0].multiple)} their usual Wikipedia views` : '';
-    return [lead, against ? `${against} ${against === 1 ? 'fight' : 'fights'} went against the result` : ''].filter(Boolean).join('; ');
+    const m = allMeasured(e).sort((a, b) => b.attention - a.attention);
+    const against = e.bouts.flatMap((b) => [b.winner, b.loser]).filter((s) => s.verdict).length;
+    const lead = m[0] ? `${m[0].name} drew the most attention, ${fmtMultiple(m[0].attention)} what is typical for them` : '';
+    return [lead, against ? `${against} ${against === 1 ? 'fighter’s' : 'fighters’'} attention went against the result` : ''].filter(Boolean).join('; ');
 }
 
 export function eventsIndexPage({ events, data, site }) {
@@ -367,7 +370,7 @@ export function eventsIndexPage({ events, data, site }) {
     <header class="pg-head pg-head--rankings">
         <div class="pg-inner pg-inner--wide">
             ${subtabs('events', !!data.winners_losers, true)}
-            <p class="pg-lede" data-r style="--d:80ms">Every card of the last year, and what each fight did to the fighters’ attention: Wikipedia views in the three days after, against their usual.</p>
+            <p class="pg-lede" data-r style="--d:80ms">Every card of the last year, and the attention each fight drew to the fighters in it, against what is typical for fighters of the same profile.</p>
         </div>
     </header>
     <section class="pg-body pg-body--flush">
@@ -387,7 +390,7 @@ export function eventsIndexPage({ events, data, site }) {
 ${FOOTER}`;
     return shell({
         title: `MMA events: who each fight made famous — ${BRAND}`,
-        description: 'Every UFC, PFL, ONE and Rizin card of the last year, with the attention each fighter drew after their fight and the fights whose fame went against the result.',
+        description: 'Every UFC, PFL, ONE and Rizin card of the last year, with the attention each fighter drew after their fight and the fighters whose fame went against the result.',
         url: '/events/', site, current: 'index', body,
         crumbs: [[BRAND, '/'], ['Events', '/events/']],
     });
@@ -395,16 +398,16 @@ ${FOOTER}`;
 
 export function eventPage({ e, site }) {
     const url = eventHref(e.slug);
-    const measured = allMeasured(e).sort((a, b) => b.multiple - a.multiple);
+    const measured = allMeasured(e).sort((a, b) => b.attention - a.attention);
     const podium = measured.slice(0, 3);
     const anyM = measured.length > 0;
-    const side = (s, won) => `<span class="dp-res dp-res--${won ? 'win' : 'loss'}">${won ? 'W' : 'L'}</span> ${link(s.name, s.slug)}`;
+    const side = (s, won) => `<span class="dp-res dp-res--${won ? 'win' : 'loss'}">${won ? 'W' : 'L'}</span> ${link(s.name, s.slug)}${s.flr_change != null ? ` <span class="dp-flr">FLR ${signed(s.flr_change, 0)}</span>` : ''}${s.verdict ? `<span class="dp-sub dp-verdict">${VERDICT[s.verdict]}</span>` : ''}`;
     const rows = e.bouts.map((b) => `
                     <tr${b.against_result ? ' class="dp-against"' : ''}>
                         <td>${side(b.winner, true)}<span class="dp-sub">${b.method ? esc(b.method) : ''}${b.round ? `, R${b.round}` : ''}${b.weight_class ? ` · ${esc(b.weight_class)}` : ''}${b.title ? ' · Title' : ''}</span></td>
-                        <td class="dp-num">${b.winner.multiple != null ? fmtMultiple(b.winner.multiple) : '—'}</td>
-                        <td>${side(b.loser, false)}${b.against_result ? '<span class="dp-sub dp-against-note">Drew more attention than the winner</span>' : ''}</td>
-                        <td class="dp-num">${b.loser.multiple != null ? fmtMultiple(b.loser.multiple) : '—'}</td>
+                        <td class="dp-num">${b.winner.attention != null ? fmtMultiple(b.winner.attention) : '—'}</td>
+                        <td>${side(b.loser, false)}</td>
+                        <td class="dp-num">${b.loser.attention != null ? fmtMultiple(b.loser.attention) : '—'}</td>
                     </tr>`).join('');
     const desc = `${e.name}, ${fmtDate(e.date)}: the attention every fighter on the card drew after their fight. ${eventSummary(e)}.`;
     const body = `<main>
@@ -414,7 +417,7 @@ export function eventPage({ e, site }) {
             <h1 class="pg-title pg-title--name" data-r style="--d:60ms">${esc(e.name)}</h1>
             <p class="pg-lede" data-r style="--d:120ms">${esc(eventSummary(e))}.</p>${podium.length ? `
             <dl class="dp-tiles" data-r>${podium.map((p, i) => `
-                <div class="dp-tile"><dt>${['Most attention', 'Second', 'Third'][i]}</dt><dd><span class="dp-tile-v">${fmtMultiple(p.multiple)}</span><span class="dp-tile-s">${link(p.name, p.slug)}, ${p.result === 'win' ? 'won' : 'lost'}</span></dd></div>`).join('')}
+                <div class="dp-tile"><dt>${['Most attention', 'Second', 'Third'][i]}</dt><dd><span class="dp-tile-v">${fmtMultiple(p.attention)}</span><span class="dp-tile-s">${link(p.name, p.slug)}, ${p.result === 'win' ? 'won' : 'lost'}</span></dd></div>`).join('')}
             </dl>` : ''}
         </div>
     </header>
@@ -428,7 +431,7 @@ export function eventPage({ e, site }) {
                     </tbody>
                 </table>
             </div>
-            <p class="pg-fine" data-r>Attention is Wikipedia views in the three days after the fight, as a multiple of the fighter’s usual daily views; — means too little history to measure (${METHOD_LINK('attention', 'how it is measured')}). Highlighted fights went against the result: the loser drew more attention than the winner.</p>
+            <p class="pg-fine" data-r>Attention is what the fight drew, against what is typical for a fighter of the same profile: 1.0× is typical; — means too little history to measure. FLR is the rating points the fight moved. Highlighted fights are where a fighter’s attention followed the performance rather than the result (${METHOD_LINK('attention', 'how it is measured')}).</p>
             ${DATA_CREDIT}
         </div>
     </section>
@@ -496,11 +499,12 @@ export function methodologyPage({ site }) {
             </table></div>
             <p>On the fights both rate, the FLR picks the winner ${(a.fm.flr - a.fm.them).toFixed(1)} points more often than Fight Matrix, the longest-running algorithmic MMA ranking. Fight Matrix does slightly worse than simply backing the fighter with the better record (${a.fm.record}%). Its predictions are also less well calibrated: log loss ${a.fm.themLL.toFixed(3)} against the FLR’s ${a.fm.flrLL.toFixed(3)} (lower is better).</p>
             <p>The betting market is better still, and is expected to stay that way: closing odds know about injuries, weight cuts, short-notice replacements and styles, none of which a rating can see. The FLR is a measure of what fighters have shown in the cage, not a betting tool.</p>`)}${sec('fli', 'The First Light Index (FLI).', `
-            <p>The FLI compares a fighter’s fame with what their FLR would predict. Fame is read across the platforms the Observatory follows (Instagram, YouTube, TikTok, X and Wikipedia), each converted to one scale. A curve is fitted to fame against skill over every rated fighter, because fame is winner-take-most: the very best are disproportionately famous.</p>
+            <p>The FLI compares a fighter’s fame with what their FLR would predict. Fame is the size of the audience a fighter commands, read by the Observatory and brought to one scale. A curve is fitted to fame against skill over every rated fighter, because fame is winner-take-most: the very best are disproportionately famous.</p>
             <p>The FLI is where a fighter sits against that curve, on a scale from −1 to +1. Above zero, their audience is bigger than their skill explains. Below zero, they are better than their audience knows. The arrow on the rankings is its change over about 30 days.</p>`)}${sec('attention', 'Attention around a fight.', `
-            <p>The attention multiple is a fighter’s Wikipedia page views in the three days after a fight, divided by their usual daily views: the median of days 8 to 28 before it. Views are summed over every language edition and count people, not bots. Fight day itself is left out, because a US card ends after midnight UTC.</p>
-            <p>A fighter needs at least 14 days of views in that window and a median of at least 20 a day, or there is no honest baseline and no multiple is shown. A fight went <em>against the result</em> when the loser’s multiple was higher than the winner’s.</p>
-            <p id="attention-rank">The <strong>attention rank</strong> on a fighter’s page is where their monthly Wikipedia views placed them among every professional fighter the Observatory reads Wikipedia for, about a thousand, 1 being the most read.</p>`)}${sec('phase', 'Career phase.', `
+            <p>Attention is how much the public turns towards a fighter: the curiosity and interest a name draws, read by the Observatory. After each fight it is compared with the fighter’s own usual level, then with what is typical for a fighter of the same profile, so a rising prospect and an established star can be read on the same scale. 1.0× is typical; 2.0× is twice what is typical.</p>
+            <p>A fighter needs enough history before the fight for an honest comparison. Without it, no figure is shown.</p>
+            <p><strong>When attention goes against the result.</strong> The result is a verdict; the rating reads the performance behind it. A fighter who lost a close fight, with a rating that barely moved, and still drew the attention of a typical winner, won the night in the eyes of the public. A fighter who won narrowly, gaining little rating, and drew no more attention than a typical loser, lost it. A heavy defeat is never counted as a fame win however much attention follows, and a dominant win never as a fame loss.</p>
+            <p id="attention-rank">The <strong>attention rank</strong> on a fighter’s page is where the attention on them ranked each month among about a thousand professional fighters, 1 being the most.</p>`)}${sec('phase', 'Career phase.', `
             <p>Each month, a fighter’s FLR is compared with their best so far. <strong>Prime</strong>: at or near their best. <strong>Developing</strong>: near their best and still climbing. <strong>Declining</strong>: clearly below it. <strong>Inactive</strong>: no fight in two years. <strong>Unproven</strong>: too few fights to say.</p>`)}${sec('cite', 'Using this data.', `
             <p>Journalists and researchers may publish anything on this site, with the credit <strong>Source: First Light Observatory</strong> and, online, a link to the page it came from. The current rankings are downloadable as <a href="/data/rankings.csv">CSV</a> and <a href="/data/rankings.json">JSON</a>. For anything else, or deeper data on a fighter, write to <a href="mailto:contact@firstlightequity.com">contact@firstlightequity.com</a>.</p>
             <p>${HOLDINGS_TEXT}</p>`)}

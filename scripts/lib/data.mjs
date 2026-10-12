@@ -136,19 +136,19 @@ export async function loadIndex(file) {
         }
     });
 
-    // Winners lost the fight and gained a lot of fame; losers won it and gained hardly any (their
-    // change can be slightly positive). The export sets the bar; the build only refuses a list
-    // whose results or signs contradict its heading.
+    // Fame winners officially lost, fame losers officially won (observatory/fame_verdict.py decides
+    // who; the build only refuses a list whose results contradict its heading).
     let wl = null;
     if (d.winners_losers != null) {
         wl = d.winners_losers;
-        for (const [side, outcome, sign] of [['winners', 'loss', 1], ['losers', 'win', -1]]) {
+        for (const [side, outcome] of [['winners', 'loss'], ['losers', 'win']]) {
             if (!Array.isArray(wl[side])) bad(`"winners_losers.${side}" must be an array`);
             wl[side].forEach((e, i) => {
                 const at = `winners_losers.${side}[${i}]`;
                 if (!isStr(e?.name)) bad(`${at}.name missing`);
                 if (e.outcome !== outcome) bad(`${at}.outcome must be "${outcome}"`);
-                if (!isNum(e.change) || (sign > 0 && e.change <= 0)) bad(`${at}.change must be ${sign > 0 ? 'positive' : 'a number'}`);
+                if (!isNum(e.attention) || e.attention < 0) bad(`${at}.attention must be a non-negative number`);
+                if (!isNum(e.flr_change)) bad(`${at}.flr_change must be a number`);
                 if (e.date != null && Number.isNaN(new Date(e.date).getTime())) bad(`${at}.date must be a date`);
             });
         }
