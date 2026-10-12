@@ -604,6 +604,15 @@ function archiveTeaser(articles) {
 `;
 }
 
+// Every division's own page, one click from Rankings and always in view: pound-for-pound and the
+// men's divisions light to heavy on one line, the women's on the next (the export's order).
+function divisionLinks(names) {
+    const short = (d) => d.replace(/^Men's /, '').replace(/^Women's /, '');
+    const row = (label, list) => (list.length ? `<p class="divs-row"><span class="divs-label">${label}</span>${list.map((d) => `<a href="${divisionUrl(d)}">${esc(short(d))}</a>`).join('')}</p>` : '');
+    const women = names.filter((d) => /^Women's /.test(d)), men = names.filter((d) => d && !/^Women's /.test(d));
+    return `<nav class="divs" aria-label="Divisions" data-r style="--d:100ms">${row('Men', men)}${row('Women', women)}</nav>`;
+}
+
 export function indexPage({ data, articles, site }) {
     const meta = {
         title: 'MMA Rankings by Skill and Fame — First Light',
@@ -634,11 +643,8 @@ ${FOOTER}`,
         <div class="pg-inner pg-inner--wide">
             ${subtabs('rankings', data)}
             <p class="pg-asof" data-r style="--d:80ms">${data.period ? `${esc(data.period)} · ` : ''}Updated <time datetime="${esc(data.generated_at)}">${fmtDate(data.generated_at)}</time></p>
-            ${divisions.size > 1 ? `<details class="jump-wrap">
-                <summary class="jump-summary">Jump to a division</summary>
-                <ul class="jump" aria-label="Jump to a division">${[...divisions.keys()].map((d) => `<li><a href="#${esc(slugify(d))}">${esc(d)}</a></li>`).join('')}</ul>
-            </details>
-` : ''}        </div>
+            ${divisions.size > 1 ? divisionLinks([...divisions.keys()]) : ''}
+        </div>
     </header>
 
     <section class="pg-body pg-body--flush" aria-label="Rankings by division">

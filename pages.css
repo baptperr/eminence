@@ -656,3 +656,10 @@ button.rk-tick { cursor: default; border-bottom: 1px dotted var(--t3); }
     font-size: 0.78rem; line-height: 1.3; padding: 0.35rem 0.55rem;
 }
 .ch-tip[hidden] { display: none; }
+
+/* Rankings: every division's page, always in view. */
+.divs { margin-top: 1.75rem; display: grid; gap: 0.55rem; }
+.divs-row { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0.35rem 1.25rem; max-width: none; margin: 0; }
+.divs-label { font-size: 0.72rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--t3); width: 4.2rem; flex: none; }
+.divs a { font-size: 0.88rem; color: var(--t2); text-decoration: none; border-bottom: 1px solid var(--border-d); transition: color 0.2s, border-color 0.2s; }
+.divs a:hover, .divs a:focus-visible { color: var(--bone); border-color: var(--bone); outline: none; }
