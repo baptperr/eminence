@@ -4,7 +4,7 @@
 # laptop that hosts the Observatory. The laptop is the only deployer: it is the only place
 # the private pages' data exists, so a deploy from anywhere else would drop them.
 #
-#   scripts/refresh-site.sh              deploy only if the export changed
+#   scripts/refresh-site.sh              deploy only if the export differs from the last deploy
 #   FORCE=1 scripts/refresh-site.sh      deploy regardless
 #   DRY_RUN=1 scripts/refresh-site.sh    export and build, then stop before deploying
 #
@@ -33,13 +33,17 @@ OBSERVATORY_DIR="${OBSERVATORY_DIR:-$(dirname "$REPO")/observatory}"
 OUT="$REPO/data/index.json"
 log() { printf '%s %s\n' "$(date '+%Y-%m-%d %H:%M:%S')" "$*"; }
 
-before="$(shasum "$OUT" 2>/dev/null || true)"
+# "Changed" means changed since the last SUCCESSFUL deploy, not since the last export: the
+# 2026-10-12 07:30 run wrote the new export, then the deploy failed on the network, and every
+# later run compared against that undeployed file, saw nothing new and never retried. The stamp
+# is written only after wrangler succeeds, so a failed deploy is retried by the next run.
+STAMP="${XDG_STATE_HOME:-$HOME/.local/state}/first-light/deployed-index.sha"
 log "exporting from $OBSERVATORY_DIR"
 ( cd "$OBSERVATORY_DIR" && ./.venv/bin/python -m observatory.site_export --out "$OUT" )
-after="$(shasum "$OUT")"
+export_sha="$(shasum "$OUT" | cut -d' ' -f1)"
 
-if [ "$before" = "$after" ] && [ -z "${FORCE:-}" ]; then
-    log "rankings unchanged, nothing to deploy"
+if [ "$(cat "$STAMP" 2>/dev/null || true)" = "$export_sha" ] && [ -z "${FORCE:-}" ]; then
+    log "rankings unchanged since the last deploy, nothing to deploy"
     exit 0
 fi
 
@@ -70,4 +74,6 @@ if [ -n "${DRY_RUN:-}" ]; then
 fi
 log "deploying"
 npm run --silent deploy
+mkdir -p "$(dirname "$STAMP")"
+printf '%s\n' "$export_sha" > "$STAMP"
 log "done"

@@ -13,7 +13,16 @@
   script then builds master in a separate worktree (see its header).
 
   07:30 Paris comes after the Observatory's Monday-morning results fetch (ingest_events, from
-  03:00 UTC), so Monday's run publishes the weekend's results and ranks.
+  03:00 UTC), so Monday's run publishes the weekend's results and ranks when the laptop was
+  awake for it.
+
+  Mondays it runs again every hour, 08:30 to 22:30 Paris, so the weekend's winners and losers go
+  out within the hour of their last input landing rather than at one fixed time: results and
+  ratings, the after-the-card Instagram reading (from 00:00 UTC Monday), and Sunday's Wikipedia
+  views (ingest_pageviews_daily, from 03:00 UTC), any of which a sleeping laptop or a container
+  restart can push to the afternoon (2026-10-12: complete at 14:57, published only Tuesday).
+  A run whose export matches the last deploy does nothing, and a failed deploy is retried by the
+  next run (see the script), so the extra runs cost about a minute of export each.
 
   If the laptop is asleep at 07:30, launchd runs the job when it wakes. If it is switched off
   or lid-closed and asleep all day, nothing runs and the site simply keeps its last data.
@@ -30,8 +39,22 @@
     <key>StartCalendarInterval</key>
     <array>
         <dict><key>Hour</key><integer>7</integer><key>Minute</key><integer>30</integer></dict>
-        <!-- Mondays again at 10:30 Paris, once the weekend's after-the-card readings are all in -->
+        <!-- Mondays every hour until late evening, for the weekend's winners and losers -->
+        <dict><key>Weekday</key><integer>1</integer><key>Hour</key><integer>8</integer><key>Minute</key><integer>30</integer></dict>
+        <dict><key>Weekday</key><integer>1</integer><key>Hour</key><integer>9</integer><key>Minute</key><integer>30</integer></dict>
         <dict><key>Weekday</key><integer>1</integer><key>Hour</key><integer>10</integer><key>Minute</key><integer>30</integer></dict>
+        <dict><key>Weekday</key><integer>1</integer><key>Hour</key><integer>11</integer><key>Minute</key><integer>30</integer></dict>
+        <dict><key>Weekday</key><integer>1</integer><key>Hour</key><integer>12</integer><key>Minute</key><integer>30</integer></dict>
+        <dict><key>Weekday</key><integer>1</integer><key>Hour</key><integer>13</integer><key>Minute</key><integer>30</integer></dict>
+        <dict><key>Weekday</key><integer>1</integer><key>Hour</key><integer>14</integer><key>Minute</key><integer>30</integer></dict>
+        <dict><key>Weekday</key><integer>1</integer><key>Hour</key><integer>15</integer><key>Minute</key><integer>30</integer></dict>
+        <dict><key>Weekday</key><integer>1</integer><key>Hour</key><integer>16</integer><key>Minute</key><integer>30</integer></dict>
+        <dict><key>Weekday</key><integer>1</integer><key>Hour</key><integer>17</integer><key>Minute</key><integer>30</integer></dict>
+        <dict><key>Weekday</key><integer>1</integer><key>Hour</key><integer>18</integer><key>Minute</key><integer>30</integer></dict>
+        <dict><key>Weekday</key><integer>1</integer><key>Hour</key><integer>19</integer><key>Minute</key><integer>30</integer></dict>
+        <dict><key>Weekday</key><integer>1</integer><key>Hour</key><integer>20</integer><key>Minute</key><integer>30</integer></dict>
+        <dict><key>Weekday</key><integer>1</integer><key>Hour</key><integer>21</integer><key>Minute</key><integer>30</integer></dict>
+        <dict><key>Weekday</key><integer>1</integer><key>Hour</key><integer>22</integer><key>Minute</key><integer>30</integer></dict>
     </array>
     <key>StandardOutPath</key><string>/Users/YOU/Library/Logs/first-light-refresh.log</string>
     <key>StandardErrorPath</key><string>/Users/YOU/Library/Logs/first-light-refresh.log</string>
