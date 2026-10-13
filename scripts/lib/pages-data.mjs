@@ -332,6 +332,11 @@ ${FOOTER}`;
 const standing = (f) => [f.flr ? `${f.flr.division} · ${ordinal(f.flr.rank)}` : null, f.fli != null ? `FLI ${signed(f.fli, 2)}` : null]
     .filter(Boolean).join(' · ');
 
+// What the find box matches a name on: no accents, case or punctuation ("O'Malley" is "omalley").
+// The script on the page normalises what is typed the same way.
+const findKey = (s) => s.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase()
+    .replace(/[^a-z0-9 ]+/g, '').replace(/\s+/g, ' ').trim();
+
 export function fightersIndexPage({ fighters, data, site }) {
     const groups = new Map();
     for (const f of [...fighters].sort((a, b) => a.name.localeCompare(b.name, 'en'))) {
@@ -356,29 +361,44 @@ export function fightersIndexPage({ fighters, data, site }) {
         <div class="pg-inner pg-inner--wide" id="dpNames">${[...groups].map(([k, list]) => `
             <div class="dp-group">
                 <h2 class="pg-h2 pg-h2--small dp-letter" id="l-${k === '#' ? 'other' : k}">${k}</h2>
-                <ul class="dp-names">${list.map((f) => `<li data-n="${esc(f.name.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase())}">${link(f.name, f.slug)}${standing(f) ? `<span class="dp-sub">${esc(standing(f))}</span>` : ''}</li>`).join('')}</ul>
+                <ul class="dp-names">${list.map((f) => `<li data-n="${esc(findKey([f.name, f.nickname].filter(Boolean).join(' ')))}">${link(f.name, f.slug)}${standing(f) ? `<span class="dp-sub">${esc(standing(f))}</span>` : ''}</li>`).join('')}</ul>
             </div>`).join('')}
+            <ul class="dp-names dp-hits" hidden></ul>
             <p class="pg-empty dp-none" hidden>No fighter by that name has a page yet.</p>
         </div>
     </section>
 </main>
+<script src="/fuse.min.js"></script>
 <script>
-// Filters the list as you type (accents and case ignored). Without script the box stays hidden
-// and the full A to Z list is the page.
+// Finds a fighter as you type, best match first. Fuse.js does the matching: each word typed is
+// matched on its own, anywhere in the name and forgiving a typo or two, so "chris leroy" finds
+// Christian Leroy Duncan and "makachev" finds Islam Makhachev. Without script the box stays
+// hidden and the full A to Z list is the page.
 (function () {
     var box = document.getElementById('dpFind'), root = document.getElementById('dpNames');
-    if (!box || !root) return;
+    if (!box || !root || !window.Fuse) return;
     box.hidden = false;
-    var items = Array.prototype.slice.call(root.querySelectorAll('li[data-n]'));
+    var key = function (s) { return s.normalize('NFD').replace(/[\\u0300-\\u036f]/g, '').toLowerCase().replace(/[^a-z0-9 ]+/g, '').replace(/\\s+/g, ' ').trim(); };
+    var items = Array.prototype.slice.call(root.querySelectorAll('.dp-group li[data-n]'));
     var groups = Array.prototype.slice.call(root.querySelectorAll('.dp-group'));
-    var none = root.querySelector('.dp-none'), az = document.querySelector('.dp-az');
+    var hits = root.querySelector('.dp-hits'), none = root.querySelector('.dp-none'), az = document.querySelector('.dp-az');
+    var fuse = new Fuse(items.map(function (li) { return { n: li.getAttribute('data-n'), li: li }; }),
+        { keys: ['n'], useExtendedSearch: true, ignoreLocation: true, threshold: 0.34 });
+    // Among equally good matches, a name with a word starting the way a typed word does comes
+    // first ("jon jones": Jon Jones before Mason Jones).
+    var starts = function (n, words) { return words.filter(function (w) { return (' ' + n).indexOf(' ' + w) !== -1; }).length; };
     box.addEventListener('input', function () {
-        var q = box.value.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().trim();
-        var shown = 0;
-        items.forEach(function (li) { var on = !q || li.getAttribute('data-n').indexOf(q) !== -1; li.hidden = !on; if (on) shown++; });
-        groups.forEach(function (g) { g.hidden = !g.querySelector('li[data-n]:not([hidden])'); });
-        none.hidden = shown > 0;
+        var q = key(box.value);
+        groups.forEach(function (g) { g.hidden = !!q; });
         if (az) az.hidden = !!q;
+        hits.textContent = '';
+        hits.hidden = !q;
+        if (!q) { none.hidden = true; return; }
+        var words = q.split(' ');
+        var found = fuse.search(q).map(function (r, i) { return { li: r.item.li, s: r.score, w: starts(r.item.n, words), i: i }; });
+        found.sort(function (a, b) { return Math.round((a.s - b.s) * 20) || b.w - a.w || a.i - b.i; });
+        found.slice(0, 30).forEach(function (r) { hits.appendChild(r.li.cloneNode(true)); });
+        none.hidden = found.length > 0;
     });
 })();
 </script>
