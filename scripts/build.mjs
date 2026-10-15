@@ -10,7 +10,7 @@ import { createHash } from 'node:crypto';
 import { cp, mkdir, readdir, readFile, rm, stat, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { imageSize, loadArticles, loadIndex, loadPrivate, loadPublications } from './lib/data.mjs';
+import { imageSize, loadArticles, loadManifesto, loadIndex, loadPrivate, loadPublications } from './lib/data.mjs';
 import { archivePage, articlePage, BRAND, divisionUrl, indexPage, internalDataPage, manifestoPage, mediaKitPage, notFoundPage, observatoryPage, privatePage, seoHead, setDefaultImage, setFighterPages, winnersLosersPage } from './lib/templates.mjs';
 import { byDivision, divisionPage, eventPage, eventsIndexPage, fieldSvg, fighterPage, fightersIndexPage, methodologyPage, rankingsCsv, rankingsJson } from './lib/pages-data.mjs';
 import { esc } from './lib/util.mjs';
@@ -71,17 +71,18 @@ async function main() {
         }
     }
 
+    const manifesto = await loadManifesto(path.join(ROOT, 'content/manifesto.md'));
     const articles = await loadArticles(path.join(ROOT, 'content/publications'), { drafts: SAMPLE });
     const indexData = await loadIndex(path.join(DATA, 'index.json'));
     const privatePages = await loadPrivate(path.join(DATA, 'private'));
     const publications = await loadPublications(path.join(DATA, 'publications'));
 
     // Public routes. `lastmod` feeds the sitemap.
-    // The manifesto is not listed: it is noindexed until it is written.
     const mtime = async (f) => (await stat(path.join(ROOT, f))).mtime.toISOString();
     const routes = [
         { url: '/', lastmod: await mtime('index.html') },
         { url: '/publications/', lastmod: articles[0]?.date ?? null },
+        { url: '/manifesto/', lastmod: manifesto.date },
         { url: '/observatory/', lastmod: await mtime('scripts/lib/templates.mjs') },
         { url: '/index/', lastmod: indexData?.generated_at ?? null },
     ];
@@ -92,8 +93,9 @@ async function main() {
     setFighterPages(new Map((indexData?.fighters ?? []).filter((f) => nameCount.get(f.name) === 1).map((f) => [f.name, `/fighters/${f.slug}/`])));
 
     await write('404.html', notFoundPage({ site: SITE }));
-    await write('publications/index.html', archivePage({ articles, site: SITE }));
-    await write('manifesto/index.html', manifestoPage({ site: SITE }));
+    await write('publications/index.html', archivePage({ articles, manifesto, site: SITE }));
+    await write('manifesto/index.html', manifestoPage({ manifesto, site: SITE }));
+    await cp(path.join(ROOT, 'content/manifesto'), path.join(OUT, 'manifesto'), { recursive: true });
     await write('observatory/index.html', observatoryPage({ site: SITE }));
     await write('observatory/methodology/index.html', methodologyPage({ site: SITE }));
     routes.push({ url: '/observatory/methodology/', lastmod: await mtime('scripts/lib/pages-data.mjs') });

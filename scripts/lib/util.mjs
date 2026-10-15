@@ -125,7 +125,9 @@ export function renderMarkdown(md, { figureCredit = false } = {}) {
 
         let m;
         if ((m = line.match(/^(#{2,3}) (.*)$/))) {
-            out.push(`<h${m[1].length}>${inline(m[2])}</h${m[1].length}>`); i++; continue;
+            // ## headings get an id, so a page can link to its own sections.
+            const id = m[1].length === 2 ? ` id="${slugify(m[2])}"` : '';
+            out.push(`<h${m[1].length}${id}>${inline(m[2])}</h${m[1].length}>`); i++; continue;
         }
         if (/^---\s*$/.test(line)) { out.push('<hr>'); i++; continue; }
         if ((m = line.match(/^!\[([^\]]*)\]\(([^)\s]+)\)\s*$/))) {

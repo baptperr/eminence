@@ -265,7 +265,7 @@ function fightsTable(f) {
                     </tbody>
                 </table>
             </div>
-            <p class="pg-fine" data-r>FLR is the First Light Rating points the fight earned or cost them.${anyFli ? '<br>FLI is what the fight did to their fame against their skill.' : ''}<br>${METHOD_LINK('fight', 'How it is measured')}.</p>
+            <p class="pg-fine" data-r>FLR is what the fight did to their First Light Rating: the true measure of skill.${anyFli ? '<br>FLI is what the fight did to their First Light Index: the rating of fame against skill.' : ''}<br>${METHOD_LINK('fight', 'How it is measured')}.</p>
         </div>
     </section>`;
 }
@@ -349,7 +349,7 @@ export function fightersIndexPage({ fighters, data, site }) {
     <header class="pg-head pg-head--rankings">
         <div class="pg-inner pg-inner--wide">
             ${subtabs('fighters', data)}
-            <p class="pg-lede" data-r style="--d:80ms">Every fighter with a page: the top 30 of each division, and everyone on a card the Observatory read in full. ${num(fighters.length)} in all.</p>
+            <p class="pg-lede" data-r style="--d:80ms">Every fighter with a page: the top 30 of each division.</p>
             <div class="dp-find" data-r>
                 <label class="sr-only" for="dpFind">Find a fighter</label>
                 <input id="dpFind" class="dp-find-in" type="search" placeholder="Find a fighter" autocomplete="off" spellcheck="false" hidden>
@@ -563,7 +563,7 @@ export function eventPage({ e, site }) {
                     </tbody>
                 </table>
             </div>
-            <p class="pg-fine" data-r>FLI is what the fight did to each fighter’s fame against their skill; — means it could not be read.<br>FLR is the First Light Rating points the fight earned or cost them. Highlighted fights are where attention went against the result.<br>${METHOD_LINK('fight', 'How it is measured')}.</p>
+            <p class="pg-fine" data-r>FLI is what the fight did to each fighter’s First Light Index: the rating of fame against skill.<br>FLR is what the fight did to each fighter’s First Light Rating: the true measure of skill.<br>${METHOD_LINK('fight', 'How it is measured')}.</p>
             ${DATA_CREDIT}
         </div>
     </section>

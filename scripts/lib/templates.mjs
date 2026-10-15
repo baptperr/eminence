@@ -1,6 +1,6 @@
 // HTML for every generated route. Four templates, on purpose:
 //   • archive/article/index  — the standard reading shell (pages.css)
-//   • manifesto              — standalone full-bleed page (manifesto.css)
+//   • manifesto              — a full-bleed MANIFESTO band, then the reading shell (manifesto.css)
 //   • observatory            — standalone single-viewport page over video (observatory.css)
 //   • private                — the standard shell, minus everything that could leak the URL
 //   • publication kit        — no shell at all: no nav, no logo, no site footer (publication.css)
@@ -195,7 +195,7 @@ const escBr = (t) => esc(t).replace(/\s*&lt;br&gt;\s*/gi, '<br>');
 const summaryInner = (a) => (a.summaryItems?.length ? `${escBr(a.summaryIntro)}${summaryList(a)}` : esc(a.summary));
 
 // ── /publications/ ──
-export function archivePage({ articles, site }) {
+export function archivePage({ articles, manifesto, site }) {
     const rows = articles.map((a) => `
             <li>
                 <a class="entry" href="/publications/${a.slug}/" data-r>
@@ -219,9 +219,10 @@ export function archivePage({ articles, site }) {
             <ol class="entries">
                 <li>
                     <a class="entry entry--pinned" href="/manifesto/" data-r>
-                        <span class="entry-date">Coming soon</span>
+                        <time class="entry-date" datetime="${esc(manifesto.date)}">${fmtDate(manifesto.date)}</time>
                         <span class="entry-main">
-                            <span class="entry-title">Manifesto</span>
+                            <span class="entry-title">Manifesto: ${esc(manifesto.title)}</span>
+                            <span class="entry-sum">${esc(manifesto.summary)}</span>
                         </span>
                         <span class="entry-type">Essay</span>
                     </a>
@@ -294,26 +295,71 @@ ${FOOTER}`;
     });
 }
 
-// ── /manifesto/ ── standalone, full-bleed, inverted. (/publications/manifesto/ redirects here.)
-export function manifestoPage({ site }) {
+// ── /manifesto/ ── opens on one full-viewport white band with MANIFESTO set as large as the
+// width allows (the site turned inside out), then reads like an article on the usual black,
+// with a contents list from its ## headings. (/publications/manifesto/ redirects here.)
+export function manifestoPage({ manifesto, site }) {
+    const url = '/manifesto/';
+    const prose = linkFighterNames(renderMarkdown(manifesto.body));
+    // Each numbered section opens on a white band, full width. The paper and its huge number
+    // are a fixed layer seen through the band (manifesto.css): the number holds still on
+    // screen while the band wipes over it and the title scrolls past at reading speed.
+    const html = prose.html.replace(/<h2 id="([^"]+)">(\d+)\.\s*(.*?)<\/h2>/g, (all, id, n, title) => `<section class="mf-chap">
+    <div class="mf-chap-bg" aria-hidden="true"><span class="mf-chap-num">${n.padStart(2, '0')}</span></div>
+    <div class="mf-chap-in">
+        <h2 id="${id}">${title}</h2>
+    </div>
+</section>`);
+    const sections = [...manifesto.body.matchAll(/^## (.+)$/gm)].map((m) => m[1]);
+    const published = `${manifesto.date}T08:00:00Z`;
     const body = `<main class="mf">
-    <section class="mf-band mf-band--paper" aria-labelledby="mf-title">
-        <h1 class="mf-word" id="mf-title"><span class="mf-clip"><span class="mf-slide">Manifesto</span></span></h1>
-        <p class="mf-note">The First Light manifesto is being written.</p>
-    </section>
-    <section class="mf-band mf-band--ink">
-        <p class="mf-word mf-word--soon"><span class="mf-clip"><span class="mf-slide mf-slide--late">Coming soon.</span></span></p>
-        <p class="mf-back"><a href="/publications/">&larr; Publications</a></p>
-    </section>
+    <header class="mf-band mf-band--paper">
+        <div class="mf-band-bg" aria-hidden="true"><p class="mf-word"><span class="mf-clip"><span class="mf-slide">Manifesto</span></span></p></div>
+        <div class="mf-head">
+            <p class="mf-kicker">${BRAND}<span aria-hidden="true"> · </span>By ${AUTHOR}<span aria-hidden="true"> · </span><time datetime="${esc(manifesto.date)}">${fmtDate(manifesto.date)}</time></p>
+            <h1 class="mf-title">${esc(manifesto.title)}</h1>
+        </div>
+    </header>
+    <article class="art mf-art">
+        <div class="pg-inner pg-inner--read">
+            <p class="mf-dek">${esc(manifesto.summary)}</p>
+            <nav class="mf-toc" aria-label="Contents">
+                <ol>${sections.map((h) => `
+                    <li><a href="#${slugify(h)}">${esc(h.replace(/^\d+\.\s*/, ''))}</a></li>`).join('')}
+                </ol>
+            </nav>
+            <div class="prose">
+${html}
+            </div>
+            <div class="art-end">
+                <a href="/observatory/">The Observatory</a>
+                <a href="/index/">The First Light Index</a>
+                <a href="/publications/">Publications</a>
+            </div>
+        </div>
+    </article>
 </main>
+${FOOTER}
 <script src="/manifesto.js"></script>`;
     return shell({
-        title: 'Manifesto — First Light',
-        description: 'The First Light manifesto. Coming soon.',
-        url: '/manifesto/', site, current: 'publications', body,
-        // Kept out of the index until it is written: a "coming soon" page is thin content.
-        indexable: false,
-        css: ['/manifesto.css'], bodyClass: 'page-manifesto', scripts: false,
+        title: `${manifesto.title} — ${BRAND} Manifesto`,
+        description: manifesto.summary,
+        url, site, current: 'manifesto', body,
+        css: ['/pages.css', '/manifesto.css'], bodyClass: 'page-manifesto',
+        ogType: 'article',
+        article: { published, modified: null },
+        crumbs: [[BRAND, '/'], ['Manifesto', url]],
+        jsonld: {
+            '@type': 'Article',
+            '@id': `${site}${url}#article`,
+            headline: manifesto.title,
+            description: manifesto.summary,
+            datePublished: published, dateModified: published,
+            author: { '@type': 'Person', name: AUTHOR, worksFor: { '@id': `${site}/#organization` } },
+            publisher: { '@id': `${site}/#organization` },
+            mainEntityOfPage: `${site}${url}`,
+            isPartOf: { '@id': `${site}/#website` },
+        },
     });
 }
 
@@ -671,7 +717,7 @@ const WL_RULE = {
     winners: 'Lost the fight, but drew a lot of attention.',
     losers: 'Won the fight, but drew very little attention.',
 };
-const FIGHT_FLI_NOTE = 'FLI is what the fight did to the fighter’s fame against their skill.';
+const FIGHT_FLI_NOTE = 'FLI is what the fight did to each fighter’s First Light Index: the rating of fame against skill.';
 
 function wlList(kind, heading, items) {
     const rows = items.map((e) => {
@@ -718,7 +764,7 @@ export function winnersLosersPage({ data, site }) {
     <div class="pg-body pg-body--flush">${wl.winners.length || wl.losers.length ? `
         <div class="pg-inner pg-inner--wide wl">${wlList('winners', 'Winners', wl.winners)}${wlList('losers', 'Losers', wl.losers)}
         </div>
-        <div class="pg-inner pg-inner--wide"><p class="pg-fine wl-unit" data-r>${FIGHT_FLI_NOTE}<br>FLR is the First Light Rating points the fight earned or cost them.<br><a href="/observatory/methodology/#fight">How it is measured</a>.</p></div>` : `
+        <div class="pg-inner pg-inner--wide"><p class="pg-fine wl-unit" data-r>${FIGHT_FLI_NOTE}<br>FLR is what the fight did to each fighter’s First Light Rating: the true measure of skill.<br><a href="/observatory/methodology/#fight">How it is measured</a>.</p></div>` : `
         <div class="pg-inner pg-inner--wide"><p class="pg-empty" data-r>No clear winners or losers yet.</p></div>`}
     </div>
 </main>

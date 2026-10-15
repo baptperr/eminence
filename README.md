@@ -25,7 +25,7 @@ list. Everything else, including `data/`, `scripts/` and `apps-script/`, is not 
 | `/index/winners-losers/` | Same file, `winners_losers` key. Not built if the key is absent |
 | `/publications/` | generated from `content/publications/*.md`, with the manifesto pinned first |
 | `/publications/<slug>/` | one per article; slug is the filename (`manifesto` and `private` are reserved) |
-| `/manifesto/` | `templates.mjs` → `manifestoPage`, styled by `manifesto.css`. Placeholder copy for now. `/publications/manifesto/` 301s here |
+| `/manifesto/` | `content/manifesto.md` (article front matter and Markdown; images in `content/manifesto/`) → `manifestoPage`, a MANIFESTO band (`manifesto.css`) over the reading shell. `/publications/manifesto/` 301s here |
 | `/observatory/` | `templates.mjs` → `observatoryPage`, styled by `observatory.css`. The "Last reading" line is cosmetic, computed in `observatory.js` |
 | `/publications/private/<token>/` | `data/private/<token>.json`, one page per file |
 | `/index/<division>/` | One per division (top 30), `data/index.json` → `rankings`. `pages-data.mjs` |

@@ -96,6 +96,17 @@ export async function loadArticles(dir, { drafts }) {
     return articles.sort((a, b) => (a.date < b.date ? 1 : a.date > b.date ? -1 : a.slug.localeCompare(b.slug)));
 }
 
+// ── /manifesto/: content/manifesto.md, same front matter as an article. Images sit in
+// content/manifesto/ and are served at /manifesto/<file>. ──
+export async function loadManifesto(file) {
+    const { meta, body } = parseFrontMatter(await readFile(file, 'utf8'), file);
+    for (const key of ['title', 'date', 'summary']) {
+        if (!isStr(meta[key])) throw new Error(`${file}: front matter needs "${key}"`);
+    }
+    if (Number.isNaN(new Date(meta.date).getTime())) throw new Error(`${file}: bad date "${meta.date}"`);
+    return { title: meta.title, date: meta.date, summary: meta.summary, body };
+}
+
 // ── /index/ ──
 export async function loadIndex(file) {
     let d;

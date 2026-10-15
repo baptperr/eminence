@@ -1,57 +1,114 @@
-/* The manifesto template. Deliberately not the reading shell: no column, no header, no
-   rules. Two full-viewport bands, each holding one word set as large as the width will
-   take. The first is the site turned inside out (white ground, black type); the second
-   is the site as it normally is. Loaded after style.css for fonts and the nav. */
+/* The manifesto. Loaded after style.css and pages.css: the text below the fold is the
+   reading shell, but the page opens on one full-viewport band that is the site turned
+   inside out (white ground, black type), with MANIFESTO set as large as the width will
+   take. Section headings are set big under hairlines, so it reads as a statement, not
+   as one more article. */
 
-body.page-manifesto { background: #000; color: #fff; }
+body.page-manifesto { background: #000; color: #fff; overflow-x: clip; }
+/* One white for every paper surface: the exhibits' own ground, so a chart's edge never shows. */
+:root { --pad: clamp(1.5rem, 5vw, 3rem); --mf-paper: #fcfcfb; }
 
-/* The nav sits over both bands, so it blends against them: the white logo reads black on
-   the paper band and white on the ink band. */
+/* The nav sits over the white band, so it blends: the white logo reads black on paper
+   and white on the black text below. */
 .page-manifesto .nav { mix-blend-mode: difference; }
 .page-manifesto .nav::before { display: none; }
 
-.mf { display: block; }
 .mf-band {
-    position: relative; overflow: hidden;
+    position: relative; clip-path: inset(0);
     min-height: 100vh; min-height: 100svh;
-    display: flex; flex-direction: column; justify-content: flex-end;
-    padding: 0 0 clamp(1rem, 2.5vw, 2rem);
+    padding: clamp(7rem, 14vw, 10rem) 0 clamp(1rem, 2.5vw, 2rem);
 }
-.mf-band--paper { background: #fff; color: #000; }
-.mf-band--ink { background: #000; color: #fff; }
+.mf-band--paper { color: #000; }
+/* Same effect as the chapter numbers below: the paper and MANIFESTO are a fixed layer
+   clipped to the band, so the word stays pinned to the foot of the screen and the band's
+   bottom edge cuts it away as the reader scrolls on, while the title scrolls normally. */
+.mf-band-bg { position: fixed; inset: 0; background: var(--mf-paper); }
+.mf-band-bg .mf-word { position: absolute; left: 0; bottom: clamp(1rem, 2.5vw, 2rem); }
 
-/* Sized in vw so the word fills the width at every viewport. MANIFESTO and COMING SOON.
-   are different lengths, hence different sizes. */
+.mf-head { position: relative; padding-inline: var(--pad); max-width: 46rem; }
+.mf-kicker {
+    font-size: 0.7rem; font-weight: 500; letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--dawn-mid); margin: 0 0 1.25rem;
+}
+.mf-title {
+    font-family: 'Red Hat Display', sans-serif; font-weight: 800;
+    font-size: clamp(1.9rem, 4.4vw, 3.6rem); line-height: 1.02; letter-spacing: -0.02em;
+    margin: 0; text-wrap: balance; color: #000;
+}
+
+/* Sized in vw so the word fills the width at every viewport. */
 .mf-word {
     font-family: 'Red Hat Display', sans-serif; font-weight: 800;
     text-transform: uppercase; white-space: nowrap;
     font-size: 17vw; line-height: 0.82; letter-spacing: -0.03em;
     margin: 0; padding-inline: 1.5vw; max-width: none;
 }
-.mf-word--soon { font-size: 13.2vw; }
 .mf-clip { display: block; overflow: hidden; padding-bottom: 0.06em; }
 .mf-slide { display: inline-block; }
 
-.mf-note {
-    order: -1; align-self: flex-end; max-width: 24ch;
-    margin: 0 var(--pad, 3rem) clamp(1.5rem, 4vw, 3rem);
-    font-size: clamp(1rem, 1.6vw, 1.3rem); font-weight: 500; line-height: 1.5;
-    text-wrap: balance;
+/* ── Below the band ── */
+.mf-art > .pg-inner { padding: clamp(3.5rem, 8vw, 6rem) var(--pad) 0; }
+.mf-dek {
+    font-family: 'Red Hat Display', sans-serif; font-weight: 800;
+    font-size: clamp(1.35rem, 2.6vw, 1.85rem); line-height: 1.25; letter-spacing: -0.01em;
+    color: var(--bone); text-wrap: balance; margin: 0;
 }
-.mf-back {
-    position: absolute; top: clamp(1.25rem, 3vw, 2rem); right: var(--pad, 3rem);
-    font-size: 0.7rem; font-weight: 500; letter-spacing: 0.14em; text-transform: uppercase;
+
+.mf-toc { margin: 3rem 0 1rem; padding: 1.5rem 0; border-block: 1px solid var(--border-d); }
+.mf-toc ol { margin: 0; padding-left: 1.5rem; columns: 2 16rem; column-gap: 2.5rem; }
+.mf-toc li { font-size: 0.95rem; line-height: 1.5; color: var(--t3); break-inside: avoid; padding: 0.3rem 0; }
+.mf-toc a { color: var(--t2); text-decoration: none; border-bottom: 1px solid transparent; transition: color 0.2s, border-color 0.2s; }
+.mf-toc a:hover, .mf-toc a:focus-visible { color: var(--bone); border-color: var(--bone); outline: none; }
+
+/* ── Chapters ──
+   Each numbered section opens on a full-width paper band. The paper and the section's
+   huge number are one fixed layer clipped to the band (clip-path clips fixed
+   descendants): the number is pinned to the bottom right of the screen, and the band
+   wipes over it like a window passing, while the title scrolls at reading speed. A flat
+   colour alone would look no different from scrolling; the pinned number is what shows
+   the two layers moving apart. */
+.mf-art .prose > .mf-chap {
+    position: relative; clip-path: inset(0);
+    width: 100vw; margin: clamp(5rem, 10vw, 8rem) 0 clamp(3rem, 6vw, 4.5rem) calc(50% - 50vw);
+    min-height: 80vh; min-height: 80svh;
+    display: flex; color: #000;
 }
-.mf-back a { color: #fff; text-decoration: none; border-bottom: 1px solid rgba(255,255,255,0.4); padding-bottom: 0.2rem; }
-.mf-back a:hover, .mf-back a:focus-visible { border-color: #fff; outline: none; }
+.mf-chap-bg { position: fixed; inset: 0; background: var(--mf-paper); }
+.mf-chap-num {
+    position: absolute; right: 1.5vw; bottom: clamp(0.5rem, 1.5vw, 1rem);
+    font-family: 'Red Hat Display', sans-serif; font-weight: 800; color: #000;
+    font-size: clamp(9rem, 34vw, 32rem); line-height: 0.78; letter-spacing: -0.05em;
+    font-variant-numeric: tabular-nums;
+}
+.mf-chap-in { position: relative; width: 100%; padding: clamp(5rem, 9vw, 7rem) var(--pad) 2rem; }
+.mf-art .prose .mf-chap h2 {
+    font-family: 'Red Hat Display', sans-serif; font-weight: 800; color: #000;
+    font-size: clamp(2.1rem, 5.5vw, 4.2rem); line-height: 0.98; letter-spacing: -0.025em;
+    margin: 0; max-width: 16ch; text-wrap: balance; scroll-margin-top: 0;
+}
 
-:root { --pad: clamp(1.5rem, 5vw, 3rem); }
+/* Exhibits sit on a paper strip, full width, so the charts' light ground belongs to the page. */
+.mf-art .prose > figure {
+    width: 100vw; margin-left: calc(50% - 50vw);
+    background: var(--mf-paper); padding: clamp(1.5rem, 4vw, 3rem) var(--pad);
+}
+.mf-art .prose > figure img { max-width: 1000px; margin-inline: auto; }
 
-/* Words rise into place as their band arrives. The hidden start is only applied when
+/* A quote reads as someone speaking, not as a heading: body-sized type on a dark grey
+   card, set in from the text column. */
+.mf-art .prose blockquote {
+    border-top: 0; margin: 2rem 0 2rem clamp(0.75rem, 3vw, 2rem);
+    padding: 1.4rem 1.6rem; background: var(--night-card);
+}
+.mf-art .prose blockquote p {
+    font-family: inherit; font-weight: 400; font-style: normal;
+    font-size: 1rem; line-height: 1.75; color: var(--t2);
+}
+
+/* MANIFESTO rises into place as the band arrives. The hidden start is only applied when
    manifesto.js is running (.mf-js) and motion is allowed, so it can never leave the
    page blank. */
 @media (prefers-reduced-motion: no-preference) {
     .mf-js .mf-slide { transform: translateY(105%); transition: transform 0.9s var(--ease); }
     .mf-js .mf-band.on .mf-slide { transform: none; }
-    .mf-js .mf-band--ink .mf-slide { transition-delay: 0.1s; }
 }

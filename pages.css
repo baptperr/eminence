@@ -2,7 +2,7 @@
    Loaded after style.css, so it inherits its tokens, fonts, nav and footer. Same
    language as the landing page — black ground, Red Hat Display at scale, hairline
    rules instead of cards — but built for reading and scanning rather than scrolling
-   past. The manifesto has its own stylesheet and does not use this one. */
+   past. The manifesto uses it too, under manifesto.css. */
 
 :root {
     --pad: clamp(1.5rem, 5vw, 3rem);
