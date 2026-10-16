@@ -116,9 +116,11 @@ function fieldChart(field, f) {
 // ── A career, and where it is heading ──────────────────────────────────────────────────
 // Skill and attention on one chart and one scale. Attention is drawn at the rating its fame would
 // match on the FLI's curve (the export does the conversion), so attention above skill is an FLI
-// above zero and the gap between the lines is the FLI. Each line runs on into the fan of what the
-// most comparable fighters did over the next two years: 10th to 90th percentile, darker 25th to
-// 75th, dashed median. Time is in dates; the fighter's age at each year is in brackets.
+// above zero and the gap between the lines is the FLI. Each line runs on into a fan: for a fighter
+// still fighting, careers simulated from today (skill three years, attention two; course.source
+// 'sim'), otherwise what the most comparable fighters did next ('comparables'). 10th to 90th
+// percentile, darker 25th to 75th, dashed median. Time is in dates; the fighter's age at each
+// year is in brackets.
 const CW = 720, CH = 380, CL = 70, CR = 96, CT = 16, CB = 80;
 // Under the plot: one strip per phase history, then the years.
 const STRIP_H = 10, STRIP_GAP = 6;
@@ -195,9 +197,11 @@ function courseChart(f) {
         return `<text class="ch-lab" x="${CL - 8}" y="${sy + STRIP_H - 1}" text-anchor="end">${label}</text>${segs}`;
     };
     const strips = strip(f.skill_phases, 0, 'Skill') + (at ? strip(f.attention_phases, 1, 'Attention') : '');
+    const simulated = sk.source === 'sim';
+    const fanSays = simulated ? '2,000 careers simulated from today, fight by fight' : 'where the most similar careers went next';
     return `<figure class="ch ch--tips">
             <ul class="ch-legend" aria-hidden="true">${series.map((s) => `<li class="cs-key cs-key--${s.key}">${s.label}</li>`).join('')}</ul>
-            <svg class="ch-svg" viewBox="0 0 ${CW} ${CH}" role="img" aria-label="${esc(`${f.name}'s skill${at ? ' and attention' : ''} over time, on the First Light Rating scale${at ? ', attention placed at the rating its fame would match' : ''}, with what comparable fighters did over the next two years.`)}">
+            <svg class="ch-svg" viewBox="0 0 ${CW} ${CH}" role="img" aria-label="${esc(`${f.name}'s skill${at ? ' and attention' : ''} over time, on the First Light Rating scale${at ? ', attention placed at the rating its fame would match' : ''}, with ${fanSays}.`)}">
                 ${grid.join('')}
                 <line class="ch-axis" x1="${CL}" x2="${CL}" y1="${CT}" y2="${CH - CB}"/><line class="ch-axis" x1="${CL}" x2="${CW - CR}" y1="${CH - CB}" y2="${CH - CB}"/>
                 <line class="cs-now" x1="${nowX}" x2="${nowX}" y1="${CT}" y2="${CH - CB}"/>
@@ -209,7 +213,7 @@ function courseChart(f) {
             </svg>
             ${FIGURE_CREDIT}
         </figure>
-        <p class="ch-note">Attention is drawn at the skill level its fame matches: above the skill line, more famous than skilled. Shaded: where the most similar careers went next.</p>`;
+        <p class="ch-note">Attention is drawn at the skill level its fame matches: above the skill line, more famous than skilled. Shaded: ${fanSays}${simulated ? '; the dashed line is the middle one' : ''}.</p>`;
 }
 
 // ── /fighters/<slug>/ ───────────────────────────────────────────────────────────────────
