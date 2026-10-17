@@ -209,8 +209,8 @@ export function archivePage({ articles, manifesto, site }) {
             </li>`).join('');
 
     // The manifesto is not one of the publications: it opens the page on its own paper
-    // band, the /manifesto/ page's opening in miniature (MANIFESTO across the full width,
-    // black on white), and the list starts below it.
+    // band (black on white, like the /manifesto/ page's opening), short enough that the
+    // list's heading shows below it on the first screen.
     const body = `<main>
     <a class="mf-feature" href="/manifesto/">
         <span class="mf-feature-head">
@@ -219,7 +219,6 @@ export function archivePage({ articles, manifesto, site }) {
             <span class="mf-feature-sum">${esc(manifesto.summary)}</span>
             <span class="mf-feature-cta">Read the manifesto <span aria-hidden="true">→</span></span>
         </span>
-        <span class="mf-word" aria-hidden="true">Manifesto</span>
     </a>
     <header class="pg-head pg-head--after-mf">
         <div class="pg-inner">

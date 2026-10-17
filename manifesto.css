@@ -114,23 +114,23 @@ body.page-manifesto { background: #000; color: #fff; overflow-x: clip; }
 }
 
 /* ── /publications/: the manifesto above the list ──
-   Not a row and not a pinned post: the page opens on a paper band, the manifesto's own
-   opening in miniature. Title and summary at the top, MANIFESTO across the full width at
-   the foot, the whole band one link. The nav blends over it as on /manifesto/. */
+   Not a row and not a pinned post: the page opens on a paper band, black on white like the
+   manifesto's own opening, the whole band one link. Short enough that "Publications." shows
+   below it on the first screen. The nav blends over it as on /manifesto/. */
 .page-publications .nav { mix-blend-mode: difference; }
 .page-publications .nav::before { display: none; }
 
 .mf-feature {
-    display: flex; flex-direction: column; justify-content: space-between; gap: clamp(3rem, 8vw, 6rem);
-    min-height: 88vh; min-height: 88svh;
-    padding: clamp(7rem, 14vw, 10rem) 0 clamp(1rem, 2.5vw, 2rem);
-    background: var(--mf-paper); color: #000; text-decoration: none; overflow: hidden;
+    display: block;
+    padding: clamp(7rem, 12vw, 9rem) var(--pad) clamp(3rem, 6vw, 4.5rem);
+    background: var(--mf-paper); color: #000; text-decoration: none;
 }
-.mf-feature-head { display: flex; flex-direction: column; padding-inline: var(--pad); max-width: 52rem; }
+/* the same column as the list below (.pg-inner) */
+.mf-feature-head { display: flex; flex-direction: column; max-width: 1180px; margin: 0 auto; }
 .mf-feature-title {
     font-family: 'Red Hat Display', sans-serif; font-weight: 800;
     font-size: clamp(2.1rem, 5.2vw, 4.4rem); line-height: 1.0; letter-spacing: -0.02em;
-    text-wrap: balance;
+    text-wrap: balance; max-width: 16ch;
 }
 .mf-feature-sum {
     margin-top: 1.5rem; max-width: 42ch;
@@ -145,5 +145,4 @@ body.page-manifesto { background: #000; color: #fff; overflow-x: clip; }
 .mf-feature:hover .mf-feature-cta span, .mf-feature:focus-visible .mf-feature-cta span { transform: translateX(0.3em); }
 .mf-feature:focus-visible { outline: 2px solid #000; outline-offset: -6px; }
 .mf-feature .mf-kicker { color: #6b6b6b; }
-.mf-feature .mf-word { display: block; color: #000; }
-.pg-head--after-mf { padding-top: clamp(4rem, 8vw, 6rem); }
+.pg-head--after-mf { padding-top: clamp(3rem, 6vw, 4.5rem); }
