@@ -208,25 +208,26 @@ export function archivePage({ articles, manifesto, site }) {
                 </a>
             </li>`).join('');
 
+    // The manifesto is not one of the publications: it opens the page on its own paper
+    // band (black on white, like the /manifesto/ page's opening), short enough that the
+    // list's heading shows below it on the first screen.
     const body = `<main>
-    <header class="pg-head">
+    <section class="mf-feature" aria-label="Manifesto">
+        <span class="mf-feature-head">
+            <span class="mf-kicker">${BRAND}<span aria-hidden="true"> · </span><time datetime="${esc(manifesto.date)}">${fmtDate(manifesto.date)}</time></span>
+            <span class="mf-feature-title">${esc(manifesto.title)}</span>
+            <span class="mf-feature-sum">${esc(manifesto.summary)}</span>
+            <a class="mf-feature-cta" href="/manifesto/">Read the manifesto <span aria-hidden="true">→</span></a>
+        </span>
+    </section>
+    <header class="pg-head pg-head--after-mf">
         <div class="pg-inner">
             <h1 class="pg-title" data-r>Publications.</h1>
         </div>
     </header>
     <section class="pg-body">
         <div class="pg-inner">
-            <ol class="entries">
-                <li>
-                    <a class="entry entry--pinned" href="/manifesto/" data-r>
-                        <time class="entry-date" datetime="${esc(manifesto.date)}">${fmtDate(manifesto.date)}</time>
-                        <span class="entry-main">
-                            <span class="entry-title">Manifesto: ${esc(manifesto.title)}</span>
-                            <span class="entry-sum">${esc(manifesto.summary)}</span>
-                        </span>
-                        <span class="entry-type">Essay</span>
-                    </a>
-                </li>${rows}
+            <ol class="entries">${rows}
             </ol>${articles.length ? '' : `
             <p class="pg-empty" data-r>Nothing else published yet.</p>`}
         </div>
@@ -237,6 +238,7 @@ ${FOOTER}`;
         title: 'Publications — First Light',
         description: 'Articles and data from First Light on fighters\' fame, skill and what moves them, event by event.',
         url: '/publications/', site, current: 'publications', body,
+        css: ['/pages.css', '/manifesto.css'], bodyClass: 'page-publications',
         crumbs: [['First Light', '/'], ['Publications', '/publications/']],
     });
 }
