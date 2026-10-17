@@ -136,7 +136,7 @@ body.page-manifesto { background: #000; color: #fff; overflow-x: clip; }
     font-size: clamp(1rem, 1.5vw, 1.2rem); line-height: 1.5; color: #3a3a3a;
 }
 /* The one link: underlined text, as quiet as the rest of the band. On hover the rule
-   thickens and the arrow steps forward. */
+   thickens. */
 .mf-feature-cta {
     align-self: flex-start; margin-top: 1.75rem; padding-bottom: 0.25rem;
     font-size: 0.75rem; font-weight: 500; letter-spacing: 0.18em; text-transform: uppercase;
@@ -144,8 +144,7 @@ body.page-manifesto { background: #000; color: #fff; overflow-x: clip; }
     background: linear-gradient(#000, #000) left bottom / 100% 1px no-repeat;
     transition: background-size 0.25s;
 }
-.mf-feature-cta span { display: inline-block; margin-left: 0.2em; transition: transform 0.25s; }
+.mf-feature-cta span { margin-left: 0.2em; }
 .mf-feature-cta:hover, .mf-feature-cta:focus-visible { background-size: 100% 2px; outline: none; }
-.mf-feature-cta:hover span, .mf-feature-cta:focus-visible span { transform: translateX(0.4em); }
 .mf-feature .mf-kicker { color: #6b6b6b; }
 .pg-head--after-mf { padding-top: clamp(2.5rem, 5vw, 3.5rem); }
