@@ -212,14 +212,14 @@ export function archivePage({ articles, manifesto, site }) {
     // band (black on white, like the /manifesto/ page's opening), short enough that the
     // list's heading shows below it on the first screen.
     const body = `<main>
-    <a class="mf-feature" href="/manifesto/">
+    <section class="mf-feature" aria-label="Manifesto">
         <span class="mf-feature-head">
             <span class="mf-kicker">${BRAND}<span aria-hidden="true"> · </span><time datetime="${esc(manifesto.date)}">${fmtDate(manifesto.date)}</time></span>
             <span class="mf-feature-title">${esc(manifesto.title)}</span>
             <span class="mf-feature-sum">${esc(manifesto.summary)}</span>
-            <span class="mf-feature-cta">Read the manifesto <span aria-hidden="true">→</span></span>
+            <a class="mf-feature-cta" href="/manifesto/">Read the manifesto <span aria-hidden="true">→</span></a>
         </span>
-    </a>
+    </section>
     <header class="pg-head pg-head--after-mf">
         <div class="pg-inner">
             <h1 class="pg-title" data-r>Publications.</h1>

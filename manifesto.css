@@ -115,34 +115,35 @@ body.page-manifesto { background: #000; color: #fff; overflow-x: clip; }
 
 /* ── /publications/: the manifesto above the list ──
    Not a row and not a pinned post: the page opens on a paper band, black on white like the
-   manifesto's own opening, the whole band one link. Short enough that "Publications." shows
-   below it on the first screen. The nav blends over it as on /manifesto/. */
+   manifesto's own opening. Only "Read the manifesto" is a link. Short enough that
+   "Publications." shows below it on the first screen. The nav blends over it as on /manifesto/. */
 .page-publications .nav { mix-blend-mode: difference; }
 .page-publications .nav::before { display: none; }
 
 .mf-feature {
-    display: block;
-    padding: clamp(7rem, 12vw, 9rem) var(--pad) clamp(3rem, 6vw, 4.5rem);
-    background: var(--mf-paper); color: #000; text-decoration: none;
+    padding: clamp(5.5rem, 9vw, 7rem) var(--pad) clamp(2.25rem, 4vw, 3rem);
+    background: var(--mf-paper); color: #000;
 }
 /* the same column as the list below (.pg-inner) */
 .mf-feature-head { display: flex; flex-direction: column; max-width: 1180px; margin: 0 auto; }
 .mf-feature-title {
     font-family: 'Red Hat Display', sans-serif; font-weight: 800;
-    font-size: clamp(2.1rem, 5.2vw, 4.4rem); line-height: 1.0; letter-spacing: -0.02em;
+    font-size: clamp(2rem, 4.6vw, 3.8rem); line-height: 1.0; letter-spacing: -0.02em;
     text-wrap: balance; max-width: 16ch;
 }
 .mf-feature-sum {
-    margin-top: 1.5rem; max-width: 42ch;
-    font-size: clamp(1.05rem, 1.6vw, 1.3rem); line-height: 1.5; color: #3a3a3a;
+    margin-top: 1.25rem; max-width: 42ch;
+    font-size: clamp(1rem, 1.5vw, 1.2rem); line-height: 1.5; color: #3a3a3a;
 }
+/* The one button: outlined, fills black on hover. */
 .mf-feature-cta {
-    align-self: flex-start; margin-top: 2rem; padding-bottom: 0.2rem;
+    align-self: flex-start; margin-top: 1.75rem; padding: 0.75rem 1.25rem;
     font-size: 0.75rem; font-weight: 500; letter-spacing: 0.18em; text-transform: uppercase;
-    border-bottom: 1px solid #000;
+    color: #000; text-decoration: none; border: 1px solid #000;
+    transition: background 0.25s, color 0.25s;
 }
-.mf-feature-cta span { display: inline-block; transition: transform 0.25s; }
-.mf-feature:hover .mf-feature-cta span, .mf-feature:focus-visible .mf-feature-cta span { transform: translateX(0.3em); }
-.mf-feature:focus-visible { outline: 2px solid #000; outline-offset: -6px; }
+.mf-feature-cta span { display: inline-block; margin-left: 0.3em; transition: transform 0.25s; }
+.mf-feature-cta:hover, .mf-feature-cta:focus-visible { background: #000; color: var(--mf-paper); outline: none; }
+.mf-feature-cta:hover span, .mf-feature-cta:focus-visible span { transform: translateX(0.3em); }
 .mf-feature .mf-kicker { color: #6b6b6b; }
-.pg-head--after-mf { padding-top: clamp(3rem, 6vw, 4.5rem); }
+.pg-head--after-mf { padding-top: clamp(2.5rem, 5vw, 3.5rem); }
