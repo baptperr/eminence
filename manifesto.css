@@ -112,3 +112,38 @@ body.page-manifesto { background: #000; color: #fff; overflow-x: clip; }
     .mf-js .mf-slide { transform: translateY(105%); transition: transform 0.9s var(--ease); }
     .mf-js .mf-band.on .mf-slide { transform: none; }
 }
+
+/* ── /publications/: the manifesto above the list ──
+   Not a row and not a pinned post: the page opens on a paper band, the manifesto's own
+   opening in miniature. Title and summary at the top, MANIFESTO across the full width at
+   the foot, the whole band one link. The nav blends over it as on /manifesto/. */
+.page-publications .nav { mix-blend-mode: difference; }
+.page-publications .nav::before { display: none; }
+
+.mf-feature {
+    display: flex; flex-direction: column; justify-content: space-between; gap: clamp(3rem, 8vw, 6rem);
+    min-height: 88vh; min-height: 88svh;
+    padding: clamp(7rem, 14vw, 10rem) 0 clamp(1rem, 2.5vw, 2rem);
+    background: var(--mf-paper); color: #000; text-decoration: none; overflow: hidden;
+}
+.mf-feature-head { display: flex; flex-direction: column; padding-inline: var(--pad); max-width: 52rem; }
+.mf-feature-title {
+    font-family: 'Red Hat Display', sans-serif; font-weight: 800;
+    font-size: clamp(2.1rem, 5.2vw, 4.4rem); line-height: 1.0; letter-spacing: -0.02em;
+    text-wrap: balance;
+}
+.mf-feature-sum {
+    margin-top: 1.5rem; max-width: 42ch;
+    font-size: clamp(1.05rem, 1.6vw, 1.3rem); line-height: 1.5; color: #3a3a3a;
+}
+.mf-feature-cta {
+    align-self: flex-start; margin-top: 2rem; padding-bottom: 0.2rem;
+    font-size: 0.75rem; font-weight: 500; letter-spacing: 0.18em; text-transform: uppercase;
+    border-bottom: 1px solid #000;
+}
+.mf-feature-cta span { display: inline-block; transition: transform 0.25s; }
+.mf-feature:hover .mf-feature-cta span, .mf-feature:focus-visible .mf-feature-cta span { transform: translateX(0.3em); }
+.mf-feature:focus-visible { outline: 2px solid #000; outline-offset: -6px; }
+.mf-feature .mf-kicker { color: #6b6b6b; }
+.mf-feature .mf-word { display: block; color: #000; }
+.pg-head--after-mf { padding-top: clamp(4rem, 8vw, 6rem); }

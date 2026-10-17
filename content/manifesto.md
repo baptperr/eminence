@@ -1,5 +1,5 @@
 ---
-title: Star IP: The Missing Asset Class
+title: Star IP - The Missing Asset Class
 date: 2026-10-15
 summary: Athletes are paid for performance and valued for attention. The value of a famous name is built mostly outside the arena, outlives the career, and belongs to no one who is paid to grow it.
 ---
